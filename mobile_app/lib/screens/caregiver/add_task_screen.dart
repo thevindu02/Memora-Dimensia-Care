@@ -214,10 +214,10 @@ class _AddTaskScreenState extends State<AddTaskScreen> {
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceAround,
               children: [
-                _buildNavItem(Icons.home_outlined, 'Home', false),
-                _buildNavItem(Icons.people_outline, 'Patients', true),
-                _buildNavItem(Icons.add_circle_outline, 'Routines', false),
-                _buildNavItem(Icons.person_outline, 'Profile', false),
+                _buildNavItem(Icons.home, 'Home', false),
+                _buildNavItem(Icons.people, 'Patients', true),
+                _buildNavItem(Icons.book, 'Routines', false),
+                _buildNavItem(Icons.person, 'Profile', false),
               ],
             ),
             const SizedBox(height: 8),

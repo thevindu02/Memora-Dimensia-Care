@@ -284,7 +284,9 @@ class _AddMedicationsScreenState extends State<AddMedicationsScreen> {
           ),
         ],
       ),
+
       child: BottomNavigationBar(
+        currentIndex: 1,
         type: BottomNavigationBarType.fixed,
         backgroundColor: Colors.white,
         selectedItemColor: Colors.blue,
@@ -294,8 +296,8 @@ class _AddMedicationsScreenState extends State<AddMedicationsScreen> {
           BottomNavigationBarItem(icon: Icon(Icons.home), label: 'Home'),
           BottomNavigationBarItem(icon: Icon(Icons.people), label: 'Patients'),
           BottomNavigationBarItem(
-            icon: Icon(Icons.add_circle_outline),
-            label: 'Add',
+            icon: Icon(Icons.book),
+            label: 'Articles',
           ),
           BottomNavigationBarItem(icon: Icon(Icons.person), label: 'Profile'),
         ],

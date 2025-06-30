@@ -1,10 +1,6 @@
 import 'package:flutter/material.dart';
 
-void main() {
-  runApp(ScheduleRoutine());
-}
-
-class ScheduleRoutine extends StatelessWidget {
+class SelectRoutine extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
@@ -42,7 +38,7 @@ class ScheduleRoutineScreen extends StatefulWidget {
 }
 
 class _ScheduleRoutineScreenState extends State<ScheduleRoutineScreen> {
-  int _currentIndex = 2; // Routines tab selected
+  int _currentIndex = 1; // Routines tab selected
 
   final List<RoutineCard> routineCards = [
     RoutineCard(
@@ -94,6 +90,7 @@ class _ScheduleRoutineScreenState extends State<ScheduleRoutineScreen> {
             fontWeight: FontWeight.w500,
           ),
         ),
+        centerTitle: true,
         actions: [
           IconButton(
             icon: Icon(Icons.notifications_outlined, color: Colors.black87),
@@ -176,29 +173,29 @@ class _ScheduleRoutineScreenState extends State<ScheduleRoutineScreen> {
           },
           type: BottomNavigationBarType.fixed,
           backgroundColor: Colors.white,
-          selectedItemColor: Colors.blue[600],
-          unselectedItemColor: Colors.grey[400],
+          selectedItemColor: Colors.blue,
+          unselectedItemColor: Colors.grey,
           selectedFontSize: 12,
           unselectedFontSize: 12,
           elevation: 0,
           items: [
             BottomNavigationBarItem(
-              icon: Icon(Icons.home_outlined),
+              icon: Icon(Icons.home),
               activeIcon: Icon(Icons.home),
               label: 'Home',
             ),
             BottomNavigationBarItem(
-              icon: Icon(Icons.people_outline),
+              icon: Icon(Icons.people),
               activeIcon: Icon(Icons.people),
               label: 'Patients',
             ),
             BottomNavigationBarItem(
-              icon: Icon(Icons.schedule_outlined),
-              activeIcon: Icon(Icons.schedule),
-              label: 'Routines',
+              icon: Icon(Icons.book),
+              activeIcon: Icon(Icons.book),
+              label: 'Articles',
             ),
             BottomNavigationBarItem(
-              icon: Icon(Icons.person_outline),
+              icon: Icon(Icons.person),
               activeIcon: Icon(Icons.person),
               label: 'Profile',
             ),

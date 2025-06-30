@@ -7,6 +7,8 @@ class GuardianRequestDetailPage extends StatefulWidget {
 
 class _GuardianRequestDetailPageState extends State<GuardianRequestDetailPage>
     with SingleTickerProviderStateMixin {
+  int _selectedIndex = 0; // assuming "Requests" tab is at index 1
+
   TabController? _tabController;
   
   @override
@@ -41,6 +43,7 @@ class _GuardianRequestDetailPageState extends State<GuardianRequestDetailPage>
             fontWeight: FontWeight.w600,
           ),
         ),
+        centerTitle: true,
         actions: [
           IconButton(
             icon: Icon(Icons.notifications_outlined, color: Colors.grey[600]),
@@ -50,7 +53,7 @@ class _GuardianRequestDetailPageState extends State<GuardianRequestDetailPage>
         bottom: TabBar(
           controller: _tabController,
           labelColor: Colors.blue,
-          unselectedLabelColor: Colors.grey[600],
+          unselectedLabelColor: Colors.grey,
           indicatorColor: Colors.blue,
           indicatorWeight: 2,
           tabs: [
@@ -112,7 +115,33 @@ class _GuardianRequestDetailPageState extends State<GuardianRequestDetailPage>
           _buildConnectedTab(),
         ],
       ),
+      bottomNavigationBar: BottomNavigationBar(
+        currentIndex: _selectedIndex,
+        onTap: (int index) {
+          setState(() {
+            _selectedIndex = index;
+          });
+
+          // Optional navigation logic
+          if (index == 0) Navigator.pushReplacementNamed(context, '/home');
+          if (index == 1) Navigator.pushReplacementNamed(context, '/requests');
+          if (index == 2) Navigator.pushReplacementNamed(context, '/profile');
+        },
+        type: BottomNavigationBarType.fixed,
+        selectedItemColor: Colors.blue,
+        unselectedItemColor: Colors.grey[400],
+        backgroundColor: Colors.white,
+        selectedLabelStyle: TextStyle(fontWeight: FontWeight.w600),
+        items: const [
+          BottomNavigationBarItem(icon: Icon(Icons.home), label: 'Home'),
+          BottomNavigationBarItem(icon: Icon(Icons.people), label: 'Patients'),
+          BottomNavigationBarItem(icon: Icon(Icons.book), label: 'Articles'),
+          BottomNavigationBarItem(icon: Icon(Icons.person), label: 'Profile'),
+        ],
+      ),
+
     );
+
   }
 
   Widget _buildNewRequestsTab() {

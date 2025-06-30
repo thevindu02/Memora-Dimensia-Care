@@ -169,22 +169,22 @@ class _PatientsScreenState extends State<PatientsScreen> {
           elevation: 0,
           items: [
             BottomNavigationBarItem(
-              icon: Icon(Icons.home_outlined),
+              icon: Icon(Icons.home),
               activeIcon: Icon(Icons.home),
               label: 'Home',
             ),
             BottomNavigationBarItem(
-              icon: Icon(Icons.people_outline),
+              icon: Icon(Icons.people),
               activeIcon: Icon(Icons.people),
               label: 'Patients',
             ),
             BottomNavigationBarItem(
-              icon: Icon(Icons.schedule_outlined),
-              activeIcon: Icon(Icons.schedule),
+              icon: Icon(Icons.book),
+              activeIcon: Icon(Icons.book),
               label: 'Routines',
             ),
             BottomNavigationBarItem(
-              icon: Icon(Icons.person_outline),
+              icon: Icon(Icons.person),
               activeIcon: Icon(Icons.person),
               label: 'Profile',
             ),

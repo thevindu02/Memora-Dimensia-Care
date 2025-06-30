@@ -25,7 +25,7 @@ class ScheduleRoutineDialog extends StatelessWidget {
         centerTitle: true,
         actions: [
           IconButton(
-            icon: const Icon(Icons.more_vert, color: Colors.black),
+            icon: Icon(Icons.notifications_outlined, color: Colors.grey[600]),
             onPressed: () {},
           ),
         ],
@@ -209,10 +209,10 @@ class ScheduleRoutineDialog extends StatelessWidget {
                       Row(
                         mainAxisAlignment: MainAxisAlignment.spaceAround,
                         children: [
-                          _buildBottomNavItem(Icons.home_outlined, 'Home'),
-                          _buildBottomNavItem(Icons.people_outline, 'Patients'),
-                          _buildBottomNavItem(Icons.calendar_today_outlined, 'Schedule'),
-                          _buildBottomNavItem(Icons.person_outline, 'Profile', isActive: true),
+                          _buildBottomNavItem(Icons.home, 'Home'),
+                          _buildBottomNavItem(Icons.people, 'Patients', isActive: true),
+                          _buildBottomNavItem(Icons.book, 'Articles'),
+                          _buildBottomNavItem(Icons.person, 'Profile'),
                         ],
                       ),
                     ],

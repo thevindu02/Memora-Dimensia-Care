@@ -7,7 +7,7 @@ class CareDetailsScreen extends StatefulWidget {
 }
 
 class _CareDetailsScreenState extends State<CareDetailsScreen> {
-  int _currentIndex = 3; // Profile tab selected
+  int _currentIndex = 0; // Profile tab selected
 
   @override
   Widget build(BuildContext context) {
@@ -21,16 +21,18 @@ class _CareDetailsScreenState extends State<CareDetailsScreen> {
           onPressed: () {},
         ),
         title: Text(
-          'Details',
+          'Guardian Details',
           style: TextStyle(
             color: Colors.black87,
             fontSize: 18,
             fontWeight: FontWeight.w500,
           ),
+
         ),
+          centerTitle:true,
         actions: [
           IconButton(
-            icon: Icon(Icons.more_vert, color: Colors.black87),
+            icon: Icon(Icons.notifications_outlined, color: Colors.grey[600]),
             onPressed: () {},
           ),
         ],
@@ -209,22 +211,22 @@ class _CareDetailsScreenState extends State<CareDetailsScreen> {
           elevation: 0,
           items: [
             BottomNavigationBarItem(
-              icon: Icon(Icons.home_outlined),
+              icon: Icon(Icons.home),
               activeIcon: Icon(Icons.home),
               label: 'Home',
             ),
             BottomNavigationBarItem(
-              icon: Icon(Icons.people_outline),
+              icon: Icon(Icons.people),
               activeIcon: Icon(Icons.people),
               label: 'Patients',
             ),
             BottomNavigationBarItem(
-              icon: Icon(Icons.schedule_outlined),
-              activeIcon: Icon(Icons.schedule),
-              label: 'Schedule',
+              icon: Icon(Icons.book),
+              activeIcon: Icon(Icons.book),
+              label: 'Articles',
             ),
             BottomNavigationBarItem(
-              icon: Icon(Icons.person_outline),
+              icon: Icon(Icons.person),
               activeIcon: Icon(Icons.person),
               label: 'Profile',
             ),

@@ -8,6 +8,8 @@ class EditProfileView extends StatefulWidget {
 }
 
 class _EditProfileViewState extends State<EditProfileView> {
+  int _selectedIndex = 3; // Index of "Profile" tab
+
   final _formKey = GlobalKey<FormState>();
   File? _selectedImage;
   final ImagePicker _picker = ImagePicker();
@@ -251,29 +253,32 @@ class _EditProfileViewState extends State<EditProfileView> {
       ),
       
       // Bottom Navigation
-      bottomNavigationBar: Container(
-        padding: EdgeInsets.symmetric(vertical: 10),
-        decoration: BoxDecoration(
-          color: Colors.white,
-          boxShadow: [
-            BoxShadow(
-              color: Colors.grey.withOpacity(0.1),
-              spreadRadius: 1,
-              blurRadius: 10,
-              offset: Offset(0, -2),
-            ),
-          ],
-        ),
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.spaceAround,
-          children: [
-            _buildNavItem(Icons.home_outlined, false),
-            _buildNavItem(Icons.people_outline, false),
-            _buildNavItem(Icons.calendar_today_outlined, false),
-            _buildNavItem(Icons.person, true),
-          ],
-        ),
+      bottomNavigationBar: BottomNavigationBar(
+        currentIndex: _selectedIndex,
+        onTap: (int index) {
+          setState(() {
+            _selectedIndex = index;
+          });
+
+          // Optional: Add navigation logic here
+          // Example:
+          // if (index == 0) Navigator.pushNamed(context, '/home');
+          // if (index == 1) Navigator.pushNamed(context, '/patients');
+          // if (index == 2) Navigator.pushNamed(context, '/articles');
+          // if (index == 3) Navigator.pushNamed(context, '/profile');
+        },
+        type: BottomNavigationBarType.fixed,
+        selectedItemColor: Colors.blue,
+        unselectedItemColor: Colors.grey,
+        backgroundColor: Colors.white,
+        items: const [
+          BottomNavigationBarItem(icon: Icon(Icons.home), label: 'Home'),
+          BottomNavigationBarItem(icon: Icon(Icons.people), label: 'Patients'),
+          BottomNavigationBarItem(icon: Icon(Icons.book), label: 'Articles'),
+          BottomNavigationBarItem(icon: Icon(Icons.person), label: 'Profile'),
+        ],
       ),
+
     );
   }
 

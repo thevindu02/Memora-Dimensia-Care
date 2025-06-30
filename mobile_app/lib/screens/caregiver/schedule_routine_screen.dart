@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'dart:ui';
 
-
 class ScheduleRoutine extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
@@ -49,7 +48,6 @@ class _ScheduleRoutineScreenState extends State<ScheduleRoutineScreen> {
       time: '8:00 AM',
       icon: Icons.restaurant,
       color: Colors.orange,
-      isCompleted: true,
     ),
     ScheduleTask(
       title: 'Dinner Time',
@@ -82,7 +80,7 @@ class _ScheduleRoutineScreenState extends State<ScheduleRoutineScreen> {
       for (var t in tasks) {
         t.isSelected = false;
       }
-      
+
       // Select the clicked task
       task.isSelected = true;
       selectedTaskTitle = task.title;
@@ -100,7 +98,7 @@ class _ScheduleRoutineScreenState extends State<ScheduleRoutineScreen> {
 
   void _showSkipDialog() {
     final TextEditingController reasonController = TextEditingController();
-    
+
     showDialog(
       context: context,
       barrierDismissible: false,
@@ -215,7 +213,7 @@ class _ScheduleRoutineScreenState extends State<ScheduleRoutineScreen> {
                                   task.isSelected = false;
                                 }
                               });
-                              
+
                               // Show confirmation
                               ScaffoldMessenger.of(context).showSnackBar(
                                 SnackBar(
@@ -302,82 +300,84 @@ class _ScheduleRoutineScreenState extends State<ScheduleRoutineScreen> {
           ),
         ],
       ),
-      body: Column(
-        children: [
-          // Patient Info
-          Container(
-            margin: EdgeInsets.all(16),
-            padding: EdgeInsets.all(16),
-            decoration: BoxDecoration(
-              color: Colors.white,
-              borderRadius: BorderRadius.circular(12),
-              boxShadow: [
-                BoxShadow(
-                  color: Colors.grey.withOpacity(0.1),
-                  spreadRadius: 1,
-                  blurRadius: 4,
-                  offset: Offset(0, 2),
-                ),
-              ],
-            ),
-            child: Row(
-              children: [
-                CircleAvatar(
-                  radius: 25,
-                  backgroundImage: NetworkImage('https://via.placeholder.com/100'),
-                ),
-                SizedBox(width: 12),
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      'Sarah Johnson',
-                      style: TextStyle(
-                        fontWeight: FontWeight.w600,
-                        fontSize: 16,
-                      ),
-                    ),
-                    Text(
-                      'Patient ID: #12345',
-                      style: TextStyle(
-                        color: Colors.grey.shade600,
-                        fontSize: 14,
-                      ),
-                    ),
-                  ],
-                ),
-              ],
-            ),
-          ),
-
-          // Daily Activities Header
-          Padding(
-            padding: EdgeInsets.symmetric(horizontal: 16),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Text(
-                  'Daily Activities',
-                  style: TextStyle(
-                    fontSize: 20,
-                    fontWeight: FontWeight.bold,
-                    color: Colors.black87,
+      body: SingleChildScrollView(
+        child: Column(
+          children: [
+            // Patient Info
+            Container(
+              margin: EdgeInsets.all(16),
+              padding: EdgeInsets.all(16),
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(12),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.grey.withOpacity(0.1),
+                    spreadRadius: 1,
+                    blurRadius: 4,
+                    offset: Offset(0, 2),
                   ),
-                ),
-                FloatingActionButton.small(
-                  onPressed: () {},
-                  backgroundColor: Colors.blue,
-                  child: Icon(Icons.add, color: Colors.white),
-                ),
-              ],
+                ],
+              ),
+              child: Row(
+                children: [
+                  CircleAvatar(
+                    radius: 25,
+                    backgroundImage: NetworkImage('https://via.placeholder.com/100'),
+                  ),
+                  SizedBox(width: 12),
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        'Sarah Johnson',
+                        style: TextStyle(
+                          fontWeight: FontWeight.w600,
+                          fontSize: 16,
+                        ),
+                      ),
+                      Text(
+                        'Patient ID: #12345',
+                        style: TextStyle(
+                          color: Colors.grey.shade600,
+                          fontSize: 14,
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
             ),
-          ),
 
-          SizedBox(height: 16),
+            // Daily Activities Header
+            Padding(
+              padding: EdgeInsets.symmetric(horizontal: 16),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Text(
+                    'Daily Activities',
+                    style: TextStyle(
+                      fontSize: 20,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.black87,
+                    ),
+                  ),
+                  FloatingActionButton.small(
+                    onPressed: () {},
+                    backgroundColor: Colors.blue,
+                    child: Icon(Icons.add, color: Colors.white),
+                  ),
+                ],
+              ),
+            ),
 
-          // Tasks List
-          Expanded(
-            child: ListView.builder(
+            SizedBox(height: 16),
+
+            // Tasks List
+            ListView.builder(
+              shrinkWrap: true,
+              physics: NeverScrollableScrollPhysics(),
               padding: EdgeInsets.symmetric(horizontal: 16),
               itemCount: tasks.length,
               itemBuilder: (context, index) {
@@ -463,21 +463,21 @@ class _ScheduleRoutineScreenState extends State<ScheduleRoutineScreen> {
                                       onTap: () => _toggleTaskCompletion(task),
                                       child: task.isCompleted
                                           ? Icon(
-                                              Icons.check_circle,
-                                              color: Colors.green,
-                                              size: 20,
-                                            )
+                                        Icons.check_circle,
+                                        color: Colors.green,
+                                        size: 20,
+                                      )
                                           : Container(
-                                              width: 20,
-                                              height: 20,
-                                              decoration: BoxDecoration(
-                                                shape: BoxShape.circle,
-                                                border: Border.all(
-                                                  color: Colors.grey.shade400,
-                                                  width: 2,
-                                                ),
-                                              ),
-                                            ),
+                                        width: 20,
+                                        height: 20,
+                                        decoration: BoxDecoration(
+                                          shape: BoxShape.circle,
+                                          border: Border.all(
+                                            color: Colors.grey.shade400,
+                                            width: 2,
+                                          ),
+                                        ),
+                                      ),
                                     ),
                                   ],
                                 ),
@@ -519,12 +519,10 @@ class _ScheduleRoutineScreenState extends State<ScheduleRoutineScreen> {
                 );
               },
             ),
-          ),
 
-          // Complete Daily Routine Button
-          Container(
-            padding: EdgeInsets.all(16),
-            child: SizedBox(
+            // Complete Daily Routine Button - Now positioned within scrollable content
+            Container(
+              margin: EdgeInsets.all(16),
               width: double.infinity,
               child: ElevatedButton(
                 onPressed: () {
@@ -537,6 +535,7 @@ class _ScheduleRoutineScreenState extends State<ScheduleRoutineScreen> {
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(12),
                   ),
+                  elevation: 2,
                 ),
                 child: Text(
                   'Complete Daily Routine',
@@ -547,8 +546,8 @@ class _ScheduleRoutineScreenState extends State<ScheduleRoutineScreen> {
                 ),
               ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
       bottomNavigationBar: BottomNavigationBar(
         type: BottomNavigationBarType.fixed,
@@ -560,22 +559,22 @@ class _ScheduleRoutineScreenState extends State<ScheduleRoutineScreen> {
         currentIndex: 1, // Schedule tab is selected
         items: [
           BottomNavigationBarItem(
-            icon: Icon(Icons.home_outlined),
+            icon: Icon(Icons.home),
             activeIcon: Icon(Icons.home),
             label: 'Home',
           ),
           BottomNavigationBarItem(
-            icon: Icon(Icons.calendar_today_outlined),
-            activeIcon: Icon(Icons.calendar_today),
-            label: 'Schedule',
+            icon: Icon(Icons.people),
+            activeIcon: Icon(Icons.people),
+            label: 'Patients',
           ),
           BottomNavigationBarItem(
-            icon: Icon(Icons.folder_outlined),
-            activeIcon: Icon(Icons.folder),
-            label: 'Records',
+            icon: Icon(Icons.book),
+            activeIcon: Icon(Icons.book),
+            label: 'Articles',
           ),
           BottomNavigationBarItem(
-            icon: Icon(Icons.person_outline),
+            icon: Icon(Icons.person),
             activeIcon: Icon(Icons.person),
             label: 'Profile',
           ),

@@ -40,6 +40,7 @@ class _GuardianRequestsPageState extends State<GuardianRequestsPage>
             fontWeight: FontWeight.w600,
           ),
         ),
+        centerTitle: true,
         actions: [
           IconButton(
             icon: Icon(Icons.notifications_outlined, color: Colors.grey[600]),
@@ -367,8 +368,8 @@ class _GuardianRequestsPageState extends State<GuardianRequestsPage>
           label: 'Patients',
         ),
         BottomNavigationBarItem(
-          icon: Icon(Icons.message),
-          label: 'Messages',
+          icon: Icon(Icons.book),
+          label: 'Articles',
         ),
         BottomNavigationBarItem(
           icon: Icon(Icons.person),
