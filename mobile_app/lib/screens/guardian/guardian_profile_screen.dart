@@ -3,6 +3,8 @@ import 'package:flutter/material.dart';
 import 'package:mobile_app/services/auth_service.dart';
 
 class GuardianProfileScreen extends StatelessWidget {
+  const GuardianProfileScreen({super.key});
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -92,8 +94,8 @@ class GuardianProfileScreen extends StatelessWidget {
                   );
                 }
               },
-              child: Text('Logout'),
               style: TextButton.styleFrom(foregroundColor: Colors.red),
+              child: Text('Logout'),
             ),
           ],
         );

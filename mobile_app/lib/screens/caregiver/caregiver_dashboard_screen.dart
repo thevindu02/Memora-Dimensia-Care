@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import '../../routes/app_routes.dart';
 
 class CaregiverDashboardScreen extends StatelessWidget {
+  const CaregiverDashboardScreen({super.key});
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(

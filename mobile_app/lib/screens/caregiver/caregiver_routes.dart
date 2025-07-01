@@ -3,7 +3,6 @@ import '../../routes/app_routes.dart';
 import 'caregiver_dashboard_screen.dart';
 import 'caregiver_patients_screen.dart';
 import 'caregiver_profile_screen.dart';
-import 'caregiver_signup_screen.dart';
 
 class CaregiverRoutes {
   static Route<dynamic> generateRoute(RouteSettings settings) {

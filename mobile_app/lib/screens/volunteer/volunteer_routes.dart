@@ -3,7 +3,6 @@ import '../../routes/app_routes.dart';
 import 'volunteer_dashboard_screen.dart';
 import 'volunteer_articles_screen.dart';
 import 'volunteer_profile_screen.dart';
-import 'volunteer_signup_screen.dart';
 
 class VolunteerRoutes {
   static Route<dynamic> generateRoute(RouteSettings settings) {

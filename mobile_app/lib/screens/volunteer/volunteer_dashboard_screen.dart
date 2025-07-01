@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import '../../routes/app_routes.dart';
 
 class VolunteerDashboardScreen extends StatelessWidget {
+  const VolunteerDashboardScreen({super.key});
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(

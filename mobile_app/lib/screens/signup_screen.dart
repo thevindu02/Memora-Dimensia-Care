@@ -4,6 +4,8 @@ import '../routes/app_routes.dart';
 import 'package:flutter/gestures.dart';
 
 class SignupScreen extends StatelessWidget {
+  const SignupScreen({super.key});
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -130,7 +132,7 @@ class SignupScreen extends StatelessWidget {
       Color color,
       String role,
       ) {
-    return Container(
+    return SizedBox(
       width: double.infinity,
       child: ElevatedButton(
         onPressed: () => _handleRoleSelection(context, role),
