@@ -14,6 +14,8 @@ class AppRoutes {
   static const String patientEmailVerification = '/patient/emailVerification';
   static const String patientVerifyCode = '/patient/verifyCode';
   static const String patientWelcome = '/patient/welcome';
+  static const String patientNotifications = '/patient/notification';
+  static const String patientGames = '/patient/games';
 
   // Guardian routes
   static const String guardianSignup = '/guardian/signup';

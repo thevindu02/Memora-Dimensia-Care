@@ -15,7 +15,8 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       title: 'Memora',
-      initialRoute: AppRoutes.splash,
+      //initialRoute: AppRoutes.splash,
+      initialRoute: AppRoutes.patientGuardianRequest,
       onGenerateRoute: RouteGenerator.generateRoute,
       debugShowCheckedModeBanner: false,
     );

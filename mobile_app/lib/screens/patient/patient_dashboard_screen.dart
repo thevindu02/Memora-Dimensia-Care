@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../../widgets/patient/PatientBottomNavigationBar.dart';
+import '../../routes/app_routes.dart';
 
 class PatientDashboardScreen extends StatefulWidget {
   const PatientDashboardScreen({Key? key}) : super(key: key);
@@ -57,6 +58,7 @@ class _PatientDashboardScreenState extends State<PatientDashboardScreen> {
           icon: const Icon(Icons.arrow_back, color: Colors.black),
           onPressed: () => Navigator.pop(context),
         ),
+        centerTitle: true,
         title: const Text(
           'Schedule Routine',
           style: TextStyle(
@@ -67,8 +69,10 @@ class _PatientDashboardScreenState extends State<PatientDashboardScreen> {
         ),
         actions: [
           IconButton(
-            icon: const Icon(Icons.more_vert, color: Colors.black),
-            onPressed: () {},
+            icon: const Icon(Icons.notifications, color: Colors.black),
+            onPressed: () {
+              Navigator.of(context).pushNamed(AppRoutes.patientNotifications);
+            },
           ),
         ],
       ),

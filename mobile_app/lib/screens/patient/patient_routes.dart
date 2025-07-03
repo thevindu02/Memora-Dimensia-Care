@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:mobile_app/screens/patient/patient_email_verification_screen.dart';
+import 'package:mobile_app/screens/patient/patient_games_screen.dart';
 import 'package:mobile_app/screens/patient/patient_guardian_request_screen.dart';
+import 'package:mobile_app/screens/patient/patient_notification_screen.dart';
 import 'package:mobile_app/screens/patient/patient_verify_code_screen.dart';
 import 'package:mobile_app/screens/patient/patient_welcome_screen.dart';
 import '../../routes/app_routes.dart';
@@ -26,6 +28,10 @@ class PatientRoutes {
         return MaterialPageRoute(builder: (_) => PatientVerifyCodeScreen());
       case AppRoutes.patientWelcome:
         return MaterialPageRoute(builder: (_) => PatientWelcomeScreen());
+      case AppRoutes.patientNotifications:
+        return MaterialPageRoute(builder: (_) => PatientNotificationScreen());
+      case AppRoutes.patientGames:
+        return MaterialPageRoute(builder: (_) => PatientGamesScreen());
       default:
         return MaterialPageRoute(
           builder: (_) => Scaffold(
