@@ -10,6 +10,10 @@ class AppRoutes {
   static const String patientDashboard = '/patient/dashboard';
   static const String patientProfile = '/patient/profile';
   static const String patientSettings = '/patient/settings';
+  static const String patientGuardianRequest = '/patient/guardianRequest';
+  static const String patientEmailVerification = '/patient/emailVerification';
+  static const String patientVerifyCode = '/patient/verifyCode';
+  static const String patientWelcome = '/patient/welcome';
 
   // Guardian routes
   static const String guardianSignup = '/guardian/signup';
