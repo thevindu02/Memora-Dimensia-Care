@@ -219,6 +219,17 @@ class PatientGuardianRequestScreen extends StatelessWidget {
   }
 }
 
+// Custom painter for the brain-heart icon
+class BrainHeartPainter extends CustomPainter {
+  @override
+  void paint(Canvas canvas, Size size) {
+    // ... existing code ...
+  }
+  @override
+  bool shouldRepaint(covariant CustomPainter oldDelegate) => false;
+}
+
+// Add this widget for bullet points in the Learn More dialog
 class BulletList extends StatelessWidget {
   final List<String> items;
   const BulletList(this.items, {Key? key}) : super(key: key);
