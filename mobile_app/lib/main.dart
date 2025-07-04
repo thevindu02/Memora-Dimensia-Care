@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'screens/caregiver/care_details_screen.dart'; // ✅ import your ProfileView
+import 'screens/caregiver/view_article_screen.dart'; // ✅ import your ProfileView
 
 void main() {
   runApp(const MyApp());
@@ -16,7 +16,7 @@ class MyApp extends StatelessWidget {
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
       ),
       debugShowCheckedModeBanner: false,
-      home: CareDetailsScreen(), // ✅ load ProfileView directly
+      home: HealthcareApp(), // ✅ load ProfileView directly
     );
   }
 }
