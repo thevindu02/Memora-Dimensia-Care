@@ -63,7 +63,7 @@ class PatientWelcomeScreen extends StatelessWidget {
                     //   context,
                     //   MaterialPageRoute(builder: (context) => DashboardScreen()),
                     // );
-                    Navigator.of(context).pushNamed(AppRoutes.patientDashboard);
+                    Navigator.of(context).pushNamed(AppRoutes.patientMain);
                   },
                   style: ElevatedButton.styleFrom(
                     backgroundColor: const Color(0xFFA0C4FD),

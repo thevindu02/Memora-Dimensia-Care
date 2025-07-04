@@ -45,9 +45,7 @@ class PatientProfileScreen extends StatelessWidget {
                     children: [
                       const CircleAvatar(
                         radius: 40,
-                        backgroundImage: NetworkImage(
-                          'https://images.unsplash.com/photo-1494790108755-2616c5e97422?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=60',
-                        ),
+                        backgroundImage: AssetImage('assets/images/profile_avatar.png'),
                       ),
                       Positioned(
                         bottom: 0,

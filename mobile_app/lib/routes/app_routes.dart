@@ -16,6 +16,7 @@ class AppRoutes {
   static const String patientWelcome = '/patient/welcome';
   static const String patientNotifications = '/patient/notification';
   static const String patientGames = '/patient/games';
+  static const String patientMain = '/patient/main';
 
   // Guardian routes
   static const String guardianSignup = '/guardian/signup';

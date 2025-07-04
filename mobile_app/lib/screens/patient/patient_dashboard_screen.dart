@@ -304,16 +304,6 @@ class _PatientDashboardScreenState extends State<PatientDashboardScreen> {
           ),
         ),
      // ),
-
-
-      bottomNavigationBar: PatientBottomNavigationBar(
-        currentIndex: currentBottomNavIndex,
-        onTap: (index) {
-          setState(() {
-            currentBottomNavIndex = index;
-          });
-        },
-      ),
     );
   }
 }
