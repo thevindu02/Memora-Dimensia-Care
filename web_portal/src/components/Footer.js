@@ -1,0 +1,139 @@
+// src/components/Footer.js
+import React from 'react';
+import {Box,Typography,Container,Stack,IconButton,Link,} from '@mui/material';
+import EmailIcon from '@mui/icons-material/Email';
+import PhoneIcon from '@mui/icons-material/Phone';
+import FacebookIcon from '@mui/icons-material/Facebook';
+import TwitterIcon from '@mui/icons-material/Twitter';
+import LinkedInIcon from '@mui/icons-material/LinkedIn';
+
+function Footer() {
+  return (
+    <Box
+      component="footer"
+      sx={{
+        bgcolor: '#2B3F99',
+        color: '#fff',
+        py: 4,
+        fontSize: 14,
+      }}
+    >
+      <Container maxWidth="lg">
+        <Stack
+          direction={{ xs: 'column', md: 'row' }}
+          spacing={6}
+          justifyContent="space-between"
+          alignItems={{ xs: 'flex-start', md: 'center' }}
+          flexWrap="wrap"
+        >
+          {/* About Section */}
+          <Box sx={{ flex: '1 1 250px', minWidth: 250 }}>
+            <Typography variant="h6" sx={{ fontWeight: 700, mb: 2 }}>
+              Memora
+            </Typography>
+            <Typography variant="body2" sx={{ mb: 2, maxWidth: 320 }}>
+              Supporting dementia care with compassion and technology.  
+              Empowering patients, families, and caregivers with trusted resources.
+            </Typography>
+            <Stack direction="row" spacing={1}>
+              <IconButton
+                aria-label="Facebook"
+                color="inherit"
+                href="https://facebook.com"
+                target="_blank"
+                size="large"
+              >
+                <FacebookIcon />
+              </IconButton>
+              <IconButton
+                aria-label="Twitter"
+                color="inherit"
+                href="https://twitter.com"
+                target="_blank"
+                size="large"
+              >
+                <TwitterIcon />
+              </IconButton>
+              <IconButton
+                aria-label="LinkedIn"
+                color="inherit"
+                href="https://linkedin.com"
+                target="_blank"
+                size="large"
+              >
+                <LinkedInIcon />
+              </IconButton>
+            </Stack>
+          </Box>
+
+          {/* Quick Links */}
+          <Box sx={{ flex: '1 1 150px', minWidth: 150 }}>
+            <Typography variant="h6" sx={{ fontWeight: 700, mb: 2 }}>
+              Quick Links
+            </Typography>
+            <Stack spacing={1}>
+              <Link href="#hero" underline="hover" color="inherit" sx={{ cursor: 'pointer' }}>
+                Home
+              </Link>
+              <Link href="#patients" underline="hover" color="inherit" sx={{ cursor: 'pointer' }}>
+                For Patients
+              </Link>
+              <Link href="#guardians" underline="hover" color="inherit" sx={{ cursor: 'pointer' }}>
+                For Guardians
+              </Link>
+              <Link href="#caregivers" underline="hover" color="inherit" sx={{ cursor: 'pointer' }}>
+                For Caregivers
+              </Link>
+              <Link href="#volunteers" underline="hover" color="inherit" sx={{ cursor: 'pointer' }}>
+                For Volunteers
+              </Link>
+              <Link href="/terms" underline="hover" color="inherit" sx={{ cursor: 'pointer' }}>
+                Terms & Conditions
+              </Link>
+              <Link href="/privacy" underline="hover" color="inherit" sx={{ cursor: 'pointer' }}>
+                Privacy Policy
+              </Link>
+            </Stack>
+          </Box>
+
+          {/* Contact Info */}
+          <Box sx={{ flex: '1 1 250px', minWidth: 250 }}>
+            <Typography variant="h6" sx={{ fontWeight: 700, mb: 2 }}>
+              Contact Us
+            </Typography>
+            <Stack direction="row" spacing={1} alignItems="center" sx={{ mb: 1 }}>
+              <EmailIcon />
+              <Typography>info@memora.org</Typography>
+            </Stack>
+            <Stack direction="row" spacing={1} alignItems="center" sx={{ mb: 2 }}>
+              <PhoneIcon />
+              <Typography>+94 77 123 4567</Typography>
+            </Stack>
+            {/* Optional: Newsletter Signup */}
+            {/* <Typography sx={{ mb: 1 }}>Subscribe to our newsletter</Typography>
+            <Stack direction="row" spacing={1}>
+              <TextField
+                placeholder="Your email"
+                variant="filled"
+                size="small"
+                sx={{ bgcolor: '#fff', borderRadius: 1, flexGrow: 1 }}
+                InputProps={{ disableUnderline: true }}
+              />
+              <Button variant="contained" color="primary" sx={{ px: 3 }}>
+                Subscribe
+              </Button>
+            </Stack> */}
+          </Box>
+        </Stack>
+
+        {/* Bottom copyright */}
+        <Typography variant="body2" align="center" sx={{ mt: 6, opacity: 0.7 }}>
+          © {new Date().getFullYear()} Memora. All rights reserved.
+        </Typography>
+      </Container>
+    </Box>
+  );
+}
+
+export default Footer;
+
