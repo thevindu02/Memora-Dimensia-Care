@@ -1,22 +1,23 @@
 import 'package:flutter/material.dart';
-import 'screens/caregiver/view_article_screen.dart'; // ✅ import your ProfileView
+import 'routes/app_routes.dart';
+import 'routes/route_generator.dart';
+import 'services/auth_service.dart';
+import 'screens/splash_screen.dart';
+import 'package:go_router/go_router.dart';
+import 'routes/router.dart';
 
 void main() {
-  runApp(const MyApp());
+  runApp(MyApp());
 }
 
 class MyApp extends StatelessWidget {
-  const MyApp({super.key});
-
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Flutter Demo',
-      theme: ThemeData(
-        colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
-      ),
+      title: 'Memora',
+      initialRoute: AppRoutes.splash,
+      onGenerateRoute: RouteGenerator.generateRoute,
       debugShowCheckedModeBanner: false,
-      home: HealthcareApp(), // ✅ load ProfileView directly
     );
   }
 }
