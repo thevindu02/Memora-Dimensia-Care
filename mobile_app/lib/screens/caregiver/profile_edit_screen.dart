@@ -1,14 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'dart:io';
+import '../../routes/app_routes.dart';
 
-class EditProfileView extends StatefulWidget {
+class EditProfileEdit extends StatefulWidget {
   @override
   _EditProfileViewState createState() => _EditProfileViewState();
 }
 
-class _EditProfileViewState extends State<EditProfileView> {
-  int _selectedIndex = 3; // Index of "Profile" tab
+class _EditProfileViewState extends State<EditProfileEdit> {
+  int _currentIndex = 0; // Index of "Profile" tab
 
   final _formKey = GlobalKey<FormState>();
   File? _selectedImage;
@@ -254,27 +255,30 @@ class _EditProfileViewState extends State<EditProfileView> {
       
       // Bottom Navigation
       bottomNavigationBar: BottomNavigationBar(
-        currentIndex: _selectedIndex,
-        onTap: (int index) {
-          setState(() {
-            _selectedIndex = index;
-          });
-
-          // Optional: Add navigation logic here
-          // Example:
-          // if (index == 0) Navigator.pushNamed(context, '/home');
-          // if (index == 1) Navigator.pushNamed(context, '/patients');
-          // if (index == 2) Navigator.pushNamed(context, '/articles');
-          // if (index == 3) Navigator.pushNamed(context, '/profile');
+        currentIndex: _currentIndex,
+        onTap: (index) {
+          if (index == 0) { // Patients tab
+            // Navigate to detailed patients screen
+            Navigator.pushNamed(context, AppRoutes.caregiverDashboard);
+          }else if(index==1){
+            Navigator.pushNamed(context, AppRoutes.caregiverPatients);
+          }
+          else if(index==2){
+            Navigator.pushNamed(context, AppRoutes.viewArticleList);
+          }
+          else {
+            setState(() {
+              _currentIndex = index;
+            });
+          }
         },
         type: BottomNavigationBarType.fixed,
-        selectedItemColor: Colors.blue,
+        selectedItemColor: Colors.indigo,
         unselectedItemColor: Colors.grey,
-        backgroundColor: Colors.white,
         items: const [
           BottomNavigationBarItem(icon: Icon(Icons.home), label: 'Home'),
           BottomNavigationBarItem(icon: Icon(Icons.people), label: 'Patients'),
-          BottomNavigationBarItem(icon: Icon(Icons.book), label: 'Articles'),
+          BottomNavigationBarItem(icon: Icon(Icons.article), label: 'Articles'),
           BottomNavigationBarItem(icon: Icon(Icons.person), label: 'Profile'),
         ],
       ),

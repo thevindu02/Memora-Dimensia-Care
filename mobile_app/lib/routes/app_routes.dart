@@ -22,6 +22,13 @@ class AppRoutes {
   static const String caregiverDashboard = '/caregiver/dashboard';
   static const String caregiverPatients = '/caregiver/patients';
   static const String caregiverProfile = '/caregiver/profile';
+  static const String caregiverProfileEdit = '/caregiver/profileEdit';
+  static const String patientRoutine = '/caregiver/routine';
+  static const String selectType = '/caregiver/selectRoutine';
+  static const String viewArticleList = '/caregiver/article';
+  static const String guardianRequest = '/caregiver/request';
+
+
 
   // Volunteer routes
   static const String volunteerSignup = '/volunteer/signup';

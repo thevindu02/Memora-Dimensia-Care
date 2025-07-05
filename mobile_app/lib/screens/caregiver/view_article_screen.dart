@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
+import '../../routes/app_routes.dart';
 
-class HealthcareApp extends StatelessWidget {
-  const HealthcareApp({super.key});
+class ArticleList extends StatelessWidget {
+  const ArticleList({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -11,72 +12,57 @@ class HealthcareApp extends StatelessWidget {
         primarySwatch: Colors.blue,
         useMaterial3: true,
       ),
-      home: const MainScreen(),
+      home: const MScreen(),
       debugShowCheckedModeBanner: false,
     );
   }
 }
 
-class MainScreen extends StatefulWidget {
-  const MainScreen({super.key});
+class MScreen extends StatefulWidget {
+  const MScreen({super.key});
 
   @override
-  State<MainScreen> createState() => _MainScreenState();
+  State<MScreen> createState() => _MainScreenState();
 }
 
-class _MainScreenState extends State<MainScreen> {
-  int _selectedIndex = 0;
+class _MainScreenState extends State<MScreen> {
+  int _currentIndex = 2; // Set to Articles tab since this is the articles screen
 
   final List<Widget> _screens = [
-    const HomeScreen(),
-    const PatientsScreen(),
     const ArticlesScreen(),
-    const ProfileScreen(),
   ];
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: _screens[_selectedIndex],
+      body: _screens[0], // Always show ArticlesScreen since this is the articles page
       bottomNavigationBar: BottomNavigationBar(
-        type: BottomNavigationBarType.fixed,
-        currentIndex: _selectedIndex,
+        currentIndex: _currentIndex,
         onTap: (index) {
-          setState(() {
-            _selectedIndex = index;
-          });
+          if (index == 0) { // Home tab
+            Navigator.pushNamed(context, AppRoutes.caregiverDashboard);
+          } else if (index == 1) { // Patients tab
+            Navigator.pushNamed(context, AppRoutes.caregiverPatients);
+          } else if (index == 2) { // Articles tab - current screen
+            // Already on articles screen, do nothing or refresh
+            setState(() {
+              _currentIndex = index;
+            });
+          } else if (index == 3) { // Profile tab
+            Navigator.pushNamed(context, AppRoutes.caregiverProfile);
+          }
         },
-        selectedItemColor: Colors.blue,
+        type: BottomNavigationBarType.fixed,
+        selectedItemColor: Colors.indigo,
         unselectedItemColor: Colors.grey,
         items: const [
-          BottomNavigationBarItem(
-            icon: Icon(Icons.home),
-            label: 'Home',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.people),
-            label: 'Patients',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.book),
-            label: 'Articles',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.person),
-            label: 'Profile',
-          ),
+          BottomNavigationBarItem(icon: Icon(Icons.home), label: 'Home'),
+          BottomNavigationBarItem(icon: Icon(Icons.people), label: 'Patients'),
+          BottomNavigationBarItem(icon: Icon(Icons.article), label: 'Articles'),
+          BottomNavigationBarItem(icon: Icon(Icons.person), label: 'Profile'),
         ],
       ),
     );
-  }
-}
-
-class HomeScreen extends StatelessWidget {
-  const HomeScreen({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return const ArticlesScreen();
   }
 }
 
@@ -188,7 +174,7 @@ class _ArticlesScreenState extends State<ArticlesScreen> {
           onPressed: () => Navigator.pop(context),
         ),
         title: const Text(
-          'Add Medications',
+          'Articles',
           style: TextStyle(
             color: Colors.black87,
             fontSize: 18,
@@ -678,92 +664,6 @@ class NotificationScreen extends StatelessWidget {
             SizedBox(height: 16),
             Text(
               'No notifications yet',
-              style: TextStyle(
-                fontSize: 18,
-                color: Colors.grey,
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-}
-
-class PatientsScreen extends StatelessWidget {
-  const PatientsScreen({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text(
-          'Patients',
-          style: TextStyle(
-            fontSize: 24,
-            fontWeight: FontWeight.bold,
-            color: Colors.black,
-          ),
-        ),
-        backgroundColor: Colors.white,
-        elevation: 0,
-      ),
-      backgroundColor: Colors.white,
-      body: const Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Icon(
-              Icons.people_outline,
-              size: 80,
-              color: Colors.grey,
-            ),
-            SizedBox(height: 16),
-            Text(
-              'Patients section',
-              style: TextStyle(
-                fontSize: 18,
-                color: Colors.grey,
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-}
-
-class ProfileScreen extends StatelessWidget {
-  const ProfileScreen({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text(
-          'Profile',
-          style: TextStyle(
-            fontSize: 24,
-            fontWeight: FontWeight.bold,
-            color: Colors.black,
-          ),
-        ),
-        backgroundColor: Colors.white,
-        elevation: 0,
-      ),
-      backgroundColor: Colors.white,
-      body: const Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Icon(
-              Icons.person_outline,
-              size: 80,
-              color: Colors.grey,
-            ),
-            SizedBox(height: 16),
-            Text(
-              'Profile section',
               style: TextStyle(
                 fontSize: 18,
                 color: Colors.grey,

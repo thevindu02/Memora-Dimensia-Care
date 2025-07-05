@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
+import '../../routes/app_routes.dart';
 
-class SelectRoutine extends StatelessWidget {
+class SelectType extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(

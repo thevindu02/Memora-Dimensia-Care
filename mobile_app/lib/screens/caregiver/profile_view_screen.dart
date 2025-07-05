@@ -1,12 +1,13 @@
 import 'package:flutter/material.dart';
+import '../../routes/app_routes.dart';
 
-class ProfileView extends StatefulWidget {
+class CaregiverProfileScreen extends StatefulWidget {
   @override
   _ProfileViewState createState() => _ProfileViewState();
 }
 
-class _ProfileViewState extends State<ProfileView> {
-  int _selectedIndex = 3; // default selected index for Profile tab
+class _ProfileViewState extends State<CaregiverProfileScreen> {
+  int _currentIndex = 0; // default selected index for Profile tab
 
   bool receiveNotifications = false;
 
@@ -203,7 +204,9 @@ class _ProfileViewState extends State<ProfileView> {
               children: [
                 Expanded(
                   child: ElevatedButton(
-                    onPressed: () {},
+                    onPressed: () {
+                      Navigator.pushNamed(context, AppRoutes.caregiverProfileEdit);
+                    },
                     style: ElevatedButton.styleFrom(
                       backgroundColor: Color(0xFF6B73FF),
                       padding: EdgeInsets.symmetric(vertical: 15),
@@ -250,31 +253,34 @@ class _ProfileViewState extends State<ProfileView> {
       
       // Bottom Navigation
       bottomNavigationBar: BottomNavigationBar(
-
-        currentIndex: _selectedIndex,
-        onTap: (int index) {
-          setState(() {
-            _selectedIndex = index;
-          });
-
-          // Optional: Add navigation logic here
-          // Example:
-          // if (index == 0) Navigator.pushNamed(context, '/home');
-          // if (index == 1) Navigator.pushNamed(context, '/patients');
-          // if (index == 2) Navigator.pushNamed(context, '/articles');
-          // if (index == 3) Navigator.pushNamed(context, '/profile');
+        currentIndex: _currentIndex,
+        onTap: (index) {
+          if (index == 0) { // Patients tab
+            // Navigate to detailed patients screen
+            Navigator.pushNamed(context, AppRoutes.caregiverDashboard);
+          }else if(index==1){
+            Navigator.pushNamed(context, AppRoutes.caregiverPatients);
+          }
+          else if(index==2){
+            Navigator.pushNamed(context, AppRoutes.viewArticleList);
+          }
+          else {
+            setState(() {
+              _currentIndex = index;
+            });
+          }
         },
         type: BottomNavigationBarType.fixed,
-        selectedItemColor: Colors.blue,
+        selectedItemColor: Colors.indigo,
         unselectedItemColor: Colors.grey,
-        backgroundColor: Colors.white,
         items: const [
           BottomNavigationBarItem(icon: Icon(Icons.home), label: 'Home'),
           BottomNavigationBarItem(icon: Icon(Icons.people), label: 'Patients'),
-          BottomNavigationBarItem(icon: Icon(Icons.book), label: 'Articles'),
+          BottomNavigationBarItem(icon: Icon(Icons.article), label: 'Articles'),
           BottomNavigationBarItem(icon: Icon(Icons.person), label: 'Profile'),
         ],
       ),
+
 
     );
   }

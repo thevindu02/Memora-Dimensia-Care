@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'dart:ui';
+import '../../routes/app_routes.dart';
 
 class ScheduleRoutine extends StatelessWidget {
   @override
@@ -364,7 +365,9 @@ class _ScheduleRoutineScreenState extends State<ScheduleRoutineScreen> {
                     ),
                   ),
                   FloatingActionButton.small(
-                    onPressed: () {},
+                    onPressed: () {
+                      Navigator.pushNamed(context, AppRoutes.selectType);
+                    },
                     backgroundColor: Colors.blue,
                     child: Icon(Icons.add, color: Colors.white),
                   ),

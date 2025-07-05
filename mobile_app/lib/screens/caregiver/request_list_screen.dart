@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
+import '../../routes/app_routes.dart';
 
 class GuardianRequestsPage extends StatefulWidget {
+  const GuardianRequestsPage({Key? key}) : super(key: key);
+
   @override
   _GuardianRequestsPageState createState() => _GuardianRequestsPageState();
 }
@@ -8,7 +11,8 @@ class GuardianRequestsPage extends StatefulWidget {
 class _GuardianRequestsPageState extends State<GuardianRequestsPage>
     with SingleTickerProviderStateMixin {
   TabController? _tabController;
-  
+  int _currentIndex = 0;
+
   @override
   void initState() {
     super.initState();
@@ -29,10 +33,10 @@ class _GuardianRequestsPageState extends State<GuardianRequestsPage>
         backgroundColor: Colors.white,
         elevation: 0.5,
         leading: IconButton(
-          icon: Icon(Icons.arrow_back, color: Colors.black87),
+          icon: const Icon(Icons.arrow_back, color: Colors.black87),
           onPressed: () => Navigator.pop(context),
         ),
-        title: Text(
+        title: const Text(
           'Guardian Requests',
           style: TextStyle(
             color: Colors.black87,
@@ -58,15 +62,15 @@ class _GuardianRequestsPageState extends State<GuardianRequestsPage>
               child: Row(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  Text('New Requests'),
-                  SizedBox(width: 6),
+                  const Text('New Requests'),
+                  const SizedBox(width: 6),
                   Container(
-                    padding: EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                    padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
                     decoration: BoxDecoration(
                       color: Colors.red,
                       borderRadius: BorderRadius.circular(10),
                     ),
-                    child: Text(
+                    child: const Text(
                       '3',
                       style: TextStyle(
                         color: Colors.white,
@@ -78,7 +82,7 @@ class _GuardianRequestsPageState extends State<GuardianRequestsPage>
                 ],
               ),
             ),
-            Tab(text: 'Connected'),
+            const Tab(text: 'Connected'),
           ],
         ),
       ),
@@ -95,7 +99,7 @@ class _GuardianRequestsPageState extends State<GuardianRequestsPage>
 
   Widget _buildNewRequestsTab() {
     return ListView(
-      padding: EdgeInsets.all(20),
+      padding: const EdgeInsets.all(20),
       children: [
         _buildRequestCard(
           name: 'Sarah Johnson',
@@ -106,7 +110,7 @@ class _GuardianRequestsPageState extends State<GuardianRequestsPage>
           avatarText: 'SJ',
           isNew: true,
         ),
-        SizedBox(height: 16),
+        const SizedBox(height: 16),
         _buildRequestCard(
           name: 'Maria Garcia',
           patientInfo: 'Patient: Elena Garcia (Mother)',
@@ -121,14 +125,39 @@ class _GuardianRequestsPageState extends State<GuardianRequestsPage>
   }
 
   Widget _buildConnectedTab() {
-    return Center(
-      child: Text(
-        'Connected Guardians',
-        style: TextStyle(
-          fontSize: 16,
-          color: Colors.grey[600],
+    return ListView(
+      padding: const EdgeInsets.all(20),
+      children: [
+        _buildConnectedCard(
+          name: 'Jennifer Miller',
+          patientInfo: 'Patient: Michael Miller (Husband)',
+          connectedDate: 'Connected 2 weeks ago',
+          relationship: 'Spouse',
+          contactInfo: 'jennifer.miller@email.com',
+          avatarText: 'JM',
+          isActive: true,
         ),
-      ),
+        const SizedBox(height: 16),
+        _buildConnectedCard(
+          name: 'David Thompson',
+          patientInfo: 'Patient: Margaret Thompson (Mother)',
+          connectedDate: 'Connected 1 month ago',
+          relationship: 'Son',
+          contactInfo: 'david.thompson@email.com',
+          avatarText: 'DT',
+          isActive: true,
+        ),
+        const SizedBox(height: 16),
+        _buildConnectedCard(
+          name: 'Lisa Rodriguez',
+          patientInfo: 'Patient: Carlos Rodriguez (Father)',
+          connectedDate: 'Connected 3 weeks ago',
+          relationship: 'Daughter',
+          contactInfo: 'lisa.rodriguez@email.com',
+          avatarText: 'LR',
+          isActive: false,
+        ),
+      ],
     );
   }
 
@@ -149,13 +178,13 @@ class _GuardianRequestsPageState extends State<GuardianRequestsPage>
           BoxShadow(
             color: Colors.black.withOpacity(0.08),
             blurRadius: 12,
-            offset: Offset(0, 4),
+            offset: const Offset(0, 4),
           ),
         ],
         border: Border.all(color: Colors.grey[100]!),
       ),
       child: Padding(
-        padding: EdgeInsets.all(20),
+        padding: const EdgeInsets.all(20),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -167,7 +196,7 @@ class _GuardianRequestsPageState extends State<GuardianRequestsPage>
                   height: 48,
                   decoration: BoxDecoration(
                     borderRadius: BorderRadius.circular(12),
-                    gradient: LinearGradient(
+                    gradient: const LinearGradient(
                       colors: [Color(0xFF667eea), Color(0xFF764ba2)],
                       begin: Alignment.topLeft,
                       end: Alignment.bottomRight,
@@ -176,7 +205,7 @@ class _GuardianRequestsPageState extends State<GuardianRequestsPage>
                   child: Center(
                     child: Text(
                       avatarText,
-                      style: TextStyle(
+                      style: const TextStyle(
                         color: Colors.white,
                         fontSize: 18,
                         fontWeight: FontWeight.w600,
@@ -184,20 +213,20 @@ class _GuardianRequestsPageState extends State<GuardianRequestsPage>
                     ),
                   ),
                 ),
-                SizedBox(width: 12),
+                const SizedBox(width: 12),
                 Expanded(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
                         name,
-                        style: TextStyle(
+                        style: const TextStyle(
                           fontSize: 16,
                           fontWeight: FontWeight.w600,
                           color: Colors.black87,
                         ),
                       ),
-                      SizedBox(height: 2),
+                      const SizedBox(height: 2),
                       Text(
                         'Guardian',
                         style: TextStyle(
@@ -205,17 +234,17 @@ class _GuardianRequestsPageState extends State<GuardianRequestsPage>
                           color: Colors.grey[600],
                         ),
                       ),
-                      SizedBox(height: 8),
+                      const SizedBox(height: 8),
                       if (isNew)
                         Container(
-                          padding: EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                           decoration: BoxDecoration(
-                            gradient: LinearGradient(
+                            gradient: const LinearGradient(
                               colors: [Color(0xFFff6b6b), Color(0xFFee5a24)],
                             ),
                             borderRadius: BorderRadius.circular(6),
                           ),
-                          child: Text(
+                          child: const Text(
                             'NEW',
                             style: TextStyle(
                               color: Colors.white,
@@ -230,19 +259,19 @@ class _GuardianRequestsPageState extends State<GuardianRequestsPage>
                 ),
               ],
             ),
-            SizedBox(height: 16),
-            
+            const SizedBox(height: 16),
+
             // Patient Info
             _buildInfoRow(Icons.person, patientInfo),
-            SizedBox(height: 4),
+            const SizedBox(height: 4),
             _buildInfoRow(Icons.access_time, 'Received: $receivedTime'),
-            SizedBox(height: 4),
+            const SizedBox(height: 4),
             _buildInfoRow(Icons.schedule, 'Expires: $expiresTime'),
-            SizedBox(height: 16),
-            
+            const SizedBox(height: 16),
+
             // Description
             Container(
-              padding: EdgeInsets.all(12),
+              padding: const EdgeInsets.all(12),
               decoration: BoxDecoration(
                 color: Colors.grey[50],
                 borderRadius: BorderRadius.circular(8),
@@ -257,24 +286,26 @@ class _GuardianRequestsPageState extends State<GuardianRequestsPage>
                 ),
               ),
             ),
-            SizedBox(height: 16),
-            
+            const SizedBox(height: 16),
+
             // Action Buttons
             Row(
               children: [
                 Expanded(
                   child: ElevatedButton(
-                    onPressed: () {},
+                    onPressed: () {
+                      _handleAcceptRequest(name);
+                    },
                     style: ElevatedButton.styleFrom(
                       backgroundColor: Colors.green,
                       foregroundColor: Colors.white,
-                      padding: EdgeInsets.symmetric(vertical: 12),
+                      padding: const EdgeInsets.symmetric(vertical: 12),
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(10),
                       ),
                       elevation: 2,
                     ),
-                    child: Row(
+                    child: const Row(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
                         Icon(Icons.check, size: 18),
@@ -290,26 +321,251 @@ class _GuardianRequestsPageState extends State<GuardianRequestsPage>
                     ),
                   ),
                 ),
-                SizedBox(width: 12),
+                const SizedBox(width: 12),
                 Expanded(
                   child: ElevatedButton(
-                    onPressed: () {},
+                    onPressed: () {
+                      _handleRejectRequest(name);
+                    },
                     style: ElevatedButton.styleFrom(
                       backgroundColor: Colors.red,
                       foregroundColor: Colors.white,
-                      padding: EdgeInsets.symmetric(vertical: 12),
+                      padding: const EdgeInsets.symmetric(vertical: 12),
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(10),
                       ),
                       elevation: 2,
                     ),
-                    child: Row(
+                    child: const Row(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
                         Icon(Icons.close, size: 18),
                         SizedBox(width: 4),
                         Text(
                           'Reject',
+                          style: TextStyle(
+                            fontSize: 14,
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildConnectedCard({
+    required String name,
+    required String patientInfo,
+    required String connectedDate,
+    required String relationship,
+    required String contactInfo,
+    required String avatarText,
+    required bool isActive,
+  }) {
+    return Container(
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(16),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.08),
+            blurRadius: 12,
+            offset: const Offset(0, 4),
+          ),
+        ],
+        border: Border.all(color: Colors.grey[100]!),
+      ),
+      child: Padding(
+        padding: const EdgeInsets.all(20),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            // Header with status
+            Row(
+              children: [
+                Container(
+                  width: 48,
+                  height: 48,
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(12),
+                    gradient: const LinearGradient(
+                      colors: [Color(0xFF4CAF50), Color(0xFF45a049)],
+                      begin: Alignment.topLeft,
+                      end: Alignment.bottomRight,
+                    ),
+                  ),
+                  child: Center(
+                    child: Text(
+                      avatarText,
+                      style: const TextStyle(
+                        color: Colors.white,
+                        fontSize: 18,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                  ),
+                ),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Row(
+                        children: [
+                          Text(
+                            name,
+                            style: const TextStyle(
+                              fontSize: 16,
+                              fontWeight: FontWeight.w600,
+                              color: Colors.black87,
+                            ),
+                          ),
+                          const SizedBox(width: 8),
+                          Container(
+                            width: 8,
+                            height: 8,
+                            decoration: BoxDecoration(
+                              color: isActive ? Colors.green : Colors.grey,
+                              shape: BoxShape.circle,
+                            ),
+                          ),
+                          const SizedBox(width: 4),
+                          Text(
+                            isActive ? 'Active' : 'Inactive',
+                            style: TextStyle(
+                              fontSize: 12,
+                              color: isActive ? Colors.green : Colors.grey,
+                              fontWeight: FontWeight.w500,
+                            ),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 2),
+                      Text(
+                        'Guardian • $relationship',
+                        style: TextStyle(
+                          fontSize: 14,
+                          color: Colors.grey[600],
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                PopupMenuButton<String>(
+                  onSelected: (value) {
+                    _handleConnectedAction(value, name);
+                  },
+                  itemBuilder: (BuildContext context) => [
+                    const PopupMenuItem(
+                      value: 'message',
+                      child: Row(
+                        children: [
+                          Icon(Icons.message, size: 18),
+                          SizedBox(width: 8),
+                          Text('Send Message'),
+                        ],
+                      ),
+                    ),
+                    const PopupMenuItem(
+                      value: 'view_profile',
+                      child: Row(
+                        children: [
+                          Icon(Icons.person, size: 18),
+                          SizedBox(width: 8),
+                          Text('View Profile'),
+                        ],
+                      ),
+                    ),
+                    const PopupMenuItem(
+                      value: 'disconnect',
+                      child: Row(
+                        children: [
+                          Icon(Icons.link_off, size: 18, color: Colors.red),
+                          SizedBox(width: 8),
+                          Text('Disconnect', style: TextStyle(color: Colors.red)),
+                        ],
+                      ),
+                    ),
+                  ],
+                  child: Icon(
+                    Icons.more_vert,
+                    color: Colors.grey[600],
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 16),
+
+            // Patient and Connection Info
+            _buildInfoRow(Icons.person, patientInfo),
+            const SizedBox(height: 4),
+            _buildInfoRow(Icons.access_time, connectedDate),
+            const SizedBox(height: 4),
+            _buildInfoRow(Icons.email, contactInfo),
+            const SizedBox(height: 16),
+
+            // Quick Actions
+            Row(
+              children: [
+                Expanded(
+                  child: ElevatedButton(
+                    onPressed: () {
+                      _handleQuickMessage(name);
+                    },
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.blue,
+                      foregroundColor: Colors.white,
+                      padding: const EdgeInsets.symmetric(vertical: 12),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(10),
+                      ),
+                      elevation: 2,
+                    ),
+                    child: const Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Icon(Icons.message, size: 18),
+                        SizedBox(width: 4),
+                        Text(
+                          'Message',
+                          style: TextStyle(
+                            fontSize: 14,
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: ElevatedButton(
+                    onPressed: () {
+                      _handleViewDetails(name);
+                    },
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.grey[100],
+                      foregroundColor: Colors.grey[700],
+                      padding: const EdgeInsets.symmetric(vertical: 12),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(10),
+                      ),
+                      elevation: 1,
+                    ),
+                    child: const Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Icon(Icons.info_outline, size: 18),
+                        SizedBox(width: 4),
+                        Text(
+                          'Details',
                           style: TextStyle(
                             fontSize: 14,
                             fontWeight: FontWeight.w600,
@@ -335,7 +591,7 @@ class _GuardianRequestsPageState extends State<GuardianRequestsPage>
           size: 16,
           color: Colors.grey[600],
         ),
-        SizedBox(width: 8),
+        const SizedBox(width: 8),
         Expanded(
           child: Text(
             text,
@@ -349,16 +605,188 @@ class _GuardianRequestsPageState extends State<GuardianRequestsPage>
     );
   }
 
+  void _handleConnectedAction(String action, String guardianName) {
+    switch (action) {
+      case 'message':
+        _handleQuickMessage(guardianName);
+        break;
+      case 'view_profile':
+        _handleViewDetails(guardianName);
+        break;
+      case 'disconnect':
+        _handleDisconnect(guardianName);
+        break;
+    }
+  }
+
+  void _handleQuickMessage(String guardianName) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text('Message $guardianName'),
+          content: const TextField(
+            maxLines: 3,
+            decoration: InputDecoration(
+              hintText: 'Type your message here...',
+              border: OutlineInputBorder(),
+            ),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context),
+              child: const Text('Cancel'),
+            ),
+            TextButton(
+              onPressed: () {
+                Navigator.pop(context);
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(content: Text('Message sent to $guardianName')),
+                );
+              },
+              child: const Text('Send'),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  void _handleViewDetails(String guardianName) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text('$guardianName Details'),
+          content: const Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text('Phone: +1 (555) 123-4567'),
+              SizedBox(height: 8),
+              Text('Address: 123 Main St, City, State'),
+              SizedBox(height: 8),
+              Text('Emergency Contact: Yes'),
+              SizedBox(height: 8),
+              Text('Care Plan Access: Full'),
+            ],
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context),
+              child: const Text('Close'),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  void _handleDisconnect(String guardianName) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text('Disconnect Guardian'),
+          content: Text('Are you sure you want to disconnect $guardianName? This will revoke their access to patient information.'),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context),
+              child: const Text('Cancel'),
+            ),
+            TextButton(
+              onPressed: () {
+                Navigator.pop(context);
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(content: Text('$guardianName has been disconnected')),
+                );
+              },
+              style: TextButton.styleFrom(foregroundColor: Colors.red),
+              child: const Text('Disconnect'),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  void _handleAcceptRequest(String guardianName) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text('Accept Request'),
+          content: Text('Are you sure you want to accept the request from $guardianName?'),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context),
+              child: const Text('Cancel'),
+            ),
+            TextButton(
+              onPressed: () {
+                Navigator.pop(context);
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(content: Text('Request from $guardianName accepted')),
+                );
+              },
+              child: const Text('Accept'),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  void _handleRejectRequest(String guardianName) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text('Reject Request'),
+          content: Text('Are you sure you want to reject the request from $guardianName?'),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context),
+              child: const Text('Cancel'),
+            ),
+            TextButton(
+              onPressed: () {
+                Navigator.pop(context);
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(content: Text('Request from $guardianName rejected')),
+                );
+              },
+              child: const Text('Reject'),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
   Widget _buildBottomNavigationBar() {
     return BottomNavigationBar(
+      currentIndex: _currentIndex,
+      onTap: (index) {
+        if (index == 1) {
+          Navigator.pushNamed(context, AppRoutes.caregiverPatients);
+        } else if (index == 2) {
+          Navigator.pushNamed(context, AppRoutes.viewArticleList);
+        } else if (index == 3) {
+          Navigator.pushNamed(context, AppRoutes.caregiverProfile);
+        } else {
+          setState(() {
+            _currentIndex = index;
+          });
+        }
+      },
       type: BottomNavigationBarType.fixed,
       backgroundColor: Colors.white,
       selectedItemColor: Colors.blue,
       unselectedItemColor: Colors.grey[600],
       selectedFontSize: 12,
       unselectedFontSize: 12,
-      currentIndex: 0,
-      items: [
+      items: const [
         BottomNavigationBarItem(
           icon: Icon(Icons.home),
           label: 'Home',

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../../routes/app_routes.dart';
 
 class Patient {
   final String name;
@@ -8,12 +9,12 @@ class Patient {
   Patient({required this.name, required this.age, required this.imageUrl});
 }
 
-class PatientsScreen extends StatefulWidget {
+class PatientListScreen extends StatefulWidget {
   @override
   _PatientsScreenState createState() => _PatientsScreenState();
 }
 
-class _PatientsScreenState extends State<PatientsScreen> {
+class _PatientsScreenState extends State<PatientListScreen> {
   int _currentIndex = 1; // Patients tab selected
   TextEditingController _searchController = TextEditingController();
   List<Patient> _allPatients = [];
@@ -143,6 +144,7 @@ class _PatientsScreenState extends State<PatientsScreen> {
         ],
       ),
       bottomNavigationBar: Container(
+
         decoration: BoxDecoration(
           color: Colors.white,
           boxShadow: [
@@ -156,9 +158,19 @@ class _PatientsScreenState extends State<PatientsScreen> {
         child: BottomNavigationBar(
           currentIndex: _currentIndex,
           onTap: (index) {
-            setState(() {
-              _currentIndex = index;
-            });
+            if (index == 0) { // Patients tab
+              // Navigate to detailed patients screen
+              Navigator.pushNamed(context, AppRoutes.caregiverDashboard);
+            }else if(index==2){
+              Navigator.pushNamed(context, AppRoutes.viewArticleList);
+            }else if(index==3){
+              Navigator.pushNamed(context, AppRoutes.caregiverProfile);
+            }
+            else {
+              setState(() {
+                _currentIndex = index;
+              });
+            }
           },
           type: BottomNavigationBarType.fixed,
           backgroundColor: Colors.white,
@@ -195,66 +207,71 @@ class _PatientsScreenState extends State<PatientsScreen> {
   }
 
   Widget _buildPatientCard(Patient patient) {
-    return Container(
-      margin: EdgeInsets.only(bottom: 16),
-      padding: EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(12),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.04),
-            blurRadius: 8,
-            offset: Offset(0, 2),
-          ),
-        ],
-        border: Border.all(
-          color: Colors.grey[100]!,
-          width: 1,
-        ),
-      ),
-      child: Row(
-        children: [
-          // Patient Avatar
-          CircleAvatar(
-            radius: 24,
-            backgroundImage: NetworkImage(patient.imageUrl),
-            backgroundColor: Colors.grey[200],
-          ),
-          SizedBox(width: 16),
-
-          // Patient Info
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  patient.name,
-                  style: TextStyle(
-                    fontSize: 16,
-                    fontWeight: FontWeight.w600,
-                    color: Colors.black87,
-                  ),
-                ),
-                SizedBox(height: 4),
-                Text(
-                  'Age: ${patient.age}',
-                  style: TextStyle(
-                    fontSize: 14,
-                    color: Colors.grey[600],
-                  ),
-                ),
-              ],
+    return GestureDetector(
+      onTap: () {
+        Navigator.pushNamed(context, AppRoutes.patientRoutine);
+      },
+      child: Container(
+        margin: EdgeInsets.only(bottom: 16),
+        padding: EdgeInsets.all(16),
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(12),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withOpacity(0.04),
+              blurRadius: 8,
+              offset: Offset(0, 2),
             ),
+          ],
+          border: Border.all(
+            color: Colors.grey[100]!,
+            width: 1,
           ),
+        ),
+        child: Row(
+          children: [
+            // Patient Avatar
+            CircleAvatar(
+              radius: 24,
+              backgroundImage: NetworkImage(patient.imageUrl),
+              backgroundColor: Colors.grey[200],
+            ),
+            SizedBox(width: 16),
 
-          // Arrow Icon
-          Icon(
-            Icons.chevron_right,
-            color: Colors.grey[400],
-            size: 20,
-          ),
-        ],
+            // Patient Info
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    patient.name,
+                    style: TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.w600,
+                      color: Colors.black87,
+                    ),
+                  ),
+                  SizedBox(height: 4),
+                  Text(
+                    'Age: ${patient.age}',
+                    style: TextStyle(
+                      fontSize: 14,
+                      color: Colors.grey[600],
+                    ),
+                  ),
+                ],
+              ),
+            ),
+
+            // Arrow Icon
+            Icon(
+              Icons.chevron_right,
+              color: Colors.grey[400],
+              size: 20,
+            ),
+          ],
+        ),
       ),
     );
   }

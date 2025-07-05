@@ -1,21 +1,5 @@
 import 'package:flutter/material.dart';
-
-class CaregiverApp extends StatelessWidget {
-  const CaregiverApp({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return MaterialApp(
-      title: 'Dementia Care Companion',
-      theme: ThemeData(
-        primarySwatch: Colors.blue,
-        fontFamily: 'Roboto',
-      ),
-      home: const MainScreen(),
-      debugShowCheckedModeBanner: false,
-    );
-  }
-}
+import '../../routes/app_routes.dart';
 
 class MainScreen extends StatefulWidget {
   const MainScreen({super.key});
@@ -41,9 +25,20 @@ class _MainScreenState extends State<MainScreen> {
       bottomNavigationBar: BottomNavigationBar(
         currentIndex: _currentIndex,
         onTap: (index) {
-          setState(() {
-            _currentIndex = index;
-          });
+          if (index == 1) { // Patients tab
+            // Navigate to detailed patients screen
+            Navigator.pushNamed(context, AppRoutes.caregiverPatients);
+          }else if(index==2){
+            Navigator.pushNamed(context, AppRoutes.viewArticleList);
+          }
+          else if(index==3){
+            Navigator.pushNamed(context, AppRoutes.caregiverProfile);
+          }
+          else {
+            setState(() {
+              _currentIndex = index;
+            });
+          }
         },
         type: BottomNavigationBarType.fixed,
         selectedItemColor: Colors.indigo,
@@ -237,6 +232,7 @@ class HomeScreen extends StatelessWidget {
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(12),
           ),
+
           color: Colors.blue[50],
           child: ListTile(
             leading: const Icon(Icons.person_add_alt, color: Colors.blue),
@@ -245,8 +241,9 @@ class HomeScreen extends StatelessWidget {
             trailing: IconButton(
               icon: const Icon(Icons.chevron_right),
               onPressed: () {
-                // Navigate to detailed request screen
+                Navigator.pushNamed(context, AppRoutes.guardianRequest);
               },
+
             ),
           ),
         ),
