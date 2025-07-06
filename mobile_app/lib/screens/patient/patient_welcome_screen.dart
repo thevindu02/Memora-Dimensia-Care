@@ -58,12 +58,11 @@ class PatientWelcomeScreen extends StatelessWidget {
                 width: double.infinity,
                 child: ElevatedButton(
                   onPressed: () {
-                    // Navigate to dashboard
-                    // Navigator.pushReplacement(
-                    //   context,
-                    //   MaterialPageRoute(builder: (context) => DashboardScreen()),
-                    // );
-                    Navigator.of(context).pushNamed(AppRoutes.patientMain);
+                    // Navigate to dashboard and clear all previous routes
+                    Navigator.of(context).pushNamedAndRemoveUntil(
+                      AppRoutes.patientMain,
+                      (Route<dynamic> route) => false, // Remove all routes
+                    );
                   },
                   style: ElevatedButton.styleFrom(
                     backgroundColor: const Color(0xFFA0C4FD),

@@ -5,6 +5,7 @@ import 'services/auth_service.dart';
 import 'screens/splash_screen.dart';
 import 'package:go_router/go_router.dart';
 import 'routes/router.dart';
+import 'utils/navigator_observer.dart';
 
 void main() {
   runApp(MyApp());
@@ -16,6 +17,7 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       title: 'Memora',
       //initialRoute: AppRoutes.splash,
+      navigatorObservers: [CustomNavigatorObserver()],
       initialRoute: AppRoutes.patientGuardianRequest,
       onGenerateRoute: RouteGenerator.generateRoute,
       debugShowCheckedModeBanner: false,

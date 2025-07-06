@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../../routes/app_routes.dart';
+import 'games/memory_match/memory_match_game.dart';
 
 class PatientGamesScreen extends StatelessWidget {
   const PatientGamesScreen({super.key});
@@ -11,10 +12,6 @@ class PatientGamesScreen extends StatelessWidget {
       appBar: AppBar(
         backgroundColor: Colors.white,
         elevation: 0,
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back, color: Colors.black),
-          onPressed: () => Navigator.pop(context),
-        ),
         title: const Text(
           'Play Games',
           style: TextStyle(
@@ -56,8 +53,7 @@ class PatientGamesScreen extends StatelessWidget {
                     title: 'Memory Match',
                     description: 'Find matching pairs.\nGreat for memory exercise.',
                     onTap: () {
-                      // Handle Memory Match tap
-                      print('Memory Match tapped');
+                      Navigator.of(context).pushNamed(AppRoutes.patientMemoryMatch);
                     },
                   ),
                   const SizedBox(height: 16),
@@ -67,8 +63,7 @@ class PatientGamesScreen extends StatelessWidget {
                     title: 'Color Match',
                     description: 'Find matching pairs.\nGreat for memory exercise.',
                     onTap: () {
-                      // Handle Color Match tap
-                      print('Color Match tapped');
+                      // Placeholder for Color Match game navigation
                     },
                   ),
                 ],

@@ -17,7 +17,12 @@ class AppRoutes {
   static const String patientNotifications = '/patient/notification';
   static const String patientGames = '/patient/games';
   static const String patientMain = '/patient/main';
-
+  static const String patientMemoryMatch = '/patient/memory_match_game';
+  static const String patientMemoryMatchLevel4 = '/patient/memory_match/level/4';
+  static const String patientMemoryMatchLevel6 = '/patient/memory_match/level/6';
+  static const String patientMemoryMatchLevel8 = '/patient/memory_match/level/8';
+  static const String patientMemoryMatchQuit = '/patient/memory_match/quit';
+  static const String patientMemoryMatchControls = '/patient/memory_match/controls';
   // Guardian routes
   static const String guardianSignup = '/guardian/signup';
   static const String guardianDashboard = '/guardian/dashboard';
