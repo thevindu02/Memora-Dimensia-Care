@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import '../../../../../../routes/app_routes.dart';
 import '../../ui/widgets/game_button.dart';
 import '../../utils/constants.dart';
-import '../../../../../../utils/navigator_observer.dart';
 
 class GameControlsBottomSheet extends StatelessWidget {
   const GameControlsBottomSheet({
@@ -25,21 +24,25 @@ class GameControlsBottomSheet extends StatelessWidget {
           ),
           const SizedBox(height: 10),
           GameButton(
-            onPressed: () => Navigator.of(context).pushNamed(AppRoutes.patientMemoryMatchContinue),
+            onPressed: () => Navigator.of(context).pop('continue'),
             title: 'CONTINUE',
             color: continueButtonColor,
             width: 200,
           ),
           const SizedBox(height: 10),
           GameButton(
-            onPressed: () => Navigator.of(context).pushNamed(AppRoutes.patientMemoryMatchRestart),
+            onPressed: () => Navigator.of(context).pop('restart'),
             title: 'RESTART',
             color: restartButtonColor,
             width: 200,
           ),
           const SizedBox(height: 10),
           GameButton(
-            onPressed: () => Navigator.of(context).pushNamed(AppRoutes.patientMemoryMatchQuit),
+            onPressed: () {
+              Navigator.of(context).popUntil(
+                (Route<dynamic> route) => route.settings.name == AppRoutes.patientMain,
+              );
+            },
             title: 'QUIT',
             color: quitButtonColor,
             width: 200,
