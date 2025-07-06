@@ -7,7 +7,7 @@ class CaregiverProfileScreen extends StatefulWidget {
 }
 
 class _ProfileViewState extends State<CaregiverProfileScreen> {
-  int _currentIndex = 0; // default selected index for Profile tab
+  int _currentIndex = 3; // default selected index for Profile tab
 
   bool receiveNotifications = false;
 

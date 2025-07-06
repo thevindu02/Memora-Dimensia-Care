@@ -27,6 +27,7 @@ class AppRoutes {
   static const String selectType = '/caregiver/selectRoutine';
   static const String viewArticleList = '/caregiver/article';
   static const String guardianRequest = '/caregiver/request';
+  static const String caregiverNotification = '/caregiver/notification';
 
 
 

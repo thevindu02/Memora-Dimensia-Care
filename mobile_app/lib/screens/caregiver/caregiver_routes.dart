@@ -10,6 +10,7 @@ import 'profile_view_screen.dart';
 import 'request_list_screen.dart';
 import 'profile_edit_screen.dart';
 import 'request_details_screen.dart';
+import 'caregiver_notification.dart';
 
 class CaregiverRoutes {
   static Route<dynamic> generateRoute(RouteSettings settings) {
@@ -27,11 +28,13 @@ class CaregiverRoutes {
       case AppRoutes.patientRoutine:
         return MaterialPageRoute(builder: (_) => ScheduleRoutine());
       case AppRoutes.selectType:
-        return MaterialPageRoute(builder: (_) => SelectType());
+        return MaterialPageRoute(builder: (_) => SelectTypeWithErrorHandling());
       case AppRoutes.viewArticleList:
         return MaterialPageRoute(builder: (_) => ArticleList());
       case AppRoutes.guardianRequest:
         return MaterialPageRoute(builder: (_) => GuardianRequestsPage());
+      case AppRoutes.caregiverNotification:
+        return MaterialPageRoute(builder: (_) => CaregiverNotificationScreen());
 
       default:
         return MaterialPageRoute(

@@ -2,17 +2,11 @@ import 'package:flutter/material.dart';
 import 'dart:ui';
 import '../../routes/app_routes.dart';
 
+// Remove the nested MaterialApp - this was causing the routing issue
 class ScheduleRoutine extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      title: 'Schedule Routine',
-      theme: ThemeData(
-        primarySwatch: Colors.blue,
-        visualDensity: VisualDensity.adaptivePlatformDensity,
-      ),
-      home: ScheduleRoutineScreen(),
-    );
+    return ScheduleRoutineScreen();
   }
 }
 
@@ -39,9 +33,11 @@ class ScheduleTask {
 class ScheduleRoutineScreen extends StatefulWidget {
   @override
   _ScheduleRoutineScreenState createState() => _ScheduleRoutineScreenState();
+
 }
 
 class _ScheduleRoutineScreenState extends State<ScheduleRoutineScreen> {
+  int _currentIndex = 1;
   List<ScheduleTask> tasks = [
     ScheduleTask(
       title: 'Breakfast Time',
@@ -366,6 +362,8 @@ class _ScheduleRoutineScreenState extends State<ScheduleRoutineScreen> {
                   ),
                   FloatingActionButton.small(
                     onPressed: () {
+                      // Added debug print to help troubleshoot
+                      print('Navigating to: ${AppRoutes.selectType}');
                       Navigator.pushNamed(context, AppRoutes.selectType);
                     },
                     backgroundColor: Colors.blue,
@@ -553,38 +551,70 @@ class _ScheduleRoutineScreenState extends State<ScheduleRoutineScreen> {
         ),
       ),
       bottomNavigationBar: BottomNavigationBar(
-        type: BottomNavigationBarType.fixed,
-        backgroundColor: Colors.white,
-        selectedItemColor: Colors.blue,
-        unselectedItemColor: Colors.grey,
-        showSelectedLabels: true,
-        showUnselectedLabels: true,
-        currentIndex: 1, // Schedule tab is selected
-        items: [
-          BottomNavigationBarItem(
-            icon: Icon(Icons.home),
-            activeIcon: Icon(Icons.home),
-            label: 'Home',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.people),
-            activeIcon: Icon(Icons.people),
-            label: 'Patients',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.book),
-            activeIcon: Icon(Icons.book),
-            label: 'Articles',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.person),
-            activeIcon: Icon(Icons.person),
-            label: 'Profile',
-          ),
-        ],
+        currentIndex: _currentIndex,
         onTap: (index) {
-          // Handle bottom navigation tap
+          if (index == 0) { // Patients tab
+            // Navigate to detailed patients screen
+            Navigator.pushNamed(context, AppRoutes.caregiverDashboard);
+          }else if(index==3){
+            Navigator.pushNamed(context, AppRoutes.caregiverProfile);
+          }
+          else if(index==2){
+            Navigator.pushNamed(context, AppRoutes.viewArticleList);
+          }
+          else {
+            setState(() {
+              _currentIndex = index;
+            });
+          }
         },
+        type: BottomNavigationBarType.fixed,
+        selectedItemColor: Colors.indigo,
+        unselectedItemColor: Colors.grey,
+        items: const [
+          BottomNavigationBarItem(icon: Icon(Icons.home), label: 'Home'),
+          BottomNavigationBarItem(icon: Icon(Icons.people), label: 'Patients'),
+          BottomNavigationBarItem(icon: Icon(Icons.article), label: 'Articles'),
+          BottomNavigationBarItem(icon: Icon(Icons.person), label: 'Profile'),
+        ],
+      ),
+    );
+  }
+}
+
+// Example of what your SelectRoutine page might look like
+class SelectRoutinePage extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: Text('Select Routine Type'),
+        backgroundColor: Colors.white,
+        foregroundColor: Colors.black,
+        elevation: 0,
+      ),
+      body: Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Text(
+              'Select Routine Type',
+              style: TextStyle(
+                fontSize: 24,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+            SizedBox(height: 20),
+            Text('This is your SelectRoutine page'),
+            SizedBox(height: 20),
+            ElevatedButton(
+              onPressed: () {
+                Navigator.pop(context);
+              },
+              child: Text('Go Back'),
+            ),
+          ],
+        ),
       ),
     );
   }

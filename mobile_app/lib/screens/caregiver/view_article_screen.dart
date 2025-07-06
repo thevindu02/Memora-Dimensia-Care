@@ -6,15 +6,7 @@ class ArticleList extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      title: 'Healthcare Blog App',
-      theme: ThemeData(
-        primarySwatch: Colors.blue,
-        useMaterial3: true,
-      ),
-      home: const MScreen(),
-      debugShowCheckedModeBanner: false,
-    );
+    return const MScreen();
   }
 }
 
@@ -81,6 +73,52 @@ class _ArticlesScreenState extends State<ArticlesScreen> {
     Article(
       title: 'Compassionate Dementia Care',
       description: 'Dementia is more than memory loss—it\'s a life-changing condition that affects how a person thinks...',
+      fullContent: '''Dementia is more than memory loss—it's a life-changing condition that affects how a person thinks, feels, and behaves. As caregivers, understanding the complexities of dementia is crucial for providing compassionate care that honors the dignity and individuality of each person.
+
+Understanding Dementia
+Dementia is not a single disease but rather a term used to describe a group of symptoms that affect memory, thinking, and social abilities severely enough to interfere with daily life. The most common form is Alzheimer's disease, which accounts for 60-80% of all dementia cases.
+
+Key symptoms include:
+- Memory loss that disrupts daily life
+- Challenges in planning or solving problems
+- Difficulty completing familiar tasks
+- Confusion with time or place
+- Changes in mood and personality
+
+Compassionate Care Strategies
+1. Person-Centered Approach: Always remember that behind the diagnosis is a person with a unique history, preferences, and emotions. Take time to learn about their life story, interests, and what brings them comfort.
+
+2. Communication Techniques:
+- Speak slowly and clearly
+- Use simple, concrete language
+- Maintain eye contact
+- Be patient and allow extra time for responses
+- Validate their emotions, even if the facts are confused
+
+3. Creating a Supportive Environment:
+- Maintain familiar routines
+- Reduce environmental stressors
+- Ensure adequate lighting
+- Remove potential hazards
+- Create calm, comfortable spaces
+
+4. Managing Behavioral Changes:
+- Look for triggers that may cause agitation
+- Redirect rather than correct
+- Use distraction techniques
+- Maintain your own calm demeanor
+- Seek professional help when needed
+
+Self-Care for Caregivers
+Caring for someone with dementia can be emotionally and physically demanding. Remember that taking care of yourself is not selfish—it's essential for providing the best care possible.
+
+- Take regular breaks
+- Seek support from family, friends, or support groups
+- Consider respite care services
+- Practice stress-reduction techniques
+- Don't hesitate to ask for help
+
+Remember, every person with dementia is unique, and what works for one may not work for another. The key is to approach each situation with patience, understanding, and love. Your compassionate care makes a significant difference in their quality of life.''',
       category: 'Elderly Care',
       author: 'Sarah',
       date: '2025-06-21',
@@ -109,6 +147,72 @@ class _ArticlesScreenState extends State<ArticlesScreen> {
     Article(
       title: 'Managing Chronic Pain in Seniors',
       description: 'Chronic pain affects millions of older adults worldwide, impacting their quality of life...',
+      fullContent: '''Chronic pain affects millions of older adults worldwide, impacting their quality of life and daily functioning. As we age, our bodies undergo various changes that can contribute to persistent pain conditions. Understanding how to effectively manage chronic pain in seniors is essential for maintaining independence and well-being.
+
+Understanding Chronic Pain in Seniors
+Chronic pain is defined as pain that persists for more than 3-6 months, often continuing beyond the expected healing time. In older adults, chronic pain can result from:
+
+- Arthritis and joint degeneration
+- Back problems and spinal conditions
+- Previous injuries or surgeries
+- Nerve damage (neuropathy)
+- Chronic conditions like fibromyalgia
+- Cancer-related pain
+
+The Impact of Chronic Pain
+Chronic pain in seniors can lead to:
+- Reduced mobility and independence
+- Sleep disturbances
+- Depression and anxiety
+- Social isolation
+- Decreased quality of life
+- Increased risk of falls
+
+Comprehensive Pain Management Strategies
+
+1. Medical Management:
+- Regular consultations with healthcare providers
+- Appropriate medication management
+- Physical therapy and rehabilitation
+- Minimally invasive procedures when appropriate
+
+2. Non-Pharmacological Approaches:
+- Heat and cold therapy
+- Gentle exercise and stretching
+- Massage therapy
+- Acupuncture
+- Mindfulness and relaxation techniques
+
+3. Lifestyle Modifications:
+- Maintaining a healthy weight
+- Regular, appropriate exercise
+- Proper nutrition
+- Adequate sleep
+- Stress management
+
+4. Psychological Support:
+- Counseling and therapy
+- Support groups
+- Cognitive-behavioral therapy
+- Mindfulness-based stress reduction
+
+Creating a Pain Management Plan
+Work with healthcare providers to develop a comprehensive plan that includes:
+- Clear pain assessment and monitoring
+- Realistic goals and expectations
+- Multiple treatment modalities
+- Regular evaluation and adjustment
+- Emergency protocols for severe pain episodes
+
+The Role of Caregivers
+Caregivers play a crucial role in supporting seniors with chronic pain:
+- Advocate for appropriate pain management
+- Help with daily activities and mobility
+- Provide emotional support
+- Monitor medication compliance
+- Encourage participation in pain management strategies
+
+Remember, chronic pain management is not about eliminating all pain but about improving function and quality of life. With the right approach, seniors can learn to manage their pain effectively and maintain their independence and dignity.''',
       category: 'Pain Management',
       author: 'Dr. Johnson',
       date: '2025-06-20',
@@ -131,6 +235,101 @@ class _ArticlesScreenState extends State<ArticlesScreen> {
     Article(
       title: 'Nutrition Guidelines for Elderly',
       description: 'Proper nutrition plays a crucial role in maintaining health and independence in older adults...',
+      fullContent: '''Proper nutrition plays a crucial role in maintaining health and independence in older adults. As we age, our nutritional needs change, and it becomes increasingly important to focus on nutrient-dense foods that support overall health and well-being.
+
+Age-Related Nutritional Changes
+As we age, several factors can affect nutrition:
+- Decreased appetite and sense of taste/smell
+- Dental problems affecting chewing
+- Reduced stomach acid production
+- Slower metabolism
+- Medication interactions
+- Chronic health conditions
+- Social and economic factors
+
+Essential Nutrients for Seniors
+
+1. Protein:
+- Helps maintain muscle mass and strength
+- Sources: lean meats, fish, eggs, dairy, legumes, nuts
+- Aim for 1.0-1.2 grams per kilogram of body weight daily
+
+2. Calcium and Vitamin D:
+- Essential for bone health
+- Sources: dairy products, fortified foods, leafy greens
+- Consider supplements if dietary intake is insufficient
+
+3. Vitamin B12:
+- Important for nerve function and red blood cell formation
+- Sources: meat, fish, dairy, fortified cereals
+- Absorption decreases with age, supplements may be needed
+
+4. Fiber:
+- Supports digestive health
+- Sources: fruits, vegetables, whole grains, legumes
+- Aim for 21-30 grams daily
+
+5. Healthy Fats:
+- Support brain and heart health
+- Sources: olive oil, nuts, seeds, fatty fish
+- Focus on omega-3 fatty acids
+
+Meal Planning Strategies
+
+1. Plan Balanced Meals:
+- Include protein, healthy fats, and complex carbohydrates
+- Aim for colorful plates with variety
+- Consider smaller, more frequent meals
+
+2. Hydration:
+- Drink plenty of water throughout the day
+- Monitor urine color as a hydration indicator
+- Include hydrating foods like soups and fruits
+
+3. Food Safety:
+- Practice proper food handling and storage
+- Check expiration dates regularly
+- Be aware of foodborne illness risks
+
+4. Budget-Friendly Options:
+- Buy seasonal produce
+- Use frozen fruits and vegetables
+- Consider generic brands
+- Plan meals around sales and coupons
+
+Addressing Common Challenges
+
+1. Decreased Appetite:
+- Eat smaller, more frequent meals
+- Use herbs and spices to enhance flavor
+- Make meals social when possible
+- Consider nutritional supplements if needed
+
+2. Dental Issues:
+- Choose softer foods that are easier to chew
+- Cut food into smaller pieces
+- Consider smoothies and soups
+- Maintain good oral hygiene
+
+3. Limited Mobility:
+- Utilize grocery delivery services
+- Ask family/friends for help with shopping
+- Keep non-perishable nutritious foods on hand
+- Consider meal delivery services
+
+4. Medication Interactions:
+- Consult healthcare providers about food-drug interactions
+- Take medications as directed in relation to meals
+- Monitor for side effects that affect appetite
+
+Creating a Sustainable Nutrition Plan
+- Work with healthcare providers and dietitians
+- Set realistic goals
+- Make gradual changes
+- Focus on foods you enjoy
+- Stay flexible and adjust as needed
+
+Remember, good nutrition is an investment in your health and independence. Small, consistent changes can lead to significant improvements in overall well-being and quality of life.''',
       category: 'Nutrition',
       author: 'Emily',
       date: '2025-06-19',
@@ -388,7 +587,12 @@ class _ArticleCardState extends State<ArticleCard> {
                     const Spacer(),
                     ElevatedButton(
                       onPressed: () {
-                        // Navigate to article detail
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => ArticleDetailPage(article: widget.article),
+                          ),
+                        );
                       },
                       style: ElevatedButton.styleFrom(
                         backgroundColor: Colors.blue,
@@ -506,6 +710,252 @@ class _ArticleCardState extends State<ArticleCard> {
             ),
           ),
         ],
+      ),
+    );
+  }
+}
+
+// New Article Detail Page
+class ArticleDetailPage extends StatefulWidget {
+  final Article article;
+
+  const ArticleDetailPage({super.key, required this.article});
+
+  @override
+  State<ArticleDetailPage> createState() => _ArticleDetailPageState();
+}
+
+class _ArticleDetailPageState extends State<ArticleDetailPage> {
+  bool isBookmarked = false;
+  final TextEditingController _commentController = TextEditingController();
+
+  void _addComment() {
+    if (_commentController.text.trim().isNotEmpty) {
+      setState(() {
+        widget.article.comments.add(
+          Comment(
+            author: 'Anonymous User',
+            content: _commentController.text.trim(),
+            date: '2025-07-02',
+            likes: 0,
+          ),
+        );
+        _commentController.clear();
+      });
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        backgroundColor: Colors.white,
+        elevation: 0,
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back, color: Colors.black87),
+          onPressed: () => Navigator.pop(context),
+        ),
+        title: const Text(
+          'Article Details',
+          style: TextStyle(
+            color: Colors.black87,
+            fontSize: 18,
+            fontWeight: FontWeight.w600,
+          ),
+        ),
+        actions: [
+          IconButton(
+            icon: Icon(
+              isBookmarked ? Icons.bookmark : Icons.bookmark_border,
+              color: isBookmarked ? Colors.blue : Colors.black87,
+            ),
+            onPressed: () {
+              setState(() {
+                isBookmarked = !isBookmarked;
+              });
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(
+                  content: Text(
+                    isBookmarked ? 'Article bookmarked' : 'Bookmark removed',
+                  ),
+                  duration: const Duration(seconds: 2),
+                ),
+              );
+            },
+          ),
+          IconButton(
+            icon: const Icon(Icons.share, color: Colors.black87),
+            onPressed: () {
+              // Share functionality
+              ScaffoldMessenger.of(context).showSnackBar(
+                const SnackBar(
+                  content: Text('Share functionality would be implemented here'),
+                  duration: Duration(seconds: 2),
+                ),
+              );
+            },
+          ),
+        ],
+      ),
+      backgroundColor: Colors.white,
+      body: SingleChildScrollView(
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            // Article Image
+            Container(
+              height: 250,
+              width: double.infinity,
+              color: Colors.grey[200],
+              child: const Icon(
+                Icons.image,
+                size: 80,
+                color: Colors.grey,
+              ),
+            ),
+
+            Padding(
+              padding: const EdgeInsets.all(16.0),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  // Category Tag
+                  Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                    decoration: BoxDecoration(
+                      color: Colors.pink[50],
+                      borderRadius: BorderRadius.circular(15),
+                    ),
+                    child: Text(
+                      widget.article.category,
+                      style: TextStyle(
+                        fontSize: 12,
+                        color: Colors.pink[400],
+                        fontWeight: FontWeight.w500,
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 16),
+
+                  // Title
+                  Text(
+                    widget.article.title,
+                    style: const TextStyle(
+                      fontSize: 24,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.black,
+                      height: 1.3,
+                    ),
+                  ),
+                  const SizedBox(height: 16),
+
+                  // Author and Date
+                  Row(
+                    children: [
+                      CircleAvatar(
+                        radius: 20,
+                        backgroundColor: Colors.blue[100],
+                        child: Text(
+                          widget.article.author[0],
+                          style: TextStyle(
+                            color: Colors.blue[700],
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                      ),
+                      const SizedBox(width: 12),
+                      Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            widget.article.author,
+                            style: const TextStyle(
+                              fontSize: 14,
+                              fontWeight: FontWeight.w600,
+                            ),
+                          ),
+                          Text(
+                            widget.article.date,
+                            style: TextStyle(
+                              fontSize: 12,
+                              color: Colors.grey[500],
+                            ),
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 24),
+
+                  // Article Content
+                  Text(
+                    widget.article.fullContent,
+                    style: const TextStyle(
+                      fontSize: 16,
+                      height: 1.6,
+                      color: Colors.black87,
+                    ),
+                  ),
+                  const SizedBox(height: 32),
+
+                  // Comments Section
+                  const Text(
+                    'Comments',
+                    style: TextStyle(
+                      fontSize: 20,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  const SizedBox(height: 16),
+
+                  // Add Comment Input
+                  Container(
+                    padding: const EdgeInsets.all(16),
+                    decoration: BoxDecoration(
+                      color: Colors.grey[50],
+                      borderRadius: BorderRadius.circular(12),
+                      border: Border.all(color: Colors.grey[200]!),
+                    ),
+                    child: Column(
+                      children: [
+                        TextField(
+                          controller: _commentController,
+                          decoration: const InputDecoration(
+                            hintText: 'Write your comment as Anonymous User...',
+                            border: InputBorder.none,
+                            contentPadding: EdgeInsets.zero,
+                          ),
+                          maxLines: 3,
+                        ),
+                        const SizedBox(height: 12),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.end,
+                          children: [
+                            ElevatedButton(
+                              onPressed: _addComment,
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: Colors.blue,
+                                foregroundColor: Colors.white,
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(20),
+                                ),
+                              ),
+                              child: const Text('Post Comment'),
+                            ),
+                          ],
+                        ),
+                      ],
+                    ),
+                  ),
+                  const SizedBox(height: 20),
+
+                  // Comments List
+                  ...widget.article.comments.map((comment) => CommentWidget(comment: comment)),
+                ],
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -679,6 +1129,7 @@ class NotificationScreen extends StatelessWidget {
 class Article {
   final String title;
   final String description;
+  final String fullContent;
   final String category;
   final String author;
   final String date;
@@ -688,6 +1139,7 @@ class Article {
   Article({
     required this.title,
     required this.description,
+    required this.fullContent,
     required this.category,
     required this.author,
     required this.date,

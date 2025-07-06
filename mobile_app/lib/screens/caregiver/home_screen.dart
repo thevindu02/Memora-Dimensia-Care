@@ -80,7 +80,9 @@ class HomeScreen extends StatelessWidget {
         actions: [
           IconButton(
             icon: Icon(Icons.notifications_outlined, color: Colors.grey[600]),
-            onPressed: () {},
+            onPressed: () {
+              Navigator.pushNamed(context, AppRoutes.caregiverNotification);
+            },
           ),
         ],
       ),

@@ -9,7 +9,7 @@ class EditProfileEdit extends StatefulWidget {
 }
 
 class _EditProfileViewState extends State<EditProfileEdit> {
-  int _currentIndex = 0; // Index of "Profile" tab
+  int _currentIndex = 3; // Index of "Profile" tab
 
   final _formKey = GlobalKey<FormState>();
   File? _selectedImage;
