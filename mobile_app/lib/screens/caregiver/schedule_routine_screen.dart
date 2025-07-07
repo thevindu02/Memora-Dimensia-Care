@@ -278,7 +278,7 @@ class _ScheduleRoutineScreenState extends State<ScheduleRoutineScreen> {
               IconButton(
                 icon: Icon(Icons.notifications_outlined, color: Colors.black),
                 onPressed: () {
-                  // Handle notification tap
+                  Navigator.pushNamed(context, AppRoutes.caregiverNotification);
                 },
               ),
               Positioned(
@@ -316,33 +316,38 @@ class _ScheduleRoutineScreenState extends State<ScheduleRoutineScreen> {
                   ),
                 ],
               ),
-              child: Row(
-                children: [
-                  CircleAvatar(
-                    radius: 25,
-                    backgroundImage: NetworkImage('https://via.placeholder.com/100'),
-                  ),
-                  SizedBox(width: 12),
-                  Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        'Sarah Johnson',
-                        style: TextStyle(
-                          fontWeight: FontWeight.w600,
-                          fontSize: 16,
+              child: InkWell(
+                onTap: () {
+                  Navigator.pushNamed(context, AppRoutes.careDetails);
+                },
+                child: Row(
+                  children: [
+                    CircleAvatar(
+                      radius: 25,
+                      backgroundImage: NetworkImage('https://via.placeholder.com/100'),
+                    ),
+                    SizedBox(width: 12),
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          'Sarah Johnson',
+                          style: TextStyle(
+                            fontWeight: FontWeight.w600,
+                            fontSize: 16,
+                          ),
                         ),
-                      ),
-                      Text(
-                        'Patient ID: #12345',
-                        style: TextStyle(
-                          color: Colors.grey.shade600,
-                          fontSize: 14,
+                        Text(
+                          'Patient ID: #12345',
+                          style: TextStyle(
+                            color: Colors.grey.shade600,
+                            fontSize: 14,
+                          ),
                         ),
-                      ),
-                    ],
-                  ),
-                ],
+                      ],
+                    ),
+                  ],
+                ),
               ),
             ),
 
@@ -527,7 +532,7 @@ class _ScheduleRoutineScreenState extends State<ScheduleRoutineScreen> {
               width: double.infinity,
               child: ElevatedButton(
                 onPressed: () {
-                  // Handle complete daily routine
+                  Navigator.pushNamed(context, AppRoutes.completeRoutine);
                 },
                 style: ElevatedButton.styleFrom(
                   backgroundColor: Colors.blue,

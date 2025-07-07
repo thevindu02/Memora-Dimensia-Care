@@ -383,7 +383,9 @@ Remember, good nutrition is an investment in your health and independence. Small
         actions: [
           IconButton(
             icon: Icon(Icons.notifications_outlined, color: Colors.black),
-            onPressed: () {},
+            onPressed: () {
+              Navigator.pushNamed(context, AppRoutes.caregiverNotification);
+            },
           ),
         ],
       ),

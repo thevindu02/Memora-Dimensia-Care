@@ -635,6 +635,7 @@ class NotificationCard extends StatelessWidget {
   }
 }
 
+
 // Usage in your main screen where you handle bottom navigation
 class MainScren extends StatefulWidget {
   @override

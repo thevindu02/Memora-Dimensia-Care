@@ -1,7 +1,15 @@
 import 'package:flutter/material.dart';
+import '../../routes/app_routes.dart';
 
-class ScheduleRoutineDialog extends StatelessWidget {
+class ScheduleRoutineDialog extends StatefulWidget {
   const ScheduleRoutineDialog({Key? key}) : super(key: key);
+
+  @override
+  State<ScheduleRoutineDialog> createState() => _ScheduleRoutineDialogState();
+}
+
+class _ScheduleRoutineDialogState extends State<ScheduleRoutineDialog> {
+  int currentIndex = 1; // Set to 1 since we're on Patients tab
 
   @override
   Widget build(BuildContext context) {
@@ -26,7 +34,9 @@ class ScheduleRoutineDialog extends StatelessWidget {
         actions: [
           IconButton(
             icon: Icon(Icons.notifications_outlined, color: Colors.grey[600]),
-            onPressed: () {},
+            onPressed: () {
+              Navigator.pushNamed(context, AppRoutes.caregiverNotification);
+            },
           ),
         ],
       ),
@@ -41,12 +51,12 @@ class ScheduleRoutineDialog extends StatelessWidget {
                     padding: const EdgeInsets.symmetric(horizontal: 20.0),
                     child: ConstrainedBox(
                       constraints: BoxConstraints(
-                        minHeight: constraints.maxHeight - 160, // Reserve space for bottom section
+                        minHeight: constraints.maxHeight - 80, // Adjusted for BottomNavigationBar
                       ),
                       child: Column(
                         children: [
                           const SizedBox(height: 20),
-                          
+
                           // Patient Info Section
                           Row(
                             children: [
@@ -83,9 +93,9 @@ class ScheduleRoutineDialog extends StatelessWidget {
                               ),
                             ],
                           ),
-                          
+
                           const SizedBox(height: 30),
-                          
+
                           // Complete Daily Routine Section
                           const Text(
                             'Complete Daily Routine',
@@ -105,9 +115,9 @@ class ScheduleRoutineDialog extends StatelessWidget {
                               height: 1.3,
                             ),
                           ),
-                          
+
                           const SizedBox(height: 20),
-                          
+
                           // This action will section
                           Container(
                             width: double.infinity,
@@ -138,90 +148,87 @@ class ScheduleRoutineDialog extends StatelessWidget {
                               ],
                             ),
                           ),
-                          
+
                           const SizedBox(height: 20),
+
+                          // Action Buttons
+                          Row(
+                            children: [
+                              Expanded(
+                                child: OutlinedButton.icon(
+                                  onPressed: () => Navigator.pop(context),
+                                  icon: const Icon(Icons.close, size: 18),
+                                  label: const Text('Cancel'),
+                                  style: OutlinedButton.styleFrom(
+                                    foregroundColor: Colors.red,
+                                    side: const BorderSide(color: Colors.red),
+                                    padding: const EdgeInsets.symmetric(vertical: 12),
+                                    shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(8),
+                                    ),
+                                  ),
+                                ),
+                              ),
+                              const SizedBox(width: 12),
+                              Expanded(
+                                child: ElevatedButton(
+                                  onPressed: () {
+                                    Navigator.pushNamed(context, AppRoutes.patientReport);
+                                  },
+                                  style: ElevatedButton.styleFrom(
+                                    backgroundColor: Colors.green,
+                                    foregroundColor: Colors.white,
+                                    padding: const EdgeInsets.symmetric(vertical: 12),
+                                    shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(8),
+                                    ),
+                                    elevation: 0,
+                                  ),
+                                  child: const Text(
+                                    'Yes, Complete Routine',
+                                    style: TextStyle(fontSize: 14),
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+
+                          const SizedBox(height: 12),
                         ],
                       ),
                     ),
-                  ),
-                ),
-                
-                // Fixed bottom section
-                Container(
-                  padding: const EdgeInsets.all(16),
-                  decoration: BoxDecoration(
-                    color: Colors.white,
-                    boxShadow: [
-                      BoxShadow(
-                        color: Colors.grey.withOpacity(0.1),
-                        spreadRadius: 1,
-                        blurRadius: 3,
-                        offset: const Offset(0, -1),
-                      ),
-                    ],
-                  ),
-                  child: Column(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      // Action Buttons
-                      Row(
-                        children: [
-                          Expanded(
-                            child: OutlinedButton.icon(
-                              onPressed: () => Navigator.pop(context),
-                              icon: const Icon(Icons.close, size: 18),
-                              label: const Text('Cancel'),
-                              style: OutlinedButton.styleFrom(
-                                foregroundColor: Colors.red,
-                                side: const BorderSide(color: Colors.red),
-                                padding: const EdgeInsets.symmetric(vertical: 12),
-                                shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(8),
-                                ),
-                              ),
-                            ),
-                          ),
-                          const SizedBox(width: 12),
-                          Expanded(
-                            child: ElevatedButton(
-                              onPressed: () => _completeRoutine(context),
-                              style: ElevatedButton.styleFrom(
-                                backgroundColor: Colors.green,
-                                foregroundColor: Colors.white,
-                                padding: const EdgeInsets.symmetric(vertical: 12),
-                                shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(8),
-                                ),
-                                elevation: 0,
-                              ),
-                              child: const Text(
-                                'Yes, Complete Routine',
-                                style: TextStyle(fontSize: 14),
-                              ),
-                            ),
-                          ),
-                        ],
-                      ),
-                      
-                      const SizedBox(height: 12),
-                      
-                      // Bottom Navigation
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceAround,
-                        children: [
-                          _buildBottomNavItem(Icons.home, 'Home'),
-                          _buildBottomNavItem(Icons.people, 'Patients', isActive: true),
-                          _buildBottomNavItem(Icons.book, 'Articles'),
-                          _buildBottomNavItem(Icons.person, 'Profile'),
-                        ],
-                      ),
-                    ],
                   ),
                 ),
               ],
             );
           },
         ),
+      ),
+      bottomNavigationBar: BottomNavigationBar(
+        currentIndex: currentIndex,
+        onTap: (index) {
+          if (index == 1) { // Patients tab
+            // Navigate to detailed patients screen
+            Navigator.pushNamed(context, AppRoutes.caregiverPatients);
+          } else if (index == 2) {
+            Navigator.pushNamed(context, AppRoutes.viewArticleList);
+          } else if (index == 3) {
+            Navigator.pushNamed(context, AppRoutes.caregiverProfile);
+          } else {
+            setState(() {
+              currentIndex = index;
+            });
+          }
+        },
+        type: BottomNavigationBarType.fixed,
+        selectedItemColor: Colors.indigo,
+        unselectedItemColor: Colors.grey,
+        items: const [
+          BottomNavigationBarItem(icon: Icon(Icons.home), label: 'Home'),
+          BottomNavigationBarItem(icon: Icon(Icons.people), label: 'Patients'),
+          BottomNavigationBarItem(icon: Icon(Icons.article), label: 'Articles'),
+          BottomNavigationBarItem(icon: Icon(Icons.person), label: 'Profile'),
+        ],
       ),
     );
   }
@@ -248,27 +255,6 @@ class ScheduleRoutineDialog extends StatelessWidget {
               color: Colors.black87,
               height: 1.2,
             ),
-          ),
-        ),
-      ],
-    );
-  }
-
-  Widget _buildBottomNavItem(IconData icon, String label, {bool isActive = false}) {
-    return Column(
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        Icon(
-          icon,
-          color: isActive ? Colors.blue : Colors.grey,
-          size: 20,
-        ),
-        const SizedBox(height: 2),
-        Text(
-          label,
-          style: TextStyle(
-            color: isActive ? Colors.blue : Colors.grey,
-            fontSize: 10,
           ),
         ),
       ],

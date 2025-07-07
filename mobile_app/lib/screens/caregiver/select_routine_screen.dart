@@ -211,7 +211,9 @@ class _SelectTypeWithErrorHandlingState extends State<SelectTypeWithErrorHandlin
         actions: [
           IconButton(
             icon: Icon(Icons.notifications_outlined, color: Colors.black87),
-            onPressed: () => _handleNotifications(),
+            onPressed: () {
+              Navigator.pushNamed(context, AppRoutes.caregiverNotification);
+            },
           ),
         ],
       ),

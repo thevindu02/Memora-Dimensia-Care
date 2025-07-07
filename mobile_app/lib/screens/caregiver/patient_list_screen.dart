@@ -91,7 +91,9 @@ class _PatientsScreenState extends State<PatientListScreen> {
         actions: [
           IconButton(
             icon: Icon(Icons.notifications_outlined, color: Colors.black87),
-            onPressed: () {},
+            onPressed: () {
+              Navigator.pushNamed(context, AppRoutes.caregiverNotification);
+            },
           ),
         ],
       ),

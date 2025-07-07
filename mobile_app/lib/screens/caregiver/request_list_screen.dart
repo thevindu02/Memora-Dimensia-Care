@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../../routes/app_routes.dart';
+import 'care_details_screen.dart'; // Make sure this import path is correct for your project
 
 class GuardianRequestsPage extends StatefulWidget {
   const GuardianRequestsPage({Key? key}) : super(key: key);
@@ -48,7 +49,9 @@ class _GuardianRequestsPageState extends State<GuardianRequestsPage>
         actions: [
           IconButton(
             icon: Icon(Icons.notifications_outlined, color: Colors.grey[600]),
-            onPressed: () {},
+            onPressed: () {
+              Navigator.pushNamed(context, AppRoutes.caregiverNotification);
+            },
           ),
         ],
         bottom: TabBar(
@@ -286,7 +289,43 @@ class _GuardianRequestsPageState extends State<GuardianRequestsPage>
                 ),
               ),
             ),
-            const SizedBox(height: 16),
+            const SizedBox(height: 12),
+
+            // View Details Link - NEWLY ADDED
+            GestureDetector(
+              onTap: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => CareDetailsScreen(),
+                  ),
+                );
+              },
+              child: Container(
+                width: double.infinity,
+                padding: const EdgeInsets.symmetric(vertical: 8),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Text(
+                      'View full details',
+                      style: TextStyle(
+                        color: Colors.blue,
+                        fontSize: 14,
+                        fontWeight: FontWeight.w500,
+                      ),
+                    ),
+                    const SizedBox(width: 4),
+                    Icon(
+                      Icons.arrow_forward,
+                      size: 16,
+                      color: Colors.blue,
+                    ),
+                  ],
+                ),
+              ),
+            ),
+            const SizedBox(height: 8),
 
             // Action Buttons
             Row(
@@ -458,47 +497,7 @@ class _GuardianRequestsPageState extends State<GuardianRequestsPage>
                     ],
                   ),
                 ),
-                PopupMenuButton<String>(
-                  onSelected: (value) {
-                    _handleConnectedAction(value, name);
-                  },
-                  itemBuilder: (BuildContext context) => [
-                    const PopupMenuItem(
-                      value: 'message',
-                      child: Row(
-                        children: [
-                          Icon(Icons.message, size: 18),
-                          SizedBox(width: 8),
-                          Text('Send Message'),
-                        ],
-                      ),
-                    ),
-                    const PopupMenuItem(
-                      value: 'view_profile',
-                      child: Row(
-                        children: [
-                          Icon(Icons.person, size: 18),
-                          SizedBox(width: 8),
-                          Text('View Profile'),
-                        ],
-                      ),
-                    ),
-                    const PopupMenuItem(
-                      value: 'disconnect',
-                      child: Row(
-                        children: [
-                          Icon(Icons.link_off, size: 18, color: Colors.red),
-                          SizedBox(width: 8),
-                          Text('Disconnect', style: TextStyle(color: Colors.red)),
-                        ],
-                      ),
-                    ),
-                  ],
-                  child: Icon(
-                    Icons.more_vert,
-                    color: Colors.grey[600],
-                  ),
-                ),
+
               ],
             ),
             const SizedBox(height: 16),

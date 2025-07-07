@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-
+import '../../routes/app_routes.dart';
 
 class CareDetailsScreen extends StatefulWidget {
   @override
@@ -18,10 +18,10 @@ class _CareDetailsScreenState extends State<CareDetailsScreen> {
         elevation: 0,
         leading: IconButton(
           icon: Icon(Icons.arrow_back, color: Colors.black87),
-          onPressed: () {},
+          onPressed: () => Navigator.pop(context),
         ),
         title: Text(
-          'Guardian Details',
+          'Patient Details',
           style: TextStyle(
             color: Colors.black87,
             fontSize: 18,
@@ -33,7 +33,9 @@ class _CareDetailsScreenState extends State<CareDetailsScreen> {
         actions: [
           IconButton(
             icon: Icon(Icons.notifications_outlined, color: Colors.grey[600]),
-            onPressed: () {},
+            onPressed: () {
+              Navigator.pushNamed(context, AppRoutes.caregiverNotification);
+            },
           ),
         ],
       ),
@@ -184,55 +186,38 @@ class _CareDetailsScreenState extends State<CareDetailsScreen> {
           ],
         ),
       ),
-      bottomNavigationBar: Container(
-        decoration: BoxDecoration(
-          color: Colors.white,
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withOpacity(0.05),
-              blurRadius: 10,
-              offset: Offset(0, -2),
-            ),
-          ],
-        ),
-        child: BottomNavigationBar(
-          currentIndex: _currentIndex,
-          onTap: (index) {
+      bottomNavigationBar: BottomNavigationBar(
+        currentIndex: _currentIndex,
+        onTap: (index) {
+          if (index == 1) { // Patients tab
+            // Navigate to detailed patients screen
+            Navigator.pushNamed(context, AppRoutes.caregiverPatients);
+          }else if(index==2){
+            Navigator.pushNamed(context, AppRoutes.viewArticleList);
+          }
+          else if(index==0){
+            Navigator.pushNamed(context, AppRoutes.caregiverDashboard);
+          }
+          else if(index==3){
+            Navigator.pushNamed(context, AppRoutes.caregiverProfile);
+          }
+          else {
             setState(() {
               _currentIndex = index;
             });
-          },
-          type: BottomNavigationBarType.fixed,
-          backgroundColor: Colors.white,
-          selectedItemColor: Colors.blue[600],
-          unselectedItemColor: Colors.grey[400],
-          selectedFontSize: 12,
-          unselectedFontSize: 12,
-          elevation: 0,
-          items: [
-            BottomNavigationBarItem(
-              icon: Icon(Icons.home),
-              activeIcon: Icon(Icons.home),
-              label: 'Home',
-            ),
-            BottomNavigationBarItem(
-              icon: Icon(Icons.people),
-              activeIcon: Icon(Icons.people),
-              label: 'Patients',
-            ),
-            BottomNavigationBarItem(
-              icon: Icon(Icons.book),
-              activeIcon: Icon(Icons.book),
-              label: 'Articles',
-            ),
-            BottomNavigationBarItem(
-              icon: Icon(Icons.person),
-              activeIcon: Icon(Icons.person),
-              label: 'Profile',
-            ),
-          ],
-        ),
+          }
+        },
+        type: BottomNavigationBarType.fixed,
+        selectedItemColor: Colors.indigo,
+        unselectedItemColor: Colors.grey,
+        items: const [
+          BottomNavigationBarItem(icon: Icon(Icons.home), label: 'Home'),
+          BottomNavigationBarItem(icon: Icon(Icons.people), label: 'Patients'),
+          BottomNavigationBarItem(icon: Icon(Icons.article), label: 'Articles'),
+          BottomNavigationBarItem(icon: Icon(Icons.person), label: 'Profile'),
+        ],
       ),
+
     );
   }
 

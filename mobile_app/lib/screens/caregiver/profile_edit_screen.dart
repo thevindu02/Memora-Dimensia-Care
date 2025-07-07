@@ -92,7 +92,9 @@ class _EditProfileViewState extends State<EditProfileEdit> {
         actions: [
           IconButton(
             icon: Icon(Icons.notifications_outlined, color: Colors.black),
-            onPressed: () {},
+            onPressed: () {
+              Navigator.pushNamed(context, AppRoutes.caregiverNotification);
+            },
           ),
         ],
       ),

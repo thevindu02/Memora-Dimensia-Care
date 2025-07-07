@@ -28,6 +28,9 @@ class AppRoutes {
   static const String viewArticleList = '/caregiver/article';
   static const String guardianRequest = '/caregiver/request';
   static const String caregiverNotification = '/caregiver/notification';
+  static const String patientReport = '/caregiver/report';
+  static const String completeRoutine = '/caregiver/complete';
+  static const String careDetails = '/caregiver/careDetails';
 
 
 
