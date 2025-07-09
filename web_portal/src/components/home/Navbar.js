@@ -7,7 +7,7 @@ const navItems = [
   { label: 'Home', to: '/', type: 'route' },
   { label: 'For Patients', to: '/for_patients', type: 'route' },
   { label: 'For Guardians', to: '/for_guardians', type: 'route' },
-  { label: 'For Caregivers', to: '#caregivers', type: 'scroll' },
+  { label: 'For Caregivers', to: '/for_caregivers', type: 'route' },
   { label: 'For Volunteers', to: '#volunteers', type: 'scroll' },
   { label: 'Contact Us', to: '#footer', type: 'scroll' },
 ];
