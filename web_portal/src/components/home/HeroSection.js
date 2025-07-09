@@ -1,7 +1,7 @@
 import React from 'react';
 import { Box, Typography, Button, Container, Stack } from '@mui/material';
 import { Link as ScrollLink } from 'react-scroll';
-import heroBg from '../assets/bg.png';
+import heroBg from '../../assets/bg.png';
 
 function HeroSection() {
   return (

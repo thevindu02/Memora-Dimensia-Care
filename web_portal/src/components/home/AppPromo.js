@@ -3,7 +3,7 @@ import { Box, Typography, Button, Container, Stack } from '@mui/material';
 import PhoneIphoneIcon from '@mui/icons-material/PhoneIphone';
 
 // Use your local asset or the provided URL
-import mobileMockup from '../assets/mobile-mockup.png';
+import mobileMockup from '../../assets/mobile-mockup.png';
 // Or, if you want to use the provided URL directly:
 // const mobileMockup = "https://pplx-res.cloudinary.com/image/private/user_uploads/62025049/950c7ee5-6839-4b11-9ce4-c3678f9079f5/mobile-mockup.jpg";
 

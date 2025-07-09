@@ -1,15 +1,15 @@
 // src/components/Navbar.js
 import React from 'react';
 import { AppBar, Toolbar, Typography, Button, Box } from '@mui/material';
-import logo from '../assets/logo.png'; 
+import logo from '../../assets/logo.png'; 
 
 const navItems = [
-  { label: 'Home', to: '#hero' },
-  { label: 'For Patients', to: '#patients' },
-  { label: 'For Guardians', to: '#guardians' },
-  { label: 'For Caregivers', to: '#caregivers' },
-  { label: 'For Volunteers', to: '#volunteers' },
-  { label: 'Contact Us', to: '#footer' },
+  { label: 'Home', to: '/', type: 'route' },
+  { label: 'For Patients', to: '/for_patients', type: 'route' },
+  { label: 'For Guardians', to: '/for_guardians', type: 'route' },
+  { label: 'For Caregivers', to: '#caregivers', type: 'scroll' },
+  { label: 'For Volunteers', to: '#volunteers', type: 'scroll' },
+  { label: 'Contact Us', to: '#footer', type: 'scroll' },
 ];
 
 function Navbar() {

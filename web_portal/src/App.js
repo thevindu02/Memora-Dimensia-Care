@@ -1,31 +1,27 @@
 // src/App.js
 import React from 'react';
-import { ThemeProvider, CssBaseline, Box } from '@mui/material';
+import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import { ThemeProvider, CssBaseline } from '@mui/material';
 import theme from './theme';
-import Navbar from './components/Navbar';
-import HeroSection from './components/HeroSection';
-import VisionMissionValues from './components/VisionMissionValues';
-import AboutUs from './components/AboutUs';
-import QuickNavigation from './components/QuickNavigation';
-import AppPromo from './components/AppPromo';
-import Footer from './components/Footer';
+import Home from './components/home/Home';
+import ForPatientsPage from './components/for_patients/ForPatientsPage';
+import ForGuardiansPage from './components/for_guardians/ForGuardiansPage';
 
 function App() {
+     console.log('App component rendered'); 
   return (
     <ThemeProvider theme={theme}>
       <CssBaseline />
-      <Navbar />
-      <Box component="main" sx={{ bgcolor: 'background.default' }}>
-        <HeroSection />
-        <VisionMissionValues />
-        <AboutUs />
-        <QuickNavigation />
-        <AppPromo />
-      </Box>
-      <Footer />
+      <Router>
+        <Routes>
+          <Route path="/" element={<Home />} />
+          <Route path="/for_patients" element={<ForPatientsPage />} />
+          <Route path="/for_guardians" element={<ForGuardiansPage />} />
+          {/* Add other routes as needed */}
+        </Routes>
+      </Router>
     </ThemeProvider>
   );
 }
 
 export default App;
-

@@ -1,7 +1,7 @@
 // src/components/AboutUs.js
 import React from 'react';
 import { Box, Typography, Container, Stack } from '@mui/material';
-import aboutImg from '../assets/about.png'; // Use your actual file name
+import aboutImg from '../../assets/about.png'; // Use your actual file name
 
 
 function AboutUs() {
