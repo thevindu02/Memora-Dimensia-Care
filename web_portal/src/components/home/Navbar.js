@@ -1,0 +1,52 @@
+// src/components/Navbar.js
+import React from 'react';
+import { AppBar, Toolbar, Typography, Button, Box } from '@mui/material';
+import logo from '../../assets/logo.png'; 
+
+const navItems = [
+  { label: 'Home', to: '/', type: 'route' },
+  { label: 'For Patients', to: '/for_patients', type: 'route' },
+  { label: 'For Guardians', to: '/for_guardians', type: 'route' },
+  { label: 'For Caregivers', to: '#caregivers', type: 'scroll' },
+  { label: 'For Volunteers', to: '#volunteers', type: 'scroll' },
+  { label: 'Contact Us', to: '#footer', type: 'scroll' },
+];
+
+function Navbar() {
+  return (
+     <AppBar
+      position="sticky"
+      elevation={0}
+      sx={{
+        bgcolor: 'background.default',
+        color: 'primary.main',
+        borderBottom: '1px solid #eee',
+      }}
+    >
+      <Toolbar sx={{ justifyContent: 'space-between' }}>
+        <Box sx={{ display: 'flex', alignItems: 'center', gap: 0 }}>
+          <img
+            src={logo}
+            alt="Memora Logo"
+            style={{ height: 80, width: 80, borderRadius: 8 }}
+          />
+          <Typography
+            variant="h6"
+            sx={{ fontWeight: 700, color: 'primary.main', letterSpacing: 1 }}
+          >
+            Memora
+          </Typography>
+        </Box>
+        <Box sx={{ display: { xs: 'none', md: 'flex' }, gap: 2 }}>
+          {navItems.map((item) => (
+            <Button key={item.label} href={item.to} color="inherit" sx={{ fontWeight: 600 }}>
+              {item.label}
+            </Button>
+          ))}
+        </Box>
+      </Toolbar>
+    </AppBar>
+  );
+}
+
+export default Navbar;

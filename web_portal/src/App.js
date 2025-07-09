@@ -1,0 +1,27 @@
+// src/App.js
+import React from 'react';
+import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import { ThemeProvider, CssBaseline } from '@mui/material';
+import theme from './theme';
+import Home from './components/home/Home';
+import ForPatientsPage from './components/for_patients/ForPatientsPage';
+import ForGuardiansPage from './components/for_guardians/ForGuardiansPage';
+
+function App() {
+     console.log('App component rendered'); 
+  return (
+    <ThemeProvider theme={theme}>
+      <CssBaseline />
+      <Router>
+        <Routes>
+          <Route path="/" element={<Home />} />
+          <Route path="/for_patients" element={<ForPatientsPage />} />
+          <Route path="/for_guardians" element={<ForGuardiansPage />} />
+          {/* Add other routes as needed */}
+        </Routes>
+      </Router>
+    </ThemeProvider>
+  );
+}
+
+export default App;
