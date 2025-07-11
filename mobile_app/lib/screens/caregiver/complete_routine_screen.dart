@@ -62,12 +62,7 @@ class _ScheduleRoutineDialogState extends State<ScheduleRoutineDialog> {
                             children: [
                               CircleAvatar(
                                 radius: 22,
-                                backgroundColor: Colors.grey[300],
-                                child: const Icon(
-                                  Icons.person,
-                                  color: Colors.grey,
-                                  size: 26,
-                                ),
+                                backgroundImage: AssetImage('assets/images/patient1.jpg'),
                               ),
                               const SizedBox(width: 12),
                               Column(

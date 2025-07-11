@@ -111,6 +111,7 @@ class _GuardianRequestsPageState extends State<GuardianRequestsPage>
           expiresTime: '1 day 22 hours',
           description: 'Requesting care assistance for elderly father with mobility issues. Need help with daily activities and medication reminders.',
           avatarText: 'SJ',
+          imageUrl: 'https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=150&h=150&fit=crop&crop=face',
           isNew: true,
         ),
         const SizedBox(height: 16),
@@ -121,6 +122,18 @@ class _GuardianRequestsPageState extends State<GuardianRequestsPage>
           expiresTime: '1 day 19 hours',
           description: 'Need assistance for mother recovering from surgery. Require help with wound care and physical therapy exercises.',
           avatarText: 'MG',
+          imageUrl: 'https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=150&h=150&fit=crop&crop=face',
+          isNew: false,
+        ),
+        const SizedBox(height: 16),
+        _buildRequestCard(
+          name: 'James Wilson',
+          patientInfo: 'Patient: Dorothy Wilson (Grandmother)',
+          receivedTime: '1 day ago',
+          expiresTime: '23 hours',
+          description: 'Seeking professional care for grandmother with dementia. Need experienced caregiver for memory care and daily assistance.',
+          avatarText: 'JW',
+          imageUrl: 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=150&h=150&fit=crop&crop=face',
           isNew: true,
         ),
       ],
@@ -138,6 +151,7 @@ class _GuardianRequestsPageState extends State<GuardianRequestsPage>
           relationship: 'Spouse',
           contactInfo: 'jennifer.miller@email.com',
           avatarText: 'JM',
+          imageUrl: 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=150&h=150&fit=crop&crop=face',
           isActive: true,
         ),
         const SizedBox(height: 16),
@@ -148,6 +162,7 @@ class _GuardianRequestsPageState extends State<GuardianRequestsPage>
           relationship: 'Son',
           contactInfo: 'david.thompson@email.com',
           avatarText: 'DT',
+          imageUrl: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150&h=150&fit=crop&crop=face',
           isActive: true,
         ),
         const SizedBox(height: 16),
@@ -158,7 +173,19 @@ class _GuardianRequestsPageState extends State<GuardianRequestsPage>
           relationship: 'Daughter',
           contactInfo: 'lisa.rodriguez@email.com',
           avatarText: 'LR',
+          imageUrl: 'https://images.unsplash.com/photo-1517841905240-472988babdf9?w=150&h=150&fit=crop&crop=face',
           isActive: false,
+        ),
+        const SizedBox(height: 16),
+        _buildConnectedCard(
+          name: 'Robert Chen',
+          patientInfo: 'Patient: Ming Chen (Father)',
+          connectedDate: 'Connected 6 weeks ago',
+          relationship: 'Son',
+          contactInfo: 'robert.chen@email.com',
+          avatarText: 'RC',
+          imageUrl: 'https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=150&h=150&fit=crop&crop=face',
+          isActive: true,
         ),
       ],
     );
@@ -171,6 +198,7 @@ class _GuardianRequestsPageState extends State<GuardianRequestsPage>
     required String expiresTime,
     required String description,
     required String avatarText,
+    String? imageUrl,
     required bool isNew,
   }) {
     return Container(
@@ -194,28 +222,7 @@ class _GuardianRequestsPageState extends State<GuardianRequestsPage>
             // Header
             Row(
               children: [
-                Container(
-                  width: 48,
-                  height: 48,
-                  decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(12),
-                    gradient: const LinearGradient(
-                      colors: [Color(0xFF667eea), Color(0xFF764ba2)],
-                      begin: Alignment.topLeft,
-                      end: Alignment.bottomRight,
-                    ),
-                  ),
-                  child: Center(
-                    child: Text(
-                      avatarText,
-                      style: const TextStyle(
-                        color: Colors.white,
-                        fontSize: 18,
-                        fontWeight: FontWeight.w600,
-                      ),
-                    ),
-                  ),
-                ),
+                _buildAvatar(avatarText, imageUrl),
                 const SizedBox(width: 12),
                 Expanded(
                   child: Column(
@@ -291,7 +298,7 @@ class _GuardianRequestsPageState extends State<GuardianRequestsPage>
             ),
             const SizedBox(height: 12),
 
-            // View Details Link - NEWLY ADDED
+            // View Details Link
             GestureDetector(
               onTap: () {
                 Navigator.push(
@@ -406,6 +413,7 @@ class _GuardianRequestsPageState extends State<GuardianRequestsPage>
     required String relationship,
     required String contactInfo,
     required String avatarText,
+    String? imageUrl,
     required bool isActive,
   }) {
     return Container(
@@ -429,28 +437,7 @@ class _GuardianRequestsPageState extends State<GuardianRequestsPage>
             // Header with status
             Row(
               children: [
-                Container(
-                  width: 48,
-                  height: 48,
-                  decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(12),
-                    gradient: const LinearGradient(
-                      colors: [Color(0xFF4CAF50), Color(0xFF45a049)],
-                      begin: Alignment.topLeft,
-                      end: Alignment.bottomRight,
-                    ),
-                  ),
-                  child: Center(
-                    child: Text(
-                      avatarText,
-                      style: const TextStyle(
-                        color: Colors.white,
-                        fontSize: 18,
-                        fontWeight: FontWeight.w600,
-                      ),
-                    ),
-                  ),
-                ),
+                _buildAvatar(avatarText, imageUrl, isConnected: true),
                 const SizedBox(width: 12),
                 Expanded(
                   child: Column(
@@ -497,7 +484,6 @@ class _GuardianRequestsPageState extends State<GuardianRequestsPage>
                     ],
                   ),
                 ),
-
               ],
             ),
             const SizedBox(height: 16),
@@ -577,6 +563,67 @@ class _GuardianRequestsPageState extends State<GuardianRequestsPage>
               ],
             ),
           ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildAvatar(String avatarText, String? imageUrl, {bool isConnected = false}) {
+    return Container(
+      width: 48,
+      height: 48,
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(12),
+        gradient: LinearGradient(
+          colors: isConnected
+              ? [const Color(0xFF4CAF50), const Color(0xFF45a049)]
+              : [const Color(0xFF667eea), const Color(0xFF764ba2)],
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+        ),
+      ),
+      child: imageUrl != null
+          ? ClipRRect(
+        borderRadius: BorderRadius.circular(12),
+        child: Image.network(
+          imageUrl,
+          width: 48,
+          height: 48,
+          fit: BoxFit.cover,
+          errorBuilder: (context, error, stackTrace) {
+            return Center(
+              child: Text(
+                avatarText,
+                style: const TextStyle(
+                  color: Colors.white,
+                  fontSize: 18,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+            );
+          },
+          loadingBuilder: (context, child, loadingProgress) {
+            if (loadingProgress == null) return child;
+            return Center(
+              child: CircularProgressIndicator(
+                value: loadingProgress.expectedTotalBytes != null
+                    ? loadingProgress.cumulativeBytesLoaded / loadingProgress.expectedTotalBytes!
+                    : null,
+                strokeWidth: 2,
+                valueColor: const AlwaysStoppedAnimation<Color>(Colors.white),
+              ),
+            );
+          },
+        ),
+      )
+          : Center(
+        child: Text(
+          avatarText,
+          style: const TextStyle(
+            color: Colors.white,
+            fontSize: 18,
+            fontWeight: FontWeight.w600,
+          ),
         ),
       ),
     );

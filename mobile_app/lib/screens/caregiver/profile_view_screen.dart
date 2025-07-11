@@ -52,64 +52,9 @@ class _ProfileViewState extends State<CaregiverProfileScreen> {
                   Stack(
                     children: [
                       // Profile Image Container
-                      Container(
-                        width: 100,
-                        height: 100,
-                        decoration: BoxDecoration(
-                          gradient: LinearGradient(
-                            begin: Alignment.topLeft,
-                            end: Alignment.bottomRight,
-                            colors: [
-                              Color(0xFF6B73FF),
-                              Color(0xFF9C27B0),
-                            ],
-                          ),
-                          borderRadius: BorderRadius.circular(50),
-                          boxShadow: [
-                            BoxShadow(
-                              color: Color(0xFF6B73FF).withOpacity(0.3),
-                              spreadRadius: 0,
-                              blurRadius: 20,
-                              offset: Offset(0, 10),
-                            ),
-                          ],
-                        ),
-                        child: Stack(
-                          alignment: Alignment.center,
-                          children: [
-                            // Person silhouette using Icon
-                            Icon(
-                              Icons.person,
-                              size: 60,
-                              color: Colors.white.withOpacity(0.9),
-                            ),
-                            // Decorative elements
-                            Positioned(
-                              top: 15,
-                              right: 15,
-                              child: Container(
-                                width: 8,
-                                height: 8,
-                                decoration: BoxDecoration(
-                                  color: Colors.white.withOpacity(0.3),
-                                  borderRadius: BorderRadius.circular(4),
-                                ),
-                              ),
-                            ),
-                            Positioned(
-                              bottom: 20,
-                              left: 20,
-                              child: Container(
-                                width: 6,
-                                height: 6,
-                                decoration: BoxDecoration(
-                                  color: Colors.white.withOpacity(0.4),
-                                  borderRadius: BorderRadius.circular(3),
-                                ),
-                              ),
-                            ),
-                          ],
-                        ),
+                      CircleAvatar(
+                        radius: 50,
+                        backgroundImage: AssetImage('assets/images/caregiver.png'),
                       ),
                       // Online status indicator
                       Positioned(
@@ -210,7 +155,7 @@ class _ProfileViewState extends State<CaregiverProfileScreen> {
                       Navigator.pushNamed(context, AppRoutes.caregiverProfileEdit);
                     },
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: Color(0xFF6B73FF),
+                      backgroundColor: Color(0xFF9FC3FC),
                       padding: EdgeInsets.symmetric(vertical: 15),
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(25),
@@ -219,7 +164,7 @@ class _ProfileViewState extends State<CaregiverProfileScreen> {
                     child: Text(
                       'Edit Profile',
                       style: TextStyle(
-                        color: Colors.white,
+                        color: Colors.black,
                         fontSize: 16,
                         fontWeight: FontWeight.w500,
                       ),

@@ -68,10 +68,8 @@ class _ScheduleReportScreenState extends State<ScheduleReportScreen> {
               child: Row(
                 children: [
                   CircleAvatar(
-                    radius: 24,
-                    backgroundImage: AssetImage('assets/profile.jpg'), // Add your profile image
-                    backgroundColor: Colors.grey[300],
-                    child: Icon(Icons.person, color: Colors.white),
+                    radius: 22,
+                    backgroundImage: AssetImage('assets/images/patient1.jpg'),
                   ),
                   SizedBox(width: 12),
                   Column(
@@ -123,7 +121,7 @@ class _ScheduleReportScreenState extends State<ScheduleReportScreen> {
               children: [
                 Expanded(
                   child: _buildStatCard(
-                    'Completed\nActivities',
+                    '6\nCompleted\nActivities',
                     Icons.check_circle,
                     Colors.green,
                   ),
@@ -131,7 +129,7 @@ class _ScheduleReportScreenState extends State<ScheduleReportScreen> {
                 SizedBox(width: 12),
                 Expanded(
                   child: _buildStatCard(
-                    'Skipped\nActivities',
+                    '2\nSkipped\nActivities',
                     Icons.cancel,
                     Colors.red,
                   ),
@@ -202,7 +200,7 @@ class _ScheduleReportScreenState extends State<ScheduleReportScreen> {
               child: ElevatedButton(
                 onPressed: () {},
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.blue,
+                  backgroundColor: Color(0xFF9FC3FC),
                   padding: EdgeInsets.symmetric(vertical: 16),
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(12),
@@ -213,7 +211,7 @@ class _ScheduleReportScreenState extends State<ScheduleReportScreen> {
                   style: TextStyle(
                     fontSize: 16,
                     fontWeight: FontWeight.w600,
-                    color: Colors.white,
+                    color: Colors.black,
                   ),
                 ),
               ),

@@ -200,7 +200,7 @@ class _SelectTypeWithErrorHandlingState extends State<SelectTypeWithErrorHandlin
           onPressed: () => _safeNavigateBack(context),
         ),
         title: Text(
-          'Schedule Routine',
+          'Add Task',
           style: TextStyle(
             color: Colors.black87,
             fontSize: 18,
@@ -361,9 +361,11 @@ class _SelectTypeWithErrorHandlingState extends State<SelectTypeWithErrorHandlin
       width: double.infinity,
       height: 56,
       child: ElevatedButton(
-        onPressed: () => _handleTodayRoutine(),
+        onPressed: () {
+          Navigator.pushNamed(context, AppRoutes.patientRoutine);
+        },
         style: ElevatedButton.styleFrom(
-          backgroundColor: Color(0xFF6C9BD1),
+          backgroundColor: Color(0xFF9FC3FC),
           foregroundColor: Colors.white,
           elevation: 2,
           shadowColor: Colors.black.withOpacity(0.1),
@@ -377,7 +379,7 @@ class _SelectTypeWithErrorHandlingState extends State<SelectTypeWithErrorHandlin
             Icon(
               Icons.calendar_today,
               size: 20,
-              color: Colors.white,
+              color: Colors.black,
             ),
             SizedBox(width: 12),
             Text(
@@ -385,7 +387,7 @@ class _SelectTypeWithErrorHandlingState extends State<SelectTypeWithErrorHandlin
               style: TextStyle(
                 fontSize: 16,
                 fontWeight: FontWeight.w600,
-                color: Colors.white,
+                color: Colors.black,
               ),
             ),
           ],
@@ -494,17 +496,7 @@ class _SelectTypeWithErrorHandlingState extends State<SelectTypeWithErrorHandlin
     }
   }
 
-  void _handleTodayRoutine() {
-    try {
-      _showTodayRoutineDialog();
-    } catch (e) {
-      ErrorHandler.handleError(AppError(
-        type: ErrorType.unknown,
-        message: 'Failed to show today routine dialog',
-        details: e.toString(),
-      ));
-    }
-  }
+
 
   // Dialog methods
   void _showDailyActivitiesDialog() {

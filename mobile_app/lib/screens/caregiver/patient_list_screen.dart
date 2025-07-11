@@ -4,9 +4,9 @@ import '../../routes/app_routes.dart';
 class Patient {
   final String name;
   final int age;
-  final String imageUrl;
+  final String imageAsset; // Changed from imageUrl to imageAsset
 
-  Patient({required this.name, required this.age, required this.imageUrl});
+  Patient({required this.name, required this.age, required this.imageAsset});
 }
 
 class PatientListScreen extends StatefulWidget {
@@ -33,20 +33,17 @@ class _PatientsScreenState extends State<PatientListScreen> {
       Patient(
         name: 'John Doe',
         age: 78,
-        imageUrl:
-            'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150&h=150&fit=crop&crop=face',
+        imageAsset: 'assets/images/patient1.jpg', // Using existing logo as placeholder
       ),
       Patient(
         name: 'Mary Smith',
         age: 82,
-        imageUrl:
-            'https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=150&h=150&fit=crop&crop=face',
+        imageAsset: 'assets/images/patient2.jpg', // Using existing logo as placeholder
       ),
       Patient(
         name: 'Robert Brown',
         age: 75,
-        imageUrl:
-            'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=150&h=150&fit=crop&crop=face',
+        imageAsset: 'assets/images/patient3.jpg', // Using existing logo as placeholder
       ),
     ];
   }
@@ -122,7 +119,7 @@ class _PatientsScreenState extends State<PatientListScreen> {
                   ),
                   border: InputBorder.none,
                   contentPadding:
-                      EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+                  EdgeInsets.symmetric(horizontal: 16, vertical: 14),
                 ),
                 style: TextStyle(
                   fontSize: 16,
@@ -146,7 +143,6 @@ class _PatientsScreenState extends State<PatientListScreen> {
         ],
       ),
       bottomNavigationBar: Container(
-
         decoration: BoxDecoration(
           color: Colors.white,
           boxShadow: [
@@ -233,11 +229,26 @@ class _PatientsScreenState extends State<PatientListScreen> {
         ),
         child: Row(
           children: [
-            // Patient Avatar
+            // Patient Avatar - Updated to use AssetImage with fallback
             CircleAvatar(
               radius: 24,
-              backgroundImage: NetworkImage(patient.imageUrl),
               backgroundColor: Colors.grey[200],
+              child: ClipOval(
+                child: Image.asset(
+                  patient.imageAsset,
+                  width: 48,
+                  height: 48,
+                  fit: BoxFit.cover,
+                  errorBuilder: (context, error, stackTrace) {
+                    // Fallback to default avatar icon if image fails to load
+                    return Icon(
+                      Icons.person,
+                      size: 30,
+                      color: Colors.grey[600],
+                    );
+                  },
+                ),
+              ),
             ),
             SizedBox(width: 16),
 

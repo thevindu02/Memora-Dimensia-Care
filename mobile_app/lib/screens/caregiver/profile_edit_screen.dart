@@ -109,37 +109,9 @@ class _EditProfileViewState extends State<EditProfileEdit> {
                 child: Stack(
                   children: [
                     // Profile Image Container
-                    Container(
-                      width: 80,
-                      height: 80,
-                      decoration: BoxDecoration(
-                        color: Color(0xFFE8D5F0),
-                        borderRadius: BorderRadius.circular(40),
-                      ),
-                      child: _selectedImage != null
-                          ? ClipRRect(
-                              borderRadius: BorderRadius.circular(40),
-                              child: Image.file(
-                                _selectedImage!,
-                                width: 80,
-                                height: 80,
-                                fit: BoxFit.cover,
-                              ),
-                            )
-                          : GridView.count(
-                              crossAxisCount: 2,
-                              padding: EdgeInsets.all(15),
-                              mainAxisSpacing: 3,
-                              crossAxisSpacing: 3,
-                              children: List.generate(4, (index) {
-                                return Container(
-                                  decoration: BoxDecoration(
-                                    color: Color(0xFFD4A7E0),
-                                    borderRadius: BorderRadius.circular(6),
-                                  ),
-                                );
-                              }),
-                            ),
+                    CircleAvatar(
+                      radius: 50,
+                      backgroundImage: AssetImage('assets/images/caregiver.png'),
                     ),
                     // Edit icon - now opens gallery
                     Positioned(
@@ -207,7 +179,7 @@ class _EditProfileViewState extends State<EditProfileEdit> {
                           child: ElevatedButton(
                             onPressed: _changePassword,
                             style: ElevatedButton.styleFrom(
-                              backgroundColor: Color(0xFF6B73FF),
+                              backgroundColor: Color(0xFF9FC3FC),
                               padding: EdgeInsets.symmetric(vertical: 15),
                               shape: RoundedRectangleBorder(
                                 borderRadius: BorderRadius.circular(25),
@@ -216,7 +188,7 @@ class _EditProfileViewState extends State<EditProfileEdit> {
                             child: Text(
                               'Change Password',
                               style: TextStyle(
-                                color: Colors.white,
+                                color: Colors.black,
                                 fontSize: 16,
                                 fontWeight: FontWeight.w500,
                               ),
@@ -229,7 +201,7 @@ class _EditProfileViewState extends State<EditProfileEdit> {
                           child: ElevatedButton(
                             onPressed: _saveChanges,
                             style: ElevatedButton.styleFrom(
-                              backgroundColor: Color(0xFF6B73FF),
+                              backgroundColor: Color(0xFFD4E2F8),
                               padding: EdgeInsets.symmetric(vertical: 15),
                               shape: RoundedRectangleBorder(
                                 borderRadius: BorderRadius.circular(25),
@@ -238,7 +210,7 @@ class _EditProfileViewState extends State<EditProfileEdit> {
                             child: Text(
                               'Save Changes',
                               style: TextStyle(
-                                color: Colors.white,
+                                color: Colors.black,
                                 fontSize: 16,
                                 fontWeight: FontWeight.w500,
                               ),
@@ -481,7 +453,7 @@ class _EditProfileViewState extends State<EditProfileEdit> {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text('Profile updated successfully!'),
-          backgroundColor: Color(0xFF6B73FF),
+          backgroundColor: Color(0xFFD4E2F8),
           behavior: SnackBarBehavior.floating,
         ),
       );

@@ -48,7 +48,7 @@ class _NotificationScreenState extends State<CaregiverNotificationScreen>
   List<NotificationData> notifications = [
     NotificationData(
       id: '1',
-      title: 'Task Reminder: Breakfast Time',
+      title: 'Skip Request: Morning Exercise',
       subtitle: 'Patient: John Doe',
       time: '10 min ago',
       isUnread: true,
@@ -58,14 +58,13 @@ class _NotificationScreenState extends State<CaregiverNotificationScreen>
     ),
     NotificationData(
       id: '2',
-      title: 'Skip Request: Morning Exercise',
+      title: 'Task Reminder: Breakfast Time',
       subtitle: 'Patient: Mary Smith wants to skip task',
       time: '30 min ago',
       isUnread: true,
       type: NotificationType.skipRequest,
       patientName: 'Mary Smith',
       taskName: 'Morning Exercise',
-      skipReason: 'Feeling tired today',
     ),
     NotificationData(
       id: '3',
@@ -296,86 +295,38 @@ class _NotificationScreenState extends State<CaregiverNotificationScreen>
           preferredSize: const Size.fromHeight(48),
           child: Container(
             margin: const EdgeInsets.symmetric(horizontal: 16),
-            decoration: BoxDecoration(
-              color: Colors.grey[100],
-              borderRadius: BorderRadius.circular(8),
-            ),
             child: TabBar(
               controller: _tabController,
-              indicator: BoxDecoration(
-                color: Colors.blue,
-                borderRadius: BorderRadius.circular(8),
-              ),
-              labelColor: Colors.white,
+              labelColor: Colors.blue,
               unselectedLabelColor: Colors.grey[600],
-              labelStyle: const TextStyle(
-                fontSize: 12,
-                fontWeight: FontWeight.w500,
-              ),
-              indicatorSize: TabBarIndicatorSize.tab,
+              indicatorColor: Colors.blue,
+              indicatorWeight: 2,
               tabs: [
                 Tab(
                   child: Row(
                     mainAxisSize: MainAxisSize.min,
                     children: [
-                      const Icon(Icons.circle, size: 8, color: Colors.blue),
-                      const SizedBox(width: 6),
-                      const Flexible(
-                        child: Text(
-                          'Unread notification',
-                          overflow: TextOverflow.ellipsis,
-                        ),
-                      ),
+                      const Text('New Requests'),
                       const SizedBox(width: 6),
                       Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 1),
+                        padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
                         decoration: BoxDecoration(
-                          color: Colors.blue,
-                          borderRadius: BorderRadius.circular(8),
+                          color: Colors.red,
+                          borderRadius: BorderRadius.circular(10),
                         ),
                         child: Text(
                           '${unreadNotifications.length}',
                           style: const TextStyle(
                             color: Colors.white,
-                            fontSize: 10,
-                            fontWeight: FontWeight.bold,
+                            fontSize: 12,
+                            fontWeight: FontWeight.w600,
                           ),
                         ),
                       ),
                     ],
                   ),
                 ),
-                Tab(
-                  child: Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      const Icon(Icons.check_circle, size: 14, color: Colors.green),
-                      const SizedBox(width: 6),
-                      const Flexible(
-                        child: Text(
-                          'Read notifications',
-                          overflow: TextOverflow.ellipsis,
-                        ),
-                      ),
-                      const SizedBox(width: 6),
-                      Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 1),
-                        decoration: BoxDecoration(
-                          color: Colors.green,
-                          borderRadius: BorderRadius.circular(8),
-                        ),
-                        child: Text(
-                          '${readNotifications.length}',
-                          style: const TextStyle(
-                            color: Colors.white,
-                            fontSize: 10,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
+                const Tab(text: 'Connected'),
               ],
             ),
           ),

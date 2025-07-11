@@ -324,7 +324,7 @@ class _ScheduleRoutineScreenState extends State<ScheduleRoutineScreen> {
                   children: [
                     CircleAvatar(
                       radius: 25,
-                      backgroundImage: NetworkImage('https://via.placeholder.com/100'),
+                      backgroundImage: AssetImage('assets/images/patient1.jpg'),
                     ),
                     SizedBox(width: 12),
                     Column(
@@ -371,8 +371,8 @@ class _ScheduleRoutineScreenState extends State<ScheduleRoutineScreen> {
                       print('Navigating to: ${AppRoutes.selectType}');
                       Navigator.pushNamed(context, AppRoutes.selectType);
                     },
-                    backgroundColor: Colors.blue,
-                    child: Icon(Icons.add, color: Colors.white),
+                    backgroundColor: Color(0xFF9FC3FC),
+                    child: Icon(Icons.add, color: Colors.black),
                   ),
                 ],
               ),
@@ -535,7 +535,7 @@ class _ScheduleRoutineScreenState extends State<ScheduleRoutineScreen> {
                   Navigator.pushNamed(context, AppRoutes.completeRoutine);
                 },
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.blue,
+                  backgroundColor: Color(0xFF9FC3FC),
                   foregroundColor: Colors.white,
                   padding: EdgeInsets.symmetric(vertical: 16),
                   shape: RoundedRectangleBorder(
@@ -546,6 +546,7 @@ class _ScheduleRoutineScreenState extends State<ScheduleRoutineScreen> {
                 child: Text(
                   'Complete Daily Routine',
                   style: TextStyle(
+                    color: Colors.black,
                     fontSize: 16,
                     fontWeight: FontWeight.w600,
                   ),
