@@ -6,6 +6,8 @@ import theme from './theme';
 import Home from './components/home/Home';
 import ForPatientsPage from './components/for_patients/ForPatientsPage';
 import ForGuardiansPage from './components/for_guardians/ForGuardiansPage';
+import ForCaregiversPage from './components/for_caregivers/ForCaregiversPage';
+import ForVolunteersPage from './components/for_volunteers/ForVolunteersPage'; 
 
 function App() {
      console.log('App component rendered'); 
@@ -17,6 +19,9 @@ function App() {
           <Route path="/" element={<Home />} />
           <Route path="/for_patients" element={<ForPatientsPage />} />
           <Route path="/for_guardians" element={<ForGuardiansPage />} />
+          <Route path="/for_caregivers" element={<ForCaregiversPage />} />
+          <Route path="/for_volunteers" element={<ForVolunteersPage />} />
+
           {/* Add other routes as needed */}
         </Routes>
       </Router>
