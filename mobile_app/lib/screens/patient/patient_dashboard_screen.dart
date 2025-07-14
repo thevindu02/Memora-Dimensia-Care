@@ -3,6 +3,8 @@ import '../../routes/app_routes.dart';
 import '../../services/auth_service.dart';
 
 class PatientDashboardScreen extends StatelessWidget {
+  const PatientDashboardScreen({super.key});
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(

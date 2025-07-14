@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import '../../routes/app_routes.dart';
 
 class GuardianDashboardScreen extends StatelessWidget {
+  const GuardianDashboardScreen({super.key});
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(

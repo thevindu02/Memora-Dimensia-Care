@@ -3,7 +3,7 @@ import '../services/auth_service.dart';
 import 'package:go_router/go_router.dart';
 
 class ForgotPasswordScreen extends StatefulWidget {
-  const ForgotPasswordScreen({Key? key}) : super(key: key);
+  const ForgotPasswordScreen({super.key});
 
   @override
   State<ForgotPasswordScreen> createState() => _ForgotPasswordScreenState();
