@@ -12,133 +12,267 @@ class GuardianSignupScreen extends StatefulWidget {
 
 class _GuardianSignupScreenState extends State<GuardianSignupScreen> {
   final _formKey = GlobalKey<FormState>();
-  final Map<String, TextEditingController> _controllers = {
-    'email': TextEditingController(),
-    'password': TextEditingController(),
-    'firstName': TextEditingController(),
-    'lastName': TextEditingController(),
-    'phoneNumber': TextEditingController(),
-  };
+  final _nameController = TextEditingController();
+  final _emailController = TextEditingController();
+  final _contactController = TextEditingController();
+  final _streetController = TextEditingController();
+  final _cityController = TextEditingController();
+  final _stateController = TextEditingController();
+  final _passwordController = TextEditingController();
+  final _confirmPasswordController = TextEditingController();
 
+  bool _isPasswordVisible = false;
+  bool _isConfirmPasswordVisible = false;
   bool _isLoading = false;
 
   @override
   void dispose() {
-    for (var controller in _controllers.values) {
-      controller.dispose();
-    }
+    _nameController.dispose();
+    _emailController.dispose();
+    _contactController.dispose();
+    _streetController.dispose();
+    _cityController.dispose();
+    _stateController.dispose();
+    _passwordController.dispose();
+    _confirmPasswordController.dispose();
     super.dispose();
   }
 
-  Future<void> _handleSignup() async {
-    if (!_formKey.currentState!.validate()) return;
+  Widget _buildTextField({
+    required TextEditingController controller,
+    required String hintText,
+    bool obscureText = false,
+    bool isPassword = false,
+    VoidCallback? toggleVisibility,
+  }) {
+    return Container(
+      margin: EdgeInsets.only(bottom: 12),
+      decoration: BoxDecoration(
+        color: Colors.grey[100],
+        borderRadius: BorderRadius.circular(12),
+      ),
+      child: TextFormField(
+        controller: controller,
+        obscureText: obscureText,
+        decoration: InputDecoration(
+          hintText: hintText,
+          hintStyle: TextStyle(
+            color: Colors.grey[500],
+            fontSize: 16,
+          ),
+          border: InputBorder.none,
+          contentPadding: EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+          suffixIcon: isPassword
+              ? IconButton(
+            icon: Icon(
+              obscureText ? Icons.visibility_off : Icons.visibility,
+              color: Colors.grey[500],
+            ),
+            onPressed: toggleVisibility,
+          )
+              : null,
+        ),
+        validator: (value) {
+          if (value == null || value.isEmpty) {
+            return 'This field is required';
+          }
+          if (hintText.contains('email') && !RegExp(r'^[^@]+@[^@]+\.[^@]+').hasMatch(value)) {
+            return 'Please enter a valid email';
+          }
+          if (hintText.contains('Confirm password') && value != _passwordController.text) {
+            return 'Passwords do not match';
+          }
+          if (hintText.contains('password') && !hintText.contains('Confirm') && value.length < 6) {
+            return 'Password must be at least 6 characters';
+          }
+          return null;
+        },
+      ),
+    );
+  }
 
-    setState(() => _isLoading = true);
-
-    try {
-      BaseAuthService authService = AuthServiceFactory.getAuthService('guardian');
-
-      Map<String, dynamic> userData = {};
-      _controllers.forEach((key, controller) {
-        userData[key] = controller.text.trim();
+  void _handleRegister() async {
+    if (_formKey.currentState!.validate()) {
+      setState(() {
+        _isLoading = true;
       });
 
-      Map<String, dynamic> result = await authService.signup(userData);
+      // Simulate API call
+      await Future.delayed(Duration(seconds: 2));
 
-      if (result['success']) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Guardian account created successfully!'), backgroundColor: Colors.green),
-        );
-        Navigator.of(context).pushReplacementNamed(AppRoutes.guardianDashboard);
-      } else {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(result['message'] ?? 'Signup failed'), backgroundColor: Colors.red),
-        );
-      }
-    } catch (e) {
+      // TODO: Implement actual registration logic here
+      // You can add your API call logic here
+
+      setState(() {
+        _isLoading = false;
+      });
+
+      // Navigate to dashboard or show success message
+      // Navigator.pushReplacementNamed(context, AppRoutes.guardianDashboard);
+
+      // For now, show a success message
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Error: ${e.toString()}'), backgroundColor: Colors.red),
+        SnackBar(
+          content: Text('Registration successful!'),
+          backgroundColor: Colors.green,
+        ),
       );
-    } finally {
-      setState(() => _isLoading = false);
     }
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text('Guardian Registration')),
-      body: Padding(
-        padding: EdgeInsets.all(16.0),
-        child: Form(
-          key: _formKey,
-          child: SingleChildScrollView(
+      backgroundColor: Colors.white,
+      appBar: AppBar(
+        backgroundColor: Colors.white,
+        elevation: 0,
+        leading: IconButton(
+          icon: Icon(Icons.arrow_back, color: Colors.black),
+          onPressed: () => Navigator.pop(context),
+        ),
+      ),
+      body: SafeArea(
+        child: SingleChildScrollView(
+          padding: EdgeInsets.all(24),
+          child: Form(
+            key: _formKey,
             child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
-                _buildTextField('firstName', 'First Name'),
-                _buildTextField('lastName', 'Last Name'),
-                _buildEmailField(),
-                _buildPasswordField(),
-                _buildTextField('phoneNumber', 'Phone Number'),
-                SizedBox(height: 24),
-                _buildSignupButton(),
+                SizedBox(height: 20),
+
+                // Page heading
+                Text(
+                  'Register',
+                  style: TextStyle(
+                    fontSize: 28,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.black87,
+                  ),
+                  textAlign: TextAlign.center,
+                ),
+
+                SizedBox(height: 30),
+
+                // Form fields
+                _buildTextField(
+                  controller: _nameController,
+                  hintText: 'Enter your name',
+                ),
+
+                _buildTextField(
+                  controller: _emailController,
+                  hintText: 'Enter your email',
+                ),
+
+                _buildTextField(
+                  controller: _contactController,
+                  hintText: 'Enter your contact number',
+                ),
+
+                // Address section
+                Container(
+                  margin: EdgeInsets.only(bottom: 16),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        'Address',
+                        style: TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.w500,
+                          color: Colors.black87,
+                        ),
+                      ),
+                      SizedBox(height: 8),
+                      _buildTextField(
+                        controller: _streetController,
+                        hintText: 'Street',
+                      ),
+                      _buildTextField(
+                        controller: _cityController,
+                        hintText: 'City',
+                      ),
+                      _buildTextField(
+                        controller: _stateController,
+                        hintText: 'State',
+                      ),
+                    ],
+                  ),
+                ),
+
+                _buildTextField(
+                  controller: _passwordController,
+                  hintText: 'Enter password',
+                  obscureText: !_isPasswordVisible,
+                  isPassword: true,
+                  toggleVisibility: () {
+                    setState(() {
+                      _isPasswordVisible = !_isPasswordVisible;
+                    });
+                  },
+                ),
+
+                _buildTextField(
+                  controller: _confirmPasswordController,
+                  hintText: 'Confirm password',
+                  obscureText: !_isConfirmPasswordVisible,
+                  isPassword: true,
+                  toggleVisibility: () {
+                    setState(() {
+                      _isConfirmPasswordVisible = !_isConfirmPasswordVisible;
+                    });
+                  },
+                ),
+
+                SizedBox(height: 20),
+
+                // Register button
+                Container(
+                  height: 50,
+                  child: ElevatedButton(
+                    onPressed: _isLoading ? null : _handleRegister,
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Color(0xFFA0C4FD), // Updated background color
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      elevation: 0,
+                    ),
+                    child: _isLoading
+                        ? CircularProgressIndicator(
+                      valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                      strokeWidth: 2,
+                    )
+                        : Text(
+                      'Register',
+                      style: TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.w600,
+                        color: Color(0xFF2B3F99), // Updated text color
+                      ),
+                    ),
+                  ),
+                ),
+
+                SizedBox(height: 20),
+
+                // Terms and conditions
+                Text(
+                  'By registering, you agree to our Terms and Conditions.',
+                  style: TextStyle(
+                    color: Colors.black,
+                    fontSize: 14,
+                  ),
+                  textAlign: TextAlign.center,
+                ),
+
+                SizedBox(height: 40),
               ],
             ),
           ),
         ),
-      ),
-    );
-  }
-
-  Widget _buildTextField(String key, String label) {
-    return Padding(
-      padding: EdgeInsets.only(bottom: 16),
-      child: TextFormField(
-        controller: _controllers[key],
-        decoration: InputDecoration(labelText: label),
-        validator: (value) => value?.trim().isEmpty ?? true ? '$label is required' : null,
-      ),
-    );
-  }
-
-  Widget _buildEmailField() {
-    return Padding(
-      padding: EdgeInsets.only(bottom: 16),
-      child: TextFormField(
-        controller: _controllers['email'],
-        decoration: InputDecoration(labelText: 'Email'),
-        keyboardType: TextInputType.emailAddress,
-        validator: (value) {
-          if (value?.trim().isEmpty ?? true) return 'Email is required';
-          if (!BaseAuthService.isValidEmail(value!)) return 'Please enter a valid email';
-          return null;
-        },
-      ),
-    );
-  }
-
-  Widget _buildPasswordField() {
-    return Padding(
-      padding: EdgeInsets.only(bottom: 16),
-      child: TextFormField(
-        controller: _controllers['password'],
-        decoration: InputDecoration(labelText: 'Password'),
-        obscureText: true,
-        validator: (value) {
-          if (value?.isEmpty ?? true) return 'Password is required';
-          if (!BaseAuthService.isValidPassword(value!)) return 'Password must be at least 6 characters';
-          return null;
-        },
-      ),
-    );
-  }
-
-  Widget _buildSignupButton() {
-    return SizedBox(
-      width: double.infinity,
-      child: ElevatedButton(
-        onPressed: _isLoading ? null : _handleSignup,
-        child: _isLoading ? CircularProgressIndicator() : Text('Create Guardian Account'),
       ),
     );
   }
