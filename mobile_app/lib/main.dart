@@ -6,6 +6,7 @@ import 'screens/splash_screen.dart';
 import 'package:go_router/go_router.dart';
 import 'routes/router.dart';
 import 'package:flutter/services.dart';
+import 'utils/navigator_observer.dart';
 
 void main() {
 
@@ -26,7 +27,9 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       title: 'Memora',
-      initialRoute: AppRoutes.splash,
+      //initialRoute: AppRoutes.splash,
+      navigatorObservers: [CustomNavigatorObserver()],
+      initialRoute: AppRoutes.patientGuardianRequest,
       onGenerateRoute: RouteGenerator.generateRoute,
       debugShowCheckedModeBanner: false,
     );
