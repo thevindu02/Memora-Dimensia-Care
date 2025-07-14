@@ -1,3 +1,5 @@
 {
-    "cmake.sourceDirectory": "/Users/minha/Documents/UCSC/YEAR 3/Group Project - Memora/Memora-Dimensia-Care/mobile_app/windows/flutter"
+    "cmake.ignoreCMakeListsMissing": true,
+    "java.configuration.updateBuildConfiguration": "interactive",
+    "cmake.sourceDirectory": "C:/Users/ASUS/OneDrive/Desktop/3rd Year/Group project 2/Memora-Dimensia-Care/mobile_app/windows/flutter"
 }
