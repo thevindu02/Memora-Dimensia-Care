@@ -1,26 +1,59 @@
 import 'package:flutter/material.dart';
 import '../../routes/app_routes.dart';
-import 'volunteer_dashboard_screen.dart';
 import 'volunteer_articles_screen.dart';
 import 'volunteer_profile_screen.dart';
+import 'volunteer_signup_screen.dart';
+import 'volunteer_upload_Id_image_screen.dart';
+import 'volunteer_confirm_image_upload_screen.dart';
+import 'volunteer_registration_submitted_screen.dart';
+import 'volunteer_registration_completed_screen.dart';
+import 'volunteer_dashboard_screen.dart';
+import 'volunteer_create_content_screen.dart';
+import 'volunteer_forum_screen.dart';
+import 'volunteer_schedule_session_screen.dart';
 
 class VolunteerRoutes {
   static Route<dynamic> generateRoute(RouteSettings settings) {
     switch (settings.name) {
-     // case AppRoutes.volunteerSignup:
-
-       // return MaterialPageRoute(builder: (_) => VolunteerSignupScreen());
-      case AppRoutes.volunteerDashboard:
-        return MaterialPageRoute(builder: (_) => VolunteerDashboardScreen());
+      case AppRoutes.volunteerSignup:
+        return MaterialPageRoute(builder: (_) => VolunteerSignupScreen());
       case AppRoutes.volunteerArticles:
         return MaterialPageRoute(builder: (_) => VolunteerArticlesScreen());
       case AppRoutes.volunteerProfile:
         return MaterialPageRoute(builder: (_) => VolunteerProfileScreen());
+      case AppRoutes.volunteerUploadImage:
+        return MaterialPageRoute(
+          builder: (_) => VolunteerUploadIdimageScreen(),
+        );
+      case AppRoutes.volunteerConfirmImage:
+        return MaterialPageRoute(
+          builder: (_) => VolunteerConfirmImageUploadScreen(),
+        );
+      case AppRoutes.volunteerRegistrationSubmitted:
+        return MaterialPageRoute(
+          builder: (_) => VolunteerRegistrationSubmittedScreen(),
+        );
+      case AppRoutes.volunteerCompletedRegistration:
+        return MaterialPageRoute(
+          builder: (_) => VolunteerRegistrationCompletedScreen(),
+        );
+      case AppRoutes.volunteerDashboard:
+        return MaterialPageRoute(builder: (_) => VolunteerDashboardScreen());
+      case AppRoutes.volunteerCreateContent:
+        return MaterialPageRoute(
+          builder: (_) => VolunteerCreateContentScreen(),
+        );
+      case AppRoutes.volunteerForum:
+        return MaterialPageRoute(builder: (_) => VolunteerForumScreen());
+      case AppRoutes.volunteerScheduleSession:
+        return MaterialPageRoute(
+          builder: (_) => VolunteerScheduleSessionScreen(),
+        );
+
       default:
         return MaterialPageRoute(
-          builder: (_) => Scaffold(
-            body: Center(child: Text('Volunteer route not found')),
-          ),
+          builder: (_) =>
+              Scaffold(body: Center(child: Text('Volunteer route not found'))),
         );
     }
   }
