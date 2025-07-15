@@ -4,6 +4,8 @@ import '../../services/auth/base_auth_service.dart';
 import '../../routes/app_routes.dart';
 
 class GuardianSignupScreen extends StatefulWidget {
+  const GuardianSignupScreen({super.key});
+
   @override
   _GuardianSignupScreenState createState() => _GuardianSignupScreenState();
 }

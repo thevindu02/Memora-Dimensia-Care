@@ -3,7 +3,9 @@ import 'package:image_picker/image_picker.dart';
 import 'dart:io';
 import '../../routes/app_routes.dart';
 
+
 class GuardianProfileScreen extends StatefulWidget {
+
   @override
   _GuardianProfileScreenState createState() => _GuardianProfileScreenState();
 }
@@ -603,6 +605,7 @@ class _GuardianProfileScreenState extends State<GuardianProfileScreen> {
                         },
                       ),
 
+
                       _buildTextField(
                         controller: _emailController,
                         label: 'Email',
@@ -810,6 +813,7 @@ class _GuardianProfileScreenState extends State<GuardianProfileScreen> {
             BottomNavigationBarItem(
               icon: Icon(Icons.person),
               label: 'Profile',
+
             ),
           ],
         ),

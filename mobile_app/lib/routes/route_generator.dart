@@ -17,21 +17,36 @@ class RouteGenerator {
 
     // Splash route
     if (routeName == AppRoutes.splash) {
-      return MaterialPageRoute(builder: (_) => SplashScreen());
+      return MaterialPageRoute(
+          builder: (_) => SplashScreen(),
+          settings: settings,
+      );
     }
     if (routeName == AppRoutes.forgotPassword) {
-      return MaterialPageRoute(builder: (_) => ForgotPasswordScreen());
+      return MaterialPageRoute(
+          builder: (_) => ForgotPasswordScreen(),
+          settings: settings,
+      );
     }
 
     // Auth routes
     if (routeName == AppRoutes.login) {
-      return MaterialPageRoute(builder: (_) => LoginScreen());
+      return MaterialPageRoute(
+          builder: (_) => LoginScreen(),
+          settings: settings,
+      );
     }
     if (routeName == AppRoutes.register) {
-      return MaterialPageRoute(builder: (_) => RegisterScreen());
+      return MaterialPageRoute(
+          builder: (_) => RegisterScreen(),
+          settings: settings,
+      );
     }
     if (routeName == AppRoutes.signup) {
-      return MaterialPageRoute(builder: (_) => SignupScreen());
+      return MaterialPageRoute(
+          builder: (_) => SignupScreen(),
+          settings: settings,
+      );
     }
 
     // Patient routes
@@ -61,6 +76,7 @@ class RouteGenerator {
           child: Text('No route defined for ${settings.name}'),
         ),
       ),
+      settings: settings,
     );
   }
 }

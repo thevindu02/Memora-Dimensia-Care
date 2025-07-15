@@ -3,7 +3,7 @@ import '../../services/auth_service.dart';
 import '../../routes/app_routes.dart';
 
 class LoginScreen extends StatefulWidget {
-  const LoginScreen({Key? key}) : super(key: key);
+  const LoginScreen({super.key});
 
   @override
   State<LoginScreen> createState() => _LoginScreenState();
@@ -97,12 +97,28 @@ class _LoginScreenState extends State<LoginScreen> {
         title: const Text('Login'),
       ),
       body: Padding(
-        padding: const EdgeInsets.all(16.0),
+        padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
         child: Form(
           key: _formKey,
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
+              Image.asset(
+                'assets/images/light_logo.png', // Replace with your actual logo path
+                width: 240,
+                height: 240,
+                fit: BoxFit.contain,
+              ),
+              const SizedBox(height: 16),
+              Text(
+                'Welcome Back',
+                style: TextStyle(
+                  fontSize: 36,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+
+              const SizedBox(height: 24),
               // Email field
               TextFormField(
                 controller: _emailController,
@@ -123,7 +139,7 @@ class _LoginScreenState extends State<LoginScreen> {
                   return null;
                 },
               ),
-              const SizedBox(height: 16),
+              const SizedBox(height: 24),
 
               // Password field
               TextFormField(
@@ -153,7 +169,7 @@ class _LoginScreenState extends State<LoginScreen> {
                   return null;
                 },
               ),
-              const SizedBox(height: 24),
+              const SizedBox(height: 16),
 
               // Login button
               SizedBox(
@@ -162,8 +178,8 @@ class _LoginScreenState extends State<LoginScreen> {
                 child: ElevatedButton(
                   onPressed: _isLoading ? null : _handleLogin,
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.blueAccent,
-                    foregroundColor: Colors.white,// Use backgroundColor here
+                    backgroundColor: Color(0xFFA0C4FD),
+                    foregroundColor: Color(0xFF2B3F99),// Use backgroundColor here
                   ),
                   child: _isLoading
                       ? const CircularProgressIndicator(color: Colors.white)
