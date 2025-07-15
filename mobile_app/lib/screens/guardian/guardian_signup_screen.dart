@@ -111,10 +111,14 @@ class _GuardianSignupScreenState extends State<GuardianSignupScreen> {
       // For now, show a success message
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text('Registration successful!'),
+          content: Text('Registration successful! Redirecting to login...'),
           backgroundColor: Colors.green,
         ),
       );
+
+      //Navigate to login screen after a slight delay
+      await Future.delayed(Duration(seconds: 1));
+      Navigator.pushReplacementNamed(context, AppRoutes.login);
     }
   }
 

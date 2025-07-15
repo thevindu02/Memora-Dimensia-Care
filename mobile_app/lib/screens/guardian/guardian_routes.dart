@@ -1,4 +1,17 @@
 import 'package:flutter/material.dart';
+import 'package:mobile_app/screens/guardian/guardian_add_caregiver_screen.dart';
+import 'package:mobile_app/screens/guardian/guardian_add_known_caregiver_screen.dart';
+import 'package:mobile_app/screens/guardian/guardian_add_patient_screen.dart';
+import 'package:mobile_app/screens/guardian/guardian_add_unknown_caregiver_screen.dart';
+import 'package:mobile_app/screens/guardian/guardian_edit_patient_details_screen.dart';
+import 'package:mobile_app/screens/guardian/guardian_forum_article_screen.dart';
+import 'package:mobile_app/screens/guardian/guardian_forums_screen.dart';
+import 'package:mobile_app/screens/guardian/guardian_patient_details_screen.dart';
+import 'package:mobile_app/screens/guardian/guardian_patients_reports_screen.dart';
+import 'package:mobile_app/screens/guardian/guardian_selected_patient_reports_screen.dart';
+import 'package:mobile_app/screens/guardian/guardian_settings_help_support_screen.dart';
+import 'package:mobile_app/screens/guardian/guardian_settings_privacy_screen.dart';
+import 'package:mobile_app/screens/guardian/guardian_settings_screen.dart';
 import '../../routes/app_routes.dart';
 import 'guardian_dashboard_screen.dart';
 import 'guardian_profile_screen.dart';
@@ -12,10 +25,36 @@ class GuardianRoutes {
         return MaterialPageRoute(builder: (_) => GuardianSignupScreen());
       case AppRoutes.guardianDashboard:
         return MaterialPageRoute(builder: (_) => GuardianDashboardScreen());
+      case AppRoutes.guardianAddPatient:
+        return MaterialPageRoute(builder: (_) => GuardianAddPatientScreen());
+      case AppRoutes.guardianPatientDetails:
+        return MaterialPageRoute(builder: (_) => GuardianPatientDetailsScreen());
+      case AppRoutes.guardianEditPatientDetails:
+        return MaterialPageRoute(builder: (_) => GuardianEditPatientDetailsScreen());
+      case AppRoutes.guardianAddCaregiver:
+        return MaterialPageRoute(builder: (_) => GuardianAddCaregiverScreen());
+      case AppRoutes.guardianAddUnknownCaregiver:
+        return MaterialPageRoute(builder: (_) => GuardianAddUnknownCaregiverScreen());
+      case AppRoutes.guardianAddKnownCaregiver:
+        return MaterialPageRoute(builder: (_) => GuardianAddKnownCaregiverScreen());
+      case AppRoutes.guardianPatientsReports:
+        return MaterialPageRoute(builder: (_) => GuardianPatientsReportsScreen());
+      case AppRoutes.guardianSelectedPatientReports:
+        return MaterialPageRoute(builder: (_) => GuardianSelectedPatientReportsScreen());
+      case AppRoutes.guardianSettings:
+        return MaterialPageRoute(builder: (_) => GuardianSettingsScreen());
+      case AppRoutes.guardianForums:
+        return MaterialPageRoute(builder: (_) => GuardianForumsScreen());
+      case AppRoutes.guardianForumArticle:
+        return MaterialPageRoute(builder: (_) => GuardianForumArticleScreen());
       case AppRoutes.guardianProfile:
         return MaterialPageRoute(builder: (_) => GuardianProfileScreen());
-      case AppRoutes.guardianOrders:
-        return MaterialPageRoute(builder: (_) => GuardianOrdersScreen());
+      case AppRoutes.guardianSettingsPrivacy:
+        return MaterialPageRoute(builder: (_) => GuardianSettingsPrivacyScreen());
+      case AppRoutes.guardianSettingsHelpSupport:
+        return MaterialPageRoute(builder: (_) => GuardianSettingsHelpSupportScreen());
+      // case AppRoutes.guardianOrders:
+      //   return MaterialPageRoute(builder: (_) => GuardianOrdersScreen());
       default:
         return MaterialPageRoute(
           builder: (_) => Scaffold(
