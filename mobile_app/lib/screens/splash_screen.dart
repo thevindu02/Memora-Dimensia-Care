@@ -20,8 +20,15 @@ class _SplashScreenState extends State<SplashScreen> {
     // Simulate app initialization (loading user data, preferences, etc.)
     await Future.delayed(Duration(seconds: 2));
 
-    // Always navigate to login screen after splash
-    Navigator.pushReplacementNamed(context, '/login');
+    // Check if the initial route is /patient/guardianRequest
+    final initialRoute = ModalRoute.of(context)?.settings.name ?? '';
+    if (initialRoute == AppRoutes.patientGuardianRequest) {
+      Navigator.pushReplacementNamed(context, AppRoutes.patientGuardianRequest);
+      return;
+    }
+
+    // Always navigate to login screen after splash (default)
+    Navigator.pushReplacementNamed(context, AppRoutes.login);
   }
 
   @override

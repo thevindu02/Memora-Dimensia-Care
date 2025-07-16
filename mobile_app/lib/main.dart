@@ -6,6 +6,7 @@ import 'screens/splash_screen.dart';
 import 'package:go_router/go_router.dart';
 import 'routes/router.dart';
 import 'package:flutter/services.dart';
+import 'utils/navigator_observer.dart';
 
 void main() {
 
@@ -15,8 +16,6 @@ void main() {
   SystemChrome.setEnabledSystemUIMode(SystemUiMode.immersiveSticky);
   
   runApp(MyApp());
-
-  
 }
 
 class MyApp extends StatelessWidget {
@@ -27,6 +26,8 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       title: 'Memora',
       initialRoute: AppRoutes.splash,
+      navigatorObservers: [CustomNavigatorObserver()],
+      //initialRoute: AppRoutes.patientGuardianRequest,
       onGenerateRoute: RouteGenerator.generateRoute,
       debugShowCheckedModeBanner: false,
     );

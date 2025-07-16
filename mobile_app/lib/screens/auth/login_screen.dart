@@ -23,66 +23,71 @@ class _LoginScreenState extends State<LoginScreen> {
     super.dispose();
   }
 
+  // Future<void> _handleLogin() async {
+  //   if (!_formKey.currentState!.validate()) {
+  //     return;
+  //   }
+  //
+  //   setState(() {
+  //     _isLoading = true;
+  //   });
+  //
+  //   try {
+  //     // Authenticate user with database
+  //     final authResult = await AuthService.authenticateUser(
+  //       _emailController.text.trim(),
+  //       _passwordController.text,
+  //     );
+  //
+  //     if (authResult.success) {
+  //       // Login successful - navigate to appropriate dashboard
+  //       if (mounted) {
+  //         // Show success message
+  //         ScaffoldMessenger.of(context).showSnackBar(
+  //           SnackBar(
+  //             content: Text(authResult.message),
+  //             backgroundColor: Colors.green,
+  //           ),
+  //         );
+  //
+  //         // Navigate to dashboard based on user role
+  //         Navigator.of(context).pushReplacementNamed(
+  //           authResult.dashboardRoute!,
+  //         );
+  //       }
+  //     } else {
+  //       // Login failed - show error message
+  //       if (mounted) {
+  //         ScaffoldMessenger.of(context).showSnackBar(
+  //           SnackBar(
+  //             content: Text(authResult.message),
+  //             backgroundColor: Colors.red,
+  //           ),
+  //         );
+  //       }
+  //     }
+  //   } catch (e) {
+  //     // Handle unexpected errors
+  //     if (mounted) {
+  //       ScaffoldMessenger.of(context).showSnackBar(
+  //         SnackBar(
+  //           content: Text('An unexpected error occurred: $e'),
+  //           backgroundColor: Colors.red,
+  //         ),
+  //       );
+  //     }
+  //   } finally {
+  //     if (mounted) {
+  //       setState(() {
+  //         _isLoading = false;
+  //       });
+  //     }
+  //   }
+  // }
+
+  //Bypass authentication, validation, error/success messages
   Future<void> _handleLogin() async {
-    if (!_formKey.currentState!.validate()) {
-      return;
-    }
-
-    setState(() {
-      _isLoading = true;
-    });
-
-    try {
-      // Authenticate user with database
-      final authResult = await AuthService.authenticateUser(
-        _emailController.text.trim(),
-        _passwordController.text,
-      );
-
-      if (authResult.success) {
-        // Login successful - navigate to appropriate dashboard
-        if (mounted) {
-          // Show success message
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text(authResult.message),
-              backgroundColor: Colors.green,
-            ),
-          );
-
-          // Navigate to dashboard based on user role
-          Navigator.of(context).pushReplacementNamed(
-            authResult.dashboardRoute!,
-          );
-        }
-      } else {
-        // Login failed - show error message
-        if (mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text(authResult.message),
-              backgroundColor: Colors.red,
-            ),
-          );
-        }
-      }
-    } catch (e) {
-      // Handle unexpected errors
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('An unexpected error occurred: $e'),
-            backgroundColor: Colors.red,
-          ),
-        );
-      }
-    } finally {
-      if (mounted) {
-        setState(() {
-          _isLoading = false;
-        });
-      }
-    }
+    Navigator.of(context).pushReplacementNamed(AppRoutes.guardianDashboard);
   }
 
   @override
@@ -92,12 +97,28 @@ class _LoginScreenState extends State<LoginScreen> {
         title: const Text('Login'),
       ),
       body: Padding(
-        padding: const EdgeInsets.all(16.0),
+        padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
         child: Form(
           key: _formKey,
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
+              Image.asset(
+                'assets/images/light_logo.png', // Replace with your actual logo path
+                width: 240,
+                height: 240,
+                fit: BoxFit.contain,
+              ),
+              const SizedBox(height: 16),
+              Text(
+                'Welcome Back',
+                style: TextStyle(
+                  fontSize: 36,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+
+              const SizedBox(height: 24),
               // Email field
               TextFormField(
                 controller: _emailController,
@@ -118,7 +139,7 @@ class _LoginScreenState extends State<LoginScreen> {
                   return null;
                 },
               ),
-              const SizedBox(height: 16),
+              const SizedBox(height: 24),
 
               // Password field
               TextFormField(
@@ -148,7 +169,7 @@ class _LoginScreenState extends State<LoginScreen> {
                   return null;
                 },
               ),
-              const SizedBox(height: 24),
+              const SizedBox(height: 16),
 
               // Login button
               SizedBox(
@@ -157,8 +178,8 @@ class _LoginScreenState extends State<LoginScreen> {
                 child: ElevatedButton(
                   onPressed: _isLoading ? null : _handleLogin,
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.blueAccent,
-                    foregroundColor: Colors.white,// Use backgroundColor here
+                    backgroundColor: Color(0xFFA0C4FD),
+                    foregroundColor: Color(0xFF2B3F99),// Use backgroundColor here
                   ),
                   child: _isLoading
                       ? const CircularProgressIndicator(color: Colors.white)
