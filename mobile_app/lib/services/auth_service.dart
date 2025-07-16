@@ -8,7 +8,9 @@ class AuthService {
   static const String _roleKey = 'user_role';
   static const String _tokenKey = 'auth_token';
 
+
   static const String baseUrl = 'http://192.168.8.110:8080/api/auth';
+
 
   static String? currentUserRole;
   static bool isLoggedIn = false;
@@ -381,3 +383,7 @@ class ForgotPasswordResult {
     required this.message,
   });
 }
+
+
+
+
