@@ -3,6 +3,8 @@ import '../services/auth_service.dart';
 import '../routes/app_routes.dart';
 
 class SplashScreen extends StatefulWidget {
+  const SplashScreen({super.key});
+
   @override
   _SplashScreenState createState() => _SplashScreenState();
 }

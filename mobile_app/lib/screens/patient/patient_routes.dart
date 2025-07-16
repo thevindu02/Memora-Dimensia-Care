@@ -13,7 +13,6 @@ import '../../routes/app_routes.dart';
 import 'patient_dashboard_screen.dart';
 import 'patient_profile_screen.dart';
 import 'patient_settings.dart';
-import 'patient_verification_screen.dart';
 
 class PatientRoutes {
   static Route<dynamic> generateRoute(RouteSettings settings) {
