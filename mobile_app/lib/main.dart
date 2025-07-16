@@ -9,6 +9,7 @@ import 'utils/navigator_observer.dart';
 
 void main() {
   runApp(MyApp());
+
 }
 
 class MyApp extends StatelessWidget {
@@ -16,9 +17,9 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       title: 'Memora',
-      //initialRoute: AppRoutes.splash,
+      initialRoute: AppRoutes.splash,
       navigatorObservers: [CustomNavigatorObserver()],
-      initialRoute: AppRoutes.patientGuardianRequest,
+      //initialRoute: AppRoutes.patientGuardianRequest,
       onGenerateRoute: RouteGenerator.generateRoute,
       debugShowCheckedModeBanner: false,
     );
