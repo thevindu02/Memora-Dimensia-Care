@@ -8,7 +8,8 @@ class GuardianAddPatientScreen extends StatefulWidget {
 
 class _GuardianAddPatientScreenState extends State<GuardianAddPatientScreen> {
   final _formKey = GlobalKey<FormState>();
-  final _patientNameController = TextEditingController();
+  final _firstNameController = TextEditingController();
+  final _lastNameController = TextEditingController();
   final _dobController = TextEditingController();
   final _genderController = TextEditingController();
   final _contactController = TextEditingController();
@@ -35,7 +36,8 @@ class _GuardianAddPatientScreenState extends State<GuardianAddPatientScreen> {
 
   @override
   void dispose() {
-    _patientNameController.dispose();
+    _firstNameController.dispose();
+    _lastNameController.dispose();
     _dobController.dispose();
     _genderController.dispose();
     _contactController.dispose();
@@ -152,6 +154,9 @@ class _GuardianAddPatientScreenState extends State<GuardianAddPatientScreen> {
       await Future.delayed(Duration(seconds: 2));
 
       // TODO: Implement actual save patient logic here
+      // You can now access separate first and last names:
+      // String firstName = _firstNameController.text;
+      // String lastName = _lastNameController.text;
 
       setState(() {
         _isLoading = false;
@@ -202,8 +207,13 @@ class _GuardianAddPatientScreenState extends State<GuardianAddPatientScreen> {
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
               _buildTextField(
-                controller: _patientNameController,
-                hintText: 'Patient Name',
+                controller: _firstNameController,
+                hintText: 'First Name',
+              ),
+
+              _buildTextField(
+                controller: _lastNameController,
+                hintText: 'Last Name',
               ),
 
               _buildTextField(
