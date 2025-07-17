@@ -27,6 +27,36 @@ function VisionMissionValues() {
   return (
     <Box sx={{ py: 8, bgcolor: 'background.default' }}>
       <Container>
+        <Typography
+          variant="h4"
+          sx={{
+            textAlign: 'center',
+            mb: 2.5,
+            color: '#2B3F99',
+            fontFamily: 'Poppins Bold',
+            fontWeight: 800,
+            fontSize: 48,
+            letterSpacing: 1,
+          }}
+        >
+          Advancing Well-being Through Innovation
+        </Typography>
+        <Typography
+          variant="h6"
+          sx={{
+            textAlign: 'center',
+            mb: 7,
+            color: '#390797',
+            fontFamily: 'Poppins',
+            fontSize: { xs: 16, md: 22 },
+            fontWeight: 500,
+            opacity: 0.85,
+            maxWidth: 640,
+            mx: 'auto',
+          }}
+        >
+          Empowering lives with compassionate technology for a healthier, happier tomorrow.
+        </Typography>
         <Grid container spacing={4} justifyContent="center" alignItems="stretch" wrap="nowrap">
           {cards.map(({ icon, title, desc }) => (
             <Grid item xs={12} sm={6} md={3} key={title} sx={{ display: 'flex' }}>

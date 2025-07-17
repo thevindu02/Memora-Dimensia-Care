@@ -75,16 +75,16 @@ function Footer() {
               <Link href="#hero" underline="hover" color="inherit" sx={{ cursor: 'pointer' }}>
                 Home
               </Link>
-              <Link href="#patients" underline="hover" color="inherit" sx={{ cursor: 'pointer' }}>
+              <Link href="/for_patients" underline="hover" color="inherit" sx={{ cursor: 'pointer' }}>
                 For Patients
               </Link>
-              <Link href="#guardians" underline="hover" color="inherit" sx={{ cursor: 'pointer' }}>
+              <Link href="/for_guardians" underline="hover" color="inherit" sx={{ cursor: 'pointer' }}>
                 For Guardians
               </Link>
-              <Link href="#caregivers" underline="hover" color="inherit" sx={{ cursor: 'pointer' }}>
+              <Link href="/for_caregivers" underline="hover" color="inherit" sx={{ cursor: 'pointer' }}>
                 For Caregivers
               </Link>
-              <Link href="#volunteers" underline="hover" color="inherit" sx={{ cursor: 'pointer' }}>
+              <Link href="/for_volunteers" underline="hover" color="inherit" sx={{ cursor: 'pointer' }}>
                 For Volunteers
               </Link>
               <Link href="/terms" underline="hover" color="inherit" sx={{ cursor: 'pointer' }}>
@@ -103,7 +103,7 @@ function Footer() {
             </Typography>
             <Stack direction="row" spacing={1} alignItems="center" sx={{ mb: 1 }}>
               <EmailIcon />
-              <Typography>info@memora.org</Typography>
+              <Typography>memorademen@gmail.com </Typography>
             </Stack>
             <Stack direction="row" spacing={1} alignItems="center" sx={{ mb: 2 }}>
               <PhoneIcon />

@@ -12,15 +12,15 @@ const features = [
     title: 'Task Tracking',
   },
   {
-    icon: <MedicationIcon sx={{ fontSize: 40, color: '#2B3F99' }} />,
+    icon: <MedicationIcon sx={{ fontSize: 40, color: '#A0C4FD' }} />,
     title: 'Medication Management',
   },
   {
-    icon: <NotificationsActiveIcon sx={{ fontSize: 40, color: '#A0C4FD' }} />,
+    icon: <NotificationsActiveIcon sx={{ fontSize: 40, color: '#2B3F99' }} />,
     title: 'Notifications & Alerts',
   },
   {
-    icon: <EventAvailableIcon sx={{ fontSize: 40, color: '#C3B1E1' }} />,
+    icon: <EventAvailableIcon sx={{ fontSize: 40, color: '#a784dfff' }} />,
     title: 'Appointment Reminders',
   },
 ];
