@@ -8,8 +8,9 @@ class AuthService {
   static const String _roleKey = 'user_role';
   static const String _tokenKey = 'auth_token';
 
+  static int? currentUserId; // Set this after login
 
-  static const String baseUrl = 'http://192.168.8.110:8080/api/auth';
+  static const String baseUrl = 'http://10.22.160.147:8080/api/auth';
 
 
   static String? currentUserRole;
@@ -76,8 +77,9 @@ class AuthService {
         // Extract user data from the actual backend response structure
         final String token = responseData['accessToken'];
         final String role = responseData['role'];
+        final int id = responseData['id'];
         final Map<String, dynamic> userData = {
-          'id': responseData['id'],
+          'id': id,
           'email': responseData['email'],
           'fName': responseData['fname'],
           'lName': responseData['lname'],
@@ -86,6 +88,7 @@ class AuthService {
 
         // Save session data
         await login(role, token: token, userData: userData);
+        currentUserId = id; // <-- Set currentUserId after login
 
         return AuthResult(
           success: true,
@@ -234,6 +237,17 @@ class AuthService {
     } catch (e) {
       return null;
     }
+  }
+
+  // Get current user ID (guardian ID)
+  static Future<int?> getCurrentUserId() async {
+    if (currentUserId != null) return currentUserId;
+    final user = await getCurrentUser();
+    if (user != null && user['id'] != null) {
+      currentUserId = user['id'] is int ? user['id'] : int.tryParse(user['id'].toString());
+      return currentUserId;
+    }
+    return null;
   }
 
   // Check user permissions
