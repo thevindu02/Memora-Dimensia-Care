@@ -85,11 +85,6 @@ class _LoginScreenState extends State<LoginScreen> {
     }
   }
 
-  //Bypass authentication, validation, error/success messages
-  // Future<void> _handleLogin() async {
-  //   Navigator.of(context).pushReplacementNamed(AppRoutes.guardianDashboard);
-  // }
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
