@@ -7,6 +7,8 @@ import Memora.DimensiaCareApplication.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
+
 @Service
 public class PatientService {
 
@@ -28,5 +30,9 @@ public class PatientService {
         }
 
         return patientRepository.save(patient);
+    }
+
+    public List<Patient> getPatientsByGuardian(Long guardianId) {
+        return patientRepository.findByGuardian_Id(guardianId);
     }
 }

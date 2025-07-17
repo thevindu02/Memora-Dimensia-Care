@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../../routes/app_routes.dart';
-
+import '../../services/patient_service.dart';
+import '../../services/auth_service.dart';
 
 class GuardianDashboardScreen extends StatefulWidget {
   @override
@@ -10,21 +11,8 @@ class GuardianDashboardScreen extends StatefulWidget {
 class _GuardianDashboardScreenState extends State<GuardianDashboardScreen> {
   int _selectedIndex = 0;
 
-  // Mock data for patients
-  List<Map<String, dynamic>> patients = [
-    {
-      'id': 1,
-      'name': 'John Doe',
-      'label': 'Patient 1',
-      'avatar': 'assets/images/patient1.jpg', // You can replace with actual asset
-    },
-    {
-      'id': 2,
-      'name': 'Jane Smith',
-      'label': 'Patient 2',
-      'avatar': 'assets/images/patient2.jpg', // You can replace with actual asset
-    },
-  ];
+  List<dynamic> _patients = [];
+  bool _isLoadingPatients = true;
 
   // Mock data for notifications grouped by patient and type
   Map<String, List<Map<String, dynamic>>> notifications = {
@@ -50,6 +38,7 @@ class _GuardianDashboardScreenState extends State<GuardianDashboardScreen> {
   };
 
   Widget _buildPatientCard(Map<String, dynamic> patient) {
+    print(patient); // Add this line for debugging
     return Material(
       color: Colors.transparent,
       child: InkWell(
@@ -94,7 +83,7 @@ class _GuardianDashboardScreenState extends State<GuardianDashboardScreen> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    patient['name'],
+                    '${patient['fname'] ?? ''} ${patient['lname'] ?? ''}',
                     style: TextStyle(
                       fontSize: 16,
                       fontWeight: FontWeight.w600,
@@ -103,7 +92,7 @@ class _GuardianDashboardScreenState extends State<GuardianDashboardScreen> {
                   ),
                   SizedBox(height: 4),
                   Text(
-                    patient['label'],
+                    patient['dementiaStage'] ?? '',
                     style: TextStyle(
                       fontSize: 14,
                       color: Colors.grey[600],
@@ -223,6 +212,7 @@ class _GuardianDashboardScreenState extends State<GuardianDashboardScreen> {
   @override
   void initState() {
     super.initState();
+    _fetchPatients();
     // Handle arguments passed from navigation
     WidgetsBinding.instance.addPostFrameCallback((_) {
       final args = ModalRoute.of(context)?.settings.arguments as Map<String, dynamic>?;
@@ -232,6 +222,22 @@ class _GuardianDashboardScreenState extends State<GuardianDashboardScreen> {
         });
       }
     });
+  }
+
+  Future<void> _fetchPatients() async {
+    final int? guardianId = await AuthService.getCurrentUserId();
+    if (guardianId != null) {
+      final patients = await PatientService.getPatientsByGuardian(guardianId);
+      setState(() {
+        _patients = patients;
+        _isLoadingPatients = false;
+      });
+    } else {
+      setState(() {
+        _patients = [];
+        _isLoadingPatients = false;
+      });
+    }
   }
 
   void _onBottomNavTap(int index) {
@@ -276,10 +282,13 @@ class _GuardianDashboardScreenState extends State<GuardianDashboardScreen> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             // Patients section
-            if (patients.isNotEmpty) ...[
-              for (var patient in patients) _buildPatientCard(patient),
-              SizedBox(height: 24),
-            ],
+            if (_isLoadingPatients)
+              Center(child: CircularProgressIndicator())
+            else if (_patients.isEmpty)
+              Text('No patients found.')
+            else
+              ..._patients.map((p) => _buildPatientCard(p)).toList(),
+            SizedBox(height: 24),
 
             // Quick Access section
             Text(

@@ -31,10 +31,6 @@ public class Patient {
     @JoinColumn(name = "guardian_id")
     private User guardian;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "caregiver_id")
-    private User caregiver;
-
     // Getters and setters
 
     public Long getPatientID() {
@@ -83,14 +79,6 @@ public class Patient {
 
     public void setGuardian(User guardian) {
         this.guardian = guardian;
-    }
-
-    public User getCaregiver() {
-        return caregiver;
-    }
-
-    public void setCaregiver(User caregiver) {
-        this.caregiver = caregiver;
     }
 
     // Enums

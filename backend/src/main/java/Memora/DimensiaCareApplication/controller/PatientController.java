@@ -7,6 +7,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+import java.util.stream.Collectors;
+
+import Memora.DimensiaCareApplication.dto.response.PatientDetailsResponse;
+
 @RestController
 @RequestMapping("/api/patients")
 public class PatientController {
@@ -22,5 +27,14 @@ public class PatientController {
         patient.setDementiaType(request.getDementiaType());
         Patient savedPatient = patientService.addPatient(patient, request.getUserId(), request.getGuardianId());
         return ResponseEntity.ok(savedPatient);
+    }
+
+    @GetMapping("/by-guardian/{guardianId}")
+    public ResponseEntity<List<PatientDetailsResponse>> getPatientsByGuardian(@PathVariable Long guardianId) {
+        List<Patient> patients = patientService.getPatientsByGuardian(guardianId);
+        List<PatientDetailsResponse> response = patients.stream()
+                .map(PatientDetailsResponse::fromPatient)
+                .collect(Collectors.toList());
+        return ResponseEntity.ok(response);
     }
 }

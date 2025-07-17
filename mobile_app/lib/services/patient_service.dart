@@ -78,6 +78,25 @@ class PatientService {
       return PatientResult(success: false, message: 'Network error: $e');
     }
   }
+
+  // Fetch all patients for a specific guardian
+  static Future<List<dynamic>> getPatientsByGuardian(int guardianId) async {
+    try {
+      final response = await http.get(
+        Uri.parse('$baseUrl/by-guardian/$guardianId'),
+        headers: {"Content-Type": "application/json"},
+      );
+      if (response.statusCode == 200) {
+        return jsonDecode(response.body) as List<dynamic>;
+      } else {
+        // Optionally handle error response
+        return [];
+      }
+    } catch (e) {
+      // Optionally handle network error
+      return [];
+    }
+  }
 }
 
 // Result class for patient operations
