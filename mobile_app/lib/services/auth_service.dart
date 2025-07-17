@@ -8,7 +8,7 @@ class AuthService {
   static const String _roleKey = 'user_role';
   static const String _tokenKey = 'auth_token';
 
-  static const String baseUrl = 'http://192.168.8.166:8080/api/auth';
+  static const String baseUrl = 'http://10.22.160.21:8080/api/auth';
 
   static String? currentUserRole;
   static bool isLoggedIn = false;
