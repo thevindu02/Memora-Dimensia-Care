@@ -23,72 +23,72 @@ class _LoginScreenState extends State<LoginScreen> {
     super.dispose();
   }
 
-  // Future<void> _handleLogin() async {
-  //   if (!_formKey.currentState!.validate()) {
-  //     return;
-  //   }
-  //
-  //   setState(() {
-  //     _isLoading = true;
-  //   });
-  //
-  //   try {
-  //     // Authenticate user with database
-  //     final authResult = await AuthService.authenticateUser(
-  //       _emailController.text.trim(),
-  //       _passwordController.text,
-  //     );
-  //
-  //     if (authResult.success) {
-  //       // Login successful - navigate to appropriate dashboard
-  //       if (mounted) {
-  //         // Show success message
-  //         ScaffoldMessenger.of(context).showSnackBar(
-  //           SnackBar(
-  //             content: Text(authResult.message),
-  //             backgroundColor: Colors.green,
-  //           ),
-  //         );
-  //
-  //         // Navigate to dashboard based on user role
-  //         Navigator.of(context).pushReplacementNamed(
-  //           authResult.dashboardRoute!,
-  //         );
-  //       }
-  //     } else {
-  //       // Login failed - show error message
-  //       if (mounted) {
-  //         ScaffoldMessenger.of(context).showSnackBar(
-  //           SnackBar(
-  //             content: Text(authResult.message),
-  //             backgroundColor: Colors.red,
-  //           ),
-  //         );
-  //       }
-  //     }
-  //   } catch (e) {
-  //     // Handle unexpected errors
-  //     if (mounted) {
-  //       ScaffoldMessenger.of(context).showSnackBar(
-  //         SnackBar(
-  //           content: Text('An unexpected error occurred: $e'),
-  //           backgroundColor: Colors.red,
-  //         ),
-  //       );
-  //     }
-  //   } finally {
-  //     if (mounted) {
-  //       setState(() {
-  //         _isLoading = false;
-  //       });
-  //     }
-  //   }
-  // }
+  Future<void> _handleLogin() async {
+    if (!_formKey.currentState!.validate()) {
+      return;
+    }
+
+    setState(() {
+      _isLoading = true;
+    });
+
+    try {
+      // Authenticate user with database
+      final authResult = await AuthService.authenticateUser(
+        _emailController.text.trim(),
+        _passwordController.text,
+      );
+
+      if (authResult.success) {
+        // Login successful - navigate to appropriate dashboard
+        if (mounted) {
+          // Show success message
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text(authResult.message),
+              backgroundColor: Colors.green,
+            ),
+          );
+
+          // Navigate to dashboard based on user role
+          Navigator.of(context).pushReplacementNamed(
+            authResult.dashboardRoute!,
+          );
+        }
+      } else {
+        // Login failed - show error message
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text(authResult.message),
+              backgroundColor: Colors.red,
+            ),
+          );
+        }
+      }
+    } catch (e) {
+      // Handle unexpected errors
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('An unexpected error occurred: $e'),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
+    } finally {
+      if (mounted) {
+        setState(() {
+          _isLoading = false;
+        });
+      }
+    }
+  }
 
   //Bypass authentication, validation, error/success messages
-  Future<void> _handleLogin() async {
-    Navigator.of(context).pushReplacementNamed(AppRoutes.guardianDashboard);
-  }
+  // Future<void> _handleLogin() async {
+  //   Navigator.of(context).pushReplacementNamed(AppRoutes.guardianDashboard);
+  // }
 
   @override
   Widget build(BuildContext context) {
