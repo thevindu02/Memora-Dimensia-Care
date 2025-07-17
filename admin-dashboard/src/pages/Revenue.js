@@ -48,7 +48,7 @@ const Revenue = () => {
     <div className="dashboard-container">
       <Header />
       <div className="main-content">
-        <Sidebar />
+        <Sidebar currentPage="revenue" />
         <div className="page-content">
           <div className="revenue-page">
             <h1>Revenue Analytics</h1>
