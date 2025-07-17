@@ -32,14 +32,16 @@ function ForGuardiansFeatures() {
         <Typography
           variant="h4"
           sx={{
-            color: '#390797',
-            fontWeight: 700,
-            mb: 4,
             textAlign: 'center',
-            fontFamily: 'Poppins, Lato, Nunito, Arial, sans-serif',
+            mb:5,
+            color: '#390797',
+            fontFamily: 'Poppins Bold',
+            fontWeight: 700,
+            fontSize: 48,
+            letterSpacing: 1,
           }}
         >
-          Comprehensive Care Features
+         Comprehensive Care Features
         </Typography>
         <Grid container spacing={4} justifyContent="center">
           {features.map(({ icon, title }) => (

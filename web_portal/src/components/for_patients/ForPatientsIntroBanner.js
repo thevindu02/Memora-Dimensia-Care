@@ -46,7 +46,7 @@ function ForPatientsIntroBanner() {
               variant="h2"
               sx={{
                 color: '#2d047aff',
-                fontWeight: 900,
+                fontWeight: 800,
                 lineHeight: 1.13,
                 fontSize: { xs: 32, md: 52 },
                 mb: 2,
@@ -139,8 +139,8 @@ function ForPatientsIntroBanner() {
                   position: 'absolute',
                   top: -22,
                   right: -15,
-                  width: 44,
-                  height: 44,
+                  width: 50,
+                  height: 50,
                   borderRadius: '50%',
                   background: 'linear-gradient(120deg,#A0C4FD 55%,#C3B1E1 95%)',
                   boxShadow: '0 4px 16px 0 rgba(160,196,253,0.23)',

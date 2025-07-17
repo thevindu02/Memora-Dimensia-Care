@@ -15,7 +15,8 @@ function Footer() {
         bgcolor: '#2B3F99',
         color: '#fff',
         py: 4,
-        fontSize: 14,
+        fontSize: 18,
+        fontFamily: 'Poppins',
       }}
     >
       <Container maxWidth="lg">
@@ -28,10 +29,10 @@ function Footer() {
         >
           {/* About Section */}
           <Box sx={{ flex: '1 1 250px', minWidth: 250 }}>
-            <Typography variant="h6" sx={{ fontWeight: 700, mb: 2 }}>
+            <Typography variant="h6" sx={{ fontFamily: 'Poppins Regular', fontWeight: 700, mb: 2, fontSize: 24 }}>
               Memora
             </Typography>
-            <Typography variant="body2" sx={{ mb: 2, maxWidth: 320 }}>
+            <Typography variant="body2" sx={{ fontFamily: 'Poppins Regular', mb: 2, maxWidth: 320, fontSize: 18 }}>
               Supporting dementia care with compassion and technology.  
               Empowering patients, families, and caregivers with trusted resources.
             </Typography>
@@ -68,7 +69,7 @@ function Footer() {
 
           {/* Quick Links */}
           <Box sx={{ flex: '1 1 150px', minWidth: 150 }}>
-            <Typography variant="h6" sx={{ fontWeight: 700, mb: 2 }}>
+            <Typography variant="h6" sx={{ fontFamily: 'Poppins Regular', fontWeight: 700, mb: 2, fontSize: 24 }}>
               Quick Links
             </Typography>
             <Stack spacing={1}>
@@ -98,16 +99,16 @@ function Footer() {
 
           {/* Contact Info */}
           <Box sx={{ flex: '1 1 250px', minWidth: 250 }}>
-            <Typography variant="h6" sx={{ fontWeight: 700, mb: 2 }}>
+            <Typography variant="h6" sx={{ fontFamily: 'Poppins Regular', fontWeight: 700, mb: 2, fontSize: 24 }}>
               Contact Us
             </Typography>
             <Stack direction="row" spacing={1} alignItems="center" sx={{ mb: 1 }}>
               <EmailIcon />
-              <Typography>memorademen@gmail.com </Typography>
+              <Typography variant="body" sx={{ fontFamily: 'Poppins Regular', fontWeight: 700, mb: 2, fontSize: 18 }}>memorademen@gmail.com </Typography>
             </Stack>
             <Stack direction="row" spacing={1} alignItems="center" sx={{ mb: 2 }}>
               <PhoneIcon />
-              <Typography>+94 77 123 4567</Typography>
+              <Typography variant="body" sx={{ fontFamily: 'Poppins Regular', fontWeight: 700, mb: 2, fontSize: 18 }}>+94 77 123 4567</Typography>
             </Stack>
             {/* Optional: Newsletter Signup */}
             {/* <Typography sx={{ mb: 1 }}>Subscribe to our newsletter</Typography>
