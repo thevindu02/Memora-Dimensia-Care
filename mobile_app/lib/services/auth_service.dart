@@ -333,13 +333,13 @@ class AuthService {
           );
         }
       }
-    } on http.ClientException catch (e) {
+    } on http.ClientException {
       // Network connectivity issues
       return ForgotPasswordResult(
         success: false,
         message: 'Network error. Please check your internet connection',
       );
-    } on FormatException catch (e) {
+    } on FormatException {
       // JSON parsing errors
       return ForgotPasswordResult(
         success: false,
@@ -381,3 +381,7 @@ class ForgotPasswordResult {
     required this.message,
   });
 }
+
+
+
+

@@ -4,6 +4,8 @@ import '../../services/auth/base_auth_service.dart';
 import '../../routes/app_routes.dart';
 
 class GuardianSignupScreen extends StatefulWidget {
+  const GuardianSignupScreen({super.key});
+
   @override
   _GuardianSignupScreenState createState() => _GuardianSignupScreenState();
 }
@@ -111,10 +113,14 @@ class _GuardianSignupScreenState extends State<GuardianSignupScreen> {
       // For now, show a success message
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text('Registration successful!'),
+          content: Text('Registration successful! Redirecting to login...'),
           backgroundColor: Colors.green,
         ),
       );
+
+      //Navigate to login screen after a slight delay
+      await Future.delayed(Duration(seconds: 1));
+      Navigator.pushReplacementNamed(context, AppRoutes.login);
     }
   }
 

@@ -3,7 +3,7 @@ import '../services/auth_service.dart';
 import 'package:go_router/go_router.dart';
 
 class ForgotPasswordScreen extends StatefulWidget {
-  const ForgotPasswordScreen({Key? key}) : super(key: key);
+  const ForgotPasswordScreen({super.key});
 
   @override
   State<ForgotPasswordScreen> createState() => _ForgotPasswordScreenState();
@@ -16,18 +16,25 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
   bool _isLoading = false;
   bool _emailSent = false;
   String? _resetToken;
+  bool _tokenInitialized = false;
 
-  @override
-  void didChangeDependencies() {
-    super.didChangeDependencies();
-    // Read token from query params if present
-    final token = GoRouterState.of(context).uri.queryParameters['token'];
-    if (token != null && token.isNotEmpty) {
-      setState(() {
-        _resetToken = token;
-        _tokenController.text = token;
-      });
+  void _initializeToken() {
+    if (_tokenInitialized) return;
+
+    try {
+      final token = GoRouterState.of(context).uri.queryParameters['token'];
+      if (token != null && token.isNotEmpty) {
+        setState(() {
+          _resetToken = token;
+          _tokenController.text = token;
+        });
+      }
+    } catch (e) {
+      // GoRouterState not available, skip token initialization
+      print('GoRouterState not available: $e');
     }
+
+    _tokenInitialized = true;
   }
 
   @override
@@ -93,11 +100,14 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
   }
 
   void _goBackToLogin() {
-    Navigator.of(context).pop();
+    Navigator.of(context).pop(); // Use GoRouter's pop method
   }
 
   @override
   Widget build(BuildContext context) {
+    // Initialize token in build method where GoRouterState is available
+    _initializeToken();
+
     return Scaffold(
       appBar: AppBar(
         title: const Text('Forgot Password'),
