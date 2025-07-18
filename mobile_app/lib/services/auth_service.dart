@@ -9,7 +9,7 @@ class AuthService {
   static const String _tokenKey = 'auth_token';
 
 
-  static const String baseUrl = 'http://192.168.8.110:8080/api/auth';
+  static const String baseUrl = 'http://192.168.8.101:8080/api/auth';
 
 
   static String? currentUserRole;
