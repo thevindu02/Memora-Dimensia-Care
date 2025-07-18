@@ -5,23 +5,33 @@ import AssignmentTurnedInIcon from '@mui/icons-material/AssignmentTurnedIn';
 import MedicationIcon from '@mui/icons-material/Medication';
 import NotificationsActiveIcon from '@mui/icons-material/NotificationsActive';
 import EventAvailableIcon from '@mui/icons-material/EventAvailable';
+import PeopleIcon from '@mui/icons-material/People';
+import MonitorHeartIcon from '@mui/icons-material/MonitorHeart';
 
 const features = [
   {
     icon: <AssignmentTurnedInIcon sx={{ fontSize: 40, color: '#390797' }} />,
-    title: 'Task Tracking',
+    title: 'Task & Routine Tracking ',
   },
   {
-    icon: <MedicationIcon sx={{ fontSize: 40, color: '#2B3F99' }} />,
+    icon: <MedicationIcon sx={{ fontSize: 40, color: '#A0C4FD' }} />,
     title: 'Medication Management',
   },
   {
-    icon: <NotificationsActiveIcon sx={{ fontSize: 40, color: '#A0C4FD' }} />,
-    title: 'Notifications & Alerts',
+    icon: <NotificationsActiveIcon sx={{ fontSize: 40, color: '#2B3F99' }} />,
+    title: 'Notifications on Emergencies',
   },
   {
-    icon: <EventAvailableIcon sx={{ fontSize: 40, color: '#C3B1E1' }} />,
+    icon: <EventAvailableIcon sx={{ fontSize: 40, color: '#a784dfff' }} />,
     title: 'Appointment Reminders',
+  },
+  {
+    icon: <PeopleIcon sx={{ fontSize: 40, color: '#390797' }} />,
+    title: 'Care Circle Communication ',
+  },
+  {
+    icon: <MonitorHeartIcon sx={{ fontSize: 40, color: '#A0C4FD' }} />,
+    title: 'Health & Safety Monitoring',
   },
 ];
 
@@ -32,11 +42,13 @@ function ForPatientsFeatures() {
         <Typography
           variant="h4"
           sx={{
-            color: '#390797',
-            fontWeight: 700,
-            mb: 4,
             textAlign: 'center',
-            fontFamily: 'Poppins, Lato, Nunito, Arial, sans-serif',
+            mb:5,
+            color: '#2B3F99',
+            fontFamily: 'Poppins Bold',
+            fontWeight: 700,
+            fontSize: 48,
+            letterSpacing: 1,
           }}
         >
           Features Designed for You
@@ -59,7 +71,7 @@ function ForPatientsFeatures() {
                 }}
               >
                 {icon}
-                <Typography variant="h6" sx={{ mt: 2, color: '#2B3F99', fontWeight: 600 }}>
+                <Typography variant="body1" sx={{ fontFamily: 'Poppins Medium', mt: 2, color: '#2B3F99', fontWeight: 600, fontSize: 21 }}>
                   {title}
                 </Typography>
               </Paper>

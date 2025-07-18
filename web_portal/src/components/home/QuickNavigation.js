@@ -11,25 +11,25 @@ const sections = [
     icon: <ElderlyIcon sx={{ fontSize: 48, color: 'primary.main' }} />,
     title: 'For Patients',
     desc: 'Guidance and resources designed for dementia patients.',
-    link: '#patients',
+    link: '/for_patients',
   },
   {
     icon: <VolunteerActivismIcon sx={{ fontSize: 48, color: 'accent.main' }} />,
     title: 'For Caregivers',
     desc: 'Practical advice, moniter patients and community for caregivers.',
-    link: '#caregivers',
+    link: '/for_caregivers',
   },
   {
     icon: <FamilyRestroomIcon sx={{ fontSize: 48, color: 'secondary.main' }} />,
     title: 'For Guardians',
     desc: 'Support and information for guardians and loved ones.',
-    link: '#guardians',
+    link: '/for_guardians',
   },
   {
     icon: <Diversity3Icon sx={{ fontSize: 48, color: 'info.main' }} />,
     title: 'For Volunteers',
     desc: 'Get involved and make a difference in dementia care.',
-    link: '#volunteers',
+    link: '/for_volunteers',
   },
 ];
 
@@ -46,8 +46,8 @@ function QuickNavigation() {
               <Card elevation={2} sx={{ p: 3, borderRadius: 4, textAlign: 'center', maxHeight: 300, maxWidth:500 }}>
                 <CardContent>
                   {section.icon}
-                  <Typography variant="h6" sx={{ fontWeight: 600, mt: 2, fontFamily:'Poppins', fontSize: 26}}>{section.title}</Typography>
-                  <Typography variant="body2" sx={{ mb: 2,fontFamily:'Poppins', fontSize:20 }}>{section.desc}</Typography>
+                  <Typography variant="h6" sx={{ fontWeight: 600, mt: 2, fontFamily:'Poppins Medium', fontSize: 26}}>{section.title}</Typography>
+                  <Typography variant="body2" sx={{ mb: 2,fontFamily:'Poppins Regular', fontSize:20 }}>{section.desc}</Typography>
                   <Button variant="outlined" color="primary" href={section.link}>
                     Read More
                   </Button>

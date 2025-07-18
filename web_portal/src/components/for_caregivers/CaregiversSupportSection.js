@@ -51,13 +51,14 @@ function CaregiversSupportSection() {
                   sx={{
                     color: '#2B3F99',
                     fontWeight: 700,
-                    fontSize: { xs: 20, md: 26 },
+                    fontSize: { xs: 20, md: 38 },
+                    fontFamily: 'Poppins Bold',
                   }}
                 >
-                  “We’re here for you—because caregivers need care too.”
+                  “We’re here for you! because caregivers need care too.”
                 </Typography>
               </Stack>
-              <Typography variant="body1" sx={{ color: '#390797', mb: 2 }}>
+              <Typography variant="body1" sx={{ color: '#390797', mb: 2, fontSize: 25, fontFamily: 'Poppins Regular' }}>
                 Join our supportive community, access 24/7 chat, and discover tips for caregiver wellness. Your well-being is just as important as those you care for.
               </Typography>
               <Stack direction="row" spacing={2} alignItems="center" mb={2}>
@@ -67,19 +68,19 @@ function CaregiversSupportSection() {
                   sx={{ width: 48, height: 48 }}
                 />
                 <Box>
-                  <Typography variant="subtitle2" sx={{ color: '#2B3F99', fontWeight: 700 }}>
+                  <Typography variant="subtitle2" sx={{ color: '#2B3F99', fontWeight: 700, fontSize: 25, fontFamily: 'Poppins Regular' }}>
                     “Memora helped me feel less alone and more confident in my caregiving journey.”
                   </Typography>
-                  <Typography variant="caption" sx={{ color: '#390797' }}>
-                    — Priya, Caregiver
+                  <Typography variant="caption" sx={{ color: '#390797', fontSize: 18, fontFamily: 'Poppins Regular' }}>
+                    ~ Priya, Caregiver
                   </Typography>
                 </Box>
               </Stack>
               <Stack direction="row" spacing={2}>
-                <Button variant="contained" color="primary" sx={{ borderRadius: 8 }}>
+                <Button variant="contained" color="primary" sx={{ borderRadius: 8,fontFamily: 'Roboto', fontSize: 18 }}>
                   Join the Community
                 </Button>
-                <Button variant="outlined" color="primary" sx={{ borderRadius: 8 }}>
+                <Button variant="outlined" color="primary" sx={{ borderRadius: 8,fontFamily: 'Roboto', fontSize: 18 }}>
                   Explore Self-Care Tips
                 </Button>
               </Stack>
@@ -122,8 +123,9 @@ function CaregiversSupportSection() {
               color: '#2B3F99',
               fontWeight: 800,
               mb: 2,
-              fontSize: { xs: 22, md: 28 },
+              fontSize: { xs: 22, md: 38 },
               letterSpacing: 0.5,
+              fontFamily: 'Poppins Bold',
             }}
           >
             Ready to Transform Your Caregiving Experience?
@@ -133,8 +135,9 @@ function CaregiversSupportSection() {
             sx={{
               color: '#390797',
               mb: 3,
-              fontSize: 18,
+              fontSize: 28,
               opacity: 0.9,
+              fontFamily: 'Poppins Regular',
             }}
           >
             Start your free trial today and see how Memora can make a difference for you and those you care for.
@@ -149,6 +152,8 @@ function CaregiversSupportSection() {
                 fontWeight: 700,
                 px: 5,
                 boxShadow: '0 4px 24px 0 rgba(44,62,80,0.14)',
+                fontFamily: 'Roboto',
+                fontSize: 18,
               }}
             >
               Start Free Trial
@@ -161,6 +166,8 @@ function CaregiversSupportSection() {
                 borderRadius: 8,
                 fontWeight: 700,
                 px: 5,
+                fontFamily: 'Roboto',
+                fontSize: 18,
               }}
             >
               Contact Support

@@ -4,7 +4,7 @@ import { Box, Grid, Card, CardContent, Typography, Container } from '@mui/materi
 import HealthAndSafetyIcon from '@mui/icons-material/HealthAndSafety';
 import SupervisorAccountIcon from '@mui/icons-material/SupervisorAccount';
 import ForumIcon from '@mui/icons-material/Forum';
-
+import NotificationImportantIcon from '@mui/icons-material/NotificationImportant';
 const benefits = [
   {
     icon: <HealthAndSafetyIcon sx={{ fontSize: 48, color: '#390797' }} />,
@@ -12,14 +12,19 @@ const benefits = [
     desc: 'Receive real-time updates on patient health and daily tasks.',
   },
   {
-    icon: <SupervisorAccountIcon sx={{ fontSize: 48, color: '#2B3F99' }} />,
+    icon: <SupervisorAccountIcon sx={{ fontSize: 48, color: '#C3B1E1' }} />,
     title: 'Caregiver Management',
     desc: 'Easily coordinate with caregivers and manage their roles.',
   },
   {
-    icon: <ForumIcon sx={{ fontSize: 48, color: '#A0C4FD' }} />,
+    icon: <NotificationImportantIcon sx={{ fontSize: 48, color: '#A0C4FD' }} />,
     title: 'Patient Communication',
-    desc: 'Stay in touch with patients through secure messaging and alerts.',
+    desc: 'Stay in touch with patients through secure alerts.',
+  },
+    {
+    icon: <ForumIcon sx={{ fontSize: 48, color: '#2B3F99' }} />,
+    title: 'Care Journal & Support Forum',
+    desc: 'Share caregiving experiences, ask questions, and receive guidance.',
   },
 ];
 
@@ -27,6 +32,20 @@ function ForGuardiansBenefits() {
   return (
     <Box sx={{ py: 8, bgcolor: '#fff' }}>
       <Container maxWidth="lg">
+        <Typography
+          variant="h4"
+          sx={{
+            textAlign: 'center',
+            mb:5,
+            color: '#2B3F99',
+            fontFamily: 'Poppins Bold',
+            fontWeight: 700,
+            fontSize: 48,
+            letterSpacing: 1,
+          }}
+        >
+          What You Get
+        </Typography>
         <Grid container spacing={4} alignItems="stretch">
           {benefits.map(({ icon, title, desc }) => (
             <Grid item xs={12} sm={6} md={4} key={title} sx={{ display: 'flex' }}>
@@ -46,10 +65,10 @@ function ForGuardiansBenefits() {
               >
                 <CardContent sx={{ flex: 1 }}>
                   <Box sx={{ mb: 2 }}>{icon}</Box>
-                  <Typography variant="h6" sx={{ fontWeight: 700, mb: 1, color: '#390797' }}>
+                  <Typography variant="h6" sx={{ fontWeight: 700, mb: 1, color: '#390797', fontFamily: 'Poppins Bold', fontSize: 24 }}>
                     {title}
                   </Typography>
-                  <Typography variant="body1" sx={{ color: '#2B3F99', fontSize: 18 }}>
+                  <Typography variant="body1" sx={{ color: '#2B3F99', fontSize: 20, fontFamily: 'Poppins Regular' }}>
                     {desc}
                   </Typography>
                 </CardContent>

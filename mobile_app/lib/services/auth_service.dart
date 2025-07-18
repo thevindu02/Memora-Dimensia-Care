@@ -2,14 +2,16 @@ import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
 import '../routes/app_routes.dart';
+import 'api_constants.dart';
 
 class AuthService {
   static const String _userKey = 'current_user';
   static const String _roleKey = 'user_role';
   static const String _tokenKey = 'auth_token';
 
+  static int? currentUserId; // Set this after login
 
-  static const String baseUrl = 'http://192.168.8.101:8080/api/auth';
+  static final String url = "${ApiConstants.baseUrl}/api/auth";
 
 
   static String? currentUserRole;
@@ -58,7 +60,7 @@ class AuthService {
 
       // Make HTTP request to backend
       final response = await http.post(
-        Uri.parse('$baseUrl/login'),
+        Uri.parse('$url/login'),
         headers: {
           'Content-Type': 'application/json',
         },
@@ -76,8 +78,9 @@ class AuthService {
         // Extract user data from the actual backend response structure
         final String token = responseData['accessToken'];
         final String role = responseData['role'];
+        final int id = responseData['id'];
         final Map<String, dynamic> userData = {
-          'id': responseData['id'],
+          'id': id,
           'email': responseData['email'],
           'fName': responseData['fname'],
           'lName': responseData['lname'],
@@ -86,6 +89,7 @@ class AuthService {
 
         // Save session data
         await login(role, token: token, userData: userData);
+        currentUserId = id; // <-- Set currentUserId after login
 
         return AuthResult(
           success: true,
@@ -135,7 +139,7 @@ class AuthService {
   static Future<bool> _verifyToken(String token) async {
     try {
       final response = await http.get(
-        Uri.parse('$baseUrl/verify'),
+        Uri.parse('$url/verify'),
         headers: {
           'Authorization': 'Bearer $token',
           'Content-Type': 'application/json',
@@ -195,7 +199,7 @@ class AuthService {
       if (token != null) {
         try {
           final response = await http.post(
-            Uri.parse('$baseUrl/logout'),
+            Uri.parse('$url/logout'),
             headers: {
               'Authorization': 'Bearer $token',
               'Content-Type': 'application/json',
@@ -236,6 +240,17 @@ class AuthService {
     }
   }
 
+  // Get current user ID (guardian ID)
+  static Future<int?> getCurrentUserId() async {
+    if (currentUserId != null) return currentUserId;
+    final user = await getCurrentUser();
+    if (user != null && user['id'] != null) {
+      currentUserId = user['id'] is int ? user['id'] : int.tryParse(user['id'].toString());
+      return currentUserId;
+    }
+    return null;
+  }
+
   // Check user permissions
   static bool isPatient() => currentUserRole?.toLowerCase() == 'patient';
   static bool isGuardian() => currentUserRole?.toLowerCase() == 'guardian';
@@ -268,7 +283,7 @@ class AuthService {
       if (currentToken == null) return false;
 
       final response = await http.post(
-        Uri.parse('$baseUrl/refresh'),
+        Uri.parse('$url/refresh'),
         headers: {
           'Authorization': 'Bearer $currentToken',
           'Content-Type': 'application/json',
@@ -298,7 +313,7 @@ class AuthService {
 
       // Make HTTP request to backend
       final response = await http.post(
-        Uri.parse('$baseUrl/forgot-password'),
+        Uri.parse('$url/forgot-password'),
         headers: {
           'Content-Type': 'application/json',
         },

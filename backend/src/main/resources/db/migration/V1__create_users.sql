@@ -21,3 +21,7 @@ CREATE INDEX idx_users_role ON users(role);
 -- Insert default admin user (password: admin123)
 INSERT INTO users (f_name, l_name, email, password, role) 
 VALUES ('Admin','User', 'admin@dementiacare.com', '$2a$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'ADMIN');
+
+ALTER TABLE patients
+  ADD COLUMN guardian_id BIGINT REFERENCES users(id),
+  ADD COLUMN caregiver_id BIGINT REFERENCES users(id);
