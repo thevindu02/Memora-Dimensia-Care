@@ -209,12 +209,12 @@ class _CareDetailsScreenState extends State<CareDetailsScreen> {
         },
         type: BottomNavigationBarType.fixed,
         selectedItemColor: Color(0xFF2B3F99),
-        unselectedItemColor: Colors.grey,
+        unselectedItemColor: Color(0xFF2B3F99),
         items: const [
-          BottomNavigationBarItem(icon: Icon(Icons.home), label: 'Home'),
+          BottomNavigationBarItem(icon: Icon(Icons.home_outlined), label: 'Home'),
           BottomNavigationBarItem(icon: Icon(Icons.people), label: 'Patients'),
-          BottomNavigationBarItem(icon: Icon(Icons.article), label: 'Articles'),
-          BottomNavigationBarItem(icon: Icon(Icons.person), label: 'Profile'),
+          BottomNavigationBarItem(icon: Icon(Icons.article_outlined), label: 'Articles'),
+          BottomNavigationBarItem(icon: Icon(Icons.person_outlined), label: 'Profile'),
         ],
       ),
 

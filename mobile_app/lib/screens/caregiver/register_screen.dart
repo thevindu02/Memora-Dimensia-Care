@@ -230,7 +230,7 @@ class _CaregiverRegisterPageState extends State<CaregiverRegisterPage> {
           width: 4,
           height: 20,
           decoration: BoxDecoration(
-            color: Colors.blue[600],
+            color: const Color(0xFFA0C4FD), // Match login/register button
             borderRadius: BorderRadius.circular(2),
           ),
         ),
@@ -690,8 +690,8 @@ class _CaregiverRegisterPageState extends State<CaregiverRegisterPage> {
       child: ElevatedButton(
         onPressed: _isLoading ? null : _handleRegister,
         style: ElevatedButton.styleFrom(
-          backgroundColor: Colors.blue[600],
-          foregroundColor: Colors.white,
+          backgroundColor: const Color(0xFFA0C4FD), // Match login page
+          foregroundColor: const Color(0xFF2B3F99), // Match login page
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(12),
           ),
@@ -699,20 +699,20 @@ class _CaregiverRegisterPageState extends State<CaregiverRegisterPage> {
         ),
         child: _isLoading
             ? const SizedBox(
-          width: 20,
-          height: 20,
-          child: CircularProgressIndicator(
-            strokeWidth: 2,
-            valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
-          ),
-        )
+                width: 20,
+                height: 20,
+                child: CircularProgressIndicator(
+                  strokeWidth: 2,
+                  valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                ),
+              )
             : const Text(
-          'Register as Caregiver',
-          style: TextStyle(
-            fontSize: 16,
-            fontWeight: FontWeight.w600,
-          ),
-        ),
+                'Register as Caregiver',
+                style: TextStyle(
+                  fontSize: 16,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
       ),
     );
   }

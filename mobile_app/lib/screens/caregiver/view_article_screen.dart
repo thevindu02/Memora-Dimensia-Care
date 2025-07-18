@@ -46,12 +46,12 @@ class _MainScreenState extends State<MScreen> {
         },
         type: BottomNavigationBarType.fixed,
         selectedItemColor: Color(0xFF2B3F99),
-        unselectedItemColor: Colors.grey,
+        unselectedItemColor: Color(0xFF2B3F99),
         items: const [
-          BottomNavigationBarItem(icon: Icon(Icons.home), label: 'Home'),
-          BottomNavigationBarItem(icon: Icon(Icons.people), label: 'Patients'),
+          BottomNavigationBarItem(icon: Icon(Icons.home_outlined), label: 'Home'),
+          BottomNavigationBarItem(icon: Icon(Icons.people_outline), label: 'Patients'),
           BottomNavigationBarItem(icon: Icon(Icons.article), label: 'Articles'),
-          BottomNavigationBarItem(icon: Icon(Icons.person), label: 'Profile'),
+          BottomNavigationBarItem(icon: Icon(Icons.person_outline), label: 'Profile'),
         ],
       ),
     );
@@ -155,6 +155,7 @@ class _ArticlesScreenState extends State<ArticlesScreen> {
             fontWeight: FontWeight.w600,
           ),
         ),
+        centerTitle: true,
         actions: [
           IconButton(
             icon: const Icon(Icons.notifications_outlined, color: Colors.black),

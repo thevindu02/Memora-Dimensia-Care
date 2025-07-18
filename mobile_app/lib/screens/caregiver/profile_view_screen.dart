@@ -101,23 +101,19 @@ class _ProfileViewState extends State<CaregiverProfileScreen> {
             // Profile Information
             _buildInfoSection('Email', 'john.smith@example.com'),
             _buildInfoSection('Phone Number', '+1 234 567 890'),
-            
-            // Gender and Birthday Row
             Row(
               children: [
-                Expanded(
-                  child: _buildInfoSection('Gender', 'Female'),
-                ),
+                Expanded(child: _buildInfoSection('Gender', 'Male')),
                 SizedBox(width: 20),
-                Expanded(
-                  child: _buildInfoSection('Birthday', '2001-01-14'),
-                ),
+                Expanded(child: _buildInfoSection('Birthday', '2001-01-14')),
               ],
             ),
-            
-            _buildInfoSection('Address', 'No. 123, Galle Road\nWestern Province, Colombo'),
-            _buildInfoSection('Experience', 'Assisted with daily living activities\nAssisted with homework, mealtime, and bed'),
-            _buildInfoSection('Qualifications', 'Experience in hospital, home, or private care'),
+            _buildInfoSection('Street', 'No. 123, Galle Road'),
+            _buildInfoSection('City', 'Colombo'),
+            _buildInfoSection('State', 'Western Province'),
+            _buildInfoSection('Experience', '3-5 years'),
+            _buildInfoSection('Qualifications', 'Nursing, CPR Certified'),
+            _buildInfoSection('Skills', 'Elder Care, Medical Care, Cooking'),
             
             // Notifications Toggle
             Container(
@@ -222,11 +218,11 @@ class _ProfileViewState extends State<CaregiverProfileScreen> {
         },
         type: BottomNavigationBarType.fixed,
         selectedItemColor: Color(0xFF2B3F99),
-        unselectedItemColor: Colors.grey,
+        unselectedItemColor: Color(0xFF2B3F99),
         items: const [
-          BottomNavigationBarItem(icon: Icon(Icons.home), label: 'Home'),
-          BottomNavigationBarItem(icon: Icon(Icons.people), label: 'Patients'),
-          BottomNavigationBarItem(icon: Icon(Icons.article), label: 'Articles'),
+          BottomNavigationBarItem(icon: Icon(Icons.home_outlined), label: 'Home'),
+          BottomNavigationBarItem(icon: Icon(Icons.people_outline), label: 'Patients'),
+          BottomNavigationBarItem(icon: Icon(Icons.article_outlined), label: 'Articles'),
           BottomNavigationBarItem(icon: Icon(Icons.person), label: 'Profile'),
         ],
       ),

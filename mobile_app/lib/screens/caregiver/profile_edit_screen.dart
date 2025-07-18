@@ -25,10 +25,29 @@ class _EditProfileViewState extends State<EditProfileEdit> {
   final TextEditingController _cityController = TextEditingController(text: 'Colombo');
   final TextEditingController _experienceController = TextEditingController(text: 'Assisted with daily living activities\nAssisted with homework, mealtime, and bed');
   final TextEditingController _qualificationsController = TextEditingController(text: 'Experience in hospital, home, or private care');
+  final TextEditingController _firstNameController = TextEditingController(text: 'John');
+  final TextEditingController _lastNameController = TextEditingController(text: 'Smith');
 
   // Gender dropdown value
   String _selectedGender = 'Female';
   final List<String> _genderOptions = ['Male', 'Female', 'Other'];
+
+  final List<String> _skillOptions = [
+    'Elder Care',
+    'Child Care',
+    'Disability Care',
+    'Medical Care',
+    'Housekeeping',
+    'Cooking',
+    'Transportation',
+    'Companionship'
+  ];
+  List<String> _selectedSkills = [];
+
+  @override
+  void initState() {
+    super.initState();
+  }
 
   @override
   void dispose() {
@@ -42,6 +61,8 @@ class _EditProfileViewState extends State<EditProfileEdit> {
     _cityController.dispose();
     _experienceController.dispose();
     _qualificationsController.dispose();
+    _firstNameController.dispose();
+    _lastNameController.dispose();
     super.dispose();
   }
 
@@ -149,25 +170,27 @@ class _EditProfileViewState extends State<EditProfileEdit> {
                 key: _formKey,
                 child: Column(
                   children: [
-                    _buildTextField('Name', _nameController),
+                    _buildTextField('First Name', _firstNameController),
+                    _buildTextField('Last Name', _lastNameController),
                     _buildTextField('Email', _emailController, keyboardType: TextInputType.emailAddress),
-                    _buildTextField('Birthday', _birthdayController, readOnly: true, onTap: _selectDate),
-                    _buildTextField('Phone', _phoneController, keyboardType: TextInputType.phone),
-                    _buildGenderDropdown(),
-                    
-                    // Address Section
+                    _buildTextField('Phone Number', _phoneController, keyboardType: TextInputType.phone),
+                    Row(
+                      children: [
+                        Expanded(child: _buildGenderDropdown()),
+                        SizedBox(width: 20),
+                        Expanded(child: _buildTextField('Birthday', _birthdayController, readOnly: true, onTap: _selectDate)),
+                      ],
+                    ),
                     _buildSectionTitle('Address'),
-                    _buildTextField('Street Address', _addressController),
-                    _buildTextField('Province', _provinceController),
+                    _buildTextField('Street', _addressController),
                     _buildTextField('City', _cityController),
-                    
-                    // Experience Section
+                    _buildTextField('State', _provinceController),
                     _buildSectionTitle('Experience'),
-                    _buildTextField('Description', _experienceController, maxLines: 3),
-                    
-                    // Qualifications Section
+                    _buildTextField('Experience', _experienceController, maxLines: 3),
                     _buildSectionTitle('Qualifications'),
-                    _buildTextField('Description', _qualificationsController, maxLines: 2),
+                    _buildTextField('Qualifications', _qualificationsController, maxLines: 2),
+                    _buildSectionTitle('Skills'),
+                    _buildSkillsField(),
                     
                     SizedBox(height: 30),
                     
@@ -248,11 +271,11 @@ class _EditProfileViewState extends State<EditProfileEdit> {
         },
         type: BottomNavigationBarType.fixed,
         selectedItemColor: Color(0xFF2B3F99),
-        unselectedItemColor: Colors.grey,
+        unselectedItemColor: Color(0xFF2B3F99),
         items: const [
-          BottomNavigationBarItem(icon: Icon(Icons.home), label: 'Home'),
-          BottomNavigationBarItem(icon: Icon(Icons.people), label: 'Patients'),
-          BottomNavigationBarItem(icon: Icon(Icons.article), label: 'Articles'),
+          BottomNavigationBarItem(icon: Icon(Icons.home_outlined), label: 'Home'),
+          BottomNavigationBarItem(icon: Icon(Icons.people_outline), label: 'Patients'),
+          BottomNavigationBarItem(icon: Icon(Icons.article_outlined), label: 'Articles'),
           BottomNavigationBarItem(icon: Icon(Icons.person), label: 'Profile'),
         ],
       ),
@@ -458,5 +481,73 @@ class _EditProfileViewState extends State<EditProfileEdit> {
         ),
       );
     }
+  }
+
+  Widget _buildSkillsField() {
+    return Container(
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: Colors.grey[300]!),
+      ),
+      padding: const EdgeInsets.all(16),
+      margin: const EdgeInsets.only(bottom: 20),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Icon(Icons.star_outline, color: Colors.grey[600]),
+              const SizedBox(width: 8),
+              Text(
+                'Skills & Specializations',
+                style: TextStyle(
+                  fontSize: 16,
+                  color: Colors.grey[700],
+                  fontWeight: FontWeight.w500,
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 15),
+          Wrap(
+            spacing: 8,
+            runSpacing: 8,
+            children: _skillOptions.map((skill) {
+              final isSelected = _selectedSkills.contains(skill);
+              return GestureDetector(
+                onTap: () {
+                  setState(() {
+                    if (isSelected) {
+                      _selectedSkills.remove(skill);
+                    } else {
+                      _selectedSkills.add(skill);
+                    }
+                  });
+                },
+                child: Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                  decoration: BoxDecoration(
+                    color: isSelected ? Color(0xFFA0C4FD) : Colors.grey[100],
+                    borderRadius: BorderRadius.circular(20),
+                    border: Border.all(
+                      color: isSelected ? Color(0xFFA0C4FD) : Colors.grey[300]!,
+                    ),
+                  ),
+                  child: Text(
+                    skill,
+                    style: TextStyle(
+                      color: isSelected ? Colors.white : Colors.grey[700],
+                      fontSize: 12,
+                      fontWeight: FontWeight.w500,
+                    ),
+                  ),
+                ),
+              );
+            }).toList(),
+          ),
+        ],
+      ),
+    );
   }
 }

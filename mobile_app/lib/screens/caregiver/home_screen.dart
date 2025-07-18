@@ -42,12 +42,12 @@ class _MainScreenState extends State<MainScreen> {
         },
         type: BottomNavigationBarType.fixed,
         selectedItemColor: Color(0xFF2B3F99),
-        unselectedItemColor: Colors.grey,
+        unselectedItemColor: Color(0xFF2B3F99),
         items: const [
           BottomNavigationBarItem(icon: Icon(Icons.home), label: 'Home'),
-          BottomNavigationBarItem(icon: Icon(Icons.people), label: 'Patients'),
-          BottomNavigationBarItem(icon: Icon(Icons.article), label: 'Articles'),
-          BottomNavigationBarItem(icon: Icon(Icons.person), label: 'Profile'),
+          BottomNavigationBarItem(icon: Icon(Icons.people_outlined), label: 'Patients'),
+          BottomNavigationBarItem(icon: Icon(Icons.article_outlined), label: 'Articles'),
+          BottomNavigationBarItem(icon: Icon(Icons.person_outlined), label: 'Profile'),
         ],
       ),
     );
@@ -64,10 +64,7 @@ class HomeScreen extends StatelessWidget {
       appBar: AppBar(
         backgroundColor: Colors.white,
         elevation: 0,
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back, color: Colors.black),
-          onPressed: () => Navigator.pop(context),
-        ),
+
         title: const Text(
           'Dashboard',
           style: TextStyle(
