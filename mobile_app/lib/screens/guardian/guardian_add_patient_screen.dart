@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
 import '../../routes/app_routes.dart';
+import '../../services/patient_service.dart'; // Update the path as needed
+import '../../services/user_service.dart';
+import '../../services/auth_service.dart';
 
 class GuardianAddPatientScreen extends StatefulWidget {
   @override
@@ -16,10 +19,12 @@ class _GuardianAddPatientScreenState extends State<GuardianAddPatientScreen> {
   final _streetController = TextEditingController();
   final _cityController = TextEditingController();
   final _stateController = TextEditingController();
-  final _dementiaTypeController = TextEditingController();
   final _diagnosisDateController = TextEditingController();
+  final _emailController = TextEditingController();
+  final _passwordController = TextEditingController();
 
   String? _selectedDementiaStage;
+  String? _selectedDementiaType;
   DateTime? _selectedDOB;
   DateTime? _selectedDiagnosisDate;
   String? _selectedGender;
@@ -31,6 +36,19 @@ class _GuardianAddPatientScreenState extends State<GuardianAddPatientScreen> {
     'Severe',
     'Very Severe',
   ];
+
+  final Map<String, String> dementiaTypeMap = {
+    "Alzheimer's Disease": 'ALZHEIMERS_DISEASE',
+    "Vascular Dementia": 'VASCULAR_DEMENTIA',
+    "Lewy Body Dementia": 'LEWY_BODY_DEMENTIA',
+    "Frontotemporal Dementia": 'FRONTOTEMPORAL_DEMENTIA',
+    "Mixed Dementia": 'MIXED_DEMENTIA',
+    "Parkinson's Disease Dementia": 'PARKINSONS_DISEASE_DEMENTIA',
+    "Creutzfeldt-Jakob Disease": 'CREUTZFELDT_JAKOB_DISEASE',
+    "Normal Pressure Hydrocephalus": 'NORMAL_PRESSURE_HYDROCEPHALUS',
+    "Huntington's Disease": 'HUNTINGTONS_DISEASE',
+    "Wernicke-Korsakoff Syndrome": 'WERNICKE_KORSAKOFF_SYNDROME',
+  };
 
   final List<String> _genders = ['Male', 'Female', 'Other'];
 
@@ -44,8 +62,9 @@ class _GuardianAddPatientScreenState extends State<GuardianAddPatientScreen> {
     _streetController.dispose();
     _cityController.dispose();
     _stateController.dispose();
-    _dementiaTypeController.dispose();
     _diagnosisDateController.dispose();
+    _emailController.dispose();
+    _passwordController.dispose();
     super.dispose();
   }
 
@@ -145,41 +164,122 @@ class _GuardianAddPatientScreenState extends State<GuardianAddPatientScreen> {
   }
 
   void _handleSavePatient() async {
+    try {
+      print('Save Patient button pressed');
     if (_formKey.currentState!.validate()) {
       setState(() {
         _isLoading = true;
       });
+        print('Form validated, starting user creation');
 
-      // Simulate API call
-      await Future.delayed(Duration(seconds: 2));
+        // 1. Create user
+        final userResult = await UserService.addUser(
+          FName: _firstNameController.text,
+          LName: _lastNameController.text,
+          email: _emailController.text,
+          password: _passwordController.text,
+          phoneNumber: _contactController.text,
+          role: "PATIENT",
+          status: "ACTIVE",
+          birthdate: _selectedDOB != null
+              ? "${_selectedDOB!.toIso8601String().split('T')[0]}"
+              : "",
+          profilePic: "", // Add profile pic logic if needed
+          street: _streetController.text,
+          city: _cityController.text,
+          state: _stateController.text,
+          gender: _selectedGender ?? "",
+        );
 
-      // TODO: Implement actual save patient logic here
-      // You can now access separate first and last names:
-      // String firstName = _firstNameController.text;
-      // String lastName = _lastNameController.text;
+        print('User creation result: ${userResult.success}, ${userResult.message}');
+
+        if (!userResult.success || userResult.userId == null) {
+          setState(() {
+            _isLoading = false;
+          });
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text('Failed to create user: ${userResult.message}'),
+              backgroundColor: Colors.red,
+            ),
+          );
+          return;
+        }
+
+        // 2. Create patient
+        final dementiaStage = _selectedDementiaStage?.toUpperCase();
+        final backendDementiaType = dementiaTypeMap[_selectedDementiaType];
+        final dateOfDiagnosis = _selectedDiagnosisDate != null
+            ? "${_selectedDiagnosisDate!.toIso8601String().split('T')[0]}"
+            : null;
+
+        final int? currentGuardianId = await AuthService.getCurrentUserId(); // Get this from your auth/session
+        print('Current Guardian ID: $currentGuardianId');
+
+        if (currentGuardianId == null) {
+          // Handle not logged in or error
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text('You must be logged in to add a patient.')),
+          );
+          return;
+        }
+
+        final patientResult = await PatientService.addPatient(
+          userId: userResult.userId!,
+          dementiaStage: dementiaStage ?? "",
+          dateOfDiagnosis: dateOfDiagnosis ?? "",
+          dementiaType: backendDementiaType ?? "",
+          guardianId: currentGuardianId, // <-- Pass it here
+        );
+
+        print('Patient creation result: ${patientResult.success}, ${patientResult.message}');
 
       setState(() {
         _isLoading = false;
       });
 
+        if (patientResult.success) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text('Patient saved successfully!'),
           backgroundColor: Colors.green,
         ),
       );
-
-      // Navigate back to dashboard
       Navigator.pushNamedAndRemoveUntil(
         context,
         AppRoutes.guardianDashboard,
             (route) => false,
+          );
+        } else {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text('Failed to save patient: ${patientResult.message}'),
+              backgroundColor: Colors.red,
+            ),
+          );
+        }
+      } else {
+        print('Form validation failed');
+      }
+    } catch (e, stack) {
+      print('Exception in _handleSavePatient: $e');
+      print(stack);
+      setState(() {
+        _isLoading = false;
+      });
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Unexpected error: $e'),
+          backgroundColor: Colors.red,
+        ),
       );
     }
   }
 
   @override
   Widget build(BuildContext context) {
+    final List<String> _dementiaTypeDisplayNames = dementiaTypeMap.keys.toList();
+
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: AppBar(
@@ -239,6 +339,15 @@ class _GuardianAddPatientScreenState extends State<GuardianAddPatientScreen> {
                 hintText: 'Contact Number',
               ),
 
+              _buildTextField(
+                controller: _emailController,
+                hintText: 'Email',
+              ),
+              _buildTextField(
+                controller: _passwordController,
+                hintText: 'Password',
+              ),
+
               // Address section
               Container(
                 margin: EdgeInsets.only(bottom: 16),
@@ -270,9 +379,15 @@ class _GuardianAddPatientScreenState extends State<GuardianAddPatientScreen> {
                 ),
               ),
 
-              _buildTextField(
-                controller: _dementiaTypeController,
+              _buildDropdownField(
                 hintText: 'Dementia Type',
+                value: _selectedDementiaType,
+                items: _dementiaTypeDisplayNames,
+                onChanged: (value) {
+                  setState(() {
+                    _selectedDementiaType = value;
+                  });
+                },
               ),
 
               _buildDropdownField(

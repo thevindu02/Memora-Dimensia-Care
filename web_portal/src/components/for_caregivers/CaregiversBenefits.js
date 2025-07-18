@@ -37,6 +37,8 @@ function CaregiversBenefits() {
             mb: 4,
             textAlign: 'center',
             letterSpacing: 0.5,
+            fontFamily: 'Poppins Bold',
+            fontSize: { xs: 30, md: 48 },
           }}
         >
           What You Receive
@@ -47,8 +49,9 @@ function CaregiversBenefits() {
             color: '#390797',
             textAlign: 'center',
             mb: 5,
-            fontSize: 18,
+            fontSize: { xs: 16, md: 28 },
             opacity: 0.85,
+            fontFamily: 'Poppins Regular',
           }}
         >
           Everything you need to provide outstanding care, while nurturing your own well-being.
@@ -77,10 +80,10 @@ function CaregiversBenefits() {
                 }}
               >
                 {icon}
-                <Typography variant="h6" sx={{ mt: 2, color: '#2B3F99', fontWeight: 700 }}>
+                <Typography variant="h6" sx={{ mt: 2, color: '#2B3F99', fontWeight: 700, fontFamily: 'Poppins Medium', fontSize: 30 }}>
                   {title}
                 </Typography>
-                <Typography variant="body1" sx={{ mt: 1, color: '#390797', fontSize: 17 }}>
+                <Typography variant="body1" sx={{ mt: 1, color: '#390797', fontFamily: 'Poppins Regular', fontSize: 20}}>
                   {desc}
                 </Typography>
               </Paper>

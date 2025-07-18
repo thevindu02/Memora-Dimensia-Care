@@ -11,17 +11,8 @@ class GuardianPatientDetailsScreen extends StatefulWidget {
 }
 
 class _GuardianPatientDetailsScreenState extends State<GuardianPatientDetailsScreen> {
-  // Mock patient data - in real app, this would come from the arguments or API
-  Map<String, dynamic> patientData = {
-    'id': 1,
-    'name': 'John Doe',
-    'label': 'Patient',
-    'dateOfBirth': '01/01/1950',
-    'contactNumber': '+1 (999) 111-0000',
-    'address': '123 Main St, Anytown',
-    'dementiaStage': 'Severe',
-    'avatar': 'assets/images/patient1.jpg',
-  };
+  int _selectedIndex = 0;
+  Map<String, dynamic>? patientData;
 
   Widget _buildInfoRow(String label, String value) {
     return Padding(
@@ -65,14 +56,60 @@ class _GuardianPatientDetailsScreenState extends State<GuardianPatientDetailsScr
   @override
   void initState() {
     super.initState();
-    // If patient data is passed through arguments, use it
+    // Initialize with constructor parameter if available
     if (widget.patient != null) {
       patientData = widget.patient!;
     }
   }
 
   @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    // Get patient data from route arguments if not already set
+    if (patientData == null) {
+      final args = ModalRoute.of(context)?.settings.arguments;
+      print("Route arguments: $args"); // Debug print
+      if (args != null && args is Map<String, dynamic>) {
+        setState(() {
+          patientData = args;
+        });
+      } else {
+        // If no arguments, set a default or handle error
+        print("No valid arguments found");
+        // You might want to pop back or show an error
+      }
+    }
+  }
+
+  @override
   Widget build(BuildContext context) {
+    // Show loading if patient data is not yet available
+    if (patientData == null) {
+      return Scaffold(
+        backgroundColor: Colors.white,
+        appBar: AppBar(
+          backgroundColor: Colors.white,
+          elevation: 0,
+          leading: IconButton(
+            icon: Icon(Icons.arrow_back, color: Colors.black),
+            onPressed: () => Navigator.pop(context),
+          ),
+          title: Text(
+            'Patient Details',
+            style: TextStyle(
+              fontSize: 20,
+              fontWeight: FontWeight.w600,
+              color: Colors.black87,
+            ),
+          ),
+          centerTitle: false,
+        ),
+        body: Center(
+          child: CircularProgressIndicator(),
+        ),
+      );
+    }
+
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: AppBar(
@@ -120,7 +157,7 @@ class _GuardianPatientDetailsScreenState extends State<GuardianPatientDetailsScr
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        patientData['name'] ?? 'Unknown',
+                        '${patientData!['fname'] ?? ''} ${patientData!['lname'] ?? ''}',
                         style: TextStyle(
                           fontSize: 24,
                           fontWeight: FontWeight.bold,
@@ -129,7 +166,7 @@ class _GuardianPatientDetailsScreenState extends State<GuardianPatientDetailsScr
                       ),
                       SizedBox(height: 4),
                       Text(
-                        patientData['label'] ?? 'Patient',
+                        patientData!['label'] ?? 'Patient',
                         style: TextStyle(
                           fontSize: 16,
                           color: Colors.grey[600],
@@ -144,10 +181,13 @@ class _GuardianPatientDetailsScreenState extends State<GuardianPatientDetailsScr
             SizedBox(height: 32),
 
             // Patient details section
-            _buildInfoRow('Date of Birth', patientData['dateOfBirth'] ?? 'N/A'),
-            _buildInfoRow('Contact Number', patientData['contactNumber'] ?? 'N/A'),
-            _buildInfoRow('Address', patientData['address'] ?? 'N/A'),
-            _buildInfoRow('Dementia Stage', patientData['dementiaStage'] ?? 'N/A'),
+            _buildInfoRow('Date of Birth', patientData!['birthdate'] ?? 'N/A'),
+            _buildInfoRow('Contact Number', patientData!['phoneNumber'] ?? 'N/A'),
+            _buildInfoRow('Address', '${patientData!['street'] ?? ''}, ${patientData!['city'] ?? ''}, ${patientData!['state'] ?? ''}'),
+            _buildInfoRow('Dementia Stage', patientData!['dementiaStage'] ?? 'N/A'),
+            _buildInfoRow('Dementia Type', patientData!['dementiaType'] ?? 'N/A'),
+            _buildInfoRow('Email', patientData!['email'] ?? 'N/A'),
+            _buildInfoRow('Gender', patientData!['gender'] ?? 'N/A'),
 
             SizedBox(height: 40),
 

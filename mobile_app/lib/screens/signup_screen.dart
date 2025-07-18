@@ -233,13 +233,13 @@ class SignupScreen extends StatelessWidget {
   String _getSignupRoute(String role) {
     switch (role) {
       case 'guardian':
-        return '/guardian/signup';
+        return AppRoutes.guardianSignup;
       case 'caregiver':
-        return '/caregiver/signup';
+        return AppRoutes.caregiverRegister;
       case 'volunteer':
-        return '/volunteer/signup';
+        return AppRoutes.volunteerSignup;
       default:
-        return '/guardian/signup';
+        return AppRoutes.guardianSignup;
     }
   }
 }

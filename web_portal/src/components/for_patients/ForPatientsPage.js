@@ -8,6 +8,7 @@ import ForPatientsBenefits from './ForPatientsBenefits';
 import ForPatientsFeatures from './ForPatientsFeatures';
 import ForPatientsPromise from './ForPatientsPromise';
 
+
 function ForPatientsPage() {
     console.log('ForPatientsPage rendered');
   return (

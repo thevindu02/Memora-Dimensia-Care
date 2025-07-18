@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import '../../routes/app_routes.dart';
+import '../../services/patient_service.dart';
+import '../../services/auth_service.dart';
 
 class GuardianEditPatientDetailsScreen extends StatefulWidget {
   final Map<String, dynamic>? patient;
@@ -25,31 +27,31 @@ class _GuardianEditPatientDetailsScreenState extends State<GuardianEditPatientDe
   // List of dementia stages for dropdown
   final List<String> _dementiaStages = ['Mild', 'Moderate', 'Severe', 'Very Severe'];
 
-  Map<String, dynamic> patientData = {
-    'id': 1,
-    'name': 'John Doe',
-    'label': 'Patient',
-    'dateOfBirth': '01/01/1950',
-    'contactNumber': '+1 (999) 111-0000',
-    'address': '123 Main St, Anytown',
-    'dementiaStage': 'Severe',
-    'avatar': 'assets/images/patient1.jpg',
-  };
+  List<dynamic> _patients = [];
+  bool _isLoadingPatients = true;
+
+  Map<String, dynamic> patientData = {};
 
   @override
   void initState() {
     super.initState();
+    _fetchPatients();
     if (widget.patient != null) {
       patientData = widget.patient!;
     }
 
-    _nameController = TextEditingController(text: patientData['name']);
-    _labelController = TextEditingController(text: patientData['label']);
-    _dateOfBirthController = TextEditingController(text: patientData['dateOfBirth']);
-    _contactNumberController = TextEditingController(text: patientData['contactNumber']);
-    _addressController = TextEditingController(text: patientData['address']);
-
-    // Initialize selected dementia stage
+    _nameController = TextEditingController(
+      text: '${patientData['fname'] ?? ''} ${patientData['lname'] ?? ''}'
+    );
+    _dateOfBirthController = TextEditingController(
+      text: patientData['birthdate'] ?? ''
+    );
+    _contactNumberController = TextEditingController(
+      text: patientData['phoneNumber'] ?? ''
+    );
+    _addressController = TextEditingController(
+      text: '${patientData['street'] ?? ''}, ${patientData['city'] ?? ''}, ${patientData['state'] ?? ''}'
+    );
     _selectedDementiaStage = patientData['dementiaStage'];
   }
 
@@ -203,8 +205,95 @@ class _GuardianEditPatientDetailsScreenState extends State<GuardianEditPatientDe
     });
   }
 
+  Future<void> _fetchPatients() async {
+    final int? guardianId = await AuthService.getCurrentUserId();
+    if (guardianId != null) {
+      final patients = await PatientService.getPatientsByGuardian(guardianId);
+      setState(() {
+        _patients = patients;
+        _isLoadingPatients = false;
+      });
+    } else {
+      setState(() {
+        _patients = [];
+        _isLoadingPatients = false;
+      });
+    }
+  }
+
+  Widget _buildPatientCard(Map<String, dynamic> patient) {
+    return Material(
+      color: Colors.transparent,
+      child: InkWell(
+        onTap: () {
+          Navigator.pushNamed(
+            context,
+            AppRoutes.guardianPatientDetails,
+            arguments: patient,
+          );
+        },
+        borderRadius: BorderRadius.circular(12),
+        splashColor: Colors.blue.withOpacity(0.2),
+        highlightColor: Colors.blue.withOpacity(0.1),
+        child: Container(
+          margin: EdgeInsets.only(bottom: 12),
+          padding: EdgeInsets.all(16),
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(12),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.grey.withOpacity(0.1),
+                spreadRadius: 1,
+                blurRadius: 4,
+                offset: Offset(0, 2),
+              ),
+            ],
+          ),
+          child: Row(
+            children: [
+              CircleAvatar(
+                radius: 25,
+                backgroundColor: Colors.grey[300],
+                child: Icon(
+                  Icons.person,
+                  color: Colors.grey[600],
+                  size: 30,
+                ),
+              ),
+              SizedBox(width: 16),
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    '${patient['fName'] ?? ''} ${patient['lName'] ?? ''}',
+                    style: TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.w600,
+                      color: Colors.black87,
+                    ),
+                  ),
+                  SizedBox(height: 4),
+                  Text(
+                    patient['dementiaStage'] ?? '',
+                    style: TextStyle(
+                      fontSize: 14,
+                      color: Colors.grey[600],
+                    ),
+                  ),
+                ],
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
+    final Map<String, dynamic>? patient = ModalRoute.of(context)?.settings.arguments as Map<String, dynamic>?;
+
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: AppBar(
@@ -262,32 +351,26 @@ class _GuardianEditPatientDetailsScreenState extends State<GuardianEditPatientDe
               _buildTextField(
                 label: 'Name',
                 controller: _nameController,
-                initialValue: patientData['name'],
+                initialValue: _nameController.text,
                 validator: (value) => value == null || value.isEmpty ? 'Please enter a name' : null,
-              ),
-              _buildTextField(
-                label: 'Label',
-                controller: _labelController,
-                initialValue: patientData['label'],
-                validator: (value) => value == null || value.isEmpty ? 'Please enter a label' : null,
               ),
               _buildTextField(
                 label: 'Date of Birth',
                 controller: _dateOfBirthController,
-                initialValue: patientData['dateOfBirth'],
+                initialValue: _dateOfBirthController.text,
                 validator: (value) => value == null || value.isEmpty ? 'Please enter date of birth' : null,
               ),
               _buildTextField(
                 label: 'Contact Number',
                 controller: _contactNumberController,
-                initialValue: patientData['contactNumber'],
+                initialValue: _contactNumberController.text,
                 keyboardType: TextInputType.phone,
                 validator: (value) => value == null || value.isEmpty ? 'Please enter contact number' : null,
               ),
               _buildTextField(
                 label: 'Address',
                 controller: _addressController,
-                initialValue: patientData['address'],
+                initialValue: _addressController.text,
                 maxLines: 3,
                 validator: (value) => value == null || value.isEmpty ? 'Please enter address' : null,
               ),

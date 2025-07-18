@@ -45,6 +45,7 @@ class AppRoutes {
 
   // Caregiver routes
   static const String caregiverSignup = '/caregiver/signup';
+  static const String caregiverRegister = '/caregiver/register';
   static const String caregiverDashboard = '/caregiver/dashboard';
   static const String caregiverPatients = '/caregiver/patients';
   static const String caregiverProfile = '/caregiver/profile';
