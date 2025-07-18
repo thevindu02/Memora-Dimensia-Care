@@ -1,10 +1,10 @@
 import 'dart:convert';
 import 'package:http/http.dart' as http;
+import 'api_constants.dart';
 
 class PatientService {
-  // Replace with your backend's base URL
-  static const String baseUrl = 'http://10.22.160.147:8080/api/patients';
 
+  static final String url = '${ApiConstants.baseUrl}/api/patients';
   // Add a new patient
   static Future<PatientResult> addPatient({
     required int userId,
@@ -23,7 +23,7 @@ class PatientService {
 
     try {
       final response = await http.post(
-        Uri.parse(baseUrl),
+        Uri.parse(url),
         headers: {"Content-Type": "application/json"},
         body: jsonEncode(body),
       );
@@ -46,7 +46,7 @@ class PatientService {
   static Future<PatientResult> getPatient(int patientId) async {
     try {
       final response = await http.get(
-        Uri.parse('$baseUrl/$patientId'),
+        Uri.parse('$url/$patientId'),
         headers: {"Content-Type": "application/json"},
       );
 
@@ -65,7 +65,7 @@ class PatientService {
   static Future<PatientResult> deletePatient(int patientId) async {
     try {
       final response = await http.delete(
-        Uri.parse('$baseUrl/$patientId'),
+        Uri.parse('$url/$patientId'),
         headers: {"Content-Type": "application/json"},
       );
 
@@ -83,7 +83,7 @@ class PatientService {
   static Future<List<dynamic>> getPatientsByGuardian(int guardianId) async {
     try {
       final response = await http.get(
-        Uri.parse('$baseUrl/by-guardian/$guardianId'),
+        Uri.parse('$url/by-guardian/$guardianId'),
         headers: {"Content-Type": "application/json"},
       );
       if (response.statusCode == 200) {

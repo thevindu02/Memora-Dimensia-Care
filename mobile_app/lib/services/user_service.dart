@@ -1,8 +1,9 @@
 import 'dart:convert';
 import 'package:http/http.dart' as http;
+import 'api_constants.dart';
 
 class UserService {
-  static const String baseUrl = 'http://10.22.160.147:8080/api/users';
+  static final String url = '${ApiConstants.baseUrl}/api/users';
 
   static Future<UserResult> addUser({
     required String FName,
@@ -20,7 +21,7 @@ class UserService {
     String? gender,
   }) async {
     final response = await http.post(
-      Uri.parse(baseUrl),
+      Uri.parse(url),
       headers: {'Content-Type': 'application/json'},
       body: jsonEncode({
         "FName": FName,
