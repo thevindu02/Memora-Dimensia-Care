@@ -85,127 +85,142 @@ class _LoginScreenState extends State<LoginScreen> {
     }
   }
 
-  //Bypass authentication, validation, error/success messages
-  // Future<void> _handleLogin() async {
-  //   Navigator.of(context).pushReplacementNamed(AppRoutes.guardianDashboard);
-  // }
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Login'),
       ),
-      body: Padding(
-        padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
-        child: Form(
-          key: _formKey,
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Image.asset(
-                'assets/images/light_logo.png', // Replace with your actual logo path
-                width: 240,
-                height: 240,
-                fit: BoxFit.contain,
-              ),
-              const SizedBox(height: 16),
-              Text(
-                'Welcome Back',
-                style: TextStyle(
-                  fontSize: 36,
-                  fontWeight: FontWeight.bold,
+      body: SafeArea(
+        child: SingleChildScrollView(
+          padding: const EdgeInsets.fromLTRB(16, 16, 16, 16),
+          child: ConstrainedBox(
+            constraints: BoxConstraints(
+              minHeight: MediaQuery.of(context).size.height -
+                  MediaQuery.of(context).padding.top -
+                  kToolbarHeight - 32, // Account for AppBar and padding
+            ),
+            child: IntrinsicHeight(
+              child: Form(
+                key: _formKey,
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    // Flexible spacing at the top
+                    const SizedBox(height: 20),
+
+                    // Logo - make it responsive
+                    Image.asset(
+                      'assets/images/light_logo.png', // Replace with your actual logo path
+                      width: MediaQuery.of(context).size.width * 0.5, // Responsive width
+                      height: MediaQuery.of(context).size.width * 0.5, // Responsive height
+                      fit: BoxFit.contain,
+                    ),
+                    const SizedBox(height: 16),
+
+                    // Welcome text
+                    Text(
+                      'Welcome Back',
+                      style: TextStyle(
+                        fontSize: 32, // Slightly smaller for better fit
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                    const SizedBox(height: 32),
+
+                    // Email field
+                    TextFormField(
+                      controller: _emailController,
+                      keyboardType: TextInputType.emailAddress,
+                      decoration: const InputDecoration(
+                        labelText: 'Email',
+                        hintText: 'Enter your email',
+                        prefixIcon: Icon(Icons.email),
+                        border: OutlineInputBorder(),
+                      ),
+                      validator: (value) {
+                        if (value == null || value.isEmpty) {
+                          return 'Please enter your email';
+                        }
+                        if (!RegExp(r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$').hasMatch(value)) {
+                          return 'Please enter a valid email';
+                        }
+                        return null;
+                      },
+                    ),
+                    const SizedBox(height: 20),
+
+                    // Password field
+                    TextFormField(
+                      controller: _passwordController,
+                      obscureText: _obscurePassword,
+                      decoration: InputDecoration(
+                        labelText: 'Password',
+                        hintText: 'Enter your password',
+                        prefixIcon: const Icon(Icons.lock),
+                        suffixIcon: IconButton(
+                          icon: Icon(_obscurePassword ? Icons.visibility : Icons.visibility_off),
+                          onPressed: () {
+                            setState(() {
+                              _obscurePassword = !_obscurePassword;
+                            });
+                          },
+                        ),
+                        border: const OutlineInputBorder(),
+                      ),
+                      validator: (value) {
+                        if (value == null || value.isEmpty) {
+                          return 'Please enter your password';
+                        }
+                        if (value.length < 6) {
+                          return 'Password must be at least 6 characters';
+                        }
+                        return null;
+                      },
+                    ),
+                    const SizedBox(height: 24),
+
+                    // Login button
+                    SizedBox(
+                      width: double.infinity,
+                      height: 50,
+                      child: ElevatedButton(
+                        onPressed: _isLoading ? null : _handleLogin,
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: Color(0xFFA0C4FD),
+                          foregroundColor: Color(0xFF2B3F99),
+                        ),
+                        child: _isLoading
+                            ? const CircularProgressIndicator(color: Colors.white)
+                            : const Text('Login'),
+                      ),
+                    ),
+                    const SizedBox(height: 16),
+
+                    // Forgot password link
+                    TextButton(
+                      onPressed: () {
+                        // Navigate to forgot password screen
+                        Navigator.of(context).pushNamed(AppRoutes.forgotPassword);
+                      },
+                      child: const Text('Forgot Password?'),
+                    ),
+
+                    // Register link
+                    TextButton(
+                      onPressed: () {
+                        // Navigate to registration screen
+                        Navigator.of(context).pushNamed(AppRoutes.signup);
+                      },
+                      child: const Text('Don\'t have an account? Register'),
+                    ),
+
+                    // Bottom spacing
+                    const SizedBox(height: 20),
+                  ],
                 ),
               ),
-
-              const SizedBox(height: 24),
-              // Email field
-              TextFormField(
-                controller: _emailController,
-                keyboardType: TextInputType.emailAddress,
-                decoration: const InputDecoration(
-                  labelText: 'Email',
-                  hintText: 'Enter your email',
-                  prefixIcon: Icon(Icons.email),
-                  border: OutlineInputBorder(),
-                ),
-                validator: (value) {
-                  if (value == null || value.isEmpty) {
-                    return 'Please enter your email';
-                  }
-                  if (!RegExp(r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$').hasMatch(value)) {
-                    return 'Please enter a valid email';
-                  }
-                  return null;
-                },
-              ),
-              const SizedBox(height: 24),
-
-              // Password field
-              TextFormField(
-                controller: _passwordController,
-                obscureText: _obscurePassword,
-                decoration: InputDecoration(
-                  labelText: 'Password',
-                  hintText: 'Enter your password',
-                  prefixIcon: const Icon(Icons.lock),
-                  suffixIcon: IconButton(
-                    icon: Icon(_obscurePassword ? Icons.visibility : Icons.visibility_off),
-                    onPressed: () {
-                      setState(() {
-                        _obscurePassword = !_obscurePassword;
-                      });
-                    },
-                  ),
-                  border: const OutlineInputBorder(),
-                ),
-                validator: (value) {
-                  if (value == null || value.isEmpty) {
-                    return 'Please enter your password';
-                  }
-                  if (value.length < 6) {
-                    return 'Password must be at least 6 characters';
-                  }
-                  return null;
-                },
-              ),
-              const SizedBox(height: 16),
-
-              // Login button
-              SizedBox(
-                width: double.infinity,
-                height: 50,
-                child: ElevatedButton(
-                  onPressed: _isLoading ? null : _handleLogin,
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Color(0xFFA0C4FD),
-                    foregroundColor: Color(0xFF2B3F99),// Use backgroundColor here
-                  ),
-                  child: _isLoading
-                      ? const CircularProgressIndicator(color: Colors.white)
-                      : const Text('Login'),
-                ),
-              ),
-              const SizedBox(height: 16),
-
-              // Forgot password link
-              TextButton(
-                onPressed: () {
-                  // Navigate to forgot password screen
-                  Navigator.of(context).pushNamed(AppRoutes.forgotPassword);
-                },
-                child: const Text('Forgot Password?'),
-              ),
-
-              // Register link
-              TextButton(
-                onPressed: () {
-                  // Navigate to registration screen
-                  Navigator.of(context).pushNamed(AppRoutes.signup);
-                },
-                child: const Text('Don\'t have an account? Register'),
-              ),
-            ],
+            ),
           ),
         ),
       ),
