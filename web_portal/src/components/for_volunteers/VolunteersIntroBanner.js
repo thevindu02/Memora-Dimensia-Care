@@ -1,6 +1,7 @@
 // src/components/for_volunteers/VolunteersIntroBanner.js
 import React from 'react';
 import { Box, Typography, Container, Grid, Button } from '@mui/material';
+import volunteerbg from '../../assets/volunteer-bg.png'; // Adjust the path as necessary
 
 function VolunteersIntroBanner() {
   return (
@@ -16,17 +17,22 @@ function VolunteersIntroBanner() {
     >
       {/* Decorative background image */}
       <Box
+        component="img"
+        src={volunteerbg}
+        alt="Decorative background"
         sx={{
           position: 'absolute',
-          top: -50,
-          right: -60,
-          width: 350,
-          height: 350,
-          background: `url('/assets/volunteer-bg-abstract.png') center/cover no-repeat`,
+          top: -20,
+          right: -40,
+          width: 680,
+          height: 440,
           opacity: 0.13,
           zIndex: 0,
+          pointerEvents: 'none', // (optional, prevents pointer capture)
+          userSelect: 'none',    // (optional, avoids blue selection highlight)
         }}
       />
+
       <Container sx={{ position: 'relative', zIndex: 1 }}>
         <Grid container spacing={4} alignItems="center">
           <Grid item xs={12} md={7}>
@@ -35,9 +41,9 @@ function VolunteersIntroBanner() {
               sx={{
                 color: '#2B3F99',
                 fontWeight: 800,
-                fontSize: { xs: 28, md: 44 },
+                fontSize: { xs: 30, md: 75 },
                 mb: 2,
-                fontFamily: 'Poppins, Lato, Nunito, Arial, sans-serif',
+                fontFamily: 'Poppins Bold',
                 letterSpacing: 1,
               }}
             >
@@ -48,9 +54,9 @@ function VolunteersIntroBanner() {
               sx={{
                 color: '#390797',
                 fontWeight: 500,
-                fontSize: { xs: 18, md: 26 },
+                fontSize: { xs: 18, md: 28 },
                 mb: 3,
-                fontFamily: 'Poppins, Lato, Nunito, Arial, sans-serif',
+                fontFamily: 'Poppins Regular',
               }}
             >
               Your insights and care can change lives.
@@ -65,6 +71,8 @@ function VolunteersIntroBanner() {
                 px: 5,
                 mt: 2,
                 boxShadow: '0 4px 24px 0 rgba(44,62,80,0.10)',
+                fontFamily: 'Roboto', 
+                fontSize: 18,
               }}
             >
               Start Contributing
@@ -73,7 +81,7 @@ function VolunteersIntroBanner() {
           <Grid item xs={12} md={5} sx={{ textAlign: 'center' }}>
             <Box
               component="img"
-              src="/assets/volunteer-illustration.png"
+              src={volunteerbg}
               alt="Volunteer contributing"
               sx={{
                 width: { xs: '85%', md: 320 },

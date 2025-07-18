@@ -58,14 +58,14 @@ function HeroSection() {
                 color: 'deep.main',
                 mb: 4,
                 textAlign: 'left',
-                fontFamily: 'Poppins',
+                fontFamily: 'Poppins Regular',
                 fontSize: 28,
               }}
             >
               Memora empowers families, caregivers, and patients to live better, together.
             </Typography>
             <ScrollLink to="about" smooth duration={600}>
-              <Button variant="contained" size="large" color="deep" sx={{ px: 5 }}>
+              <Button variant="contained" size="large" color="deep" sx={{ px: 5,fontFamily: 'Roboto', fontSize: 18 }}>
                 Learn More
               </Button>
             </ScrollLink>
