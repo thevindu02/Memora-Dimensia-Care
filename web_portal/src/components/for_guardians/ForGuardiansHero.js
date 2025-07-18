@@ -129,7 +129,8 @@ function ForGuardiansHero() {
                 sx={{
                   borderRadius: 8,
                   px: 4,
-                  fontFamily: 'Poppins, Nunito, Arial, sans-serif',
+                  fontFamily: 'Roboto', 
+                  fontSize: 18,
                   fontWeight: 700,
                   boxShadow: '0 6px 18px rgba(43,63,153,0.09)',
                 }}
@@ -144,7 +145,8 @@ function ForGuardiansHero() {
                 sx={{
                   borderRadius: 8,
                   px: 4,
-                  fontFamily: 'Poppins, Nunito, Arial, sans-serif',
+                  fontFamily: 'Roboto', 
+                  fontSize: 18,
                   fontWeight: 700,
                   boxShadow: '0 2px 12px rgba(195,177,225,0.16)',
                   bgcolor: 'rgba(255,255,255,0.09)',

@@ -13,10 +13,10 @@ function AboutUs() {
             <Typography variant="h3" sx={{ color: 'deep.main', mb: 2, fontFamily:'Poppins Bold', fontSize: 48 }}>
               About Memora
             </Typography>
-            <Typography variant="body1" sx={{ color: 'text.primary', mb: 2, fontWeight: 510, fontSize: 20, fontFamily: 'Poppins' }}>
+            <Typography variant="body1" sx={{ color: 'text.primary', mb: 2, fontWeight: 510, fontSize: 20, fontFamily: 'Poppins Medium' }}>
               Memora is a comprehensive cross-platform digital solution designed specifically with Sri Lankan communities in mind. We understand the unique challenges faced by families dealing with dementia patients and have created a platform that bridges the gap between technology and compassionate care.
             </Typography>
-             <Typography variant="body1" sx={{ color: 'text.primary', mb: 2, fontWeight: 510, fontSize: 20, fontFamily: 'Poppins' }}>
+             <Typography variant="body1" sx={{ color: 'text.primary', mb: 2, fontWeight: 510, fontSize: 20, fontFamily: 'Poppins Medium' }}>
               Our platform brings together patients, families, caregivers, and volunteers in a supportive digital ecosystem that promotes understanding, connection, and improved quality of life for everyone involved in the dementia care journey.
             </Typography>
           </Box>

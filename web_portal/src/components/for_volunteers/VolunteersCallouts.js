@@ -54,10 +54,10 @@ function VolunteersCallouts() {
                 }}
               >
                 {icon}
-                <Typography variant="h6" sx={{ mt: 2, color: '#2B3F99', fontWeight: 700 }}>
+                <Typography variant="h6" sx={{ mt: 2, color: '#2B3F99', fontWeight: 700, fontFamily: 'Poppins Medium', fontSize: 30 }}>
                   {title}
                 </Typography>
-                <Typography variant="body1" sx={{ mt: 1, color: '#390797', fontSize: 17 }}>
+                <Typography variant="body1" sx={{ mt: 1, color: '#390797', fontFamily: 'Poppins Regular', fontSize: 20}}>
                   {desc}
                 </Typography>
               </Paper>
