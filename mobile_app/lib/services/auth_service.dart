@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
 import '../routes/app_routes.dart';
+import 'api_constants.dart';
 
 class AuthService {
   static const String _userKey = 'current_user';
@@ -10,7 +11,7 @@ class AuthService {
 
   static int? currentUserId; // Set this after login
 
-  static const String baseUrl = 'http://10.22.160.21:8080/api/auth';
+  static final String url = "${ApiConstants.baseUrl}/api/auth";
 
 
   static String? currentUserRole;
@@ -59,7 +60,7 @@ class AuthService {
 
       // Make HTTP request to backend
       final response = await http.post(
-        Uri.parse('$baseUrl/login'),
+        Uri.parse('$url/login'),
         headers: {
           'Content-Type': 'application/json',
         },
@@ -138,7 +139,7 @@ class AuthService {
   static Future<bool> _verifyToken(String token) async {
     try {
       final response = await http.get(
-        Uri.parse('$baseUrl/verify'),
+        Uri.parse('$url/verify'),
         headers: {
           'Authorization': 'Bearer $token',
           'Content-Type': 'application/json',
@@ -198,7 +199,7 @@ class AuthService {
       if (token != null) {
         try {
           final response = await http.post(
-            Uri.parse('$baseUrl/logout'),
+            Uri.parse('$url/logout'),
             headers: {
               'Authorization': 'Bearer $token',
               'Content-Type': 'application/json',
@@ -282,7 +283,7 @@ class AuthService {
       if (currentToken == null) return false;
 
       final response = await http.post(
-        Uri.parse('$baseUrl/refresh'),
+        Uri.parse('$url/refresh'),
         headers: {
           'Authorization': 'Bearer $currentToken',
           'Content-Type': 'application/json',
@@ -312,7 +313,7 @@ class AuthService {
 
       // Make HTTP request to backend
       final response = await http.post(
-        Uri.parse('$baseUrl/forgot-password'),
+        Uri.parse('$url/forgot-password'),
         headers: {
           'Content-Type': 'application/json',
         },
