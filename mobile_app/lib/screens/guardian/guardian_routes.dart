@@ -26,7 +26,10 @@ class GuardianRoutes {
       case AppRoutes.guardianDashboard:
         return MaterialPageRoute(builder: (_) => GuardianDashboardScreen());
       case AppRoutes.guardianAddPatient:
-        return MaterialPageRoute(builder: (_) => GuardianAddPatientScreen());
+        return MaterialPageRoute(
+            builder: (_) => GuardianAddPatientScreen(),
+            settings: settings,
+        );
       case AppRoutes.guardianPatientDetails:
         return MaterialPageRoute(
           builder: (context) => GuardianPatientDetailsScreen(),

@@ -166,10 +166,10 @@ class _GuardianAddPatientScreenState extends State<GuardianAddPatientScreen> {
   void _handleSavePatient() async {
     try {
       print('Save Patient button pressed');
-      if (_formKey.currentState!.validate()) {
-        setState(() {
-          _isLoading = true;
-        });
+    if (_formKey.currentState!.validate()) {
+      setState(() {
+        _isLoading = true;
+      });
         print('Form validated, starting user creation');
 
         // 1. Create user
@@ -234,20 +234,20 @@ class _GuardianAddPatientScreenState extends State<GuardianAddPatientScreen> {
 
         print('Patient creation result: ${patientResult.success}, ${patientResult.message}');
 
-        setState(() {
-          _isLoading = false;
-        });
+      setState(() {
+        _isLoading = false;
+      });
 
         if (patientResult.success) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text('Patient saved successfully!'),
-              backgroundColor: Colors.green,
-            ),
-          );
-          Navigator.pushNamedAndRemoveUntil(
-            context,
-            AppRoutes.guardianDashboard,
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Patient saved successfully!'),
+          backgroundColor: Colors.green,
+        ),
+      );
+      Navigator.pushNamedAndRemoveUntil(
+        context,
+        AppRoutes.guardianDashboard,
             (route) => false,
           );
         } else {
