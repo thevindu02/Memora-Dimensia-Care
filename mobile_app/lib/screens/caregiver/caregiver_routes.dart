@@ -13,6 +13,7 @@ import 'caregiver_notification.dart';
 import 'schedule_report_screen.dart';
 import 'complete_routine_screen.dart';
 import 'care_details_screen.dart';
+import 'register_screen.dart';
 
 
 class CaregiverRoutes {
@@ -22,6 +23,8 @@ class CaregiverRoutes {
         //return MaterialPageRoute(builder: (_) => CaregiverSignupScreen());
       case AppRoutes.caregiverDashboard:
         return MaterialPageRoute(builder: (_) => MainScreen());
+      case AppRoutes.caregiverRegister:
+        return MaterialPageRoute(builder: (_) => CaregiverRegisterPage());
       case AppRoutes.caregiverPatients:
         return MaterialPageRoute(builder: (_) => PatientListScreen());
       case AppRoutes.caregiverProfile:
