@@ -11,8 +11,6 @@ class GuardianPatientDetailsScreen extends StatefulWidget {
 }
 
 class _GuardianPatientDetailsScreenState extends State<GuardianPatientDetailsScreen> {
-  int _selectedIndex = 0;
-
   // Mock patient data - in real app, this would come from the arguments or API
   Map<String, dynamic> patientData = {
     'id': 1,
@@ -54,28 +52,6 @@ class _GuardianPatientDetailsScreenState extends State<GuardianPatientDetailsScr
         ],
       ),
     );
-  }
-
-  void _onBottomNavTap(int index) {
-    setState(() {
-      _selectedIndex = index;
-    });
-
-    switch (index) {
-      case 0:
-        Navigator.pushNamedAndRemoveUntil(
-          context,
-          AppRoutes.guardianDashboard,
-              (route) => false,
-        );
-        break;
-      case 1:
-        Navigator.pushNamed(context, AppRoutes.guardianForums);
-        break;
-      case 2:
-        Navigator.pushNamed(context, AppRoutes.guardianProfile);
-        break;
-    }
   }
 
   void _editPatient() {
@@ -207,28 +183,6 @@ class _GuardianPatientDetailsScreenState extends State<GuardianPatientDetailsScr
             SizedBox(height: 20),
           ],
         ),
-      ),
-      bottomNavigationBar: BottomNavigationBar(
-        currentIndex: _selectedIndex,
-        onTap: _onBottomNavTap,
-        type: BottomNavigationBarType.fixed,
-        backgroundColor: Colors.white,
-        selectedItemColor: Colors.blue[700],
-        unselectedItemColor: Colors.grey[600],
-        items: [
-          BottomNavigationBarItem(
-            icon: Icon(Icons.home),
-            label: 'Home',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.forum),
-            label: 'Forums',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.person),
-            label: 'Profile',
-          ),
-        ],
       ),
     );
   }

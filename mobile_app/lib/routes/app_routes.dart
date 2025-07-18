@@ -37,8 +37,9 @@ class AppRoutes {
   static const String guardianSettings = '/guardian/settings';
   static const String guardianSettingsPrivacy = '/guardian/settings/privacy';
   static const String guardianSettingsHelpSupport = '/guardian/settings/help_support';
-  static const String guardianForums = '/guardian/forums';
-  static const String guardianForumArticle = '/guardian/forum/article';
+  static const String guardianArticles = '/guardian/articles';
+  static const String guardianArticleDetail = '/guardian/article-detail';
+  static const String guardianQAForums = '/guardian/qa-forums';
   static const String guardianProfile = '/guardian/profile';
   // static const String guardianOrders = '/guardian/orders';
 

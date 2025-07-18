@@ -356,7 +356,7 @@ class _GuardianAddUnknownCaregiverScreenState extends State<GuardianAddUnknownCa
                       if (caregiver['verified'])
                         Icon(
                           Icons.verified,
-                          color: Colors.blue,
+                          color: Colors.green,
                           size: 16,
                         ),
                     ],
@@ -474,20 +474,29 @@ class _GuardianAddUnknownCaregiverScreenState extends State<GuardianAddUnknownCa
                   Row(
                     children: [
                       Expanded(
-                        child: Text(
-                          caregiver['name'],
-                          style: TextStyle(
-                            fontSize: 16,
-                            fontWeight: FontWeight.bold,
-                          ),
+                        child: Row(
+                          children: [
+                            Flexible(
+                              child: Text(
+                                caregiver['name'],
+                                style: TextStyle(
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                            ),
+                            if (caregiver['verified'])
+                              Padding(
+                                padding: EdgeInsets.only(left: 4),
+                                child: Icon(
+                                  Icons.verified,
+                                  color: Colors.green,
+                                  size: 16,
+                                ),
+                              ),
+                          ],
                         ),
                       ),
-                      if (caregiver['verified'])
-                        Icon(
-                          Icons.verified,
-                          color: Colors.blue,
-                          size: 16,
-                        ),
                     ],
                   ),
                   SizedBox(height: 4),
@@ -540,17 +549,30 @@ class _GuardianAddUnknownCaregiverScreenState extends State<GuardianAddUnknownCa
             ),
             Column(
               children: [
-                IconButton(
-                  icon: Icon(Icons.visibility, color: Color(0xFF2B3F99)),
+                ElevatedButton(
                   onPressed: () => _viewProfile(caregiver),
-                  tooltip: 'View Profile',
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Color(0xFFA0C4FD),
+                    foregroundColor: Color(0xFF2B3F99),
+                    padding: EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                  ),
+                  child: Text(
+                    'View Profile',
+                    style: TextStyle(
+                      fontSize: 12,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
                 ),
                 SizedBox(height: 8),
                 ElevatedButton(
                   onPressed: () => _showConnectionRequestDialog(caregiver),
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: Color(0xFF2B3F99),
-                    foregroundColor: Colors.white,
+                    backgroundColor: Color(0xFFA0C4FD), // Updated button background color
+                    foregroundColor: Color(0xFF2B3F99), // Updated button text color
                     padding: EdgeInsets.symmetric(horizontal: 12, vertical: 8),
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(8),
@@ -575,17 +597,20 @@ class _GuardianAddUnknownCaregiverScreenState extends State<GuardianAddUnknownCa
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: Colors.grey[50],
       appBar: AppBar(
         title: Text(
           'Add Unknown Caregiver',
           style: TextStyle(
-            color: Colors.white,
+            fontSize: 24,
             fontWeight: FontWeight.bold,
+            color: Colors.black87,
           ),
         ),
-        backgroundColor: Color(0xFF2B3F99),
-        iconTheme: IconThemeData(color: Colors.white),
+        backgroundColor: Colors.white,
+        iconTheme: IconThemeData(color: Colors.black87),
         elevation: 0,
+        centerTitle: false,
       ),
       body: Container(
         padding: EdgeInsets.all(16),
@@ -596,9 +621,9 @@ class _GuardianAddUnknownCaregiverScreenState extends State<GuardianAddUnknownCa
               Container(
                 padding: EdgeInsets.all(16),
                 decoration: BoxDecoration(
-                  color: Colors.blue[50],
+                  color: Color(0xFFA0C4FD).withOpacity(0.35),
                   borderRadius: BorderRadius.circular(12),
-                  border: Border.all(color: Colors.blue[200]!),
+                  border: Border.all(color: Color(0xFFA0C4FD).withOpacity(0.3)),
                 ),
                 child: Row(
                   children: [

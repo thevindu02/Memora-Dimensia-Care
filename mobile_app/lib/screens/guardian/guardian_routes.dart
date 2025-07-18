@@ -4,8 +4,9 @@ import 'package:mobile_app/screens/guardian/guardian_add_known_caregiver_screen.
 import 'package:mobile_app/screens/guardian/guardian_add_patient_screen.dart';
 import 'package:mobile_app/screens/guardian/guardian_add_unknown_caregiver_screen.dart';
 import 'package:mobile_app/screens/guardian/guardian_edit_patient_details_screen.dart';
-import 'package:mobile_app/screens/guardian/guardian_forum_article_screen.dart';
-import 'package:mobile_app/screens/guardian/guardian_forums_screen.dart';
+import 'package:mobile_app/screens/guardian/guardian_qaForums_screen.dart';
+import 'package:mobile_app/screens/guardian/guardian_single_article_screen.dart';
+import 'package:mobile_app/screens/guardian/guardian_articles_screen.dart';
 import 'package:mobile_app/screens/guardian/guardian_patient_details_screen.dart';
 import 'package:mobile_app/screens/guardian/guardian_patients_reports_screen.dart';
 import 'package:mobile_app/screens/guardian/guardian_selected_patient_reports_screen.dart';
@@ -43,10 +44,12 @@ class GuardianRoutes {
         return MaterialPageRoute(builder: (_) => GuardianSelectedPatientReportsScreen());
       case AppRoutes.guardianSettings:
         return MaterialPageRoute(builder: (_) => GuardianSettingsScreen());
-      case AppRoutes.guardianForums:
-        return MaterialPageRoute(builder: (_) => GuardianForumsScreen());
-      case AppRoutes.guardianForumArticle:
-        return MaterialPageRoute(builder: (_) => GuardianForumArticleScreen());
+      case AppRoutes.guardianArticles:
+        return MaterialPageRoute(builder: (_) => GuardianArticlesScreen());
+      case AppRoutes.guardianArticleDetail:
+        return MaterialPageRoute(builder: (_) => GuardianSingleArticleScreen());
+      case AppRoutes.guardianQAForums:
+        return MaterialPageRoute(builder: (_) => GuardianQAForumsScreen());
       case AppRoutes.guardianProfile:
         return MaterialPageRoute(builder: (_) => GuardianProfileScreen());
       case AppRoutes.guardianSettingsPrivacy:

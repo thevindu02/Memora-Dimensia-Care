@@ -37,13 +37,13 @@ class _GuardianAddCaregiverScreenState extends State<GuardianAddCaregiverScreen>
           });
         },
         borderRadius: BorderRadius.circular(12),
-        splashColor: Colors.blue.withOpacity(0.2),
-        highlightColor: Colors.blue.withOpacity(0.1),
+        splashColor: Color(0xFF2B3F99).withOpacity(0.2),
+        highlightColor: Color(0xFF2B3F99).withOpacity(0.1),
         child: Container(
           margin: EdgeInsets.only(bottom: 12),
           padding: EdgeInsets.all(16),
           decoration: BoxDecoration(
-            color: isSelected ? Color(0xFFA0C4FD).withOpacity(0.2) : Colors.white,
+            color: isSelected ? Color(0xFFA0C4FD).withOpacity(0.35) : Colors.white,
             borderRadius: BorderRadius.circular(12),
             border: Border.all(
               color: isSelected ? Color(0xFF2B3F99) : Colors.grey.withOpacity(0.3),
@@ -117,8 +117,8 @@ class _GuardianAddCaregiverScreenState extends State<GuardianAddCaregiverScreen>
       child: InkWell(
         onTap: onTap,
         borderRadius: BorderRadius.circular(12),
-        splashColor: Colors.blue.withOpacity(0.2),
-        highlightColor: Colors.blue.withOpacity(0.1),
+        splashColor: Color(0xFF2B3F99).withOpacity(0.2),
+        highlightColor: Color(0xFF2B3F99).withOpacity(0.1),
         child: Container(
           margin: EdgeInsets.only(bottom: 16),
           padding: EdgeInsets.all(20),
@@ -236,7 +236,7 @@ class _GuardianAddCaregiverScreenState extends State<GuardianAddCaregiverScreen>
               Container(
                 padding: EdgeInsets.all(16),
                 decoration: BoxDecoration(
-                  color: Color(0xFFA0C4FD).withOpacity(0.1),
+                  color: Color(0xFFA0C4FD).withOpacity(0.35),
                   borderRadius: BorderRadius.circular(12),
                   border: Border.all(color: Color(0xFFA0C4FD).withOpacity(0.3)),
                 ),
@@ -327,33 +327,6 @@ class _GuardianAddCaregiverScreenState extends State<GuardianAddCaregiverScreen>
           ],
         ),
       ),
-      bottomNavigationBar: selectedPatient == null
-          ? Container(
-        padding: EdgeInsets.all(20),
-        child: ElevatedButton(
-          onPressed: selectedPatient != null
-              ? () {
-            // Continue to caregiver type selection
-          }
-              : null,
-          style: ElevatedButton.styleFrom(
-            backgroundColor: Color(0xFF2B3F99),
-            foregroundColor: Colors.white,
-            padding: EdgeInsets.symmetric(vertical: 16),
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(12),
-            ),
-          ),
-          child: Text(
-            'Continue',
-            style: TextStyle(
-              fontSize: 16,
-              fontWeight: FontWeight.w600,
-            ),
-          ),
-        ),
-      )
-          : null,
     );
   }
 }

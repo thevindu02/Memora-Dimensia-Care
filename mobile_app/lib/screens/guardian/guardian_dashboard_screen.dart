@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import '../../routes/app_routes.dart';
-
+import 'guardian_bottom_nav_bar.dart';
 
 class GuardianDashboardScreen extends StatefulWidget {
   @override
@@ -8,7 +8,7 @@ class GuardianDashboardScreen extends StatefulWidget {
 }
 
 class _GuardianDashboardScreenState extends State<GuardianDashboardScreen> {
-  int _selectedIndex = 0;
+  int _selectedIndex = 0; // Dashboard is always index 0
 
   // Mock data for patients
   List<Map<String, dynamic>> patients = [
@@ -16,13 +16,13 @@ class _GuardianDashboardScreenState extends State<GuardianDashboardScreen> {
       'id': 1,
       'name': 'John Doe',
       'label': 'Patient 1',
-      'avatar': 'assets/images/patient1.jpg', // You can replace with actual asset
+      'avatar': 'assets/images/patient1.jpg',
     },
     {
       'id': 2,
       'name': 'Jane Smith',
       'label': 'Patient 2',
-      'avatar': 'assets/images/patient2.jpg', // You can replace with actual asset
+      'avatar': 'assets/images/patient2.jpg',
     },
   ];
 
@@ -220,38 +220,20 @@ class _GuardianDashboardScreenState extends State<GuardianDashboardScreen> {
     );
   }
 
-  @override
-  void initState() {
-    super.initState();
-    // Handle arguments passed from navigation
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      final args = ModalRoute.of(context)?.settings.arguments as Map<String, dynamic>?;
-      if (args != null && args['selectedIndex'] != null) {
-        setState(() {
-          _selectedIndex = args['selectedIndex'];
-        });
-      }
-    });
-  }
-
   void _onBottomNavTap(int index) {
+    if (index == 0) {
+      // Already on Home - no need to navigate
+      return;
+    }
+
+    // Update the selected index for visual feedback
     setState(() {
       _selectedIndex = index;
     });
 
-    switch (index) {
-      case 0:
-      // Already on Home
-        break;
-      case 1:
-        Navigator.pushNamed(context, AppRoutes.guardianForums);
-        break;
-      case 2:
-        Navigator.pushNamed(context, AppRoutes.guardianProfile);
-        break;
-    }
+    // Use the helper to handle navigation
+    BottomNavHelper.handleNavigation(context, index);
   }
-
 
   @override
   Widget build(BuildContext context) {
@@ -269,6 +251,7 @@ class _GuardianDashboardScreenState extends State<GuardianDashboardScreen> {
           ),
         ),
         centerTitle: false,
+        automaticallyImplyLeading: false, // Remove back button
       ),
       body: SingleChildScrollView(
         padding: EdgeInsets.all(20),
@@ -346,27 +329,9 @@ class _GuardianDashboardScreenState extends State<GuardianDashboardScreen> {
           ],
         ),
       ),
-      bottomNavigationBar: BottomNavigationBar(
+      bottomNavigationBar: CustomBottomNavigationBar(
         currentIndex: _selectedIndex,
         onTap: _onBottomNavTap,
-        type: BottomNavigationBarType.fixed,
-        backgroundColor: Colors.white,
-        selectedItemColor: Color(0xFF2B3F99),
-        unselectedItemColor: Colors.grey[600],
-        items: [
-          BottomNavigationBarItem(
-            icon: Icon(Icons.home),
-            label: 'Home',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.forum),
-            label: 'Forums',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.person),
-            label: 'Profile',
-          ),
-        ],
       ),
     );
   }
