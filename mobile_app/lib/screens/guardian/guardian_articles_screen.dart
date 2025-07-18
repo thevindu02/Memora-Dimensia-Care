@@ -254,7 +254,7 @@ class _GuardianForumsScreenState extends State<GuardianForumsScreen> {
       onTap: () {
         Navigator.pushNamed(
           context,
-          AppRoutes.guardianForumArticle,
+          AppRoutes.guardianArticleDetail,
           arguments: discussion,
         );
       },
