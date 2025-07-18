@@ -3,7 +3,7 @@ import 'package:http/http.dart' as http;
 
 class PatientService {
   // Replace with your backend's base URL
-  static const String baseUrl = 'http://10.22.160.147:8080/api/patients';
+  static const String baseUrl = 'http://10.22.160.21:8080/api/patients';
 
   // Add a new patient
   static Future<PatientResult> addPatient({

@@ -10,7 +10,7 @@ class AuthService {
 
   static int? currentUserId; // Set this after login
 
-  static const String baseUrl = 'http://10.22.160.147:8080/api/auth';
+  static const String baseUrl = 'http://10.22.160.21:8080/api/auth';
 
 
   static String? currentUserRole;

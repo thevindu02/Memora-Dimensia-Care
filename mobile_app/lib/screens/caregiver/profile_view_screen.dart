@@ -174,7 +174,10 @@ class _ProfileViewState extends State<CaregiverProfileScreen> {
                 SizedBox(width: 15),
                 Expanded(
                   child: OutlinedButton(
-                    onPressed: () {},
+                    onPressed: () {
+                      Navigator.pushNamed(context, AppRoutes.login);
+
+                    },
                     style: OutlinedButton.styleFrom(
                       padding: EdgeInsets.symmetric(vertical: 15),
                       side: BorderSide(color: Colors.grey[300]!),
