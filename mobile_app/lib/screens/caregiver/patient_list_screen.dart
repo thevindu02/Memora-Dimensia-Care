@@ -172,7 +172,7 @@ class _PatientsScreenState extends State<PatientListScreen> {
           },
           type: BottomNavigationBarType.fixed,
           backgroundColor: Colors.white,
-          selectedItemColor: Colors.blue[600],
+          selectedItemColor: Color(0xFF2B3F99),
           unselectedItemColor: Colors.grey[400],
           selectedFontSize: 12,
           unselectedFontSize: 12,

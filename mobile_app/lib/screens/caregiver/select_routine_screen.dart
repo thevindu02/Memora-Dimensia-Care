@@ -427,7 +427,7 @@ class _SelectTypeWithErrorHandlingState extends State<SelectTypeWithErrorHandlin
           }
         },
         type: BottomNavigationBarType.fixed,
-        selectedItemColor: Colors.indigo,
+        selectedItemColor: Color(0xFF2B3F99),
         unselectedItemColor: Colors.grey,
         items: const [
           BottomNavigationBarItem(icon: Icon(Icons.home), label: 'Home'),
