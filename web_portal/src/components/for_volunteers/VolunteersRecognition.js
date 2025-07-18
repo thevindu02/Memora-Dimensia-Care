@@ -3,6 +3,7 @@ import React from 'react';
 import { Box, Typography, Container, Grid, Paper, Stack, Button } from '@mui/material';
 import EmojiEventsIcon from '@mui/icons-material/EmojiEvents';
 import VolunteerActivismIcon from '@mui/icons-material/VolunteerActivism';
+// import vcom from '../../assets/volunteer-community.png'; // Adjust the path as necessary
 
 function VolunteersRecognition() {
   return (
@@ -53,35 +54,36 @@ function VolunteersRecognition() {
                   sx={{
                     color: '#2B3F99',
                     fontWeight: 700,
-                    fontSize: { xs: 20, md: 26 },
+                    fontSize: { xs: 20, md: 38 },
+                    fontFamily: 'Poppins Bold',
                   }}
                 >
-                  Every contribution counts—be part of a kinder care ecosystem.
+                  Every contribution counts be part of a kinder care ecosystem.
                 </Typography>
               </Stack>
-              <Typography variant="body1" sx={{ color: '#390797', mb: 2 }}>
+              <Typography variant="body1" sx={{ color: '#390797', mb: 2, fontSize: 25, fontFamily: 'Poppins Regular'  }}>
                 Your time, knowledge, and compassion help families and caregivers thrive. Earn recognition, connect with like-minded volunteers, and see the impact you make.
               </Typography>
               <Stack direction="row" spacing={2}>
-                <Button variant="contained" color="primary" sx={{ borderRadius: 8 }}>
+                <Button variant="contained" color="primary" sx={{ borderRadius: 8,fontFamily: 'Roboto', fontSize: 18 }}>
                   Start Contributing
                 </Button>
-                <Button variant="outlined" color="primary" sx={{ borderRadius: 8 }}>
+                <Button variant="outlined" color="primary" sx={{ borderRadius: 8,fontFamily: 'Roboto', fontSize: 18 }}>
                   Meet the Community
                 </Button>
               </Stack>
               <Stack direction="row" alignItems="center" spacing={2} mt={3}>
                 <EmojiEventsIcon sx={{ fontSize: 32, color: '#A0C4FD' }} />
-                <Typography variant="subtitle2" sx={{ color: '#2B3F99', fontWeight: 700 }}>
-                  Top Volunteer of the Month: Alex
+                <Typography variant="subtitle2" sx={{ color: '#2B3F99', fontWeight: 700, fontSize: { xs: 18, md: 24 }, fontFamily: 'Poppins Regular' }}>
+                  Top Volunteer of the Month: Thevindu Dilmith
                 </Typography>
               </Stack>
             </Paper>
           </Grid>
           <Grid item xs={12} md={5} sx={{ textAlign: 'center' }}>
-            <Box
+            {/* <Box
               component="img"
-              src="/assets/volunteer-community.png"
+              src= {vcom}
               alt="Volunteer community"
               sx={{
                 width: { xs: '80%', md: 320 },
@@ -91,7 +93,7 @@ function VolunteersRecognition() {
                 background: '#fff',
                 p: 1,
               }}
-            />
+            /> */}
           </Grid>
         </Grid>
       </Container>

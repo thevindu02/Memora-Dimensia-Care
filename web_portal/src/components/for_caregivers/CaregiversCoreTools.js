@@ -12,9 +12,9 @@ const tools = [
     desc: 'Plan daily routines with drag-and-drop ease.',
   },
   {
-    icon: <EventAvailableIcon sx={{ fontSize: 38, color: '#C3B1E1' }} />,
+    icon: <EventAvailableIcon sx={{ fontSize: 38, color: '#b698e5ff' }} />,
     title: 'Appointment Logging',
-    desc: 'Never miss a checkup—log and view all appointments in one calendar.',
+    desc: 'Never miss a checkup log and view all appointments in one calendar.',
   },
   {
     icon: <NotificationImportantIcon sx={{ fontSize: 38, color: '#390797' }} />,
@@ -40,6 +40,8 @@ function CaregiversCoreTools() {
             mb: 4,
             textAlign: 'center',
             letterSpacing: 0.5,
+            fontFamily: 'Poppins Bold',
+            fontSize: { xs: 30, md: 48 },
           }}
         >
           Core Tools & Services
@@ -53,7 +55,7 @@ function CaregiversCoreTools() {
                   p: 3,
                   borderRadius: 3,
                   textAlign: 'center',
-                  bgcolor: '#F8F9FB',
+                  bgcolor: '#e2daf1ff',
                   height: '100%',
                   display: 'flex',
                   flexDirection: 'column',
@@ -64,10 +66,10 @@ function CaregiversCoreTools() {
                 }}
               >
                 {icon}
-                <Typography variant="h6" sx={{ mt: 2, color: '#2B3F99', fontWeight: 600 }}>
+                <Typography variant="h6" sx={{ mt: 2, color: '#2B3F99', fontWeight: 600, fontFamily: 'Poppins Medium', fontSize: 30 }}>
                   {title}
                 </Typography>
-                <Typography variant="body2" sx={{ mt: 1, color: '#390797', fontSize: 15 }}>
+                <Typography variant="body2" sx={{ mt: 1, color: '#390797', fontSize: 20, fontFamily: 'Poppins Regular',  }}>
                   {desc}
                 </Typography>
                 <Button
@@ -79,9 +81,9 @@ function CaregiversCoreTools() {
                     fontWeight: 600,
                     textTransform: 'none',
                     borderRadius: 2,
-                    background: 'rgba(195,177,225,0.12)',
+                    background: 'rgba(88, 5, 223, 0.12)',
                     '&:hover': {
-                      background: 'rgba(195,177,225,0.24)',
+                      background: 'rgba(64, 27, 124, 0.24)',
                     },
                   }}
                 >

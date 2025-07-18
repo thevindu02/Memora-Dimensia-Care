@@ -65,10 +65,10 @@ function ForGuardiansBenefits() {
               >
                 <CardContent sx={{ flex: 1 }}>
                   <Box sx={{ mb: 2 }}>{icon}</Box>
-                  <Typography variant="h6" sx={{ fontWeight: 700, mb: 1, color: '#390797' }}>
+                  <Typography variant="h6" sx={{ fontWeight: 700, mb: 1, color: '#390797', fontFamily: 'Poppins Bold', fontSize: 24 }}>
                     {title}
                   </Typography>
-                  <Typography variant="body1" sx={{ color: '#2B3F99', fontSize: 18 }}>
+                  <Typography variant="body1" sx={{ color: '#2B3F99', fontSize: 20, fontFamily: 'Poppins Regular' }}>
                     {desc}
                   </Typography>
                 </CardContent>

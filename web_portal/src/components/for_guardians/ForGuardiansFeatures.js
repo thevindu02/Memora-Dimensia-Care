@@ -61,7 +61,7 @@ function ForGuardiansFeatures() {
                 }}
               >
                 {icon}
-                <Typography variant="h6" sx={{ mt: 2, color: '#2B3F99', fontWeight: 600 }}>
+                <Typography variant="h6" sx={{ mt: 2, color: '#2B3F99', fontWeight: 600, fontFamily: 'Poppins Medium', fontSize: 24 }}>
                   {title}
                 </Typography>
               </Paper>

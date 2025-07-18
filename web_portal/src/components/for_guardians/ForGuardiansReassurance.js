@@ -38,10 +38,10 @@ function ForGuardiansReassurance() {
               Your role matters. Memora gives you the tools and peace of mind to care from anywhere.
             </Typography>
             <Stack direction={{ xs: 'column', sm: 'row' }} spacing={2} mt={3}>
-              <Button variant="contained" color="primary" sx={{ borderRadius: 8 }}>
+              <Button variant="contained" color="primary" sx={{ borderRadius: 8,fontFamily: 'Roboto', fontSize: 18 }}>
                 View Patient Reports
               </Button>
-              <Button variant="outlined" color="primary" sx={{ borderRadius: 8 }}>
+              <Button variant="outlined" color="primary" sx={{ borderRadius: 8,fontFamily: 'Roboto', fontSize: 18 }}>
                 Browse Caregivers
               </Button>
             </Stack>
