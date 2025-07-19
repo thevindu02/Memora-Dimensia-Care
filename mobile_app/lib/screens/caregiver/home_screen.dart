@@ -25,16 +25,15 @@ class _MainScreenState extends State<MainScreen> {
       bottomNavigationBar: BottomNavigationBar(
         currentIndex: _currentIndex,
         onTap: (index) {
-          if (index == 1) { // Patients tab
+          if (index == 1) {
+            // Patients tab
             // Navigate to detailed patients screen
             Navigator.pushNamed(context, AppRoutes.caregiverPatients);
-          }else if(index==2){
+          } else if (index == 2) {
             Navigator.pushNamed(context, AppRoutes.viewArticleList);
-          }
-          else if(index==3){
+          } else if (index == 3) {
             Navigator.pushNamed(context, AppRoutes.caregiverProfile);
-          }
-          else {
+          } else {
             setState(() {
               _currentIndex = index;
             });
@@ -94,16 +93,14 @@ class HomeScreen extends StatelessWidget {
           children: [
             Text(
               'Today’s Summary',
-              style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-                fontWeight: FontWeight.bold,
-              ),
+              style: Theme.of(
+                context,
+              ).textTheme.headlineSmall?.copyWith(fontWeight: FontWeight.bold),
             ),
             const SizedBox(height: 16),
             _buildSummaryCard(context),
             const SizedBox(height: 20),
             _buildUrgentTasksSection(context),
-            const SizedBox(height: 20),
-            _buildGuardianRequestNotification(context),
             const SizedBox(height: 20),
             _buildCaregiverTip(context),
             const SizedBox(height: 20),
@@ -161,10 +158,7 @@ class HomeScreen extends StatelessWidget {
             color: color,
           ),
         ),
-        Text(
-          label,
-          style: const TextStyle(fontSize: 12),
-        ),
+        Text(label, style: const TextStyle(fontSize: 12)),
       ],
     );
   }
@@ -175,9 +169,9 @@ class HomeScreen extends StatelessWidget {
       children: [
         Text(
           'Urgent Tasks',
-          style: Theme.of(context).textTheme.titleLarge?.copyWith(
-            fontWeight: FontWeight.bold,
-          ),
+          style: Theme.of(
+            context,
+          ).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold),
         ),
         const SizedBox(height: 8),
         Card(
@@ -219,47 +213,10 @@ class HomeScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildGuardianRequestNotification(BuildContext context) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(
-          'Guardian Requests',
-          style: Theme.of(context).textTheme.titleLarge?.copyWith(
-            fontWeight: FontWeight.bold,
-          ),
-        ),
-        const SizedBox(height: 8),
-        Card(
-          elevation: 3,
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(12),
-          ),
-
-          color: Colors.blue[50],
-          child: ListTile(
-            leading: const Icon(Icons.person_add_alt, color: Colors.blue),
-            title: const Text('New Request from Guardian'),
-            subtitle: const Text('Request to connect with a patient'),
-            trailing: IconButton(
-              icon: const Icon(Icons.chevron_right),
-              onPressed: () {
-                Navigator.pushNamed(context, AppRoutes.guardianRequest);
-              },
-
-            ),
-          ),
-        ),
-      ],
-    );
-  }
-
   Widget _buildCaregiverTip(BuildContext context) {
     return Card(
       elevation: 3,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(12),
-      ),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
       color: Colors.lightBlue[50],
       child: Padding(
         padding: const EdgeInsets.all(16.0),
@@ -295,9 +252,9 @@ class HomeScreen extends StatelessWidget {
       children: [
         Text(
           'Emergency Contacts',
-          style: Theme.of(context).textTheme.titleLarge?.copyWith(
-            fontWeight: FontWeight.bold,
-          ),
+          style: Theme.of(
+            context,
+          ).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold),
         ),
         const SizedBox(height: 8),
         Wrap(
@@ -331,9 +288,7 @@ class PatientsScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return const Scaffold(
-      body: Center(child: Text('Patients Screen')),
-    );
+    return const Scaffold(body: Center(child: Text('Patients Screen')));
   }
 }
 
@@ -342,9 +297,7 @@ class ArticlesScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return const Scaffold(
-      body: Center(child: Text('Articles Screen')),
-    );
+    return const Scaffold(body: Center(child: Text('Articles Screen')));
   }
 }
 
@@ -353,8 +306,6 @@ class ProfileScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return const Scaffold(
-      body: Center(child: Text('Profile Screen')),
-    );
+    return const Scaffold(body: Center(child: Text('Profile Screen')));
   }
 }
