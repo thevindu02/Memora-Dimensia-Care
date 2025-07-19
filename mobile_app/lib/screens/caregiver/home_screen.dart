@@ -102,6 +102,15 @@ class HomeScreen extends StatelessWidget {
             const SizedBox(height: 20),
             _buildGuardianRequestNotification(context),
             const SizedBox(height: 20),
+            Text(
+              'Forum',
+              style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+            const SizedBox(height: 8),
+            _buildForumSection(context),
+            const SizedBox(height: 20),
             _buildCaregiverTip(context),
             const SizedBox(height: 20),
             _buildEmergencyContacts(context),
@@ -282,6 +291,44 @@ class HomeScreen extends StatelessWidget {
             ),
           ],
         ),
+      ),
+    );
+  }
+
+  Widget _buildForumSection(BuildContext context) {
+    return Card(
+      elevation: 3,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(12),
+      ),
+      color: Colors.deepPurple[50],
+      child: ListTile(
+        leading: const Icon(Icons.forum, color: Colors.deepPurple),
+        title: const Text('Caregiver Forum'),
+        subtitle: const Text('Join discussions, ask questions, and connect with other caregivers.'),
+        trailing: const Icon(Icons.chevron_right),
+        onTap: () {
+          Navigator.pushNamed(context, AppRoutes.discussionForum); // Use volunteerForum route for now
+        },
+      ),
+    );
+  }
+
+  Widget _buildForumTopic(BuildContext context) {
+    return Card(
+      elevation: 2,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(10),
+      ),
+      color: Colors.purple[100],
+      child: ListTile(
+        leading: const Icon(Icons.local_fire_department, color: Colors.deepPurple),
+        title: const Text('Trending Topic: Managing Caregiver Stress', style: TextStyle(fontWeight: FontWeight.bold)),
+        subtitle: const Text('Share your tips and experiences for handling stress as a caregiver.'),
+        onTap: () {
+          // Optionally, navigate to a specific topic or forum thread
+          Navigator.pushNamed(context, AppRoutes.volunteerForum);
+        },
       ),
     );
   }

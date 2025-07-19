@@ -42,11 +42,15 @@ class _EditProfileViewState extends State<EditProfileEdit> {
     'Transportation',
     'Companionship'
   ];
+  // Default selected skills (cannot be unselected)
+  final List<String> _defaultSelectedSkills = ['Elder Care', 'Child Care'];
   List<String> _selectedSkills = [];
 
   @override
   void initState() {
     super.initState();
+    // Ensure default skills are always selected
+    _selectedSkills = List<String>.from(_defaultSelectedSkills);
   }
 
   @override
@@ -515,10 +519,13 @@ class _EditProfileViewState extends State<EditProfileEdit> {
             runSpacing: 8,
             children: _skillOptions.map((skill) {
               final isSelected = _selectedSkills.contains(skill);
+              final isDefault = _defaultSelectedSkills.contains(skill);
               return GestureDetector(
                 onTap: () {
                   setState(() {
-                    if (isSelected) {
+                    if (isDefault) {
+                      // Do nothing, cannot unselect default skills
+                    } else if (isSelected) {
                       _selectedSkills.remove(skill);
                     } else {
                       _selectedSkills.add(skill);
@@ -534,13 +541,23 @@ class _EditProfileViewState extends State<EditProfileEdit> {
                       color: isSelected ? Color(0xFFA0C4FD) : Colors.grey[300]!,
                     ),
                   ),
-                  child: Text(
-                    skill,
-                    style: TextStyle(
-                      color: isSelected ? Colors.white : Colors.grey[700],
-                      fontSize: 12,
-                      fontWeight: FontWeight.w500,
-                    ),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Text(
+                        skill,
+                        style: TextStyle(
+                          color: isSelected ? Colors.white : Colors.grey[700],
+                          fontSize: 12,
+                          fontWeight: FontWeight.w500,
+                        ),
+                      ),
+                      if (isDefault && isSelected)
+                        const Padding(
+                          padding: EdgeInsets.only(left: 4),
+                          child: Icon(Icons.lock, size: 14, color: Colors.white),
+                        ),
+                    ],
                   ),
                 ),
               );

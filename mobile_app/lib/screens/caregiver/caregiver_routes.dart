@@ -14,6 +14,8 @@ import 'schedule_report_screen.dart';
 import 'complete_routine_screen.dart';
 import 'care_details_screen.dart';
 import 'register_screen.dart';
+import 'discussion_forum_screen.dart';
+import 'settings_screen.dart';
 
 
 class CaregiverRoutes {
@@ -47,6 +49,10 @@ class CaregiverRoutes {
         return MaterialPageRoute(builder: (_) => ScheduleRoutineDialog());
       case AppRoutes.careDetails:
         return MaterialPageRoute(builder: (_) => CareDetailsScreen());
+      case AppRoutes.discussionForum:
+        return MaterialPageRoute(builder: (_) => DiscussionForumScreen());
+      case AppRoutes.settings:
+        return MaterialPageRoute(builder: (_) => SettingsScreen());
 
 
       default:

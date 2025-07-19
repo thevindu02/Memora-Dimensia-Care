@@ -306,7 +306,7 @@ class _NotificationScreenState extends State<CaregiverNotificationScreen>
                   child: Row(
                     mainAxisSize: MainAxisSize.min,
                     children: [
-                      const Text('New Requests'),
+                      const Text('Unread'),
                       const SizedBox(width: 6),
                       Container(
                         padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
@@ -326,7 +326,7 @@ class _NotificationScreenState extends State<CaregiverNotificationScreen>
                     ],
                   ),
                 ),
-                const Tab(text: 'Connected'),
+                const Tab(text: 'Read'),
               ],
             ),
           ),

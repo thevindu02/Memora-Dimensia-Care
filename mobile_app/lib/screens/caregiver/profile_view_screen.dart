@@ -33,9 +33,9 @@ class _ProfileViewState extends State<CaregiverProfileScreen> {
         centerTitle: true,
         actions: [
           IconButton(
-            icon: Icon(Icons.notifications_outlined, color: Colors.black),
+            icon: Icon(Icons.settings, color: Colors.black),
             onPressed: () {
-              Navigator.pushNamed(context, AppRoutes.caregiverNotification);
+              Navigator.pushNamed(context, AppRoutes.settings);
             },
           ),
         ],
@@ -115,32 +115,7 @@ class _ProfileViewState extends State<CaregiverProfileScreen> {
             _buildInfoSection('Qualifications', 'Nursing, CPR Certified'),
             _buildInfoSection('Skills', 'Elder Care, Medical Care, Cooking'),
             
-            // Notifications Toggle
-            Container(
-              margin: EdgeInsets.only(top: 20, bottom: 30),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Text(
-                    'Receive Notifications',
-                    style: TextStyle(
-                      fontSize: 16,
-                      fontWeight: FontWeight.w500,
-                      color: Colors.black,
-                    ),
-                  ),
-                  Switch(
-                    value: receiveNotifications,
-                    onChanged: (value) {
-                      setState(() {
-                        receiveNotifications = value;
-                      });
-                    },
-                    activeColor: Color(0xFF6B73FF),
-                  ),
-                ],
-              ),
-            ),
+
             
             // Action Buttons
             Row(

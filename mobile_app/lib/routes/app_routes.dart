@@ -57,6 +57,8 @@ class AppRoutes {
   static const String patientReport = '/caregiver/report';
   static const String completeRoutine = '/caregiver/complete';
   static const String careDetails = '/caregiver/careDetails';
+  static const String discussionForum = '/caregiver/forum';
+  static const String settings = '/caregiver/settings';
 
 
 
