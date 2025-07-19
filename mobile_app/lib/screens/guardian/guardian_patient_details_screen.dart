@@ -4,13 +4,16 @@ import '../../routes/app_routes.dart';
 class GuardianPatientDetailsScreen extends StatefulWidget {
   final Map<String, dynamic>? patient;
 
-  const GuardianPatientDetailsScreen({Key? key, this.patient}) : super(key: key);
+  const GuardianPatientDetailsScreen({Key? key, this.patient})
+    : super(key: key);
 
   @override
-  _GuardianPatientDetailsScreenState createState() => _GuardianPatientDetailsScreenState();
+  _GuardianPatientDetailsScreenState createState() =>
+      _GuardianPatientDetailsScreenState();
 }
 
-class _GuardianPatientDetailsScreenState extends State<GuardianPatientDetailsScreen> {
+class _GuardianPatientDetailsScreenState
+    extends State<GuardianPatientDetailsScreen> {
   int _selectedIndex = 0;
   Map<String, dynamic>? patientData;
 
@@ -34,10 +37,7 @@ class _GuardianPatientDetailsScreenState extends State<GuardianPatientDetailsScr
           Expanded(
             child: Text(
               value,
-              style: TextStyle(
-                fontSize: 16,
-                color: Colors.grey[600],
-              ),
+              style: TextStyle(fontSize: 16, color: Colors.grey[600]),
             ),
           ),
         ],
@@ -104,9 +104,7 @@ class _GuardianPatientDetailsScreenState extends State<GuardianPatientDetailsScr
           ),
           centerTitle: false,
         ),
-        body: Center(
-          child: CircularProgressIndicator(),
-        ),
+        body: Center(child: CircularProgressIndicator()),
       );
     }
 
@@ -157,7 +155,7 @@ class _GuardianPatientDetailsScreenState extends State<GuardianPatientDetailsScr
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        '${patientData!['fname'] ?? ''} ${patientData!['lname'] ?? ''}',
+                        '${patientData!['fName'] ?? patientData!['FName'] ?? patientData!['fname'] ?? ''} ${patientData!['lName'] ?? patientData!['LName'] ?? patientData!['lname'] ?? ''}',
                         style: TextStyle(
                           fontSize: 24,
                           fontWeight: FontWeight.bold,
@@ -167,10 +165,7 @@ class _GuardianPatientDetailsScreenState extends State<GuardianPatientDetailsScr
                       SizedBox(height: 4),
                       Text(
                         patientData!['label'] ?? 'Patient',
-                        style: TextStyle(
-                          fontSize: 16,
-                          color: Colors.grey[600],
-                        ),
+                        style: TextStyle(fontSize: 16, color: Colors.grey[600]),
                       ),
                     ],
                   ),
@@ -182,10 +177,22 @@ class _GuardianPatientDetailsScreenState extends State<GuardianPatientDetailsScr
 
             // Patient details section
             _buildInfoRow('Date of Birth', patientData!['birthdate'] ?? 'N/A'),
-            _buildInfoRow('Contact Number', patientData!['phoneNumber'] ?? 'N/A'),
-            _buildInfoRow('Address', '${patientData!['street'] ?? ''}, ${patientData!['city'] ?? ''}, ${patientData!['state'] ?? ''}'),
-            _buildInfoRow('Dementia Stage', patientData!['dementiaStage'] ?? 'N/A'),
-            _buildInfoRow('Dementia Type', patientData!['dementiaType'] ?? 'N/A'),
+            _buildInfoRow(
+              'Contact Number',
+              patientData!['phoneNumber'] ?? 'N/A',
+            ),
+            _buildInfoRow(
+              'Address',
+              '${patientData!['street'] ?? ''}, ${patientData!['city'] ?? ''}, ${patientData!['state'] ?? ''}',
+            ),
+            _buildInfoRow(
+              'Dementia Stage',
+              patientData!['dementiaStage'] ?? 'N/A',
+            ),
+            _buildInfoRow(
+              'Dementia Type',
+              patientData!['dementiaType'] ?? 'N/A',
+            ),
             _buildInfoRow('Email', patientData!['email'] ?? 'N/A'),
             _buildInfoRow('Gender', patientData!['gender'] ?? 'N/A'),
 

@@ -6,13 +6,16 @@ import '../../services/auth_service.dart';
 class GuardianEditPatientDetailsScreen extends StatefulWidget {
   final Map<String, dynamic>? patient;
 
-  const GuardianEditPatientDetailsScreen({Key? key, this.patient}) : super(key: key);
+  const GuardianEditPatientDetailsScreen({Key? key, this.patient})
+    : super(key: key);
 
   @override
-  _GuardianEditPatientDetailsScreenState createState() => _GuardianEditPatientDetailsScreenState();
+  _GuardianEditPatientDetailsScreenState createState() =>
+      _GuardianEditPatientDetailsScreenState();
 }
 
-class _GuardianEditPatientDetailsScreenState extends State<GuardianEditPatientDetailsScreen> {
+class _GuardianEditPatientDetailsScreenState
+    extends State<GuardianEditPatientDetailsScreen> {
   final _formKey = GlobalKey<FormState>();
 
   late TextEditingController _nameController;
@@ -25,7 +28,12 @@ class _GuardianEditPatientDetailsScreenState extends State<GuardianEditPatientDe
   String? _selectedDementiaStage;
 
   // List of dementia stages for dropdown
-  final List<String> _dementiaStages = ['Mild', 'Moderate', 'Severe', 'Very Severe'];
+  final List<String> _dementiaStages = [
+    'Mild',
+    'Moderate',
+    'Severe',
+    'Very Severe',
+  ];
 
   List<dynamic> _patients = [];
   bool _isLoadingPatients = true;
@@ -41,16 +49,18 @@ class _GuardianEditPatientDetailsScreenState extends State<GuardianEditPatientDe
     }
 
     _nameController = TextEditingController(
-      text: '${patientData['fname'] ?? ''} ${patientData['lname'] ?? ''}'
+      text:
+          '${patientData['fName'] ?? patientData['FName'] ?? patientData['fname'] ?? ''} ${patientData['lName'] ?? patientData['LName'] ?? patientData['lname'] ?? ''}',
     );
     _dateOfBirthController = TextEditingController(
-      text: patientData['birthdate'] ?? ''
+      text: patientData['birthdate'] ?? '',
     );
     _contactNumberController = TextEditingController(
-      text: patientData['phoneNumber'] ?? ''
+      text: patientData['phoneNumber'] ?? '',
     );
     _addressController = TextEditingController(
-      text: '${patientData['street'] ?? ''}, ${patientData['city'] ?? ''}, ${patientData['state'] ?? ''}'
+      text:
+          '${patientData['street'] ?? ''}, ${patientData['city'] ?? ''}, ${patientData['state'] ?? ''}',
     );
     _selectedDementiaStage = patientData['dementiaStage'];
   }
@@ -80,7 +90,11 @@ class _GuardianEditPatientDetailsScreenState extends State<GuardianEditPatientDe
         children: [
           Text(
             label,
-            style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600, color: Colors.black87),
+            style: TextStyle(
+              fontSize: 16,
+              fontWeight: FontWeight.w600,
+              color: Colors.black87,
+            ),
           ),
           SizedBox(height: 8),
           Focus(
@@ -97,7 +111,9 @@ class _GuardianEditPatientDetailsScreenState extends State<GuardianEditPatientDe
               keyboardType: keyboardType,
               maxLines: maxLines,
               style: TextStyle(
-                color: controller.text == initialValue ? Colors.grey : Colors.black,
+                color: controller.text == initialValue
+                    ? Colors.grey
+                    : Colors.black,
               ),
               decoration: InputDecoration(
                 hintText: initialValue,
@@ -110,7 +126,10 @@ class _GuardianEditPatientDetailsScreenState extends State<GuardianEditPatientDe
                   borderRadius: BorderRadius.circular(12),
                   borderSide: BorderSide(color: Colors.blue[700]!),
                 ),
-                contentPadding: EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                contentPadding: EdgeInsets.symmetric(
+                  horizontal: 16,
+                  vertical: 12,
+                ),
                 fillColor: Colors.grey[50],
                 filled: true,
               ),
@@ -135,7 +154,11 @@ class _GuardianEditPatientDetailsScreenState extends State<GuardianEditPatientDe
         children: [
           Text(
             label,
-            style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600, color: Colors.black87),
+            style: TextStyle(
+              fontSize: 16,
+              fontWeight: FontWeight.w600,
+              color: Colors.black87,
+            ),
           ),
           SizedBox(height: 8),
           DropdownButtonFormField<String>(
@@ -151,15 +174,15 @@ class _GuardianEditPatientDetailsScreenState extends State<GuardianEditPatientDe
                 borderRadius: BorderRadius.circular(12),
                 borderSide: BorderSide(color: Colors.blue[700]!),
               ),
-              contentPadding: EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+              contentPadding: EdgeInsets.symmetric(
+                horizontal: 16,
+                vertical: 12,
+              ),
               fillColor: Colors.grey[50],
               filled: true,
             ),
             items: items.map((String item) {
-              return DropdownMenuItem<String>(
-                value: item,
-                child: Text(item),
-              );
+              return DropdownMenuItem<String>(value: item, child: Text(item));
             }).toList(),
           ),
         ],
@@ -189,7 +212,7 @@ class _GuardianEditPatientDetailsScreenState extends State<GuardianEditPatientDe
       Navigator.pushNamedAndRemoveUntil(
         context,
         AppRoutes.guardianDashboard,
-            (route) => false,
+        (route) => false,
       );
     }
   }
@@ -255,11 +278,7 @@ class _GuardianEditPatientDetailsScreenState extends State<GuardianEditPatientDe
               CircleAvatar(
                 radius: 25,
                 backgroundColor: Colors.grey[300],
-                child: Icon(
-                  Icons.person,
-                  color: Colors.grey[600],
-                  size: 30,
-                ),
+                child: Icon(Icons.person, color: Colors.grey[600], size: 30),
               ),
               SizedBox(width: 16),
               Column(
@@ -276,10 +295,7 @@ class _GuardianEditPatientDetailsScreenState extends State<GuardianEditPatientDe
                   SizedBox(height: 4),
                   Text(
                     patient['dementiaStage'] ?? '',
-                    style: TextStyle(
-                      fontSize: 14,
-                      color: Colors.grey[600],
-                    ),
+                    style: TextStyle(fontSize: 14, color: Colors.grey[600]),
                   ),
                 ],
               ),
@@ -292,7 +308,8 @@ class _GuardianEditPatientDetailsScreenState extends State<GuardianEditPatientDe
 
   @override
   Widget build(BuildContext context) {
-    final Map<String, dynamic>? patient = ModalRoute.of(context)?.settings.arguments as Map<String, dynamic>?;
+    final Map<String, dynamic>? patient =
+        ModalRoute.of(context)?.settings.arguments as Map<String, dynamic>?;
 
     return Scaffold(
       backgroundColor: Colors.white,
@@ -305,7 +322,11 @@ class _GuardianEditPatientDetailsScreenState extends State<GuardianEditPatientDe
         ),
         title: Text(
           'Edit Patient Details',
-          style: TextStyle(fontSize: 20, fontWeight: FontWeight.w600, color: Colors.black87),
+          style: TextStyle(
+            fontSize: 20,
+            fontWeight: FontWeight.w600,
+            color: Colors.black87,
+          ),
         ),
         centerTitle: false,
       ),
@@ -327,7 +348,11 @@ class _GuardianEditPatientDetailsScreenState extends State<GuardianEditPatientDe
                     CircleAvatar(
                       radius: 40,
                       backgroundColor: Colors.grey[300],
-                      child: Icon(Icons.person, color: Colors.grey[600], size: 40),
+                      child: Icon(
+                        Icons.person,
+                        color: Colors.grey[600],
+                        size: 40,
+                      ),
                     ),
                     SizedBox(width: 20),
                     Column(
@@ -335,12 +360,19 @@ class _GuardianEditPatientDetailsScreenState extends State<GuardianEditPatientDe
                       children: [
                         Text(
                           'Edit Patient',
-                          style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold, color: Colors.black87),
+                          style: TextStyle(
+                            fontSize: 24,
+                            fontWeight: FontWeight.bold,
+                            color: Colors.black87,
+                          ),
                         ),
                         SizedBox(height: 4),
                         Text(
                           'Update patient information',
-                          style: TextStyle(fontSize: 16, color: Colors.grey[600]),
+                          style: TextStyle(
+                            fontSize: 16,
+                            color: Colors.grey[600],
+                          ),
                         ),
                       ],
                     ),
@@ -352,27 +384,35 @@ class _GuardianEditPatientDetailsScreenState extends State<GuardianEditPatientDe
                 label: 'Name',
                 controller: _nameController,
                 initialValue: _nameController.text,
-                validator: (value) => value == null || value.isEmpty ? 'Please enter a name' : null,
+                validator: (value) => value == null || value.isEmpty
+                    ? 'Please enter a name'
+                    : null,
               ),
               _buildTextField(
                 label: 'Date of Birth',
                 controller: _dateOfBirthController,
                 initialValue: _dateOfBirthController.text,
-                validator: (value) => value == null || value.isEmpty ? 'Please enter date of birth' : null,
+                validator: (value) => value == null || value.isEmpty
+                    ? 'Please enter date of birth'
+                    : null,
               ),
               _buildTextField(
                 label: 'Contact Number',
                 controller: _contactNumberController,
                 initialValue: _contactNumberController.text,
                 keyboardType: TextInputType.phone,
-                validator: (value) => value == null || value.isEmpty ? 'Please enter contact number' : null,
+                validator: (value) => value == null || value.isEmpty
+                    ? 'Please enter contact number'
+                    : null,
               ),
               _buildTextField(
                 label: 'Address',
                 controller: _addressController,
                 initialValue: _addressController.text,
                 maxLines: 3,
-                validator: (value) => value == null || value.isEmpty ? 'Please enter address' : null,
+                validator: (value) => value == null || value.isEmpty
+                    ? 'Please enter address'
+                    : null,
               ),
               _buildDropdownField(
                 label: 'Dementia Stage',
@@ -383,7 +423,9 @@ class _GuardianEditPatientDetailsScreenState extends State<GuardianEditPatientDe
                     _selectedDementiaStage = newValue;
                   });
                 },
-                validator: (value) => value == null || value.isEmpty ? 'Please select a dementia stage' : null,
+                validator: (value) => value == null || value.isEmpty
+                    ? 'Please select a dementia stage'
+                    : null,
               ),
               SizedBox(height: 40),
               Row(
