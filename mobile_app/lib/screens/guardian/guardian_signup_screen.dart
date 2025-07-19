@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import '../../services/auth/auth_service_factory.dart';
 import '../../services/auth/base_auth_service.dart';
 import '../../routes/app_routes.dart';
+import '../../services/user_service.dart'; // Added import for UserService
 
 class GuardianSignupScreen extends StatefulWidget {
   const GuardianSignupScreen({super.key});
@@ -12,7 +13,8 @@ class GuardianSignupScreen extends StatefulWidget {
 
 class _GuardianSignupScreenState extends State<GuardianSignupScreen> {
   final _formKey = GlobalKey<FormState>();
-  final _nameController = TextEditingController();
+  final _firstNameController = TextEditingController();
+  final _lastNameController = TextEditingController();
   final _emailController = TextEditingController();
   final _contactController = TextEditingController();
   final _streetController = TextEditingController();
@@ -20,14 +22,20 @@ class _GuardianSignupScreenState extends State<GuardianSignupScreen> {
   final _stateController = TextEditingController();
   final _passwordController = TextEditingController();
   final _confirmPasswordController = TextEditingController();
+  final _birthdateController = TextEditingController();
 
   bool _isPasswordVisible = false;
   bool _isConfirmPasswordVisible = false;
   bool _isLoading = false;
+  String? _selectedGender;
+  DateTime? _selectedDate;
+
+  final List<String> _genderOptions = ['Male', 'Female', 'Other', 'Prefer not to say'];
 
   @override
   void dispose() {
-    _nameController.dispose();
+    _firstNameController.dispose();
+    _lastNameController.dispose();
     _emailController.dispose();
     _contactController.dispose();
     _streetController.dispose();
@@ -35,6 +43,7 @@ class _GuardianSignupScreenState extends State<GuardianSignupScreen> {
     _stateController.dispose();
     _passwordController.dispose();
     _confirmPasswordController.dispose();
+    _birthdateController.dispose();
     super.dispose();
   }
 
@@ -43,8 +52,32 @@ class _GuardianSignupScreenState extends State<GuardianSignupScreen> {
     required String hintText,
     bool obscureText = false,
     bool isPassword = false,
+    bool readOnly = false,
+    VoidCallback? onTap,
     VoidCallback? toggleVisibility,
+    Widget? suffixIcon,
   }) {
+    IconData? prefixIcon;
+
+    // Assign icons based on hint text
+    if (hintText.contains('First name') || hintText.contains('Last name')) {
+      prefixIcon = Icons.person_outline;
+    } else if (hintText.contains('email')) {
+      prefixIcon = Icons.email_outlined;
+    } else if (hintText.contains('contact')) {
+      prefixIcon = Icons.phone_outlined;
+    } else if (hintText.contains('Street')) {
+      prefixIcon = Icons.location_on_outlined;
+    } else if (hintText.contains('City')) {
+      prefixIcon = Icons.location_city_outlined;
+    } else if (hintText.contains('State')) {
+      prefixIcon = Icons.map_outlined;
+    } else if (hintText.contains('password')) {
+      prefixIcon = Icons.lock_outline;
+    } else if (hintText.contains('birthdate')) {
+      prefixIcon = Icons.cake_outlined;
+    }
+
     return Container(
       margin: EdgeInsets.only(bottom: 12),
       decoration: BoxDecoration(
@@ -54,6 +87,8 @@ class _GuardianSignupScreenState extends State<GuardianSignupScreen> {
       child: TextFormField(
         controller: controller,
         obscureText: obscureText,
+        readOnly: readOnly,
+        onTap: onTap,
         decoration: InputDecoration(
           hintText: hintText,
           hintStyle: TextStyle(
@@ -62,7 +97,11 @@ class _GuardianSignupScreenState extends State<GuardianSignupScreen> {
           ),
           border: InputBorder.none,
           contentPadding: EdgeInsets.symmetric(horizontal: 16, vertical: 16),
-          suffixIcon: isPassword
+          prefixIcon: prefixIcon != null ? Icon(
+            prefixIcon,
+            color: Colors.grey[500],
+          ) : null,
+          suffixIcon: suffixIcon ?? (isPassword
               ? IconButton(
             icon: Icon(
               obscureText ? Icons.visibility_off : Icons.visibility,
@@ -70,7 +109,7 @@ class _GuardianSignupScreenState extends State<GuardianSignupScreen> {
             ),
             onPressed: toggleVisibility,
           )
-              : null,
+              : null),
         ),
         validator: (value) {
           if (value == null || value.isEmpty) {
@@ -91,36 +130,135 @@ class _GuardianSignupScreenState extends State<GuardianSignupScreen> {
     );
   }
 
-  void _handleRegister() async {
-    if (_formKey.currentState!.validate()) {
+  Widget _buildGenderDropdown() {
+    return Container(
+      margin: EdgeInsets.only(bottom: 12),
+      decoration: BoxDecoration(
+        color: Colors.grey[100],
+        borderRadius: BorderRadius.circular(12),
+      ),
+      child: DropdownButtonFormField<String>(
+        value: _selectedGender,
+        decoration: InputDecoration(
+          hintText: 'Select gender',
+          hintStyle: TextStyle(
+            color: Colors.grey[500],
+            fontSize: 16,
+          ),
+          border: InputBorder.none,
+          contentPadding: EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+          prefixIcon: Icon(
+            Icons.wc_outlined,
+            color: Colors.grey[500],
+          ),
+        ),
+        items: _genderOptions.map((String gender) {
+          return DropdownMenuItem<String>(
+            value: gender,
+            child: Text(gender),
+          );
+        }).toList(),
+        onChanged: (String? newValue) {
+          setState(() {
+            _selectedGender = newValue;
+          });
+        },
+        validator: (value) {
+          if (value == null || value.isEmpty) {
+            return 'Please select a gender';
+          }
+          return null;
+        },
+      ),
+    );
+  }
+
+  Future<void> _selectDate(BuildContext context) async {
+    final DateTime? picked = await showDatePicker(
+      context: context,
+      initialDate: _selectedDate ?? DateTime.now().subtract(Duration(days: 365 * 18)), // Default to 18 years ago
+      firstDate: DateTime(1900),
+      lastDate: DateTime.now(),
+      builder: (context, child) {
+        return Theme(
+          data: Theme.of(context).copyWith(
+            colorScheme: ColorScheme.light(
+              primary: Color(0xFF2B3F99),
+              onPrimary: Colors.white,
+              surface: Colors.white,
+              onSurface: Colors.black,
+            ),
+          ),
+          child: child!,
+        );
+      },
+    );
+    if (picked != null && picked != _selectedDate) {
       setState(() {
-        _isLoading = true;
+        _selectedDate = picked;
+        _birthdateController.text = "${picked.day}/${picked.month}/${picked.year}";
       });
+    }
+  }
 
-      // Simulate API call
-      await Future.delayed(Duration(seconds: 2));
+  void _handleRegister() async {
+    try {
+      if (_formKey.currentState!.validate()) {
+        setState(() {
+          _isLoading = true;
+        });
 
-      // TODO: Implement actual registration logic here
-      // You can add your API call logic here
+        // Call UserService.addUser to register guardian
+        final userResult = await UserService.addUser(
+          FName: _firstNameController.text.trim(),
+          LName: _lastNameController.text.trim(),
+          email: _emailController.text.trim(),
+          password: _passwordController.text,
+          phoneNumber: _contactController.text.trim(),
+          role: "GUARDIAN",
+          status: "ACTIVE",
+          birthdate: _selectedDate != null
+              ? _selectedDate!.toIso8601String().split('T')[0]
+              : "",
+          profilePic: "",
+          street: _streetController.text.trim(),
+          city: _cityController.text.trim(),
+          state: _stateController.text.trim(),
+          gender: _selectedGender ?? "",
+        );
 
+        setState(() {
+          _isLoading = false;
+        });
+
+        if (userResult.success) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text('Registration successful! Redirecting to login...'),
+              backgroundColor: Colors.green,
+            ),
+          );
+          await Future.delayed(Duration(seconds: 1));
+          Navigator.pushReplacementNamed(context, AppRoutes.login);
+        } else {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text('Registration failed:  [1m [38;5;1m [0m${userResult.message}'),
+              backgroundColor: Colors.red,
+            ),
+          );
+        }
+      }
+    } catch (e) {
       setState(() {
         _isLoading = false;
       });
-
-      // Navigate to dashboard or show success message
-      // Navigator.pushReplacementNamed(context, AppRoutes.guardianDashboard);
-
-      // For now, show a success message
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text('Registration successful! Redirecting to login...'),
-          backgroundColor: Colors.green,
+          content: Text('Unexpected error: $e'),
+          backgroundColor: Colors.red,
         ),
       );
-
-      //Navigate to login screen after a slight delay
-      await Future.delayed(Duration(seconds: 1));
-      Navigator.pushReplacementNamed(context, AppRoutes.login);
     }
   }
 
@@ -159,10 +297,23 @@ class _GuardianSignupScreenState extends State<GuardianSignupScreen> {
 
                 SizedBox(height: 30),
 
-                // Form fields
-                _buildTextField(
-                  controller: _nameController,
-                  hintText: 'Enter your name',
+                // Name section - First and Last name side by side
+                Row(
+                  children: [
+                    Expanded(
+                      child: _buildTextField(
+                        controller: _firstNameController,
+                        hintText: 'First name',
+                      ),
+                    ),
+                    SizedBox(width: 12),
+                    Expanded(
+                      child: _buildTextField(
+                        controller: _lastNameController,
+                        hintText: 'Last name',
+                      ),
+                    ),
+                  ],
                 ),
 
                 _buildTextField(
@@ -173,6 +324,28 @@ class _GuardianSignupScreenState extends State<GuardianSignupScreen> {
                 _buildTextField(
                   controller: _contactController,
                   hintText: 'Enter your contact number',
+                ),
+
+                // Birthdate and Gender section
+                Row(
+                  children: [
+                    Expanded(
+                      child: _buildTextField(
+                        controller: _birthdateController,
+                        hintText: 'Select birthdate',
+                        readOnly: true,
+                        onTap: () => _selectDate(context),
+                        suffixIcon: Icon(
+                          Icons.calendar_today,
+                          color: Colors.grey[500],
+                        ),
+                      ),
+                    ),
+                    SizedBox(width: 12),
+                    Expanded(
+                      child: _buildGenderDropdown(),
+                    ),
+                  ],
                 ),
 
                 // Address section

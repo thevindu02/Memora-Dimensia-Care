@@ -7,17 +7,17 @@ import TrendingUpIcon from '@mui/icons-material/TrendingUp';
 
 const features = [
   {
-    icon: <ArticleIcon sx={{ fontSize: 38, color: '#2B3F99' }} />,
+    icon: <ArticleIcon sx={{ fontSize: 40, color: '#2B3F99' }} />,
     title: 'Submit Articles & Videos',
     desc: 'Share your expertise and help others learn with your original content.',
   },
   {
-    icon: <GroupIcon sx={{ fontSize: 38, color: '#A0C4FD' }} />,
+    icon: <GroupIcon sx={{ fontSize: 40, color: '#A0C4FD' }} />,
     title: 'Join Forums',
     desc: 'Collaborate, discuss, and grow together in a supportive space.',
   },
   {
-    icon: <TrendingUpIcon sx={{ fontSize: 38, color: '#C3B1E1' }} />,
+    icon: <TrendingUpIcon sx={{ fontSize: 40, color: '#C3B1E1' }} />,
     title: 'Track Engagement',
     desc: 'See the impact of your contributions and connect with the community.',
   },
@@ -48,6 +48,8 @@ function VolunteersFeatures() {
             mb: 4,
             textAlign: 'center',
             letterSpacing: 0.5,
+            fontFamily: 'Poppins Bold',
+            fontSize: { xs: 30, md: 48 },
           }}
         >
           Contribution Features
@@ -73,10 +75,10 @@ function VolunteersFeatures() {
                 }}
               >
                 {icon}
-                <Typography variant="h6" sx={{ mt: 2, color: '#2B3F99', fontWeight: 600 }}>
+                <Typography variant="h6" sx={{ mt: 2, color: '#2B3F99', fontWeight: 600, fontFamily: 'Poppins Medium', fontSize: 30 }}>
                   {title}
                 </Typography>
-                <Typography variant="body2" sx={{ mt: 1, color: '#390797', fontSize: 15 }}>
+                <Typography variant="body2" sx={{ mt: 1, color: '#390797', fontFamily: 'Poppins Regular', fontSize: 20 }}>
                   {desc}
                 </Typography>
               </Paper>

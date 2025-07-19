@@ -120,7 +120,7 @@ function ForPatientsPromise() {
               <Button
                 variant="contained"
                 color="primary"
-                sx={{ borderRadius: 4, fontWeight: 700, mt: 0.5, px: 3.6, py: 1.1, fontSize: 16 }}
+                sx={{ borderRadius: 4, fontWeight: 700, mt: 0.5, px: 3.6, py: 1.1, fontFamily: 'Roboto', fontSize: 18 }}
                 disableElevation
                 href="#" // Place actual app download or info link here!
               >

@@ -1,13 +1,14 @@
 import 'package:flutter/material.dart';
 import '../../routes/app_routes.dart';
+import 'guardian_bottom_nav_bar.dart';
 
-class GuardianForumsScreen extends StatefulWidget {
+class GuardianArticlesScreen extends StatefulWidget {
   @override
   _GuardianForumsScreenState createState() => _GuardianForumsScreenState();
 }
 
-class _GuardianForumsScreenState extends State<GuardianForumsScreen> {
-  int _selectedIndex = 1; // Forums tab is selected
+class _GuardianForumsScreenState extends State<GuardianArticlesScreen> {
+  int _selectedIndex = 1; // Articles tab is selected (index 1 based on your new nav structure)
   TextEditingController _searchController = TextEditingController();
   String _searchQuery = '';
 
@@ -18,8 +19,8 @@ class _GuardianForumsScreenState extends State<GuardianForumsScreen> {
       'title': 'Understanding Dementia',
       'description': 'Discussion on symptoms and care',
       'category': 'Caregiver Tips',
-      'author': 'Dr. Sarah Johnson',
-      'authorType': 'Volunteer',
+      'author': 'Anonymous Guardian', // Changed to anonymous
+      'authorType': 'Guardian',
       'imageUrl': 'https://images.unsplash.com/photo-1559757148-5c350d0d3c56?w=300&h=200&fit=crop',
       'comments': 15,
       'likes': 24,
@@ -31,8 +32,8 @@ class _GuardianForumsScreenState extends State<GuardianForumsScreen> {
       'title': 'Caregiver Support',
       'description': 'Share your experiences',
       'category': 'Caregiver Tips',
-      'author': 'Maria Rodriguez',
-      'authorType': 'Volunteer',
+      'author': 'Anonymous Guardian', // Changed to anonymous
+      'authorType': 'Guardian',
       'imageUrl': 'https://images.unsplash.com/photo-1582750433449-648ed127bb54?w=300&h=200&fit=crop',
       'comments': 8,
       'likes': 18,
@@ -44,8 +45,8 @@ class _GuardianForumsScreenState extends State<GuardianForumsScreen> {
       'title': 'Technology in Care',
       'description': 'Using apps to assist care',
       'category': 'Technology',
-      'author': 'Tech Support Team',
-      'authorType': 'Volunteer',
+      'author': 'Anonymous Guardian', // Changed to anonymous
+      'authorType': 'Guardian',
       'imageUrl': 'https://picsum.photos/300/200?random=3',
       'comments': 12,
       'likes': 31,
@@ -57,8 +58,8 @@ class _GuardianForumsScreenState extends State<GuardianForumsScreen> {
       'title': 'Medication Management',
       'description': 'How to organize medications',
       'category': 'Medication',
-      'author': 'Pharmacist John',
-      'authorType': 'Volunteer',
+      'author': 'Anonymous Guardian', // Changed to anonymous
+      'authorType': 'Guardian',
       'imageUrl': 'https://images.unsplash.com/photo-1471864190281-a93a3070b6de?w=300&h=200&fit=crop',
       'comments': 22,
       'likes': 45,
@@ -70,8 +71,8 @@ class _GuardianForumsScreenState extends State<GuardianForumsScreen> {
       'title': 'Daily Activities for Dementia Patients',
       'description': 'Engaging activities and routines',
       'category': 'Activities',
-      'author': 'Activity Coordinator',
-      'authorType': 'Volunteer',
+      'author': 'Anonymous Guardian', // Changed to anonymous
+      'authorType': 'Guardian',
       'imageUrl': 'https://images.unsplash.com/photo-1511632765486-a01980e01a18?w=300&h=200&fit=crop',
       'comments': 18,
       'likes': 33,
@@ -83,8 +84,8 @@ class _GuardianForumsScreenState extends State<GuardianForumsScreen> {
       'title': 'Nutrition and Dementia',
       'description': 'Dietary considerations and tips',
       'category': 'Health',
-      'author': 'Nutritionist Emma',
-      'authorType': 'Volunteer',
+      'author': 'Anonymous Guardian', // Changed to anonymous
+      'authorType': 'Guardian',
       'imageUrl': 'https://images.unsplash.com/photo-1490645935967-10de6ba17061?w=300&h=200&fit=crop',
       'comments': 14,
       'likes': 28,
@@ -121,6 +122,16 @@ class _GuardianForumsScreenState extends State<GuardianForumsScreen> {
       _searchQuery = '';
       _searchController.clear();
     });
+  }
+
+  // Method to navigate back to dashboard
+  void _navigateBackToDashboard() {
+    Navigator.pushNamedAndRemoveUntil(
+      context,
+      AppRoutes.guardianDashboard,
+          (route) => false,
+      arguments: {'selectedIndex': 0}, // Pass the home index
+    );
   }
 
   Widget _buildSearchBar() {
@@ -190,57 +201,188 @@ class _GuardianForumsScreenState extends State<GuardianForumsScreen> {
   }
 
   Widget _buildTopicCard(String topic, Map<String, dynamic> discussion) {
-    return GestureDetector(
-      onTap: () {
-        setState(() {
-          _searchQuery = topic;
-          _searchController.text = topic;
-        });
-      },
-      child: Container(
-        width: 160,
-        margin: EdgeInsets.only(right: 12),
-        decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(12),
-          image: DecorationImage(
-            image: NetworkImage(discussion['imageUrl']),
-            fit: BoxFit.cover,
-          ),
-        ),
+    return MouseRegion(
+      cursor: SystemMouseCursors.click, // Add proper cursor
+      child: GestureDetector(
+        onTap: () {
+          setState(() {
+            _searchQuery = topic;
+            _searchController.text = topic;
+          });
+        },
         child: Container(
+          width: 160,
+          margin: EdgeInsets.only(right: 12),
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(12),
-            gradient: LinearGradient(
-              begin: Alignment.topCenter,
-              end: Alignment.bottomCenter,
-              colors: [
-                Colors.transparent,
-                Colors.black.withOpacity(0.7),
+            image: DecorationImage(
+              image: NetworkImage(discussion['imageUrl']),
+              fit: BoxFit.cover,
+            ),
+          ),
+          child: Container(
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(12),
+              gradient: LinearGradient(
+                begin: Alignment.topCenter,
+                end: Alignment.bottomCenter,
+                colors: [
+                  Colors.transparent,
+                  Colors.black.withOpacity(0.7),
+                ],
+              ),
+            ),
+            padding: EdgeInsets.all(16),
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.end,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  topic,
+                  style: TextStyle(
+                    fontSize: 14,
+                    fontWeight: FontWeight.w600,
+                    color: Colors.white,
+                  ),
+                ),
+                SizedBox(height: 4),
+                Text(
+                  discussion['description'],
+                  style: TextStyle(
+                    fontSize: 12,
+                    color: Colors.white.withOpacity(0.9),
+                  ),
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
+                ),
               ],
             ),
           ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildDiscussionCard(Map<String, dynamic> discussion) {
+    return MouseRegion(
+      cursor: SystemMouseCursors.click, // Add proper cursor
+      child: GestureDetector(
+        onTap: () {
+          Navigator.pushNamed(
+            context,
+            AppRoutes.guardianArticleDetail,
+            arguments: discussion,
+          );
+        },
+        child: Container(
+          margin: EdgeInsets.symmetric(horizontal: 20, vertical: 8),
           padding: EdgeInsets.all(16),
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(12),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.grey.withOpacity(0.1),
+                spreadRadius: 1,
+                blurRadius: 4,
+                offset: Offset(0, 2),
+              ),
+            ],
+          ),
           child: Column(
-            mainAxisAlignment: MainAxisAlignment.end,
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text(
-                topic,
-                style: TextStyle(
-                  fontSize: 14,
-                  fontWeight: FontWeight.w600,
-                  color: Colors.white,
-                ),
+              Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  ClipRRect(
+                    borderRadius: BorderRadius.circular(8),
+                    child: Image.network(
+                      discussion['imageUrl'],
+                      width: 60,
+                      height: 60,
+                      fit: BoxFit.cover,
+                    ),
+                  ),
+                  SizedBox(width: 12),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          discussion['title'],
+                          style: TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.w600,
+                            color: Colors.black87,
+                          ),
+                        ),
+                        SizedBox(height: 4),
+                        Text(
+                          discussion['description'],
+                          style: TextStyle(
+                            fontSize: 14,
+                            color: Colors.grey[600],
+                          ),
+                          maxLines: 2,
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                        SizedBox(height: 8),
+                        Row(
+                          children: [
+                            Icon(Icons.person, size: 14, color: Colors.grey[500]),
+                            SizedBox(width: 4),
+                            Text(
+                              discussion['author'],
+                              style: TextStyle(
+                                fontSize: 12,
+                                color: Colors.grey[500],
+                              ),
+                            ),
+                            SizedBox(width: 8),
+                            Container(
+                              padding: EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                              decoration: BoxDecoration(
+                                color: discussion['authorType'] == 'Guardian'
+                                    ? Colors.blue[100]
+                                    : Colors.green[100],
+                                borderRadius: BorderRadius.circular(10),
+                              ),
+                              child: Text(
+                                discussion['authorType'],
+                                style: TextStyle(
+                                  fontSize: 10,
+                                  color: discussion['authorType'] == 'Guardian'
+                                      ? Colors.blue[700]
+                                      : Colors.green[700],
+                                  fontWeight: FontWeight.w500,
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
               ),
-              SizedBox(height: 4),
-              Text(
-                discussion['description'],
-                style: TextStyle(
-                  fontSize: 12,
-                  color: Colors.white.withOpacity(0.9),
-                ),
-                maxLines: 2,
-                overflow: TextOverflow.ellipsis,
+              SizedBox(height: 12),
+              Row(
+                children: [
+                  Icon(Icons.chat_bubble_outline, size: 16, color: Colors.grey[500]),
+                  SizedBox(width: 4),
+                  Text(
+                    '${discussion['comments']} comments',
+                    style: TextStyle(fontSize: 12, color: Colors.grey[500]),
+                  ),
+                  SizedBox(width: 16),
+                  Icon(Icons.thumb_up_outlined, size: 16, color: Colors.grey[500]),
+                  SizedBox(width: 4),
+                  Text(
+                    '${discussion['likes']} likes',
+                    style: TextStyle(fontSize: 12, color: Colors.grey[500]),
+                  ),
+                ],
               ),
             ],
           ),
@@ -249,147 +391,14 @@ class _GuardianForumsScreenState extends State<GuardianForumsScreen> {
     );
   }
 
-  Widget _buildDiscussionCard(Map<String, dynamic> discussion) {
-    return GestureDetector(
-      onTap: () {
-        Navigator.pushNamed(
-          context,
-          AppRoutes.guardianForumArticle,
-          arguments: discussion,
-        );
-      },
-      child: Container(
-        margin: EdgeInsets.symmetric(horizontal: 20, vertical: 8),
-        padding: EdgeInsets.all(16),
-        decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.circular(12),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.grey.withOpacity(0.1),
-              spreadRadius: 1,
-              blurRadius: 4,
-              offset: Offset(0, 2),
-            ),
-          ],
-        ),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Row(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                ClipRRect(
-                  borderRadius: BorderRadius.circular(8),
-                  child: Image.network(
-                    discussion['imageUrl'],
-                    width: 60,
-                    height: 60,
-                    fit: BoxFit.cover,
-                  ),
-                ),
-                SizedBox(width: 12),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        discussion['title'],
-                        style: TextStyle(
-                          fontSize: 16,
-                          fontWeight: FontWeight.w600,
-                          color: Colors.black87,
-                        ),
-                      ),
-                      SizedBox(height: 4),
-                      Text(
-                        discussion['description'],
-                        style: TextStyle(
-                          fontSize: 14,
-                          color: Colors.grey[600],
-                        ),
-                        maxLines: 2,
-                        overflow: TextOverflow.ellipsis,
-                      ),
-                      SizedBox(height: 8),
-                      Row(
-                        children: [
-                          Icon(Icons.person, size: 14, color: Colors.grey[500]),
-                          SizedBox(width: 4),
-                          Text(
-                            discussion['author'],
-                            style: TextStyle(
-                              fontSize: 12,
-                              color: Colors.grey[500],
-                            ),
-                          ),
-                          SizedBox(width: 8),
-                          Container(
-                            padding: EdgeInsets.symmetric(horizontal: 8, vertical: 2),
-                            decoration: BoxDecoration(
-                              color: Colors.green[100],
-                              borderRadius: BorderRadius.circular(10),
-                            ),
-                            child: Text(
-                              discussion['authorType'],
-                              style: TextStyle(
-                                fontSize: 10,
-                                color: Colors.green[700],
-                                fontWeight: FontWeight.w500,
-                              ),
-                            ),
-                          ),
-                        ],
-                      ),
-                    ],
-                  ),
-                ),
-              ],
-            ),
-            SizedBox(height: 12),
-            Row(
-              children: [
-                Icon(Icons.chat_bubble_outline, size: 16, color: Colors.grey[500]),
-                SizedBox(width: 4),
-                Text(
-                  '${discussion['comments']} comments',
-                  style: TextStyle(fontSize: 12, color: Colors.grey[500]),
-                ),
-                SizedBox(width: 16),
-                Icon(Icons.thumb_up_outlined, size: 16, color: Colors.grey[500]),
-                SizedBox(width: 4),
-                Text(
-                  '${discussion['likes']} likes',
-                  style: TextStyle(fontSize: 12, color: Colors.grey[500]),
-                ),
-              ],
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
   void _onBottomNavTap(int index) {
+    // Update the selected index for visual feedback
     setState(() {
       _selectedIndex = index;
     });
 
-    switch (index) {
-      case 0:
-      // Small delay to show the visual feedback before navigation
-        Future.delayed(Duration(milliseconds: 100), () {
-          Navigator.pushNamedAndRemoveUntil(context, AppRoutes.guardianDashboard, (route) => false);
-        });
-        break;
-      case 1:
-      // Already on Forums - clear search if any
-        _clearSearch();
-        break;
-      case 2:
-        Navigator.pushNamed(context, AppRoutes.guardianProfile);
-        break;
-    }
+    // Handle navigation using the helper class
+    BottomNavHelper.handleNavigation(context, index);
   }
 
   @override
@@ -407,13 +416,8 @@ class _GuardianForumsScreenState extends State<GuardianForumsScreen> {
           _clearSearch();
           return false; // Don't pop the route
         }
-        // When going back to dashboard, make sure home icon is selected
-        Navigator.pushNamedAndRemoveUntil(
-          context,
-          AppRoutes.guardianDashboard,
-              (route) => false,
-          arguments: {'selectedIndex': 0}, // Pass the home index
-        );
+        // Navigate back to dashboard
+        _navigateBackToDashboard();
         return false; // We're handling the navigation ourselves
       },
       child: Scaffold(
@@ -428,10 +432,10 @@ class _GuardianForumsScreenState extends State<GuardianForumsScreen> {
           )
               : IconButton(
             icon: Icon(Icons.arrow_back, color: Colors.black),
-            onPressed: () => Navigator.pop(context),
+            onPressed: _navigateBackToDashboard,
           ),
           title: Text(
-            _searchQuery.isNotEmpty ? 'Search: $_searchQuery' : 'Community Forum',
+            _searchQuery.isNotEmpty ? 'Search: $_searchQuery' : 'Articles',
             style: TextStyle(
               fontSize: 20,
               fontWeight: FontWeight.w600,
@@ -512,27 +516,10 @@ class _GuardianForumsScreenState extends State<GuardianForumsScreen> {
             ),
           ],
         ),
-        bottomNavigationBar: BottomNavigationBar(
+        // Replace the old BottomNavigationBar with your CustomBottomNavigationBar
+        bottomNavigationBar: CustomBottomNavigationBar(
           currentIndex: _selectedIndex,
           onTap: _onBottomNavTap,
-          type: BottomNavigationBarType.fixed,
-          backgroundColor: Colors.white,
-          selectedItemColor: Color(0xFF2B3F99),
-          unselectedItemColor: Colors.grey[600],
-          items: [
-            BottomNavigationBarItem(
-              icon: Icon(Icons.home),
-              label: 'Home',
-            ),
-            BottomNavigationBarItem(
-              icon: Icon(Icons.forum),
-              label: 'Forums',
-            ),
-            BottomNavigationBarItem(
-              icon: Icon(Icons.person),
-              label: 'Profile',
-            ),
-          ],
         ),
       ),
     );
