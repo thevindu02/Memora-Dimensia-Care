@@ -1,4 +1,6 @@
 package Memora.DimensiaCareApplication.model;
+import java.util.Set;
+import java.util.HashSet;
 
 import jakarta.persistence.*;
 
