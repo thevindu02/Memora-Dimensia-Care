@@ -3,10 +3,12 @@ import '../../routes/app_routes.dart';
 
 class GuardianAddUnknownCaregiverScreen extends StatefulWidget {
   @override
-  _GuardianAddUnknownCaregiverScreenState createState() => _GuardianAddUnknownCaregiverScreenState();
+  _GuardianAddUnknownCaregiverScreenState createState() =>
+      _GuardianAddUnknownCaregiverScreenState();
 }
 
-class _GuardianAddUnknownCaregiverScreenState extends State<GuardianAddUnknownCaregiverScreen> {
+class _GuardianAddUnknownCaregiverScreenState
+    extends State<GuardianAddUnknownCaregiverScreen> {
   Map<String, dynamic>? selectedPatient;
   String? selectedCity;
   List<Map<String, dynamic>> filteredCaregivers = [];
@@ -48,7 +50,8 @@ class _GuardianAddUnknownCaregiverScreenState extends State<GuardianAddUnknownCa
       'avatar': 'assets/images/caregiver1.jpg',
       'verified': true,
       'phone': '+94 77 123 4567',
-      'description': 'Experienced caregiver specializing in elderly care with compassionate approach.',
+      'description':
+          'Experienced caregiver specializing in elderly care with compassionate approach.',
     },
     {
       'id': 2,
@@ -60,7 +63,8 @@ class _GuardianAddUnknownCaregiverScreenState extends State<GuardianAddUnknownCa
       'avatar': 'assets/images/caregiver2.jpg',
       'verified': true,
       'phone': '+94 77 234 5678',
-      'description': 'Dedicated caregiver with expertise in disability support and rehabilitation.',
+      'description':
+          'Dedicated caregiver with expertise in disability support and rehabilitation.',
     },
     {
       'id': 3,
@@ -72,7 +76,8 @@ class _GuardianAddUnknownCaregiverScreenState extends State<GuardianAddUnknownCa
       'avatar': 'assets/images/caregiver3.jpg',
       'verified': false,
       'phone': '+94 77 345 6789',
-      'description': 'Skilled medical caregiver with extensive experience in patient care.',
+      'description':
+          'Skilled medical caregiver with extensive experience in patient care.',
     },
     {
       'id': 4,
@@ -84,7 +89,8 @@ class _GuardianAddUnknownCaregiverScreenState extends State<GuardianAddUnknownCa
       'avatar': 'assets/images/caregiver4.jpg',
       'verified': true,
       'phone': '+94 77 456 7890',
-      'description': 'Professional caregiver focusing on elderly care and daily living assistance.',
+      'description':
+          'Professional caregiver focusing on elderly care and daily living assistance.',
     },
     {
       'id': 5,
@@ -96,7 +102,8 @@ class _GuardianAddUnknownCaregiverScreenState extends State<GuardianAddUnknownCa
       'avatar': 'assets/images/caregiver5.jpg',
       'verified': true,
       'phone': '+94 77 567 8901',
-      'description': 'Rehabilitation specialist with focus on recovery and mobility support.',
+      'description':
+          'Rehabilitation specialist with focus on recovery and mobility support.',
     },
     {
       'id': 6,
@@ -108,7 +115,8 @@ class _GuardianAddUnknownCaregiverScreenState extends State<GuardianAddUnknownCa
       'avatar': 'assets/images/caregiver6.jpg',
       'verified': false,
       'phone': '+94 77 678 9012',
-      'description': 'Personal care assistant with attention to individual needs and preferences.',
+      'description':
+          'Personal care assistant with attention to individual needs and preferences.',
     },
   ];
 
@@ -128,7 +136,8 @@ class _GuardianAddUnknownCaregiverScreenState extends State<GuardianAddUnknownCa
 
     // Get the selected patient from arguments
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      final args = ModalRoute.of(context)?.settings.arguments as Map<String, dynamic>?;
+      final args =
+          ModalRoute.of(context)?.settings.arguments as Map<String, dynamic>?;
       if (args != null) {
         setState(() {
           selectedPatient = args;
@@ -219,8 +228,14 @@ class _GuardianAddUnknownCaregiverScreenState extends State<GuardianAddUnknownCa
                   ),
                 ),
                 SizedBox(height: 8),
-                _buildInfoRow('Patient Name:', selectedPatient?['name'] ?? 'N/A'),
-                _buildInfoRow('Patient Label:', selectedPatient?['label'] ?? 'N/A'),
+                _buildInfoRow(
+                  'Patient Name:',
+                  selectedPatient?['name'] ?? 'N/A',
+                ),
+                _buildInfoRow(
+                  'Patient Label:',
+                  selectedPatient?['label'] ?? 'N/A',
+                ),
                 SizedBox(height: 24),
                 Row(
                   mainAxisAlignment: MainAxisAlignment.end,
@@ -244,16 +259,17 @@ class _GuardianAddUnknownCaregiverScreenState extends State<GuardianAddUnknownCa
                       style: ElevatedButton.styleFrom(
                         backgroundColor: Color(0xFF2B3F99),
                         foregroundColor: Colors.white,
-                        padding: EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+                        padding: EdgeInsets.symmetric(
+                          horizontal: 24,
+                          vertical: 12,
+                        ),
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(8),
                         ),
                       ),
                       child: Text(
                         'Send',
-                        style: TextStyle(
-                          fontWeight: FontWeight.w600,
-                        ),
+                        style: TextStyle(fontWeight: FontWeight.w600),
                       ),
                     ),
                   ],
@@ -333,10 +349,7 @@ class _GuardianAddUnknownCaregiverScreenState extends State<GuardianAddUnknownCa
                 Center(
                   child: Text(
                     caregiver['name'],
-                    style: TextStyle(
-                      fontSize: 18,
-                      fontWeight: FontWeight.bold,
-                    ),
+                    style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
                   ),
                 ),
                 SizedBox(height: 8),
@@ -347,18 +360,11 @@ class _GuardianAddUnknownCaregiverScreenState extends State<GuardianAddUnknownCa
                       Icon(Icons.star, color: Colors.amber, size: 16),
                       Text(
                         ' ${caregiver['rating']}',
-                        style: TextStyle(
-                          fontSize: 14,
-                          color: Colors.grey[600],
-                        ),
+                        style: TextStyle(fontSize: 14, color: Colors.grey[600]),
                       ),
                       SizedBox(width: 8),
                       if (caregiver['verified'])
-                        Icon(
-                          Icons.verified,
-                          color: Colors.blue,
-                          size: 16,
-                        ),
+                        Icon(Icons.verified, color: Colors.green, size: 16),
                     ],
                   ),
                 ),
@@ -379,10 +385,7 @@ class _GuardianAddUnknownCaregiverScreenState extends State<GuardianAddUnknownCa
                 SizedBox(height: 4),
                 Text(
                   caregiver['description'],
-                  style: TextStyle(
-                    fontSize: 14,
-                    color: Colors.grey[600],
-                  ),
+                  style: TextStyle(fontSize: 14, color: Colors.grey[600]),
                 ),
                 SizedBox(height: 24),
                 Row(
@@ -434,10 +437,7 @@ class _GuardianAddUnknownCaregiverScreenState extends State<GuardianAddUnknownCa
           Expanded(
             child: Text(
               value,
-              style: TextStyle(
-                fontSize: 14,
-                color: Colors.grey[600],
-              ),
+              style: TextStyle(fontSize: 14, color: Colors.grey[600]),
             ),
           ),
         ],
@@ -449,9 +449,7 @@ class _GuardianAddUnknownCaregiverScreenState extends State<GuardianAddUnknownCa
     return Card(
       margin: EdgeInsets.only(bottom: 16),
       elevation: 2,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(12),
-      ),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
       child: Padding(
         padding: EdgeInsets.all(16),
         child: Row(
@@ -460,11 +458,7 @@ class _GuardianAddUnknownCaregiverScreenState extends State<GuardianAddUnknownCa
             CircleAvatar(
               radius: 30,
               backgroundColor: Colors.grey[300],
-              child: Icon(
-                Icons.person,
-                size: 30,
-                color: Colors.grey[600],
-              ),
+              child: Icon(Icons.person, size: 30, color: Colors.grey[600]),
             ),
             SizedBox(width: 16),
             Expanded(
@@ -474,33 +468,43 @@ class _GuardianAddUnknownCaregiverScreenState extends State<GuardianAddUnknownCa
                   Row(
                     children: [
                       Expanded(
-                        child: Text(
-                          caregiver['name'],
-                          style: TextStyle(
-                            fontSize: 16,
-                            fontWeight: FontWeight.bold,
-                          ),
+                        child: Row(
+                          children: [
+                            Flexible(
+                              child: Text(
+                                caregiver['name'],
+                                style: TextStyle(
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                            ),
+                            if (caregiver['verified'])
+                              Padding(
+                                padding: EdgeInsets.only(left: 4),
+                                child: Icon(
+                                  Icons.verified,
+                                  color: Colors.green,
+                                  size: 16,
+                                ),
+                              ),
+                          ],
                         ),
                       ),
-                      if (caregiver['verified'])
-                        Icon(
-                          Icons.verified,
-                          color: Colors.blue,
-                          size: 16,
-                        ),
                     ],
                   ),
                   SizedBox(height: 4),
                   Row(
                     children: [
-                      Icon(Icons.location_on, size: 14, color: Colors.grey[600]),
+                      Icon(
+                        Icons.location_on,
+                        size: 14,
+                        color: Colors.grey[600],
+                      ),
                       SizedBox(width: 4),
                       Text(
                         caregiver['location'],
-                        style: TextStyle(
-                          fontSize: 12,
-                          color: Colors.grey[600],
-                        ),
+                        style: TextStyle(fontSize: 12, color: Colors.grey[600]),
                       ),
                     ],
                   ),
@@ -516,10 +520,7 @@ class _GuardianAddUnknownCaregiverScreenState extends State<GuardianAddUnknownCa
                   SizedBox(height: 4),
                   Text(
                     'Experience: ${caregiver['experience']}',
-                    style: TextStyle(
-                      fontSize: 12,
-                      color: Colors.grey[600],
-                    ),
+                    style: TextStyle(fontSize: 12, color: Colors.grey[600]),
                   ),
                   SizedBox(height: 4),
                   Row(
@@ -528,10 +529,7 @@ class _GuardianAddUnknownCaregiverScreenState extends State<GuardianAddUnknownCa
                       SizedBox(width: 4),
                       Text(
                         '${caregiver['rating']}',
-                        style: TextStyle(
-                          fontSize: 12,
-                          color: Colors.grey[600],
-                        ),
+                        style: TextStyle(fontSize: 12, color: Colors.grey[600]),
                       ),
                     ],
                   ),
@@ -540,17 +538,31 @@ class _GuardianAddUnknownCaregiverScreenState extends State<GuardianAddUnknownCa
             ),
             Column(
               children: [
-                IconButton(
-                  icon: Icon(Icons.visibility, color: Color(0xFF2B3F99)),
+                ElevatedButton(
                   onPressed: () => _viewProfile(caregiver),
-                  tooltip: 'View Profile',
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Color(0xFFA0C4FD),
+                    foregroundColor: Color(0xFF2B3F99),
+                    padding: EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                  ),
+                  child: Text(
+                    'View Profile',
+                    style: TextStyle(fontSize: 12, fontWeight: FontWeight.w600),
+                  ),
                 ),
                 SizedBox(height: 8),
                 ElevatedButton(
                   onPressed: () => _showConnectionRequestDialog(caregiver),
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: Color(0xFF2B3F99),
-                    foregroundColor: Colors.white,
+                    backgroundColor: Color(
+                      0xFFA0C4FD,
+                    ), // Updated button background color
+                    foregroundColor: Color(
+                      0xFF2B3F99,
+                    ), // Updated button text color
                     padding: EdgeInsets.symmetric(horizontal: 12, vertical: 8),
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(8),
@@ -558,10 +570,7 @@ class _GuardianAddUnknownCaregiverScreenState extends State<GuardianAddUnknownCa
                   ),
                   child: Text(
                     'Send Request',
-                    style: TextStyle(
-                      fontSize: 12,
-                      fontWeight: FontWeight.w600,
-                    ),
+                    style: TextStyle(fontSize: 12, fontWeight: FontWeight.w600),
                   ),
                 ),
               ],
@@ -575,17 +584,20 @@ class _GuardianAddUnknownCaregiverScreenState extends State<GuardianAddUnknownCa
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: Colors.grey[50],
       appBar: AppBar(
         title: Text(
           'Add Unknown Caregiver',
           style: TextStyle(
-            color: Colors.white,
+            fontSize: 24,
             fontWeight: FontWeight.bold,
+            color: Colors.black87,
           ),
         ),
-        backgroundColor: Color(0xFF2B3F99),
-        iconTheme: IconThemeData(color: Colors.white),
+        backgroundColor: Colors.white,
+        iconTheme: IconThemeData(color: Colors.black87),
         elevation: 0,
+        centerTitle: false,
       ),
       body: Container(
         padding: EdgeInsets.all(16),
@@ -596,9 +608,9 @@ class _GuardianAddUnknownCaregiverScreenState extends State<GuardianAddUnknownCa
               Container(
                 padding: EdgeInsets.all(16),
                 decoration: BoxDecoration(
-                  color: Colors.blue[50],
+                  color: Color(0xFFA0C4FD).withOpacity(0.35),
                   borderRadius: BorderRadius.circular(12),
-                  border: Border.all(color: Colors.blue[200]!),
+                  border: Border.all(color: Color(0xFFA0C4FD).withOpacity(0.3)),
                 ),
                 child: Row(
                   children: [
@@ -654,7 +666,10 @@ class _GuardianAddUnknownCaregiverScreenState extends State<GuardianAddUnknownCa
               child: DropdownButtonFormField<String>(
                 value: selectedCity,
                 decoration: InputDecoration(
-                  contentPadding: EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                  contentPadding: EdgeInsets.symmetric(
+                    horizontal: 16,
+                    vertical: 12,
+                  ),
                   border: InputBorder.none,
                   hintText: 'Select City',
                   prefixIcon: Icon(Icons.search, color: Colors.grey[600]),
@@ -682,10 +697,7 @@ class _GuardianAddUnknownCaregiverScreenState extends State<GuardianAddUnknownCa
                 ),
                 Text(
                   '${filteredCaregivers.length} found',
-                  style: TextStyle(
-                    fontSize: 14,
-                    color: Colors.grey[600],
-                  ),
+                  style: TextStyle(fontSize: 14, color: Colors.grey[600]),
                 ),
               ],
             ),
@@ -693,39 +705,39 @@ class _GuardianAddUnknownCaregiverScreenState extends State<GuardianAddUnknownCa
             Expanded(
               child: filteredCaregivers.isEmpty
                   ? Center(
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Icon(
-                      Icons.search_off,
-                      size: 64,
-                      color: Colors.grey[400],
-                    ),
-                    SizedBox(height: 16),
-                    Text(
-                      'No caregivers found',
-                      style: TextStyle(
-                        fontSize: 16,
-                        color: Colors.grey[600],
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Icon(
+                            Icons.search_off,
+                            size: 64,
+                            color: Colors.grey[400],
+                          ),
+                          SizedBox(height: 16),
+                          Text(
+                            'No caregivers found',
+                            style: TextStyle(
+                              fontSize: 16,
+                              color: Colors.grey[600],
+                            ),
+                          ),
+                          SizedBox(height: 8),
+                          Text(
+                            'Try selecting a different location',
+                            style: TextStyle(
+                              fontSize: 14,
+                              color: Colors.grey[500],
+                            ),
+                          ),
+                        ],
                       ),
-                    ),
-                    SizedBox(height: 8),
-                    Text(
-                      'Try selecting a different location',
-                      style: TextStyle(
-                        fontSize: 14,
-                        color: Colors.grey[500],
-                      ),
-                    ),
-                  ],
-                ),
-              )
+                    )
                   : ListView.builder(
-                itemCount: filteredCaregivers.length,
-                itemBuilder: (context, index) {
-                  return _buildCaregiverCard(filteredCaregivers[index]);
-                },
-              ),
+                      itemCount: filteredCaregivers.length,
+                      itemBuilder: (context, index) {
+                        return _buildCaregiverCard(filteredCaregivers[index]);
+                      },
+                    ),
             ),
           ],
         ),

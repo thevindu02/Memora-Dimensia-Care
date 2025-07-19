@@ -20,13 +20,6 @@ class _SplashScreenState extends State<SplashScreen> {
     // Simulate app initialization (loading user data, preferences, etc.)
     await Future.delayed(Duration(seconds: 2));
 
-    // Check if the initial route is /patient/guardianRequest
-    final initialRoute = ModalRoute.of(context)?.settings.name ?? '';
-    if (initialRoute == AppRoutes.patientGuardianRequest) {
-      Navigator.pushReplacementNamed(context, AppRoutes.patientGuardianRequest);
-      return;
-    }
-
     // Always navigate to login screen after splash (default)
     Navigator.pushReplacementNamed(context, AppRoutes.login);
   }
@@ -67,7 +60,6 @@ class _SplashScreenState extends State<SplashScreen> {
 
             // Option 3: If you want to keep the Flutter logo as backup
             // FlutterLogo(size: 100),
-
             SizedBox(height: 30),
             CircularProgressIndicator(),
             SizedBox(height: 20),

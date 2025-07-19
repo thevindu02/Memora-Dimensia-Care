@@ -46,8 +46,8 @@ function QuickNavigation() {
               <Card elevation={2} sx={{ p: 3, borderRadius: 4, textAlign: 'center', maxHeight: 300, maxWidth:500 }}>
                 <CardContent>
                   {section.icon}
-                  <Typography variant="h6" sx={{ fontWeight: 600, mt: 2, fontFamily:'Poppins', fontSize: 26}}>{section.title}</Typography>
-                  <Typography variant="body2" sx={{ mb: 2,fontFamily:'Poppins', fontSize:20 }}>{section.desc}</Typography>
+                  <Typography variant="h6" sx={{ fontWeight: 600, mt: 2, fontFamily:'Poppins Medium', fontSize: 26}}>{section.title}</Typography>
+                  <Typography variant="body2" sx={{ mb: 2,fontFamily:'Poppins Regular', fontSize:20 }}>{section.desc}</Typography>
                   <Button variant="outlined" color="primary" href={section.link}>
                     Read More
                   </Button>

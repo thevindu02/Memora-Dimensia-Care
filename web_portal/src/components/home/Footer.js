@@ -1,11 +1,13 @@
 // src/components/Footer.js
 import React from 'react';
-import {Box,Typography,Container,Stack,IconButton,Link,} from '@mui/material';
+import { Box, Typography, Container, Stack, IconButton, Link } from '@mui/material';
 import EmailIcon from '@mui/icons-material/Email';
 import PhoneIcon from '@mui/icons-material/Phone';
 import FacebookIcon from '@mui/icons-material/Facebook';
 import TwitterIcon from '@mui/icons-material/Twitter';
 import LinkedInIcon from '@mui/icons-material/LinkedIn';
+
+// import logo from '../../assets/logo.png'; // Adjust path if necessary
 
 function Footer() {
   return (
@@ -16,7 +18,7 @@ function Footer() {
         color: '#fff',
         py: 4,
         fontSize: 18,
-        fontFamily: 'Poppins',
+        fontFamily: 'Poppins Regular',
       }}
     >
       <Container maxWidth="lg">
@@ -29,9 +31,24 @@ function Footer() {
         >
           {/* About Section */}
           <Box sx={{ flex: '1 1 250px', minWidth: 250 }}>
-            <Typography variant="h6" sx={{ fontFamily: 'Poppins Regular', fontWeight: 700, mb: 2, fontSize: 24 }}>
-              Memora
-            </Typography>
+            <Stack direction="row" alignItems="center" spacing={1} sx={{ mb: 2 }}>
+              {/* <Box
+                component="img"
+                src={logo}
+                alt="Memora Logo"
+                sx={{
+                  width: 40,
+                  height: 40,
+                  borderRadius: '100px',
+                  bgcolor: '#fff',
+                  p: '1px',
+                  boxShadow: 1,
+                }}
+              /> */}
+              <Typography variant="h6" sx={{ fontFamily: 'Poppins Regular', fontWeight: 700, fontSize: 24 }}>
+                Memora
+              </Typography>
+            </Stack>
             <Typography variant="body2" sx={{ fontFamily: 'Poppins Regular', mb: 2, maxWidth: 320, fontSize: 18 }}>
               Supporting dementia care with compassion and technology.  
               Empowering patients, families, and caregivers with trusted resources.
@@ -104,14 +121,18 @@ function Footer() {
             </Typography>
             <Stack direction="row" spacing={1} alignItems="center" sx={{ mb: 1 }}>
               <EmailIcon />
-              <Typography variant="body" sx={{ fontFamily: 'Poppins Regular', fontWeight: 700, mb: 2, fontSize: 18 }}>memorademen@gmail.com </Typography>
+              <Typography variant="body2" sx={{ fontFamily: 'Poppins Regular', fontWeight: 700, fontSize: 18 }}>
+                memorademen@gmail.com
+              </Typography>
             </Stack>
             <Stack direction="row" spacing={1} alignItems="center" sx={{ mb: 2 }}>
               <PhoneIcon />
-              <Typography variant="body" sx={{ fontFamily: 'Poppins Regular', fontWeight: 700, mb: 2, fontSize: 18 }}>+94 77 123 4567</Typography>
+              <Typography variant="body2" sx={{ fontFamily: 'Poppins Regular', fontWeight: 700, fontSize: 18 }}>
+                +94 77 123 4567
+              </Typography>
             </Stack>
-            {/* Optional: Newsletter Signup */}
-            {/* <Typography sx={{ mb: 1 }}>Subscribe to our newsletter</Typography>
+            {/* Optional: Newsletter Signup (commented out)
+            <Typography sx={{ mb: 1 }}>Subscribe to our newsletter</Typography>
             <Stack direction="row" spacing={1}>
               <TextField
                 placeholder="Your email"
@@ -123,7 +144,8 @@ function Footer() {
               <Button variant="contained" color="primary" sx={{ px: 3 }}>
                 Subscribe
               </Button>
-            </Stack> */}
+            </Stack>
+            */}
           </Box>
         </Stack>
 
@@ -137,4 +159,5 @@ function Footer() {
 }
 
 export default Footer;
+
 

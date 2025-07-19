@@ -1,73 +1,35 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import '../../routes/app_routes.dart';
 
 class GuardianAddKnownCaregiverScreen extends StatefulWidget {
   @override
-  _GuardianAddKnownCaregiverScreenState createState() => _GuardianAddKnownCaregiverScreenState();
+  _GuardianAddKnownCaregiverScreenState createState() =>
+      _GuardianAddKnownCaregiverScreenState();
 }
 
-class _GuardianAddKnownCaregiverScreenState extends State<GuardianAddKnownCaregiverScreen> {
+class _GuardianAddKnownCaregiverScreenState
+    extends State<GuardianAddKnownCaregiverScreen> {
   Map<String, dynamic>? selectedPatient;
-  List<TextEditingController> codeControllers = [];
-  List<FocusNode> focusNodes = [];
+  TextEditingController emailController = TextEditingController();
+  FocusNode emailFocusNode = FocusNode();
   bool isLoading = false;
 
-  // Mock valid codes (in real app, this would be checked against database)
-  final List<String> validCodes = [
-    'CRG001',
-    'CRG002',
-    'CRG003',
-    'CRG004',
-    'CRG005',
+  // Mock caregiver emails for demo
+  final List<String> validEmails = [
+    'sarah.johnson@email.com',
+    'michael.chen@email.com',
+    'emily.rodriguez@email.com',
+    'david.thompson@email.com',
+    'lisa.wang@email.com',
   ];
-
-  // Mock caregiver data for valid codes
-  final Map<String, Map<String, dynamic>> caregiverDatabase = {
-    'CRG001': {
-      'name': 'Sarah Johnson',
-      'specialization': 'Elderly Care',
-      'experience': '5 years',
-      'location': 'Colombo',
-    },
-    'CRG002': {
-      'name': 'Michael Fernando',
-      'specialization': 'Disability Care',
-      'experience': '3 years',
-      'location': 'Kandy',
-    },
-    'CRG003': {
-      'name': 'Priya Perera',
-      'specialization': 'Medical Care',
-      'experience': '7 years',
-      'location': 'Galle',
-    },
-    'CRG004': {
-      'name': 'David Silva',
-      'specialization': 'Elderly Care',
-      'experience': '4 years',
-      'location': 'Colombo',
-    },
-    'CRG005': {
-      'name': 'Nimali Rathnayake',
-      'specialization': 'Rehabilitation',
-      'experience': '6 years',
-      'location': 'Kandy',
-    },
-  };
 
   @override
   void initState() {
     super.initState();
-    // Initialize 6 controllers and focus nodes for 6-digit code
-    for (int i = 0; i < 6; i++) {
-      codeControllers.add(TextEditingController());
-      focusNodes.add(FocusNode());
-    }
-
     // Get the selected patient from arguments
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      final args = ModalRoute.of(context)?.settings.arguments as Map<String, dynamic>?;
+      final args =
+          ModalRoute.of(context)?.settings.arguments as Map<String, dynamic>?;
       if (args != null) {
         setState(() {
           selectedPatient = args;
@@ -78,24 +40,14 @@ class _GuardianAddKnownCaregiverScreenState extends State<GuardianAddKnownCaregi
 
   @override
   void dispose() {
-    for (var controller in codeControllers) {
-      controller.dispose();
-    }
-    for (var node in focusNodes) {
-      node.dispose();
-    }
+    emailController.dispose();
+    emailFocusNode.dispose();
     super.dispose();
   }
 
-  String _getEnteredCode() {
-    return codeControllers.map((controller) => controller.text).join();
-  }
-
-  void _clearCode() {
-    for (var controller in codeControllers) {
-      controller.clear();
-    }
-    focusNodes[0].requestFocus();
+  void _clearEmail() {
+    emailController.clear();
+    emailFocusNode.requestFocus();
   }
 
   void _showResultDialog({required bool isSuccess, String? caregiverName}) {
@@ -138,17 +90,17 @@ class _GuardianAddKnownCaregiverScreenState extends State<GuardianAddKnownCaregi
                   textAlign: TextAlign.center,
                 ),
                 SizedBox(height: 12),
-                Text(
-                  isSuccess
-                      ? 'Great! $caregiverName has been successfully connected as a caregiver for ${selectedPatient?['name']}. They will now be able to access and manage care information.'
-                      : 'The caregiver code you entered is invalid. Please check the code and try again. Make sure you have entered the exact 6-character code provided by the caregiver.',
-                  style: TextStyle(
-                    fontSize: 14,
-                    color: Colors.grey[600],
-                    height: 1.4,
+                                  Text(
+                    isSuccess
+                        ? 'Great! $caregiverName has been successfully connected as a caregiver for ${selectedPatient?['name']}. They will now be able to access and manage care information.'
+                        : 'No caregiver found with this email address. Please check the email and try again. Make sure the caregiver is registered in our system.',
+                    style: TextStyle(
+                      fontSize: 14,
+                      color: Colors.grey[600],
+                      height: 1.4,
+                    ),
+                    textAlign: TextAlign.center,
                   ),
-                  textAlign: TextAlign.center,
-                ),
                 SizedBox(height: 24),
                 SizedBox(
                   width: double.infinity,
@@ -160,15 +112,17 @@ class _GuardianAddKnownCaregiverScreenState extends State<GuardianAddKnownCaregi
                         Navigator.pushNamedAndRemoveUntil(
                           context,
                           AppRoutes.guardianDashboard,
-                              (route) => false,
+                          (route) => false,
                         );
                       } else {
-                        // Clear the code and stay on the same screen
-                        _clearCode();
+                        // Clear the email and stay on the same screen
+                        _clearEmail();
                       }
                     },
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: isSuccess ? Colors.green : Color(0xFF2B3F99),
+                      backgroundColor: isSuccess
+                          ? Colors.green
+                          : Color(0xFF2B3F99),
                       foregroundColor: Colors.white,
                       padding: EdgeInsets.symmetric(vertical: 16),
                       shape: RoundedRectangleBorder(
@@ -192,13 +146,23 @@ class _GuardianAddKnownCaregiverScreenState extends State<GuardianAddKnownCaregi
     );
   }
 
-  Future<void> _verifyCode() async {
-    final enteredCode = _getEnteredCode();
+  Future<void> _verifyEmail() async {
+    final enteredEmail = emailController.text.trim();
 
-    if (enteredCode.length != 6) {
+    if (enteredEmail.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text('Please enter the complete 6-digit code'),
+          content: Text('Please enter the caregiver\'s email address'),
+          backgroundColor: Colors.red,
+        ),
+      );
+      return;
+    }
+
+    if (!RegExp(r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$').hasMatch(enteredEmail)) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Please enter a valid email address'),
           backgroundColor: Colors.red,
         ),
       );
@@ -212,83 +176,36 @@ class _GuardianAddKnownCaregiverScreenState extends State<GuardianAddKnownCaregi
     // Simulate API call delay
     await Future.delayed(Duration(seconds: 2));
 
-    setState(() {
-      isLoading = false;
-    });
+    // Check if the entered email is valid
+    if (validEmails.contains(enteredEmail)) {
+      // Mock caregiver name based on email
+      String caregiverName = 'Sarah Johnson';
+      switch (enteredEmail) {
+        case 'sarah.johnson@email.com':
+          caregiverName = 'Sarah Johnson';
+          break;
+        case 'michael.chen@email.com':
+          caregiverName = 'Michael Chen';
+          break;
+        case 'emily.rodriguez@email.com':
+          caregiverName = 'Emily Rodriguez';
+          break;
+        case 'david.thompson@email.com':
+          caregiverName = 'David Thompson';
+          break;
+        case 'lisa.wang@email.com':
+          caregiverName = 'Lisa Wang';
+          break;
+      }
 
-    // Check if code is valid
-    if (validCodes.contains(enteredCode)) {
-      final caregiverInfo = caregiverDatabase[enteredCode];
-      _showResultDialog(
-        isSuccess: true,
-        caregiverName: caregiverInfo?['name'],
-      );
+      _showResultDialog(isSuccess: true, caregiverName: caregiverName);
     } else {
       _showResultDialog(isSuccess: false);
     }
-  }
 
-  Widget _buildCodeInput(int index) {
-    return Container(
-      width: 50,
-      height: 60,
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(
-          color: codeControllers[index].text.isNotEmpty
-              ? Color(0xFF2B3F99)
-              : Colors.grey.withOpacity(0.3),
-          width: codeControllers[index].text.isNotEmpty ? 2 : 1,
-        ),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.grey.withOpacity(0.1),
-            spreadRadius: 1,
-            blurRadius: 4,
-            offset: Offset(0, 2),
-          ),
-        ],
-      ),
-      child: TextField(
-        controller: codeControllers[index],
-        focusNode: focusNodes[index],
-        textAlign: TextAlign.center,
-        keyboardType: TextInputType.text,
-        textCapitalization: TextCapitalization.characters,
-        maxLength: 1,
-        style: TextStyle(
-          fontSize: 20,
-          fontWeight: FontWeight.bold,
-          color: Colors.black87,
-        ),
-        decoration: InputDecoration(
-          counterText: '',
-          border: InputBorder.none,
-          contentPadding: EdgeInsets.zero,
-        ),
-        inputFormatters: [
-          FilteringTextInputFormatter.allow(RegExp(r'[A-Za-z0-9]')),
-        ],
-        onChanged: (value) {
-          if (value.isNotEmpty) {
-            // Move to next field
-            if (index < 5) {
-              focusNodes[index + 1].requestFocus();
-            } else {
-              // Last field, unfocus
-              focusNodes[index].unfocus();
-            }
-          } else {
-            // Move to previous field if backspace
-            if (index > 0) {
-              focusNodes[index - 1].requestFocus();
-            }
-          }
-          setState(() {}); // Trigger rebuild to update border color
-        },
-      ),
-    );
+    setState(() {
+      isLoading = false;
+    });
   }
 
   @override
@@ -337,10 +254,7 @@ class _GuardianAddKnownCaregiverScreenState extends State<GuardianAddKnownCaregi
                     SizedBox(width: 8),
                     Text(
                       'Adding caregiver for: ',
-                      style: TextStyle(
-                        fontSize: 14,
-                        color: Colors.grey[700],
-                      ),
+                      style: TextStyle(fontSize: 14, color: Colors.grey[700]),
                     ),
                     Text(
                       selectedPatient!['name'],
@@ -356,7 +270,7 @@ class _GuardianAddKnownCaregiverScreenState extends State<GuardianAddKnownCaregi
 
             // Instruction section
             Text(
-              'Enter Caregiver Code',
+              'Enter Caregiver Email',
               style: TextStyle(
                 fontSize: 24,
                 fontWeight: FontWeight.bold,
@@ -365,7 +279,7 @@ class _GuardianAddKnownCaregiverScreenState extends State<GuardianAddKnownCaregi
             ),
             SizedBox(height: 12),
             Text(
-              'Please enter the 6-character code provided by your caregiver. This code is unique to each caregiver and was given to them during registration.',
+              'Please enter the email address of the caregiver you want to add. This will search for the caregiver in our system and connect them to your patient.',
               style: TextStyle(
                 fontSize: 16,
                 color: Colors.grey[600],
@@ -374,21 +288,57 @@ class _GuardianAddKnownCaregiverScreenState extends State<GuardianAddKnownCaregi
             ),
             SizedBox(height: 32),
 
-            // Code input section
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-              children: [
-                for (int i = 0; i < 6; i++) _buildCodeInput(i),
-              ],
+            // Email input section
+            Container(
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(12),
+                border: Border.all(
+                  color: emailController.text.isNotEmpty
+                      ? Color(0xFF2B3F99)
+                      : Colors.grey.withOpacity(0.3),
+                  width: emailController.text.isNotEmpty ? 2 : 1,
+                ),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.grey.withOpacity(0.1),
+                    spreadRadius: 1,
+                    blurRadius: 4,
+                    offset: Offset(0, 2),
+                  ),
+                ],
+              ),
+              child: TextField(
+                controller: emailController,
+                focusNode: emailFocusNode,
+                keyboardType: TextInputType.emailAddress,
+                style: TextStyle(fontSize: 16, color: Colors.black87),
+                decoration: InputDecoration(
+                  hintText: 'Enter caregiver email address',
+                  hintStyle: TextStyle(color: Colors.grey[500], fontSize: 16),
+                  border: InputBorder.none,
+                  contentPadding: EdgeInsets.symmetric(
+                    horizontal: 20,
+                    vertical: 16,
+                  ),
+                  prefixIcon: Icon(
+                    Icons.email_outlined,
+                    color: Colors.grey[600],
+                  ),
+                ),
+                onChanged: (value) {
+                  setState(() {}); // Trigger rebuild to update border color
+                },
+              ),
             ),
             SizedBox(height: 24),
 
             // Clear button
             Center(
               child: TextButton(
-                onPressed: _clearCode,
+                onPressed: _clearEmail,
                 child: Text(
-                  'Clear Code',
+                  'Clear Email',
                   style: TextStyle(
                     color: Colors.grey[600],
                     fontWeight: FontWeight.w500,
@@ -397,57 +347,18 @@ class _GuardianAddKnownCaregiverScreenState extends State<GuardianAddKnownCaregi
               ),
             ),
             SizedBox(height: 32),
-
-            // Example codes (for demo purposes)
-            Container(
-              padding: EdgeInsets.all(16),
-              decoration: BoxDecoration(
-                color: Colors.orange.withOpacity(0.1),
-                borderRadius: BorderRadius.circular(12),
-                border: Border.all(color: Colors.orange.withOpacity(0.3)),
-              ),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Row(
-                    children: [
-                      Icon(
-                        Icons.lightbulb_outline,
-                        color: Colors.orange,
-                        size: 20,
-                      ),
-                      SizedBox(width: 8),
-                      Text(
-                        'Demo Codes (for testing)',
-                        style: TextStyle(
-                          fontSize: 14,
-                          fontWeight: FontWeight.w600,
-                          color: Colors.orange[800],
-                        ),
-                      ),
-                    ],
-                  ),
-                  SizedBox(height: 8),
-                  Text(
-                    'Try: CRG001, CRG002, CRG003, CRG004, or CRG005',
-                    style: TextStyle(
-                      fontSize: 12,
-                      color: Colors.orange[700],
-                    ),
-                  ),
-                ],
-              ),
-            ),
           ],
         ),
       ),
       bottomNavigationBar: Container(
         padding: EdgeInsets.all(20),
         child: ElevatedButton(
-          onPressed: isLoading || _getEnteredCode().length != 6 ? null : _verifyCode,
+          onPressed: isLoading || emailController.text.trim().isEmpty
+              ? null
+              : _verifyEmail,
           style: ElevatedButton.styleFrom(
-            backgroundColor: Color(0xFF2B3F99),
-            foregroundColor: Colors.white,
+            backgroundColor: Color(0xFFA0C4FD),
+            foregroundColor: Color(0xFF2B3F99),
             padding: EdgeInsets.symmetric(vertical: 16),
             shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(12),
@@ -455,20 +366,17 @@ class _GuardianAddKnownCaregiverScreenState extends State<GuardianAddKnownCaregi
           ),
           child: isLoading
               ? SizedBox(
-            height: 20,
-            width: 20,
-            child: CircularProgressIndicator(
-              color: Colors.white,
-              strokeWidth: 2,
-            ),
-          )
+                  height: 20,
+                  width: 20,
+                  child: CircularProgressIndicator(
+                    color: Color(0xFF2B3F99),
+                    strokeWidth: 2,
+                  ),
+                )
               : Text(
-            'Connect Caregiver',
-            style: TextStyle(
-              fontSize: 16,
-              fontWeight: FontWeight.w600,
-            ),
-          ),
+                  'Search & Connect',
+                  style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
+                ),
         ),
       ),
     );

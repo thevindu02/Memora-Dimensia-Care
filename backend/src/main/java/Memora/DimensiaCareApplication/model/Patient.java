@@ -2,6 +2,7 @@ package Memora.DimensiaCareApplication.model;
 
 import jakarta.persistence.*;
 import java.time.LocalDate;
+import Memora.DimensiaCareApplication.model.Guardian;
 
 @Entity
 @Table(name = "patients")
@@ -28,8 +29,11 @@ public class Patient {
     private User user;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "guardian_id")
-    private User guardian;
+    @JoinColumn(name = "guardian_id", referencedColumnName = "guardian_id")
+    private Guardian guardian;
+    
+    @Column(name = "relationship")
+    private String relationship;
 
     // Getters and setters
 
@@ -73,12 +77,20 @@ public class Patient {
         this.user = user;
     }
 
-    public User getGuardian() {
+    public Guardian getGuardian() {
         return guardian;
     }
 
-    public void setGuardian(User guardian) {
+    public void setGuardian(Guardian guardian) {
         this.guardian = guardian;
+    }
+    
+    public String getRelationship() {
+        return relationship;
+    }
+    
+    public void setRelationship(String relationship) {
+        this.relationship = relationship;
     }
 
     // Enums
