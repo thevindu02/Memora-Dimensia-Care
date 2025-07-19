@@ -1,15 +1,23 @@
 import 'package:flutter/material.dart';
 
-class GuardianForumArticleScreen extends StatefulWidget {
+class GuardianSingleArticleScreen extends StatefulWidget {
   @override
   _GuardianForumArticleScreenState createState() => _GuardianForumArticleScreenState();
 }
 
-class _GuardianForumArticleScreenState extends State<GuardianForumArticleScreen> {
+class _GuardianForumArticleScreenState extends State<GuardianSingleArticleScreen> {
   TextEditingController _commentController = TextEditingController();
   bool _isLiked = false;
   int _likeCount = 24;
   List<Map<String, dynamic>> _comments = [];
+
+  // Article author information - this should come from the article data passed to this screen
+  String articleAuthor = 'Dr. Sarah Johnson';
+  String articleAuthorType = 'Volunteer';
+
+  // Current user information - this should come from your authentication system
+  String currentUser = 'You'; // Replace with actual current user
+  String currentUserType = 'Guardian'; // Replace with actual current user type
 
   @override
   void initState() {
@@ -36,7 +44,7 @@ class _GuardianForumArticleScreenState extends State<GuardianForumArticleScreen>
           },
           {
             'id': 102,
-            'author': 'Maria Rodriguez',
+            'author': 'Dr. Sarah Johnson', // Only author can reply
             'authorType': 'Volunteer',
             'content': 'Sarah, you\'re not alone in this journey. Many of us have been where you are now. The community here is very supportive, so don\'t hesitate to reach out.',
             'timestamp': '45 minutes ago',
@@ -52,7 +60,7 @@ class _GuardianForumArticleScreenState extends State<GuardianForumArticleScreen>
         'replies': [
           {
             'id': 201,
-            'author': 'Dr. Sarah Johnson',
+            'author': 'Dr. Sarah Johnson', // Only author can reply
             'authorType': 'Volunteer',
             'content': 'Great question, James. Early signs include memory loss that disrupts daily life, difficulty with familiar tasks, confusion with time or place, and changes in mood or personality. I recommend consulting with his doctor for a proper assessment.',
             'timestamp': '3 hours ago',
@@ -70,6 +78,16 @@ class _GuardianForumArticleScreenState extends State<GuardianForumArticleScreen>
     ];
   }
 
+  bool get isCurrentUserAuthor {
+    return currentUser == articleAuthor ||
+        (currentUser == 'You' && articleAuthor == 'Dr. Sarah Johnson'); // Adjust this logic based on your auth system
+  }
+
+  // Check if current user can reply (only volunteers/article authors can reply)
+  bool get canCurrentUserReply {
+    return currentUserType == 'Volunteer' && isCurrentUserAuthor;
+  }
+
   void _toggleLike() {
     setState(() {
       _isLiked = !_isLiked;
@@ -83,8 +101,8 @@ class _GuardianForumArticleScreenState extends State<GuardianForumArticleScreen>
     setState(() {
       _comments.insert(0, {
         'id': DateTime.now().millisecondsSinceEpoch,
-        'author': 'You',
-        'authorType': 'Guardian',
+        'author': currentUser,
+        'authorType': currentUserType,
         'content': _commentController.text.trim(),
         'timestamp': 'Just now',
         'replies': []
@@ -98,6 +116,32 @@ class _GuardianForumArticleScreenState extends State<GuardianForumArticleScreen>
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
         content: Text('Comment added successfully'),
+        backgroundColor: Colors.green,
+        duration: Duration(seconds: 2),
+      ),
+    );
+  }
+
+  void _addReply(int commentId, String replyContent) {
+    if (replyContent.trim().isEmpty) return;
+
+    setState(() {
+      final commentIndex = _comments.indexWhere((comment) => comment['id'] == commentId);
+      if (commentIndex != -1) {
+        _comments[commentIndex]['replies'].add({
+          'id': DateTime.now().millisecondsSinceEpoch,
+          'author': currentUser,
+          'authorType': currentUserType,
+          'content': replyContent.trim(),
+          'timestamp': 'Just now',
+        });
+      }
+    });
+
+    // Show success message
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text('Reply added successfully'),
         backgroundColor: Colors.green,
         duration: Duration(seconds: 2),
       ),
@@ -134,7 +178,7 @@ class _GuardianForumArticleScreenState extends State<GuardianForumArticleScreen>
               Icon(Icons.person, size: 16, color: Colors.grey[600]),
               SizedBox(width: 4),
               Text(
-                'Dr. Sarah Johnson',
+                articleAuthor,
                 style: TextStyle(
                   fontSize: 14,
                   color: Colors.grey[600],
@@ -148,7 +192,7 @@ class _GuardianForumArticleScreenState extends State<GuardianForumArticleScreen>
                   borderRadius: BorderRadius.circular(12),
                 ),
                 child: Text(
-                  'Volunteer',
+                  articleAuthorType,
                   style: TextStyle(
                     fontSize: 12,
                     color: Colors.green[700],
@@ -274,7 +318,7 @@ class _GuardianForumArticleScreenState extends State<GuardianForumArticleScreen>
                 child: Text(
                   'Cancel',
                   style: TextStyle(
-                    color: Color(0xFF2B3F99), // Updated text color
+                    color: Color(0xFF2B3F99),
                   ),
                 ),
               ),
@@ -289,6 +333,82 @@ class _GuardianForumArticleScreenState extends State<GuardianForumArticleScreen>
                   ),
                 ),
                 child: Text('Post Comment'),
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildReplyInput(int commentId) {
+    TextEditingController replyController = TextEditingController();
+
+    return Container(
+      margin: EdgeInsets.only(top: 12, left: 16),
+      padding: EdgeInsets.all(12),
+      decoration: BoxDecoration(
+        color: Colors.blue[50],
+        borderRadius: BorderRadius.circular(8),
+        border: Border.all(color: Colors.blue[200]!),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            'Reply as article author',
+            style: TextStyle(
+              fontSize: 14,
+              fontWeight: FontWeight.w600,
+              color: Colors.blue[800],
+            ),
+          ),
+          SizedBox(height: 8),
+          Container(
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(8),
+            ),
+            child: TextField(
+              controller: replyController,
+              maxLines: 2,
+              decoration: InputDecoration(
+                hintText: 'Write your reply...',
+                hintStyle: TextStyle(color: Colors.grey[500]),
+                border: InputBorder.none,
+                contentPadding: EdgeInsets.all(12),
+              ),
+            ),
+          ),
+          SizedBox(height: 8),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.end,
+            children: [
+              TextButton(
+                onPressed: () {
+                  replyController.clear();
+                  FocusScope.of(context).unfocus();
+                },
+                child: Text(
+                  'Cancel',
+                  style: TextStyle(color: Colors.blue[600]),
+                ),
+              ),
+              SizedBox(width: 8),
+              ElevatedButton(
+                onPressed: () {
+                  _addReply(commentId, replyController.text);
+                  replyController.clear();
+                  FocusScope.of(context).unfocus();
+                },
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.blue[600],
+                  foregroundColor: Colors.white,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(6),
+                  ),
+                ),
+                child: Text('Reply'),
               ),
             ],
           ),
@@ -391,6 +511,32 @@ class _GuardianForumArticleScreenState extends State<GuardianForumArticleScreen>
             ),
           ),
 
+          // Reply button - ONLY for volunteers who are the article author
+          // Guardians will NOT see this button
+          if (canCurrentUserReply) ...[
+            SizedBox(height: 12),
+            TextButton.icon(
+              onPressed: () {
+                // You can implement a modal or expand inline reply form
+                showDialog(
+                  context: context,
+                  builder: (context) => AlertDialog(
+                    title: Text('Reply to Comment'),
+                    content: Container(
+                      width: double.maxFinite,
+                      child: _buildReplyInput(comment['id']),
+                    ),
+                  ),
+                );
+              },
+              icon: Icon(Icons.reply, size: 16, color: Colors.blue[600]),
+              label: Text(
+                'Reply',
+                style: TextStyle(color: Colors.blue[600]),
+              ),
+            ),
+          ],
+
           // Replies section
           if (comment['replies'] != null && comment['replies'].isNotEmpty) ...[
             SizedBox(height: 16),
@@ -459,6 +605,24 @@ class _GuardianForumArticleScreenState extends State<GuardianForumArticleScreen>
                                           ),
                                         ),
                                       ),
+                                      if (reply['author'] == articleAuthor) ...[
+                                        SizedBox(width: 6),
+                                        Container(
+                                          padding: EdgeInsets.symmetric(horizontal: 4, vertical: 1),
+                                          decoration: BoxDecoration(
+                                            color: Colors.blue[100],
+                                            borderRadius: BorderRadius.circular(6),
+                                          ),
+                                          child: Text(
+                                            'Author',
+                                            style: TextStyle(
+                                              fontSize: 8,
+                                              color: Colors.blue[700],
+                                              fontWeight: FontWeight.w600,
+                                            ),
+                                          ),
+                                        ),
+                                      ],
                                     ],
                                   ),
                                   Text(

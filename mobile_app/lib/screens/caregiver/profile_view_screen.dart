@@ -33,9 +33,9 @@ class _ProfileViewState extends State<CaregiverProfileScreen> {
         centerTitle: true,
         actions: [
           IconButton(
-            icon: Icon(Icons.notifications_outlined, color: Colors.black),
+            icon: Icon(Icons.settings, color: Colors.black),
             onPressed: () {
-              Navigator.pushNamed(context, AppRoutes.caregiverNotification);
+              Navigator.pushNamed(context, AppRoutes.settings);
             },
           ),
         ],
@@ -101,50 +101,21 @@ class _ProfileViewState extends State<CaregiverProfileScreen> {
             // Profile Information
             _buildInfoSection('Email', 'john.smith@example.com'),
             _buildInfoSection('Phone Number', '+1 234 567 890'),
-            
-            // Gender and Birthday Row
             Row(
               children: [
-                Expanded(
-                  child: _buildInfoSection('Gender', 'Female'),
-                ),
+                Expanded(child: _buildInfoSection('Gender', 'Male')),
                 SizedBox(width: 20),
-                Expanded(
-                  child: _buildInfoSection('Birthday', '2001-01-14'),
-                ),
+                Expanded(child: _buildInfoSection('Birthday', '2001-01-14')),
               ],
             ),
+            _buildInfoSection('Street', 'No. 123, Galle Road'),
+            _buildInfoSection('City', 'Colombo'),
+            _buildInfoSection('State', 'Western Province'),
+            _buildInfoSection('Experience', '3-5 years'),
+            _buildInfoSection('Qualifications', 'Nursing, CPR Certified'),
+            _buildInfoSection('Skills', 'Elder Care, Medical Care, Cooking'),
             
-            _buildInfoSection('Address', 'No. 123, Galle Road\nWestern Province, Colombo'),
-            _buildInfoSection('Experience', 'Assisted with daily living activities\nAssisted with homework, mealtime, and bed'),
-            _buildInfoSection('Qualifications', 'Experience in hospital, home, or private care'),
-            
-            // Notifications Toggle
-            Container(
-              margin: EdgeInsets.only(top: 20, bottom: 30),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Text(
-                    'Receive Notifications',
-                    style: TextStyle(
-                      fontSize: 16,
-                      fontWeight: FontWeight.w500,
-                      color: Colors.black,
-                    ),
-                  ),
-                  Switch(
-                    value: receiveNotifications,
-                    onChanged: (value) {
-                      setState(() {
-                        receiveNotifications = value;
-                      });
-                    },
-                    activeColor: Color(0xFF6B73FF),
-                  ),
-                ],
-              ),
-            ),
+
             
             // Action Buttons
             Row(
@@ -174,7 +145,10 @@ class _ProfileViewState extends State<CaregiverProfileScreen> {
                 SizedBox(width: 15),
                 Expanded(
                   child: OutlinedButton(
-                    onPressed: () {},
+                    onPressed: () {
+                      Navigator.pushNamed(context, AppRoutes.login);
+
+                    },
                     style: OutlinedButton.styleFrom(
                       padding: EdgeInsets.symmetric(vertical: 15),
                       side: BorderSide(color: Colors.grey[300]!),
@@ -218,12 +192,12 @@ class _ProfileViewState extends State<CaregiverProfileScreen> {
           }
         },
         type: BottomNavigationBarType.fixed,
-        selectedItemColor: Colors.indigo,
-        unselectedItemColor: Colors.grey,
+        selectedItemColor: Color(0xFF2B3F99),
+        unselectedItemColor: Color(0xFF2B3F99),
         items: const [
-          BottomNavigationBarItem(icon: Icon(Icons.home), label: 'Home'),
-          BottomNavigationBarItem(icon: Icon(Icons.people), label: 'Patients'),
-          BottomNavigationBarItem(icon: Icon(Icons.article), label: 'Articles'),
+          BottomNavigationBarItem(icon: Icon(Icons.home_outlined), label: 'Home'),
+          BottomNavigationBarItem(icon: Icon(Icons.people_outline), label: 'Patients'),
+          BottomNavigationBarItem(icon: Icon(Icons.article_outlined), label: 'Articles'),
           BottomNavigationBarItem(icon: Icon(Icons.person), label: 'Profile'),
         ],
       ),
