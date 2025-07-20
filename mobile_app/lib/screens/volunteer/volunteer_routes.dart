@@ -16,38 +16,59 @@ class VolunteerRoutes {
   static Route<dynamic> generateRoute(RouteSettings settings) {
     switch (settings.name) {
       case AppRoutes.volunteerSignup:
-        return MaterialPageRoute(builder: (_) => VolunteerSignupScreen());
+        return MaterialPageRoute(
+            builder: (_) => VolunteerSignupScreen(),
+            settings: settings,
+        );
       case AppRoutes.volunteerArticles:
-        return MaterialPageRoute(builder: (_) => VolunteerArticlesScreen());
+        return MaterialPageRoute(
+            builder: (_) => VolunteerArticlesScreen(),
+            settings: settings,
+        );
       case AppRoutes.volunteerProfile:
-        return MaterialPageRoute(builder: (_) => VolunteerProfileScreen());
+        return MaterialPageRoute(
+            builder: (_) => VolunteerProfileScreen(),
+            settings: settings,
+        );
       case AppRoutes.volunteerUploadImage:
         return MaterialPageRoute(
           builder: (_) => VolunteerUploadIdimageScreen(),
+          settings: settings,
         );
       case AppRoutes.volunteerConfirmImage:
         return MaterialPageRoute(
           builder: (_) => VolunteerConfirmImageUploadScreen(),
+          settings: settings,
         );
       case AppRoutes.volunteerRegistrationSubmitted:
         return MaterialPageRoute(
           builder: (_) => VolunteerRegistrationSubmittedScreen(),
+          settings: settings,
         );
       case AppRoutes.volunteerCompletedRegistration:
         return MaterialPageRoute(
           builder: (_) => VolunteerRegistrationCompletedScreen(),
+          settings: settings,
         );
       case AppRoutes.volunteerDashboard:
-        return MaterialPageRoute(builder: (_) => VolunteerDashboardScreen());
+        return MaterialPageRoute(
+            builder: (_) => VolunteerDashboardScreen(),
+            settings: settings,
+        );
       case AppRoutes.volunteerCreateContent:
         return MaterialPageRoute(
           builder: (_) => VolunteerCreateContentScreen(),
+          settings: settings,
         );
       case AppRoutes.volunteerForum:
-        return MaterialPageRoute(builder: (_) => VolunteerForumScreen());
+        return MaterialPageRoute(
+            builder: (_) => VolunteerForumScreen(),
+            settings: settings,
+        );
       case AppRoutes.volunteerScheduleSession:
         return MaterialPageRoute(
           builder: (_) => VolunteerScheduleSessionScreen(),
+          settings: settings,
         );
 
       default:
