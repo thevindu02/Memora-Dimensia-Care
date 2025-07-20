@@ -12,6 +12,7 @@ import 'schedule_report_screen.dart';
 import 'complete_routine_screen.dart';
 import 'care_details_screen.dart';
 import 'register_screen.dart';
+import 'caregiver_connection_requests_screen.dart';
 
 class CaregiverRoutes {
   static Route<dynamic> generateRoute(RouteSettings settings) {
@@ -40,6 +41,10 @@ class CaregiverRoutes {
         return MaterialPageRoute(builder: (_) => ScheduleRoutineDialog());
       case AppRoutes.careDetails:
         return MaterialPageRoute(builder: (_) => CareDetailsScreen());
+      case AppRoutes.caregiverConnectionRequests:
+        return MaterialPageRoute(
+          builder: (_) => CaregiverConnectionRequestsScreen(),
+        );
 
       default:
         return MaterialPageRoute(

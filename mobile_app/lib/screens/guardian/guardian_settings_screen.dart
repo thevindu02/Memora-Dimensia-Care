@@ -10,11 +10,7 @@ class _GuardianSettingsScreenState extends State<GuardianSettingsScreen> {
   bool _receiveNotifications = true;
   String _selectedLanguage = 'English';
 
-  final List<String> _languages = [
-    'English',
-    'Sinhala',
-    'Tamil'
-  ];
+  final List<String> _languages = ['English', 'Sinhala', 'Tamil'];
 
   Widget _buildSettingsItem({
     required String title,
@@ -48,10 +44,7 @@ class _GuardianSettingsScreenState extends State<GuardianSettingsScreen> {
                       SizedBox(height: 4),
                       Text(
                         subtitle,
-                        style: TextStyle(
-                          fontSize: 14,
-                          color: Colors.grey[600],
-                        ),
+                        style: TextStyle(fontSize: 14, color: Colors.grey[600]),
                       ),
                     ],
                   ],
@@ -110,13 +103,9 @@ class _GuardianSettingsScreenState extends State<GuardianSettingsScreen> {
     Navigator.pushNamed(context, AppRoutes.guardianSettingsPrivacy);
   }
 
-
-
   void _showHelpScreen() {
     Navigator.pushNamed(context, AppRoutes.guardianSettingsHelpSupport);
   }
-
-
 
   void _showLogoutDialog() {
     showDialog(
@@ -139,13 +128,10 @@ class _GuardianSettingsScreenState extends State<GuardianSettingsScreen> {
                 Navigator.pushNamedAndRemoveUntil(
                   context,
                   AppRoutes.login,
-                      (route) => false,
+                  (route) => false,
                 );
               },
-              child: Text(
-                'Log Out',
-                style: TextStyle(color: Colors.red),
-              ),
+              child: Text('Log Out', style: TextStyle(color: Colors.red)),
             ),
           ],
         );
@@ -162,7 +148,13 @@ class _GuardianSettingsScreenState extends State<GuardianSettingsScreen> {
         elevation: 0,
         leading: IconButton(
           icon: Icon(Icons.arrow_back, color: Colors.black87),
-          onPressed: () => Navigator.pop(context),
+          onPressed: () {
+            Navigator.pushNamedAndRemoveUntil(
+              context,
+              AppRoutes.guardianDashboard,
+              (route) => false,
+            );
+          },
         ),
         title: Text(
           'Settings',
@@ -198,10 +190,7 @@ class _GuardianSettingsScreenState extends State<GuardianSettingsScreen> {
                 _buildSettingsItem(
                   title: 'Language',
                   subtitle: _selectedLanguage,
-                  trailing: Icon(
-                    Icons.chevron_right,
-                    color: Colors.grey[600],
-                  ),
+                  trailing: Icon(Icons.chevron_right, color: Colors.grey[600]),
                   onTap: _showLanguageDialog,
                 ),
                 Divider(height: 1, thickness: 1, color: Colors.grey[200]),
@@ -209,23 +198,15 @@ class _GuardianSettingsScreenState extends State<GuardianSettingsScreen> {
                 _buildSettingsItem(
                   title: 'Privacy',
                   subtitle: 'Manage your data',
-                  trailing: Icon(
-                    Icons.chevron_right,
-                    color: Colors.grey[600],
-                  ),
+                  trailing: Icon(Icons.chevron_right, color: Colors.grey[600]),
                   onTap: _showPrivacyScreen,
                 ),
                 Divider(height: 1, thickness: 1, color: Colors.grey[200]),
 
-
-
                 _buildSettingsItem(
                   title: 'Help',
                   subtitle: 'FAQs and support',
-                  trailing: Icon(
-                    Icons.chevron_right,
-                    color: Colors.grey[600],
-                  ),
+                  trailing: Icon(Icons.chevron_right, color: Color(0xFF2B3F99)),
                   onTap: _showHelpScreen,
                 ),
               ],
@@ -251,10 +232,7 @@ class _GuardianSettingsScreenState extends State<GuardianSettingsScreen> {
               ),
               child: Text(
                 'Log out',
-                style: TextStyle(
-                  fontSize: 16,
-                  fontWeight: FontWeight.w600,
-                ),
+                style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
               ),
             ),
           ),

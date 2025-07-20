@@ -102,6 +102,8 @@ class HomeScreen extends StatelessWidget {
             const SizedBox(height: 20),
             _buildUrgentTasksSection(context),
             const SizedBox(height: 20),
+            _buildGuardianRequestsSection(context),
+            const SizedBox(height: 20),
             _buildCaregiverTip(context),
             const SizedBox(height: 20),
             _buildEmergencyContacts(context),
@@ -213,11 +215,70 @@ class HomeScreen extends StatelessWidget {
     );
   }
 
+  Widget _buildGuardianRequestsSection(BuildContext context) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          'Guardian Requests',
+          style: Theme.of(
+            context,
+          ).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold),
+        ),
+        const SizedBox(height: 8),
+        Card(
+          elevation: 3,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(12),
+          ),
+          color: Colors.blue[50],
+          child: InkWell(
+            borderRadius: BorderRadius.circular(12),
+            onTap: () {
+              Navigator.pushNamed(
+                context,
+                AppRoutes.caregiverConnectionRequests,
+              );
+            },
+            child: Padding(
+              padding: const EdgeInsets.all(16.0),
+              child: Row(
+                children: [
+                  const Icon(Icons.person, color: Colors.blue),
+                  const SizedBox(width: 10),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: const [
+                        Text(
+                          'New Request from Guardian',
+                          style: TextStyle(
+                            fontWeight: FontWeight.bold,
+                            fontSize: 16,
+                          ),
+                        ),
+                        Text(
+                          'Request to connect with a patient',
+                          style: TextStyle(fontSize: 14),
+                        ),
+                      ],
+                    ),
+                  ),
+                  const Icon(Icons.chevron_right),
+                ],
+              ),
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+
   Widget _buildCaregiverTip(BuildContext context) {
     return Card(
       elevation: 3,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-      color: Colors.lightBlue[50],
+      color: Colors.yellow[50],
       child: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Column(
