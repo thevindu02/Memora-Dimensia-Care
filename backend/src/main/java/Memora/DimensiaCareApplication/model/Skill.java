@@ -1,13 +1,12 @@
 package Memora.DimensiaCareApplication.model;
+import java.util.Set;
+import java.util.HashSet;
 
 import jakarta.persistence.*;
-import java.util.HashSet;
-import java.util.Set;
 
 @Entity
 @Table(name = "skills")
 public class Skill {
-
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "skill_id")

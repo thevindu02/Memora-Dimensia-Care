@@ -9,6 +9,7 @@ import AboutUs from './AboutUs';
 import QuickNavigation from './QuickNavigation';
 import AppPromo from './AppPromo';
 import Footer from './Footer';
+import Subscription from './SubscriptionPlans';
 
 function Home() {
   return (
@@ -20,6 +21,7 @@ function Home() {
         <VisionMissionValues />
         <AboutUs />
         <QuickNavigation />
+        <Subscription />
         <AppPromo />
       </Box>
       <Footer />

@@ -9,7 +9,7 @@ function VolunteersIntroBanner() {
       sx={{
         position: 'relative',
         bgcolor: 'transparent',
-        py: { xs: 8, md: 12 },
+        py: { xs: 8, md: 9 },
         background: 'linear-gradient(120deg, #A0C4FD 60%, #C3B1E1 100%)',
         overflow: 'hidden',
         minHeight: { md: 380 },
@@ -22,10 +22,10 @@ function VolunteersIntroBanner() {
         alt="Decorative background"
         sx={{
           position: 'absolute',
-          top: -20,
+          top: -50,
           right: -40,
           width: 680,
-          height: 440,
+          height: 445,
           opacity: 0.13,
           zIndex: 0,
           pointerEvents: 'none', // (optional, prevents pointer capture)
