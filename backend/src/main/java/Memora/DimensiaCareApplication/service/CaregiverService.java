@@ -1,4 +1,5 @@
 package Memora.DimensiaCareApplication.service;
+
 import Memora.DimensiaCareApplication.model.*;
 import Memora.DimensiaCareApplication.repository.*;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -42,7 +43,8 @@ public class CaregiverService {
         }
         return savedCaregiver;
     }
-     public List<CaregiverResponse> getCaregiversByCity(String city) {
+
+    public List<CaregiverResponse> getCaregiversByCity(String city) {
         List<Caregiver> caregivers = caregiverRepository.findByUserCity(city);
         return caregivers.stream()
                 .map(CaregiverResponse::new)
@@ -70,5 +72,3 @@ public class CaregiverService {
         return new CaregiverResponse(caregiver);
     }
 }
-
-

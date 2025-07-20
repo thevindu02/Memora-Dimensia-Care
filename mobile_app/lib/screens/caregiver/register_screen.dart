@@ -30,6 +30,7 @@ class _CaregiverRegisterPageState extends State<CaregiverRegisterPage> {
   bool _confirmPasswordVisible = false;
   bool _isLoading = false;
   String? _selectedExperience;
+  String? _selectedGender;
   List<String> _selectedSkills = [];
 
   final List<String> _experienceOptions = [
@@ -38,6 +39,12 @@ class _CaregiverRegisterPageState extends State<CaregiverRegisterPage> {
     '3-5 years',
     '5-10 years',
     'More than 10 years'
+  ];
+
+  final List<String> _genderOptions = [
+    'Male',
+    'Female',
+    'Other'
   ];
 
   final List<String> _skillOptions = [
@@ -292,6 +299,24 @@ class _CaregiverRegisterPageState extends State<CaregiverRegisterPage> {
         const SizedBox(height: 15),
         _buildDateField(),
         const SizedBox(height: 15),
+        _buildDropdownField(
+          value: _selectedGender,
+          label: 'Gender',
+          icon: Icons.person_outline,
+          items: _genderOptions,
+          onChanged: (value) {
+            setState(() {
+              _selectedGender = value;
+            });
+          },
+          validator: (value) {
+            if (value == null || value.isEmpty) {
+              return 'Please select your gender';
+            }
+            return null;
+          },
+        ),
+        const SizedBox(height: 15),
         _buildTextField(
           controller: _phoneController,
           label: 'Phone Number',
@@ -323,6 +348,12 @@ class _CaregiverRegisterPageState extends State<CaregiverRegisterPage> {
             setState(() {
               _selectedExperience = value;
             });
+          },
+          validator: (value) {
+            if (value == null || value.isEmpty) {
+              return 'Please select your experience level';
+            }
+            return null;
           },
         ),
         const SizedBox(height: 15),
@@ -584,6 +615,7 @@ class _CaregiverRegisterPageState extends State<CaregiverRegisterPage> {
     required IconData icon,
     required List<String> items,
     required void Function(String?) onChanged,
+    String? Function(String?)? validator,
   }) {
     return Container(
       decoration: BoxDecoration(
@@ -606,9 +638,9 @@ class _CaregiverRegisterPageState extends State<CaregiverRegisterPage> {
           );
         }).toList(),
         onChanged: onChanged,
-        validator: (value) {
+        validator: validator ?? (value) {
           if (value == null || value.isEmpty) {
-            return 'Please select your experience level';
+            return 'Please select a value';
           }
           return null;
         },
@@ -888,7 +920,7 @@ class _CaregiverRegisterPageState extends State<CaregiverRegisterPage> {
             ? "${_selectedDate!.year.toString().padLeft(4, '0')}-${_selectedDate!.month.toString().padLeft(2, '0')}-${_selectedDate!.day.toString().padLeft(2, '0')}"
             : null,
         "profilePic": null, // Handle image upload separately if needed
-        "gender": null, // Add gender if you have it
+        "gender": _selectedGender,
         "experience": _selectedExperience,
         "qualifications": _qualificationController.text,
         "skills": _selectedSkills,

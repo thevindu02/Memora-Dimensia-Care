@@ -1,6 +1,8 @@
 package Memora.DimensiaCareApplication.model;
 
 import jakarta.persistence.*;
+import java.util.Set;
+import java.util.HashSet;
 
 @Entity
 @Table(name = "skills")
@@ -62,8 +64,10 @@ public class Skill {
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
+        if (this == o)
+            return true;
+        if (o == null || getClass() != o.getClass())
+            return false;
         Skill skill = (Skill) o;
         return skillId != null && skillId.equals(skill.skillId);
     }
@@ -72,4 +76,4 @@ public class Skill {
     public int hashCode() {
         return skillId != null ? skillId.hashCode() : 0;
     }
-} 
+}

@@ -39,7 +39,7 @@ public class CaregiverResponse {
         this.profilePic = caregiver.getUser().getProfilePic();
         this.gender = caregiver.getUser().getGender();
         this.status = caregiver.getUser().getStatus().name();
-        
+
         this.skills = caregiver.getSkills().stream()
                 .map(Skill::getSkillName)
                 .collect(Collectors.toList());
@@ -157,4 +157,4 @@ public class CaregiverResponse {
     public void setStatus(String status) {
         this.status = status;
     }
-} 
+}
