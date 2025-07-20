@@ -31,3 +31,6 @@ build/
 
 ### VS Code ###
 .vscode/
+
+# Firebase Admin SDK key
+memora-2025-firebase-adminsdk-fbsvc-c45cc799ae.json
