@@ -1,6 +1,7 @@
 package Memora.DimensiaCareApplication.model;
 
 import jakarta.persistence.*;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 
 @Entity
 @Table(name = "guardians")
@@ -12,6 +13,7 @@ public class Guardian {
 
     @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id", referencedColumnName = "id", nullable = false)
+    @JsonIgnore
     private User user;
 
     // Getters and setters
@@ -30,4 +32,4 @@ public class Guardian {
     public void setUser(User user) {
         this.user = user;
     }
-} 
+}

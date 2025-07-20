@@ -575,13 +575,13 @@ class _ScheduleRoutineScreenState extends State<ScheduleRoutineScreen> {
           }
         },
         type: BottomNavigationBarType.fixed,
-        selectedItemColor: Colors.indigo,
-        unselectedItemColor: Colors.grey,
+        selectedItemColor: Color(0xFF2B3F99),
+        unselectedItemColor: Color(0xFF2B3F99),
         items: const [
-          BottomNavigationBarItem(icon: Icon(Icons.home), label: 'Home'),
+          BottomNavigationBarItem(icon: Icon(Icons.home_outlined), label: 'Home'),
           BottomNavigationBarItem(icon: Icon(Icons.people), label: 'Patients'),
-          BottomNavigationBarItem(icon: Icon(Icons.article), label: 'Articles'),
-          BottomNavigationBarItem(icon: Icon(Icons.person), label: 'Profile'),
+          BottomNavigationBarItem(icon: Icon(Icons.article_outlined), label: 'Articles'),
+          BottomNavigationBarItem(icon: Icon(Icons.person_outline), label: 'Profile'),
         ],
       ),
     );

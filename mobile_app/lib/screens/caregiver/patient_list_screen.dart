@@ -172,15 +172,15 @@ class _PatientsScreenState extends State<PatientListScreen> {
           },
           type: BottomNavigationBarType.fixed,
           backgroundColor: Colors.white,
-          selectedItemColor: Colors.blue[600],
-          unselectedItemColor: Colors.grey[400],
+          selectedItemColor: Color(0xFF2B3F99),
+          unselectedItemColor: Color(0xFF2B3F99),
           selectedFontSize: 12,
           unselectedFontSize: 12,
           elevation: 0,
           items: [
             BottomNavigationBarItem(
-              icon: Icon(Icons.home),
-              activeIcon: Icon(Icons.home),
+              icon: Icon(Icons.home_outlined),
+              activeIcon: Icon(Icons.home_outlined),
               label: 'Home',
             ),
             BottomNavigationBarItem(
@@ -189,13 +189,13 @@ class _PatientsScreenState extends State<PatientListScreen> {
               label: 'Patients',
             ),
             BottomNavigationBarItem(
-              icon: Icon(Icons.book),
-              activeIcon: Icon(Icons.book),
+              icon: Icon(Icons.book_online),
+              activeIcon: Icon(Icons.book_online),
               label: 'Routines',
             ),
             BottomNavigationBarItem(
-              icon: Icon(Icons.person),
-              activeIcon: Icon(Icons.person),
+              icon: Icon(Icons.person_outline),
+              activeIcon: Icon(Icons.person_outline),
               label: 'Profile',
             ),
           ],

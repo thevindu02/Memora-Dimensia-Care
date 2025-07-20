@@ -40,13 +40,13 @@ class _MainScreenState extends State<MainScreen> {
           }
         },
         type: BottomNavigationBarType.fixed,
-        selectedItemColor: Colors.indigo,
-        unselectedItemColor: Colors.grey,
+        selectedItemColor: Color(0xFF2B3F99),
+        unselectedItemColor: Color(0xFF2B3F99),
         items: const [
           BottomNavigationBarItem(icon: Icon(Icons.home), label: 'Home'),
-          BottomNavigationBarItem(icon: Icon(Icons.people), label: 'Patients'),
-          BottomNavigationBarItem(icon: Icon(Icons.article), label: 'Articles'),
-          BottomNavigationBarItem(icon: Icon(Icons.person), label: 'Profile'),
+          BottomNavigationBarItem(icon: Icon(Icons.people_outlined), label: 'Patients'),
+          BottomNavigationBarItem(icon: Icon(Icons.article_outlined), label: 'Articles'),
+          BottomNavigationBarItem(icon: Icon(Icons.person_outlined), label: 'Profile'),
         ],
       ),
     );
@@ -63,10 +63,7 @@ class HomeScreen extends StatelessWidget {
       appBar: AppBar(
         backgroundColor: Colors.white,
         elevation: 0,
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back, color: Colors.black),
-          onPressed: () => Navigator.pop(context),
-        ),
+
         title: const Text(
           'Dashboard',
           style: TextStyle(
@@ -102,7 +99,10 @@ class HomeScreen extends StatelessWidget {
             const SizedBox(height: 20),
             _buildUrgentTasksSection(context),
             const SizedBox(height: 20),
-            _buildCaregiverTip(context),
+          
+            _buildForumSection(context),
+            const SizedBox(height: 20),
+           
             const SizedBox(height: 20),
             _buildEmergencyContacts(context),
           ],
@@ -242,6 +242,44 @@ class HomeScreen extends StatelessWidget {
             ),
           ],
         ),
+      ),
+    );
+  }
+
+  Widget _buildForumSection(BuildContext context) {
+    return Card(
+      elevation: 3,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(12),
+      ),
+      color: Colors.deepPurple[50],
+      child: ListTile(
+        leading: const Icon(Icons.forum, color: Colors.deepPurple),
+        title: const Text('Caregiver Forum'),
+        subtitle: const Text('Join discussions, ask questions, and connect with other caregivers.'),
+        trailing: const Icon(Icons.chevron_right),
+        onTap: () {
+          Navigator.pushNamed(context, AppRoutes.discussionForum); // Use volunteerForum route for now
+        },
+      ),
+    );
+  }
+
+  Widget _buildForumTopic(BuildContext context) {
+    return Card(
+      elevation: 2,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(10),
+      ),
+      color: Colors.purple[100],
+      child: ListTile(
+        leading: const Icon(Icons.local_fire_department, color: Colors.deepPurple),
+        title: const Text('Trending Topic: Managing Caregiver Stress', style: TextStyle(fontWeight: FontWeight.bold)),
+        subtitle: const Text('Share your tips and experiences for handling stress as a caregiver.'),
+        onTap: () {
+          // Optionally, navigate to a specific topic or forum thread
+          Navigator.pushNamed(context, AppRoutes.volunteerForum);
+        },
       ),
     );
   }
