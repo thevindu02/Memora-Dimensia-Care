@@ -17,9 +17,9 @@ function ContactIntroBanner() {
         sx={{
           color: '#2B3F99',
           fontWeight: 800,
-          fontSize: { xs: 30, md: 48 },
+          fontSize: { xs: 30, md: 75 },
           mb: 2,
-          fontFamily: 'Poppins, Lato, Nunito, Arial, sans-serif',
+          fontFamily: 'Poppins Bold',
         }}
       >
         We're Here to Help
@@ -29,10 +29,11 @@ function ContactIntroBanner() {
         sx={{
           color: '#390797',
           fontWeight: 500,
-          fontSize: { xs: 18, md: 24 },
+          fontSize: { xs: 18, md: 32 },
           maxWidth: 600,
           mx: 'auto',
           mb: 2,
+          fontFamily: 'Poppins Regular',
         }}
       >
         Whether you have questions, suggestions, or need support, don’t hesitate to reach out. Our team is committed to supporting you and your loved ones.
