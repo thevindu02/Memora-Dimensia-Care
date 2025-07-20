@@ -22,6 +22,8 @@ const Sidebar = ({ currentPage = 'dashboard' }) => {
       navigate('/articles');
     } else if (page === 'video-lessons') {
       navigate('/video-lessons');
+    } else if (page === 'subscription-planning') {
+      navigate('/subscription-planning');
     }
   };
 
@@ -101,6 +103,19 @@ const Sidebar = ({ currentPage = 'dashboard' }) => {
               >
                 <span className="sidebar-icon">🎬</span>
                 Video Lessons
+              </li>
+            </ul>
+          </div>
+
+          <div className="sidebar-section">
+            <h3>Business Management</h3>
+            <ul>
+              <li 
+                className={currentPage === 'subscription-planning' ? 'active' : ''}
+                onClick={() => handleNavigation('subscription-planning')}
+              >
+                <span className="sidebar-icon">💳</span>
+                Subscription Planning
               </li>
             </ul>
           </div>
