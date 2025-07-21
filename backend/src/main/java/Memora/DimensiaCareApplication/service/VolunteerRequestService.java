@@ -1,6 +1,7 @@
 package Memora.DimensiaCareApplication.service;
 
 import Memora.DimensiaCareApplication.model.VolunteerRequest;
+import Memora.DimensiaCareApplication.dto.VolunteerRequestWithUserDTO;
 import Memora.DimensiaCareApplication.repository.VolunteerRequestRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -31,6 +32,16 @@ public class VolunteerRequestService {
         return volunteerRequestRepository.findAll();
     }
 
+    // New method to get volunteer requests with user data
+    public List<VolunteerRequestWithUserDTO> getAllVolunteerRequestsWithUserData() {
+        return volunteerRequestRepository.findAllVolunteerRequestsWithUserData();
+    }
+
+    // New method to get volunteer requests with user data by status
+    public List<VolunteerRequestWithUserDTO> getVolunteerRequestsWithUserDataByStatus(VolunteerRequest.RequestStatus status) {
+        return volunteerRequestRepository.findVolunteerRequestsWithUserDataByStatus(status);
+    }
+
     public VolunteerRequest updateRequestStatus(Integer requestId, VolunteerRequest.RequestStatus status) {
         Optional<VolunteerRequest> optionalRequest = volunteerRequestRepository.findById(requestId);
         if (optionalRequest.isPresent()) {
@@ -44,4 +55,4 @@ public class VolunteerRequestService {
     public boolean existsByUserId(Long userId) {
         return volunteerRequestRepository.existsByUserId(userId);
     }
-} 
+}

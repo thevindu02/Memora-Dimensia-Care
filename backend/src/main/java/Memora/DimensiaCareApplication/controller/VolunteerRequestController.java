@@ -1,6 +1,7 @@
 package Memora.DimensiaCareApplication.controller;
 
 import Memora.DimensiaCareApplication.model.VolunteerRequest;
+import Memora.DimensiaCareApplication.dto.VolunteerRequestWithUserDTO;
 import Memora.DimensiaCareApplication.service.VolunteerRequestService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -53,6 +54,25 @@ public class VolunteerRequestController {
         return ResponseEntity.ok(requests);
     }
 
+    // New endpoint to get volunteer requests with user data
+    @GetMapping("/with-user-data")
+    public ResponseEntity<List<VolunteerRequestWithUserDTO>> getAllVolunteerRequestsWithUserData() {
+        List<VolunteerRequestWithUserDTO> requests = volunteerRequestService.getAllVolunteerRequestsWithUserData();
+        return ResponseEntity.ok(requests);
+    }
+
+    // New endpoint to get volunteer requests with user data by status
+    @GetMapping("/with-user-data/status/{status}")
+    public ResponseEntity<List<VolunteerRequestWithUserDTO>> getVolunteerRequestsWithUserDataByStatus(@PathVariable String status) {
+        try {
+            VolunteerRequest.RequestStatus requestStatus = VolunteerRequest.RequestStatus.valueOf(status.toLowerCase());
+            List<VolunteerRequestWithUserDTO> requests = volunteerRequestService.getVolunteerRequestsWithUserDataByStatus(requestStatus);
+            return ResponseEntity.ok(requests);
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest().build();
+        }
+    }
+
     @PutMapping("/{requestId}/status")
     public ResponseEntity<?> updateRequestStatus(
             @PathVariable Integer requestId,
@@ -72,4 +92,4 @@ public class VolunteerRequestController {
             return ResponseEntity.badRequest().body("Error updating request status: " + e.getMessage());
         }
     }
-} 
+}

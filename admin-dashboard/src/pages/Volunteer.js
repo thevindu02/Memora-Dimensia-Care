@@ -1,165 +1,65 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import '../styles/Volunteer.css';
 import '../styles/UserManagement.css';
+import volunteerApiService from '../services/volunteerApiService';
 import {
   Header,
   Sidebar,
   Footer
 } from '../components';
 
-// Sample volunteer data with Sri Lankan details
-const volunteersData = [
-  { 
-    id: 1, 
-    name: 'Kasun Perera', 
-    address: '45/A, Galle Road, Colombo 03', 
-    age: 28, 
-    gender: 'Male',
-    phone: '077-1234567',
-    engagingField: 'Patient Transport', 
-    status: 'Active',
-    experience: '2 years',
-    availability: 'Weekends',
-    email: 'kasun.perera@email.com',
-    profilePicture: 'https://via.placeholder.com/150/4A90E2/FFFFFF?text=KP'
-  },
-  { 
-    id: 2, 
-    name: 'Nimali Fernando', 
-    address: '23, Temple Road, Kandy', 
-    age: 35, 
-    gender: 'Female',
-    phone: '071-2345678',
-    engagingField: 'Counseling Support', 
-    status: 'Pending',
-    experience: '4 years',
-    availability: 'Weekdays',
-    email: 'nimali.fernando@email.com',
-    profilePicture: 'https://via.placeholder.com/150/FF6B6B/FFFFFF?text=NF'
-  },
-  { 
-    id: 3, 
-    name: 'Ruwan Silva', 
-    address: '67, Station Road, Galle', 
-    age: 42, 
-    gender: 'Male',
-    phone: '075-3456789',
-    engagingField: 'Activity Organization', 
-    status: 'Active',
-    experience: '6 years',
-    availability: 'Flexible',
-    email: 'ruwan.silva@email.com',
-    profilePicture: 'https://via.placeholder.com/150/50C878/FFFFFF?text=RS'
-  },
-  { 
-    id: 4, 
-    name: 'Sandani Rathnayake', 
-    address: '89, Hill Street, Nuwara Eliya', 
-    age: 31, 
-    gender: 'Female',
-    phone: '072-4567890',
-    engagingField: 'Meal Assistance', 
-    status: 'Disabled',
-    experience: '3 years',
-    availability: 'Mornings',
-    email: 'sandani.rathnayake@email.com',
-    profilePicture: 'https://via.placeholder.com/150/9B59B6/FFFFFF?text=SR'
-  },
-  { 
-    id: 5, 
-    name: 'Chaminda Jayasinghe', 
-    address: '12, Beach Road, Negombo', 
-    age: 39, 
-    gender: 'Male',
-    phone: '076-5678901',
-    engagingField: 'Technology Support', 
-    status: 'Pending',
-    experience: '5 years',
-    availability: 'Evenings',
-    email: 'chaminda.jayasinghe@email.com',
-    profilePicture: 'https://via.placeholder.com/150/F39C12/FFFFFF?text=CJ'
-  },
-  { 
-    id: 6, 
-    name: 'Malini Wickramasinghe', 
-    address: '34, Market Street, Matara', 
-    age: 26, 
-    gender: 'Female',
-    phone: '078-6789012',
-    engagingField: 'Companionship', 
-    status: 'Active',
-    experience: '1 year',
-    availability: 'Weekends',
-    email: 'malini.wickramasinghe@email.com',
-    profilePicture: 'https://via.placeholder.com/150/E74C3C/FFFFFF?text=MW'
-  },
-  { 
-    id: 7, 
-    name: 'Ajith Bandara', 
-    address: '56, Lake Road, Kurunegala', 
-    age: 45, 
-    gender: 'Male',
-    phone: '070-7890123',
-    engagingField: 'Emergency Response', 
-    status: 'Active',
-    experience: '8 years',
-    availability: 'On-call',
-    email: 'ajith.bandara@email.com',
-    profilePicture: 'https://via.placeholder.com/150/3498DB/FFFFFF?text=AB'
-  },
-  { 
-    id: 8, 
-    name: 'Priyanka Gunasekara', 
-    address: '78, School Lane, Anuradhapura', 
-    age: 33, 
-    gender: 'Female',
-    phone: '074-8901234',
-    engagingField: 'Educational Support', 
-    status: 'Pending',
-    experience: '3 years',
-    availability: 'Afternoons',
-    email: 'priyanka.gunasekara@email.com',
-    profilePicture: 'https://via.placeholder.com/150/1ABC9C/FFFFFF?text=PG'
-  },
-  { 
-    id: 9, 
-    name: 'Tharaka Mendis', 
-    address: '90, Fort Road, Jaffna', 
-    age: 29, 
-    gender: 'Male',
-    phone: '073-9012345',
-    engagingField: 'Physical Therapy Aid', 
-    status: 'Active',
-    experience: '2 years',
-    availability: 'Weekdays',
-    email: 'tharaka.mendis@email.com',
-    profilePicture: 'https://via.placeholder.com/150/8E44AD/FFFFFF?text=TM'
-  },
-  { 
-    id: 10, 
-    name: 'Shani Dissanayake', 
-    address: '21, Park Avenue, Batticaloa', 
-    age: 37, 
-    gender: 'Female',
-    phone: '079-0123456',
-    engagingField: 'Administrative Support', 
-    status: 'Disabled',
-    experience: '4 years',
-    availability: 'Mornings',
-    email: 'shani.dissanayake@email.com',
-    profilePicture: 'https://via.placeholder.com/150/D35400/FFFFFF?text=SD'
-  }
-];
-
 const Volunteer = () => {
+  const [volunteers, setVolunteers] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
   const [selectedVolunteer, setSelectedVolunteer] = useState(null);
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState('');
 
-  const totalVolunteers = volunteersData.length;
-  const activeVolunteers = volunteersData.filter(volunteer => volunteer.status === 'Active').length;
-  const pendingVolunteers = volunteersData.filter(volunteer => volunteer.status === 'Pending').length;
-  const disabledVolunteers = volunteersData.filter(volunteer => volunteer.status === 'Disabled').length;
+  // Fetch volunteer data on component mount
+  useEffect(() => {
+    fetchVolunteers();
+  }, []);
+
+  const fetchVolunteers = async () => {
+    try {
+      console.log('Fetching volunteer data...');
+      setLoading(true);
+      setError(null);
+      const data = await volunteerApiService.getAllVolunteerRequestsWithUserData();
+      console.log('Received volunteer data:', data);
+      setVolunteers(data);
+    } catch (error) {
+      console.error('Error fetching volunteers:', error);
+      setError('Failed to load volunteer data. Please try again later.');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Transform backend data to match frontend expectations
+  const transformVolunteerData = (volunteer) => ({
+    id: volunteer.requestId,
+    name: `${volunteer.firstName} ${volunteer.lastName}`,
+    email: volunteer.email,
+    phone: volunteer.phoneNumber,
+    gender: volunteer.gender,
+    status: volunteer.requestStatus,
+    createdAt: volunteer.createdAt,
+    userId: volunteer.userId,
+    volunteerIdImage: volunteer.volunteerIdImage,
+    birthdate: volunteer.birthdate,
+    city: volunteer.city,
+    state: volunteer.state,
+    profilePic: volunteer.profilePic
+  });
+
+  const transformedVolunteers = volunteers.map(transformVolunteerData);
+
+  const totalVolunteers = transformedVolunteers.length;
+  const approvedVolunteers = transformedVolunteers.filter(volunteer => volunteer.status === 'approved').length;
+  const pendingVolunteers = transformedVolunteers.filter(volunteer => volunteer.status === 'pending').length;
+  const rejectedVolunteers = transformedVolunteers.filter(volunteer => volunteer.status === 'rejected').length;
 
   const handleVolunteerClick = (volunteer) => {
     setSelectedVolunteer(volunteer);
@@ -169,30 +69,40 @@ const Volunteer = () => {
     setSelectedVolunteer(null);
   };
 
-  const handleAcceptVolunteer = (volunteerId) => {
-    // UI only - no backend functionality
-    console.log('Accept volunteer:', volunteerId);
-    handleCloseModal();
+  const handleAcceptVolunteer = async (volunteerId) => {
+    try {
+      await volunteerApiService.updateVolunteerRequestStatus(volunteerId, 'approved');
+      // Refresh the data after updating
+      await fetchVolunteers();
+      handleCloseModal();
+    } catch (error) {
+      console.error('Error accepting volunteer:', error);
+    }
   };
 
-  const handleDisableVolunteer = (volunteerId) => {
-    // UI only - no backend functionality
-    console.log('Disable volunteer:', volunteerId);
-    handleCloseModal();
+  const handleRejectVolunteer = async (volunteerId) => {
+    try {
+      await volunteerApiService.updateVolunteerRequestStatus(volunteerId, 'rejected');
+      // Refresh the data after updating
+      await fetchVolunteers();
+      handleCloseModal();
+    } catch (error) {
+      console.error('Error rejecting volunteer:', error);
+    }
   };
 
   // Filter volunteers based on search term and status
-  const filteredVolunteers = volunteersData.filter(volunteer => {
+  const filteredVolunteers = transformedVolunteers.filter(volunteer => {
     const matchesSearch = volunteer.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         volunteer.engagingField.toLowerCase().includes(searchTerm.toLowerCase());
+                         volunteer.email.toLowerCase().includes(searchTerm.toLowerCase());
     const matchesStatus = statusFilter === '' || volunteer.status === statusFilter;
     return matchesSearch && matchesStatus;
   });
 
   // Sort volunteers to show pending first
   const sortedVolunteers = [...filteredVolunteers].sort((a, b) => {
-    if (a.status === 'Pending' && b.status !== 'Pending') return -1;
-    if (a.status !== 'Pending' && b.status === 'Pending') return 1;
+    if (a.status === 'pending' && b.status !== 'pending') return -1;
+    if (a.status !== 'pending' && b.status === 'pending') return 1;
     return 0;
   });
 
@@ -205,6 +115,20 @@ const Volunteer = () => {
         
         <div className="content">
           <div className="user-management-container">
+            
+            {error && (
+              <div style={{
+                backgroundColor: '#f8d7da',
+                border: '1px solid #f5c6cb',
+                color: '#721c24',
+                padding: '0.75rem 1.25rem',
+                marginBottom: '1rem',
+                borderRadius: '0.25rem'
+              }}>
+                {error}
+              </div>
+            )}
+
             {/* Search and Filters Section */}
             <div className="um-search-filters">
               <div className="um-search-row">
@@ -226,9 +150,9 @@ const Volunteer = () => {
                     onChange={(e) => setStatusFilter(e.target.value)}
                   >
                     <option value="">All Status</option>
-                    <option value="Active">Active</option>
-                    <option value="Pending">Pending</option>
-                    <option value="Disabled">Disabled</option>
+                    <option value="pending">Pending</option>
+                    <option value="approved">Approved</option>
+                    <option value="rejected">Rejected</option>
                   </select>
                   
                   <select className="um-filter-select">
@@ -265,8 +189,8 @@ const Volunteer = () => {
               <div className="um-stat-card">
                 <div className="um-stat-icon">✅</div>
                 <div className="um-stat-content">
-                  <h3>{activeVolunteers}</h3>
-                  <p>Active Volunteers</p>
+                  <h3>{approvedVolunteers}</h3>
+                  <p>Approved Volunteers</p>
                 </div>
               </div>
               
@@ -281,49 +205,67 @@ const Volunteer = () => {
               <div className="um-stat-card">
                 <div className="um-stat-icon">❌</div>
                 <div className="um-stat-content">
-                  <h3>{disabledVolunteers}</h3>
-                  <p>Disabled Volunteers</p>
+                  <h3>{rejectedVolunteers}</h3>
+                  <p>Rejected Volunteers</p>
                 </div>
               </div>
             </div>
 
             {/* Volunteers Table */}
             <div className="um-table-container">
-              <table className="um-table">
-                <thead>
-                  <tr>
-                    <th>Name</th>
-                    <th>Email</th>
-                    <th>Phone Number</th>
-                    <th>Gender</th>
-                    <th>Status</th>
-                    <th>Actions</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {sortedVolunteers.map((volunteer) => (
-                    <tr key={volunteer.id}>
-                      <td className="um-name-cell">{volunteer.name}</td>
-                      <td>{volunteer.email}</td>
-                      <td>{volunteer.phone}</td>
-                      <td>{volunteer.gender}</td>
-                      <td>
-                        <span className={`um-status-badge ${volunteer.status.toLowerCase()}`}>
-                          {volunteer.status}
-                        </span>
-                      </td>
-                      <td>
-                        <button 
-                          className="um-btn um-btn-primary"
-                          onClick={() => handleVolunteerClick(volunteer)}
-                        >
-                          View Details
-                        </button>
-                      </td>
+              {loading ? (
+                <div style={{ textAlign: 'center', padding: '2rem' }}>
+                  <p>Loading volunteers...</p>
+                </div>
+              ) : error ? (
+                <div style={{ textAlign: 'center', padding: '2rem', color: 'red' }}>
+                  <p>{error}</p>
+                </div>
+              ) : (
+                <table className="um-table">
+                  <thead>
+                    <tr>
+                      <th>Name</th>
+                      <th>Email</th>
+                      <th>Phone Number</th>
+                      <th>Gender</th>
+                      <th>Status</th>
+                      <th>Actions</th>
                     </tr>
-                  ))}
-                </tbody>
-              </table>
+                  </thead>
+                  <tbody>
+                    {sortedVolunteers.length === 0 ? (
+                      <tr>
+                        <td colSpan="6" style={{ textAlign: 'center', padding: '2rem' }}>
+                          No volunteers found
+                        </td>
+                      </tr>
+                    ) : (
+                      sortedVolunteers.map((volunteer) => (
+                        <tr key={volunteer.id}>
+                          <td className="um-name-cell">{volunteer.name}</td>
+                          <td>{volunteer.email}</td>
+                          <td>{volunteer.phone || 'N/A'}</td>
+                          <td>{volunteer.gender || 'N/A'}</td>
+                          <td>
+                            <span className={`um-status-badge ${volunteer.status.toLowerCase()}`}>
+                              {volunteer.status.charAt(0).toUpperCase() + volunteer.status.slice(1)}
+                            </span>
+                          </td>
+                          <td>
+                            <button 
+                              className="um-btn um-btn-primary"
+                              onClick={() => handleVolunteerClick(volunteer)}
+                            >
+                              View Details
+                            </button>
+                          </td>
+                        </tr>
+                      ))
+                    )}
+                  </tbody>
+                </table>
+              )}
             </div>
 
             {/* Volunteer Details Modal */}
@@ -346,7 +288,7 @@ const Volunteer = () => {
                       {/* Profile Picture Section */}
                       <div className="um-detail-section" style={{gridColumn: '1 / -1', textAlign: 'center', marginBottom: '2rem'}}>
                         <img 
-                          src={selectedVolunteer.profilePicture} 
+                          src={selectedVolunteer.profilePic || 'https://via.placeholder.com/120/4A90E2/FFFFFF?text=V'} 
                           alt={selectedVolunteer.name}
                           style={{
                             width: '120px',
@@ -361,7 +303,7 @@ const Volunteer = () => {
                           }}
                         />
                         <h3 style={{margin: '0', color: 'var(--um-gray-800)'}}>{selectedVolunteer.name}</h3>
-                        <p style={{margin: '0.5rem 0 0 0', color: 'var(--um-gray-600)'}}>Volunteer</p>
+                        <p style={{margin: '0.5rem 0 0 0', color: 'var(--um-gray-600)'}}>Volunteer Request</p>
                       </div>
 
                       {/* Volunteer Information */}
@@ -380,16 +322,30 @@ const Volunteer = () => {
                         </div>
                         <div className="um-detail-row">
                           <span className="um-detail-label">Phone Number</span>
-                          <span className="um-detail-value">{selectedVolunteer.phone}</span>
+                          <span className="um-detail-value">{selectedVolunteer.phone || 'N/A'}</span>
                         </div>
                         <div className="um-detail-row">
                           <span className="um-detail-label">Gender</span>
-                          <span className="um-detail-value">{selectedVolunteer.gender}</span>
+                          <span className="um-detail-value">{selectedVolunteer.gender || 'N/A'}</span>
+                        </div>
+                        <div className="um-detail-row">
+                          <span className="um-detail-label">City</span>
+                          <span className="um-detail-value">{selectedVolunteer.city || 'N/A'}</span>
+                        </div>
+                        <div className="um-detail-row">
+                          <span className="um-detail-label">State</span>
+                          <span className="um-detail-value">{selectedVolunteer.state || 'N/A'}</span>
                         </div>
                         <div className="um-detail-row">
                           <span className="um-detail-label">Status</span>
                           <span className={`um-status-badge ${selectedVolunteer.status.toLowerCase()}`}>
-                            {selectedVolunteer.status}
+                            {selectedVolunteer.status.charAt(0).toUpperCase() + selectedVolunteer.status.slice(1)}
+                          </span>
+                        </div>
+                        <div className="um-detail-row">
+                          <span className="um-detail-label">Request Date</span>
+                          <span className="um-detail-value">
+                            {selectedVolunteer.createdAt ? new Date(selectedVolunteer.createdAt).toLocaleDateString() : 'N/A'}
                           </span>
                         </div>
                       </div>
@@ -398,20 +354,28 @@ const Volunteer = () => {
                   
                   <div className="um-modal-footer">
                     <div className="um-modal-actions">
-                      {selectedVolunteer.status === 'Pending' && (
-                        <button 
-                          className="um-btn um-btn-success"
-                          onClick={() => handleAcceptVolunteer(selectedVolunteer.id)}
-                        >
-                          Accept Volunteer
-                        </button>
+                      {selectedVolunteer.status === 'pending' && (
+                        <>
+                          <button 
+                            className="um-btn um-btn-success"
+                            onClick={() => handleAcceptVolunteer(selectedVolunteer.id)}
+                          >
+                            Accept Volunteer
+                          </button>
+                          <button 
+                            className="um-btn um-btn-danger"
+                            onClick={() => handleRejectVolunteer(selectedVolunteer.id)}
+                          >
+                            Reject Volunteer
+                          </button>
+                        </>
                       )}
-                      {selectedVolunteer.status === 'Active' && (
+                      {selectedVolunteer.status === 'approved' && (
                         <button 
                           className="um-btn um-btn-danger"
-                          onClick={() => handleDisableVolunteer(selectedVolunteer.id)}
+                          onClick={() => handleRejectVolunteer(selectedVolunteer.id)}
                         >
-                          Set as Inactive
+                          Reject Volunteer
                         </button>
                       )}
                     </div>
