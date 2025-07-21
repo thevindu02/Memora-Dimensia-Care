@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'dart:io';
+import 'dart:convert';
+import 'package:http/http.dart' as http;
 
 class VolunteerArticlesScreen extends StatefulWidget {
   const VolunteerArticlesScreen({Key? key}) : super(key: key);
@@ -203,6 +205,49 @@ class _VolunteerArticlesScreenState extends State<VolunteerArticlesScreen> {
     );
   }
 
+  Future<void> submitArticle({required bool draft}) async {
+    final int volunteerId = 1; // TODO: Get this from your login/session!
+    final String url = 'http://10.0.2.2:8080/api/articles';
+
+    // For now, just use the first image if any
+    String? articleImg;
+    if (_selectedImages.isNotEmpty) {
+      // You need to upload the image to a server or Firebase Storage and get a URL
+      // For now, just use the file path (backend must handle this or ignore)
+      articleImg = _selectedImages.first.path;
+    }
+
+    final Map<String, dynamic> articleData = {
+      "volunteerId": volunteerId,
+      "draft": draft,
+      "title": _topicController.text,
+      "summary": _descriptionController.text,
+      "content": _descriptionController.text,
+      "articleImg": articleImg ?? ""
+    };
+
+    print("Submitting: ${jsonEncode(articleData)}");
+
+    final response = await http.post(
+      Uri.parse(url),
+      headers: {'Content-Type': 'application/json'},
+      body: jsonEncode(articleData),
+    );
+
+    print('Response status: ${response.statusCode}');
+    print('Response body: ${response.body}');
+
+    if (response.statusCode == 200) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Article submitted!')),
+      );
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Failed: ${response.body}')),
+      );
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -380,12 +425,7 @@ class _VolunteerArticlesScreenState extends State<VolunteerArticlesScreen> {
               children: [
                 Expanded(
                   child: ElevatedButton(
-                    onPressed: () {
-                      // Handle publish
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        SnackBar(content: Text('Article published!')),
-                      );
-                    },
+                    onPressed: () => submitArticle(draft: false),
                     style: ElevatedButton.styleFrom(
                       backgroundColor: Colors.blue,
                       foregroundColor: Colors.white,
@@ -406,12 +446,7 @@ class _VolunteerArticlesScreenState extends State<VolunteerArticlesScreen> {
                 SizedBox(width: 16),
                 Expanded(
                   child: OutlinedButton(
-                    onPressed: () {
-                      // Handle save draft
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        SnackBar(content: Text('Draft saved!')),
-                      );
-                    },
+                    onPressed: () => submitArticle(draft: true),
                     style: OutlinedButton.styleFrom(
                       foregroundColor: Colors.grey[600],
                       padding: EdgeInsets.symmetric(vertical: 12),
