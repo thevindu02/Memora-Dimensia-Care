@@ -245,6 +245,11 @@
   color: white;
 }
 
+.um-status-badge.approved {
+  background: linear-gradient(135deg, var(--um-success), var(--um-success-light));
+  color: white;
+}
+
 .um-status-badge.pending {
   background: linear-gradient(135deg, var(--um-warning), #fbbf24);
   color: white;

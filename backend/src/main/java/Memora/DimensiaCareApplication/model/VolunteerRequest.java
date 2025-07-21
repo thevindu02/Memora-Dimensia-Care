@@ -83,6 +83,6 @@ public class VolunteerRequest {
     }
 
     public enum RequestStatus {
-        pending, accepted, rejected
+        pending, approved, accepted, rejected
     }
 }
