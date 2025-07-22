@@ -44,7 +44,10 @@ const subscriptionData = {
     { id: 2, user: 'Nimali Fernando', plan: 'Annual', amount: 15000, date: '2025-07-17', status: 'Completed' },
     { id: 3, user: 'Ruwan Silva', plan: '3 Months', amount: 19000, date: '2025-07-16', status: 'Completed' },
     { id: 4, user: 'Sandani Rathnayake', plan: '6 Months', amount: 18000, date: '2025-07-15', status: 'Pending' },
-    { id: 5, user: 'Chaminda Jayasinghe', plan: 'Annual', amount: 16500, date: '2025-07-14', status: 'Completed' }
+    { id: 5, user: 'Chaminda Jayasinghe', plan: 'Annual', amount: 16500, date: '2025-07-14', status: 'Completed' },
+    { id: 6, user: 'Chaminda Jayasinghe', plan: 'Annual', amount: 16500, date: '2025-07-14', status: 'Completed' },
+    { id: 7, user: 'Chaminda Jayasinghe', plan: 'Annual', amount: 16500, date: '2025-07-14', status: 'Completed' }
+
   ],
   
   // Churn analysis
@@ -252,10 +255,6 @@ const RevenueAnalytics = () => {
                     <span className="metric-label">Avg. Customer Lifetime</span>
                     <span className="metric-value">{subscriptionData.churnData.avgLifetime} months</span>
                   </div>
-                  <div className="metric-item">
-                    <span className="metric-label">Customer Lifetime Value</span>
-                    <span className="metric-value">{formatCurrency(subscriptionData.churnData.lifetimeValue)}</span>
-                  </div>
                 </div>
               </div>
 
@@ -288,30 +287,6 @@ const RevenueAnalytics = () => {
               </div>
             </div>
 
-            {/* Revenue Forecast */}
-            <div className="forecast-section">
-              <div className="forecast-header">
-                <h3>Revenue Forecast</h3>
-                <p>Projected revenue based on current trends</p>
-              </div>
-              <div className="forecast-cards">
-                <div className="forecast-card">
-                  <div className="forecast-period">Next Month</div>
-                  <div className="forecast-amount">{formatCurrency(subscriptionData.monthlyRevenue * 1.08)}</div>
-                  <div className="forecast-confidence">85% confidence</div>
-                </div>
-                <div className="forecast-card">
-                  <div className="forecast-period">Next Quarter</div>
-                  <div className="forecast-amount">{formatCurrency(subscriptionData.monthlyRevenue * 3 * 1.12)}</div>
-                  <div className="forecast-confidence">78% confidence</div>
-                </div>
-                <div className="forecast-card">
-                  <div className="forecast-period">Next Year</div>
-                  <div className="forecast-amount">{formatCurrency(subscriptionData.monthlyRevenue * 12 * 1.25)}</div>
-                  <div className="forecast-confidence">65% confidence</div>
-                </div>
-              </div>
-            </div>
           </div>
         </div>
         
