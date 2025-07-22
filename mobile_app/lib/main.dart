@@ -7,6 +7,7 @@ import 'package:go_router/go_router.dart';
 import 'routes/router.dart';
 import 'package:flutter/services.dart';
 import 'utils/navigator_observer.dart';
+import 'constants/color_constants.dart';
 
 void main() {
 
@@ -26,8 +27,27 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       title: 'Memora',
       theme: ThemeData(
-        primarySwatch: Colors.blue,
-        primaryColor: Colors.blue[700],
+        primarySwatch: AppMaterialColors.primarySwatch,
+        primaryColor: AppColors.primary,
+        scaffoldBackgroundColor: AppColors.background,
+        textTheme: TextTheme(
+          bodyLarge: TextStyle(color: AppColors.textPrimary),
+          bodyMedium: TextStyle(color: AppColors.textSecondary),
+        ),
+        colorScheme: ColorScheme.fromSwatch(
+          primarySwatch: AppMaterialColors.primarySwatch,
+        ).copyWith(
+          primary: AppColors.primary,
+          secondary: AppColors.secondary,
+          surface: AppColors.surface,
+          background: AppColors.background,
+          error: AppColors.error,
+          onPrimary: AppColors.onPrimary,
+          onSecondary: AppColors.onSecondary,
+          onSurface: AppColors.onSurface,
+          onBackground: AppColors.onSurface,
+          onError: AppColors.onPrimary,
+        ),
       ),
       initialRoute: AppRoutes.splash,
       navigatorObservers: [CustomNavigatorObserver()],

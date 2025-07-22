@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../../constants/color_constants.dart';
 
 class PatientProfileScreen extends StatelessWidget {
   const PatientProfileScreen({Key? key}) : super(key: key);
@@ -6,22 +7,22 @@ class PatientProfileScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.grey[50],
+      backgroundColor: PatientColors.background,
       appBar: AppBar(
-        backgroundColor: Colors.white,
+        backgroundColor: PatientColors.surface,
         elevation: 0,
         centerTitle: true,
         title: const Text(
           'Profile',
           style: TextStyle(
-            color: Colors.black,
+            color: PatientColors.onSurface,
             fontSize: 18,
             fontWeight: FontWeight.w600,
           ),
         ),
         actions: [
           IconButton(
-            icon: const Icon(Icons.notifications_outlined, color: Colors.black),
+            icon: const Icon(Icons.notifications_outlined, color: PatientColors.onSurface),
             onPressed: () {},
           ),
         ],
@@ -32,7 +33,7 @@ class PatientProfileScreen extends StatelessWidget {
             // Profile Header
             Container(
               width: double.infinity,
-              color: Colors.white,
+              color: PatientColors.surface,
               padding: const EdgeInsets.all(24),
               child: Column(
                 children: [
@@ -50,12 +51,12 @@ class PatientProfileScreen extends StatelessWidget {
                           width: 24,
                           height: 24,
                           decoration: const BoxDecoration(
-                            color: Colors.blue,
+                            color: PatientColors.primary,
                             shape: BoxShape.circle,
                           ),
                           child: const Icon(
                             Icons.check,
-                            color: Colors.white,
+                            color: PatientColors.onPrimary,
                             size: 14,
                           ),
                         ),
@@ -69,7 +70,7 @@ class PatientProfileScreen extends StatelessWidget {
                     style: TextStyle(
                       fontSize: 24,
                       fontWeight: FontWeight.bold,
-                      color: Colors.black,
+                      color: PatientColors.onSurface,
                     ),
                   ),
                   const SizedBox(height: 4),
@@ -77,7 +78,7 @@ class PatientProfileScreen extends StatelessWidget {
                     'Patient ID: #P12345',
                     style: TextStyle(
                       fontSize: 14,
-                      color: Colors.grey,
+                      color: PatientColors.onSurfaceVariant,
                     ),
                   ),
                   const SizedBox(height: 12),
@@ -88,13 +89,13 @@ class PatientProfileScreen extends StatelessWidget {
                       Container(
                         padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
                         decoration: BoxDecoration(
-                          color: Colors.green[100],
+                          color: PatientColors.successBackground,
                           borderRadius: BorderRadius.circular(16),
                         ),
                         child: const Text(
                           'Active',
                           style: TextStyle(
-                            color: Colors.green,
+                            color: PatientColors.success,
                             fontSize: 12,
                             fontWeight: FontWeight.w600,
                           ),
@@ -105,7 +106,7 @@ class PatientProfileScreen extends StatelessWidget {
                         'Member since 2023',
                         style: TextStyle(
                           fontSize: 12,
-                          color: Colors.grey,
+                          color: PatientColors.onSurfaceVariant,
                         ),
                       ),
                     ],
@@ -187,19 +188,19 @@ class PatientProfileScreen extends StatelessWidget {
                   icon: Icons.warning_amber_outlined,
                   label: 'Allergies',
                   value: 'Penicillin, Shellfish',
-                  iconColor: Colors.red,
+                  iconColor: PatientColors.error,
                 ),
                 _buildInfoRow(
                   icon: Icons.medication_outlined,
                   label: 'Current Medications',
                   value: 'Lisinopril 10mg daily\nMetformin 500mg twice daily',
-                  iconColor: Colors.blue,
+                  iconColor: PatientColors.primary,
                 ),
                 _buildInfoRow(
                   icon: Icons.favorite_outline,
                   label: 'Medical Conditions',
                   value: 'Type 2 Diabetes, Hypertension',
-                  iconColor: Colors.blue,
+                  iconColor: PatientColors.primary,
                 ),
               ],
             ),
@@ -235,8 +236,8 @@ class PatientProfileScreen extends StatelessWidget {
                     child: ElevatedButton(
                       onPressed: () {},
                       style: ElevatedButton.styleFrom(
-                        backgroundColor: Colors.blue,
-                        foregroundColor: Colors.white,
+                        backgroundColor: PatientColors.primary,
+                        foregroundColor: PatientColors.onPrimary,
                         padding: const EdgeInsets.symmetric(vertical: 16),
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(12),
@@ -264,8 +265,8 @@ class PatientProfileScreen extends StatelessWidget {
                     child: OutlinedButton(
                       onPressed: () {},
                       style: OutlinedButton.styleFrom(
-                        foregroundColor: Colors.grey[700],
-                        side: BorderSide(color: Colors.grey[300]!),
+                        foregroundColor: PatientColors.onSurfaceVariant,
+                        side: BorderSide(color: PatientColors.outline),
                         padding: const EdgeInsets.symmetric(vertical: 16),
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(12),
@@ -293,8 +294,8 @@ class PatientProfileScreen extends StatelessWidget {
                     child: OutlinedButton(
                       onPressed: () {},
                       style: OutlinedButton.styleFrom(
-                        foregroundColor: Colors.grey[700],
-                        side: BorderSide(color: Colors.grey[300]!),
+                        foregroundColor: PatientColors.onSurfaceVariant,
+                        side: BorderSide(color: PatientColors.outline),
                         padding: const EdgeInsets.symmetric(vertical: 16),
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(12),
