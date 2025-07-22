@@ -2,16 +2,15 @@ import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'dart:io';
 import '../../routes/app_routes.dart';
-
+import 'guardian_bottom_nav_bar.dart';
 
 class GuardianProfileScreen extends StatefulWidget {
-
   @override
   _GuardianProfileScreenState createState() => _GuardianProfileScreenState();
 }
 
 class _GuardianProfileScreenState extends State<GuardianProfileScreen> {
-  int _selectedIndex = 2;
+  int _selectedIndex = 3; // Changed from 2 to 3 to match Profile tab
   bool _isEditing = false;
   bool _isLoading = false;
   File? _profileImage;
@@ -41,7 +40,7 @@ class _GuardianProfileScreenState extends State<GuardianProfileScreen> {
   @override
   void initState() {
     super.initState();
-    _selectedIndex = 2;
+    _selectedIndex = 3; // Updated to match Profile tab index
     // Store original values
     _originalName = _nameController.text;
     _originalEmail = _emailController.text;
@@ -329,21 +328,8 @@ class _GuardianProfileScreenState extends State<GuardianProfileScreen> {
       _selectedIndex = index;
     });
 
-    switch (index) {
-      case 0:
-        Navigator.pushNamedAndRemoveUntil(
-          context,
-          AppRoutes.guardianDashboard,
-              (route) => false,
-        );
-        break;
-      case 1:
-        Navigator.pushNamed(context, AppRoutes.guardianForums);
-        break;
-      case 2:
-      // Already on Profile
-        break;
-    }
+    // Use the navigation helper from the custom bottom nav bar
+    BottomNavHelper.handleNavigation(context, index);
   }
 
   void _navigateToHome() {
@@ -605,7 +591,6 @@ class _GuardianProfileScreenState extends State<GuardianProfileScreen> {
                         },
                       ),
 
-
                       _buildTextField(
                         controller: _emailController,
                         label: 'Email',
@@ -794,28 +779,9 @@ class _GuardianProfileScreenState extends State<GuardianProfileScreen> {
             ],
           ),
         ),
-        bottomNavigationBar: BottomNavigationBar(
+        bottomNavigationBar: CustomBottomNavigationBar(
           currentIndex: _selectedIndex,
           onTap: _onBottomNavTap,
-          type: BottomNavigationBarType.fixed,
-          backgroundColor: Colors.white,
-          selectedItemColor: Color(0xFF2B3F99),
-          unselectedItemColor: Colors.grey[600],
-          items: [
-            BottomNavigationBarItem(
-              icon: Icon(Icons.home),
-              label: 'Home',
-            ),
-            BottomNavigationBarItem(
-              icon: Icon(Icons.forum),
-              label: 'Forum',
-            ),
-            BottomNavigationBarItem(
-              icon: Icon(Icons.person),
-              label: 'Profile',
-
-            ),
-          ],
         ),
       ),
     );

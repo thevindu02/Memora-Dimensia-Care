@@ -1,7 +1,9 @@
 package Memora.DimensiaCareApplication.dto.response;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import Memora.DimensiaCareApplication.model.Patient;
 import Memora.DimensiaCareApplication.model.User;
+import Memora.DimensiaCareApplication.model.Guardian;
 
 public class PatientDetailsResponse {
     private Long patientId;
@@ -11,7 +13,9 @@ public class PatientDetailsResponse {
     
     // User details
     private Long userId;
+    @JsonProperty("fName")
     private String fName;
+    @JsonProperty("lName")
     private String lName;
     private String email;
     private String phoneNumber;
@@ -20,6 +24,16 @@ public class PatientDetailsResponse {
     private String street;
     private String city;
     private String state;
+    
+    // Guardian details
+    private Long guardianId;
+    private String guardianName;
+    private String guardianEmail;
+    private String guardianPhone;
+    private String guardianCity;
+    
+    // Relationship
+    private String relationship;
 
     public static PatientDetailsResponse fromPatient(Patient patient) {
         User user = patient.getUser();
@@ -29,6 +43,7 @@ public class PatientDetailsResponse {
         resp.dementiaStage = patient.getDementiaStage().name();
         resp.dementiaType = patient.getDementiaType().name();
         resp.dateOfDiagnosis = patient.getDateOfDiagnosis() != null ? patient.getDateOfDiagnosis().toString() : null;
+        resp.relationship = patient.getRelationship();
         
         if (user != null) {
             resp.userId = user.getId();
@@ -42,6 +57,18 @@ public class PatientDetailsResponse {
             resp.city = user.getCity();
             resp.state = user.getState();
         }
+        
+        // Add guardian information
+        Guardian guardian = patient.getGuardian();
+        if (guardian != null && guardian.getUser() != null) {
+            User guardianUser = guardian.getUser();
+            resp.guardianId = guardian.getGuardianId();
+            resp.guardianName = guardianUser.getFName() + " " + guardianUser.getLName();
+            resp.guardianEmail = guardianUser.getEmail();
+            resp.guardianPhone = guardianUser.getPhoneNumber();
+            resp.guardianCity = guardianUser.getCity();
+        }
+        
         return resp;
     }
 
@@ -156,5 +183,53 @@ public class PatientDetailsResponse {
 
     public void setState(String state) {
         this.state = state;
+    }
+    
+    public Long getGuardianId() {
+        return guardianId;
+    }
+    
+    public void setGuardianId(Long guardianId) {
+        this.guardianId = guardianId;
+    }
+    
+    public String getGuardianName() {
+        return guardianName;
+    }
+    
+    public void setGuardianName(String guardianName) {
+        this.guardianName = guardianName;
+    }
+    
+    public String getGuardianEmail() {
+        return guardianEmail;
+    }
+    
+    public void setGuardianEmail(String guardianEmail) {
+        this.guardianEmail = guardianEmail;
+    }
+    
+    public String getGuardianPhone() {
+        return guardianPhone;
+    }
+    
+    public void setGuardianPhone(String guardianPhone) {
+        this.guardianPhone = guardianPhone;
+    }
+    
+    public String getGuardianCity() {
+        return guardianCity;
+    }
+    
+    public void setGuardianCity(String guardianCity) {
+        this.guardianCity = guardianCity;
+    }
+    
+    public String getRelationship() {
+        return relationship;
+    }
+    
+    public void setRelationship(String relationship) {
+        this.relationship = relationship;
     }
 }

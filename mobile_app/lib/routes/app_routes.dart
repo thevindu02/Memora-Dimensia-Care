@@ -10,7 +10,6 @@ class AppRoutes {
   static const String patientDashboard = '/patient/dashboard';
   static const String patientProfile = '/patient/profile';
   static const String patientSettings = '/patient/settings';
-  static const String patientGuardianRequest = '/patient/guardianRequest';
   static const String patientEmailVerification = '/patient/emailVerification';
   static const String patientVerifyCode = '/patient/verifyCode';
   static const String patientWelcome = '/patient/welcome';
@@ -61,11 +60,12 @@ class AppRoutes {
   static const String patientRoutine = '/caregiver/routine';
   static const String selectType = '/caregiver/selectRoutine';
   static const String viewArticleList = '/caregiver/article';
-  static const String guardianRequest = '/caregiver/request';
   static const String caregiverNotification = '/caregiver/notification';
   static const String patientReport = '/caregiver/report';
   static const String completeRoutine = '/caregiver/complete';
   static const String careDetails = '/caregiver/careDetails';
+  static const String discussionForum = '/caregiver/forum';
+  static const String settings = '/caregiver/settings';
 
   // Volunteer routes
   static const String volunteerSignup = '/volunteer/signup';

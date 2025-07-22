@@ -3,10 +3,12 @@ import 'package:flutter/services.dart';
 import '../../routes/app_routes.dart';
 import '../../services/patient_service.dart';
 import '../../services/auth_service.dart';
+import 'guardian_bottom_nav_bar.dart';
 
 class GuardianDashboardScreen extends StatefulWidget {
   @override
-  _GuardianDashboardScreenState createState() => _GuardianDashboardScreenState();
+  _GuardianDashboardScreenState createState() =>
+      _GuardianDashboardScreenState();
 }
 
 class _GuardianDashboardScreenState extends State<GuardianDashboardScreen> {
@@ -67,10 +69,7 @@ class _GuardianDashboardScreenState extends State<GuardianDashboardScreen> {
                 offset: Offset(0, 4),
               ),
             ],
-            border: Border.all(
-              color: Colors.grey.withOpacity(0.05),
-              width: 1,
-            ),
+            border: Border.all(color: Colors.grey.withOpacity(0.05), width: 1),
           ),
           child: Row(
             children: [
@@ -88,11 +87,7 @@ class _GuardianDashboardScreenState extends State<GuardianDashboardScreen> {
                   ),
                   shape: BoxShape.circle,
                 ),
-                child: Icon(
-                  Icons.person,
-                  color: Color(0xFF2B3F99),
-                  size: 28,
-                ),
+                child: Icon(Icons.person, color: Color(0xFF2B3F99), size: 28),
               ),
               SizedBox(width: 16),
               Expanded(
@@ -100,7 +95,7 @@ class _GuardianDashboardScreenState extends State<GuardianDashboardScreen> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      '${patient['fname'] ?? ''} ${patient['lname'] ?? ''}',
+                      '${patient['fName'] ?? patient['FName'] ?? patient['fname'] ?? ''} ${patient['lName'] ?? patient['LName'] ?? patient['lname'] ?? ''}',
                       style: TextStyle(
                         fontSize: 18,
                         fontWeight: FontWeight.w700,
@@ -127,11 +122,7 @@ class _GuardianDashboardScreenState extends State<GuardianDashboardScreen> {
                   ],
                 ),
               ),
-              Icon(
-                Icons.arrow_forward_ios,
-                color: Colors.grey[400],
-                size: 16,
-              ),
+              Icon(Icons.arrow_forward_ios, color: Colors.grey[400], size: 16),
             ],
           ),
         ),
@@ -165,10 +156,7 @@ class _GuardianDashboardScreenState extends State<GuardianDashboardScreen> {
                 offset: Offset(0, 4),
               ),
             ],
-            border: Border.all(
-              color: Colors.grey.withOpacity(0.05),
-              width: 1,
-            ),
+            border: Border.all(color: Colors.grey.withOpacity(0.05), width: 1),
           ),
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
@@ -187,11 +175,7 @@ class _GuardianDashboardScreenState extends State<GuardianDashboardScreen> {
                   ),
                   shape: BoxShape.circle,
                 ),
-                child: Icon(
-                  icon,
-                  size: 26,
-                  color: Color(0xFF2B3F99),
-                ),
+                child: Icon(icon, size: 26, color: Color(0xFF2B3F99)),
               ),
               SizedBox(height: 12),
               Text(
@@ -213,7 +197,10 @@ class _GuardianDashboardScreenState extends State<GuardianDashboardScreen> {
     );
   }
 
-  Widget _buildNotificationCard(String patientName, Map<String, dynamic> notification) {
+  Widget _buildNotificationCard(
+    String patientName,
+    Map<String, dynamic> notification,
+  ) {
     return Container(
       margin: EdgeInsets.only(bottom: 16),
       padding: EdgeInsets.all(20),
@@ -227,10 +214,7 @@ class _GuardianDashboardScreenState extends State<GuardianDashboardScreen> {
           end: Alignment.bottomRight,
         ),
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(
-          color: Color(0xFFA0C4FD).withOpacity(0.3),
-          width: 1,
-        ),
+        border: Border.all(color: Color(0xFFA0C4FD).withOpacity(0.3), width: 1),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -301,7 +285,8 @@ class _GuardianDashboardScreenState extends State<GuardianDashboardScreen> {
     _fetchPatients();
     // Handle arguments passed from navigation
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      final args = ModalRoute.of(context)?.settings.arguments as Map<String, dynamic>?;
+      final args =
+          ModalRoute.of(context)?.settings.arguments as Map<String, dynamic>?;
       if (args != null && args['selectedIndex'] != null) {
         setState(() {
           _selectedIndex = args['selectedIndex'];
@@ -327,21 +312,18 @@ class _GuardianDashboardScreenState extends State<GuardianDashboardScreen> {
   }
 
   void _onBottomNavTap(int index) {
+    if (index == 0) {
+      // Already on Home - no need to navigate
+      return;
+    }
+
+    // Update the selected index for visual feedback
     setState(() {
       _selectedIndex = index;
     });
 
-    switch (index) {
-      case 0:
-      // Already on Home
-        break;
-      case 1:
-        Navigator.pushNamed(context, AppRoutes.guardianForums);
-        break;
-      case 2:
-        Navigator.pushNamed(context, AppRoutes.guardianProfile);
-        break;
-    }
+    // Use the helper to handle navigation
+    BottomNavHelper.handleNavigation(context, index);
   }
 
   @override
@@ -374,7 +356,9 @@ class _GuardianDashboardScreenState extends State<GuardianDashboardScreen> {
                 child: Container(
                   padding: EdgeInsets.all(40),
                   child: CircularProgressIndicator(
-                    valueColor: AlwaysStoppedAnimation<Color>(Color(0xFF2B3F99)),
+                    valueColor: AlwaysStoppedAnimation<Color>(
+                      Color(0xFF2B3F99),
+                    ),
                   ),
                 ),
               )
@@ -413,10 +397,7 @@ class _GuardianDashboardScreenState extends State<GuardianDashboardScreen> {
                     SizedBox(height: 8),
                     Text(
                       'Add your first patient to get started',
-                      style: TextStyle(
-                        fontSize: 14,
-                        color: Colors.grey[500],
-                      ),
+                      style: TextStyle(fontSize: 14, color: Colors.grey[500]),
                     ),
                   ],
                 ),
@@ -465,14 +446,20 @@ class _GuardianDashboardScreenState extends State<GuardianDashboardScreen> {
                   icon: Icons.group_add_outlined,
                   label: 'Add Caregiver',
                   onTap: () {
-                    Navigator.pushNamed(context, AppRoutes.guardianAddCaregiver);
+                    Navigator.pushNamed(
+                      context,
+                      AppRoutes.guardianAddCaregiver,
+                    );
                   },
                 ),
                 _buildQuickAccessButton(
                   icon: Icons.assessment_outlined,
                   label: 'Reports',
                   onTap: () {
-                    Navigator.pushNamed(context, AppRoutes.guardianPatientsReports);
+                    Navigator.pushNamed(
+                      context,
+                      AppRoutes.guardianPatientsReports,
+                    );
                   },
                 ),
                 _buildQuickAccessButton(
@@ -554,10 +541,7 @@ class _GuardianDashboardScreenState extends State<GuardianDashboardScreen> {
                     SizedBox(height: 8),
                     Text(
                       'All caught up!',
-                      style: TextStyle(
-                        fontSize: 14,
-                        color: Colors.grey[500],
-                      ),
+                      style: TextStyle(fontSize: 14, color: Colors.grey[500]),
                     ),
                   ],
                 ),
@@ -570,44 +554,9 @@ class _GuardianDashboardScreenState extends State<GuardianDashboardScreen> {
           ],
         ),
       ),
-      bottomNavigationBar: Container(
-        decoration: BoxDecoration(
-          boxShadow: [
-            BoxShadow(
-              color: Colors.grey.withOpacity(0.1),
-              spreadRadius: 0,
-              blurRadius: 20,
-              offset: Offset(0, -4),
-            ),
-          ],
-        ),
-        child: BottomNavigationBar(
-          currentIndex: _selectedIndex,
-          onTap: _onBottomNavTap,
-          type: BottomNavigationBarType.fixed,
-          backgroundColor: Colors.white,
-          selectedItemColor: Color(0xFF2B3F99),
-          unselectedItemColor: Colors.grey[600],
-          selectedFontSize: 12,
-          unselectedFontSize: 12,
-          items: [
-            BottomNavigationBarItem(
-              icon: Icon(Icons.home_outlined),
-              activeIcon: Icon(Icons.home),
-              label: 'Home',
-            ),
-            BottomNavigationBarItem(
-              icon: Icon(Icons.forum_outlined),
-              activeIcon: Icon(Icons.forum),
-              label: 'Forums',
-            ),
-            BottomNavigationBarItem(
-              icon: Icon(Icons.person_outline),
-              activeIcon: Icon(Icons.person),
-              label: 'Profile',
-            ),
-          ],
-        ),
+      bottomNavigationBar: CustomBottomNavigationBar(
+        currentIndex: _selectedIndex,
+        onTap: _onBottomNavTap,
       ),
     );
   }
