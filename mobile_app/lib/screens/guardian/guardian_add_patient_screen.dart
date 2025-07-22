@@ -3,6 +3,7 @@ import '../../routes/app_routes.dart';
 import '../../services/patient_service.dart'; // Update the path as needed
 import '../../services/user_service.dart';
 import '../../services/auth_service.dart';
+import '../../services/guardian_service.dart';
 
 class GuardianAddPatientScreen extends StatefulWidget {
   @override
@@ -22,6 +23,7 @@ class _GuardianAddPatientScreenState extends State<GuardianAddPatientScreen> {
   final _diagnosisDateController = TextEditingController();
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
+  final _relationshipController = TextEditingController();
 
   String? _selectedDementiaStage;
   String? _selectedDementiaType;
@@ -65,6 +67,7 @@ class _GuardianAddPatientScreenState extends State<GuardianAddPatientScreen> {
     _diagnosisDateController.dispose();
     _emailController.dispose();
     _passwordController.dispose();
+    _relationshipController.dispose();
     super.dispose();
   }
 
@@ -166,10 +169,10 @@ class _GuardianAddPatientScreenState extends State<GuardianAddPatientScreen> {
   void _handleSavePatient() async {
     try {
       print('Save Patient button pressed');
-    if (_formKey.currentState!.validate()) {
-      setState(() {
-        _isLoading = true;
-      });
+      if (_formKey.currentState!.validate()) {
+        setState(() {
+          _isLoading = true;
+        });
         print('Form validated, starting user creation');
 
         // 1. Create user
@@ -191,7 +194,7 @@ class _GuardianAddPatientScreenState extends State<GuardianAddPatientScreen> {
           gender: _selectedGender ?? "",
         );
 
-        print('User creation result: ${userResult.success}, ${userResult.message}');
+        print('User creation result:  [1m [38;5;2m${userResult.success}, ${userResult.message} [0m');
 
         if (!userResult.success || userResult.userId == null) {
           setState(() {
@@ -213,14 +216,24 @@ class _GuardianAddPatientScreenState extends State<GuardianAddPatientScreen> {
             ? "${_selectedDiagnosisDate!.toIso8601String().split('T')[0]}"
             : null;
 
-        final int? currentGuardianId = await AuthService.getCurrentUserId(); // Get this from your auth/session
-        print('Current Guardian ID: $currentGuardianId');
+        // Get the current user id (from user table)
+        final int? currentUserId = await AuthService.getCurrentUserId();
+        print('Current User ID: $currentUserId');
 
-        if (currentGuardianId == null) {
-          // Handle not logged in or error
+        // Fetch the guardianId from the guardian table using the user id
+        int? guardianId;
+        if (currentUserId != null) {
+          guardianId = await GuardianService.getGuardianIdByUserId(currentUserId);
+        }
+        print('Guardian Table ID: $guardianId');
+
+        if (guardianId == null) {
           ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text('You must be logged in to add a patient.')),
+            SnackBar(content: Text('You must be logged in as a guardian to add a patient.')), 
           );
+          setState(() {
+            _isLoading = false;
+          });
           return;
         }
 
@@ -229,25 +242,26 @@ class _GuardianAddPatientScreenState extends State<GuardianAddPatientScreen> {
           dementiaStage: dementiaStage ?? "",
           dateOfDiagnosis: dateOfDiagnosis ?? "",
           dementiaType: backendDementiaType ?? "",
-          guardianId: currentGuardianId, // <-- Pass it here
+          guardianId: guardianId, // <-- Use guardian table id here
+          relationship: _relationshipController.text.trim(),
         );
 
         print('Patient creation result: ${patientResult.success}, ${patientResult.message}');
 
-      setState(() {
-        _isLoading = false;
-      });
+        setState(() {
+          _isLoading = false;
+        });
 
         if (patientResult.success) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text('Patient saved successfully!'),
-          backgroundColor: Colors.green,
-        ),
-      );
-      Navigator.pushNamedAndRemoveUntil(
-        context,
-        AppRoutes.guardianDashboard,
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text('Patient saved successfully!'),
+              backgroundColor: Colors.green,
+            ),
+          );
+          Navigator.pushNamedAndRemoveUntil(
+            context,
+            AppRoutes.guardianDashboard,
             (route) => false,
           );
         } else {
@@ -346,6 +360,11 @@ class _GuardianAddPatientScreenState extends State<GuardianAddPatientScreen> {
               _buildTextField(
                 controller: _passwordController,
                 hintText: 'Password',
+              ),
+
+              _buildTextField(
+                controller: _relationshipController,
+                hintText: 'Relationship with Patient',
               ),
 
               // Address section

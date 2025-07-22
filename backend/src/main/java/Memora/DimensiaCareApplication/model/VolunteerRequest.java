@@ -25,7 +25,7 @@ public class VolunteerRequest {
     private String volunteerIdImage;
 
     @Enumerated(EnumType.STRING)
-    @Column(name = "request_status", columnDefinition = "VARCHAR(20) DEFAULT 'pending'")
+    @Column(name = "request_status", columnDefinition = "VARCHAR(20)")
     private RequestStatus requestStatus = RequestStatus.pending;
 
     @CreatedDate
@@ -83,6 +83,6 @@ public class VolunteerRequest {
     }
 
     public enum RequestStatus {
-        pending, accepted, rejected
+        pending, approved, accepted, rejected
     }
-} 
+}
