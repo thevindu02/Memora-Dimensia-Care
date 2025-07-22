@@ -55,13 +55,25 @@ class _PatientDashboardScreenState extends State<PatientDashboardScreen> {
         backgroundColor: PatientColors.backgroundWhite,
         elevation: 0,
         centerTitle: true,
-        title: const Text(
-          'Schedule Routine',
-          style: TextStyle(
-            color: Colors.black,
-            fontWeight: FontWeight.w600,
-            fontSize: 18,
-          ),
+        title: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Image.asset(
+              'assets/images/light_logo.png',
+              height: 32,
+              width: 32,
+              fit: BoxFit.contain,
+            ),
+            const SizedBox(width: 8),
+            const Text(
+              'Memora',
+              style: TextStyle(
+                color: Colors.black,
+                fontWeight: FontWeight.w600,
+                fontSize: 18,
+              ),
+            ),
+          ],
         ),
         actions: [
           IconButton(
