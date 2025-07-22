@@ -10,7 +10,7 @@ import ForCaregiversPage from './components/for_caregivers/ForCaregiversPage';
 import ForVolunteersPage from './components/for_volunteers/ForVolunteersPage'; 
 import ContactUsPage from './components/contact_us/ContactUsPage'; 
 import Terms from './components/home/Terms'; 
-
+import PrivacyPolicy from './components/home/PrivacyPolicy';
 function App() {
      console.log('App component rendered'); 
   return (
@@ -18,13 +18,15 @@ function App() {
       <CssBaseline />
       <Router>
         <Routes>
-          <Route path="/" element={<Home />} />
+          <Route path="/home" element={<Home />} />
           <Route path="/for_patients" element={<ForPatientsPage />} />
           <Route path="/for_guardians" element={<ForGuardiansPage />} />
           <Route path="/for_caregivers" element={<ForCaregiversPage />} />
           <Route path="/for_volunteers" element={<ForVolunteersPage />} />
           <Route path="/contact_us" element={<ContactUsPage />} />
           <Route path="/terms" element={<Terms />} />
+          <Route path="/privacy_policy" element={<PrivacyPolicy />} />
+
 
           {/* Add other routes as needed */}
         </Routes>

@@ -90,7 +90,7 @@ function Footer() {
               Quick Links
             </Typography>
             <Stack spacing={1}>
-              <Link href="#hero" underline="hover" color="inherit" sx={{ cursor: 'pointer' }}>
+              <Link href="/home" underline="hover" color="inherit" sx={{ cursor: 'pointer' }}>
                 Home
               </Link>
               <Link href="/for_patients" underline="hover" color="inherit" sx={{ cursor: 'pointer' }}>
@@ -108,7 +108,7 @@ function Footer() {
               <Link   component={RouterLink} to="/terms" underline="hover" color="inherit" sx={{ cursor: 'pointer' }}>
                 Terms & Conditions
               </Link>
-              <Link href="/privacy" underline="hover" color="inherit" sx={{ cursor: 'pointer' }}>
+              <Link   component={RouterLink} to="/privacy_policy" underline="hover" color="inherit" sx={{ cursor: 'pointer' }}>
                 Privacy Policy
               </Link>
             </Stack>
