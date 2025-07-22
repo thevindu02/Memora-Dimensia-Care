@@ -203,10 +203,10 @@ class _GuardianSignupScreenState extends State<GuardianSignupScreen> {
 
   void _handleRegister() async {
     try {
-      if (_formKey.currentState!.validate()) {
-        setState(() {
-          _isLoading = true;
-        });
+    if (_formKey.currentState!.validate()) {
+      setState(() {
+        _isLoading = true;
+      });
 
         // Call UserService.addUser to register guardian
         final userResult = await UserService.addUser(
@@ -227,19 +227,19 @@ class _GuardianSignupScreenState extends State<GuardianSignupScreen> {
           gender: _selectedGender ?? "",
         );
 
-        setState(() {
-          _isLoading = false;
-        });
+      setState(() {
+        _isLoading = false;
+      });
 
         if (userResult.success) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text('Registration successful! Redirecting to login...'),
-              backgroundColor: Colors.green,
-            ),
-          );
-          await Future.delayed(Duration(seconds: 1));
-          Navigator.pushReplacementNamed(context, AppRoutes.login);
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Registration successful! Redirecting to login...'),
+          backgroundColor: Colors.green,
+        ),
+      );
+      await Future.delayed(Duration(seconds: 1));
+      Navigator.pushReplacementNamed(context, AppRoutes.login);
         } else {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(

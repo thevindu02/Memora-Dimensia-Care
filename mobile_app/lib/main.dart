@@ -12,8 +12,8 @@ void main() {
 
    WidgetsFlutterBinding.ensureInitialized();
 
-  // Hides status & navigation bars (makes app fullscreen)
-  SystemChrome.setEnabledSystemUIMode(SystemUiMode.immersiveSticky);
+  // Set system UI overlay style (keeps navigation visible)
+  SystemChrome.setEnabledSystemUIMode(SystemUiMode.edgeToEdge);
   
   runApp(MyApp());
 }
@@ -25,6 +25,10 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       title: 'Memora',
+      theme: ThemeData(
+        primarySwatch: Colors.blue,
+        primaryColor: Colors.blue[700],
+      ),
       initialRoute: AppRoutes.splash,
       navigatorObservers: [CustomNavigatorObserver()],
       //initialRoute: AppRoutes.patientGuardianRequest,

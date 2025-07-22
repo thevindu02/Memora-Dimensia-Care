@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import '../../widgets/patient/PatientBottomNavigationBar.dart';
 import '../../routes/app_routes.dart';
 
 class PatientDashboardScreen extends StatefulWidget {

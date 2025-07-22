@@ -156,7 +156,7 @@ class AuthService {
   static String getDashboardRoute(String role) {
     switch (role.toLowerCase()) {
       case 'patient':
-        return AppRoutes.patientDashboard;
+        return AppRoutes.patientMain;
       case 'guardian':
         return AppRoutes.guardianDashboard;
       case 'caregiver':
