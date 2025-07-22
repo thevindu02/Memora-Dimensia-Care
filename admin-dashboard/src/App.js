@@ -1,27 +1,34 @@
 import './App.css';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import AuthWrapper from './components/AuthWrapper';
 import Dashboard from './pages/Dashboard';
 import Patients from './pages/Patients';
 import Caregiver from './pages/Caregiver';
 import BlogPost from './pages/BlogPost';
-import Revenue from './pages/Revenue';
+import RevenueAnalytics from './pages/RevenueAnalytics';
 import Volunteer from './pages/Volunteer';
 import Articles from './pages/Articles';
 import VideoLessons from './pages/VideoLessons';
+import SubscriptionPlanning from './pages/SubscriptionPlanning';
+import Login from './pages/Login';
+import MyAccount from './pages/MyAccount';
 
 function App() {
   return (
     <Router>
       <div className="App">
         <Routes>
-          <Route path="/" element={<Dashboard />} />
-          <Route path="/patients" element={<Patients />} />
-          <Route path="/caregiver" element={<Caregiver />} />
-          <Route path="/blogpost" element={<BlogPost />} />
-          <Route path="/revenue" element={<Revenue />} />
-          <Route path="/volunteer" element={<Volunteer />} />
-          <Route path="/articles" element={<Articles />} />
-          <Route path="/video-lessons" element={<VideoLessons />} />
+          <Route path="/login" element={<Login />} />
+          <Route path="/" element={<AuthWrapper><Dashboard /></AuthWrapper>} />
+          <Route path="/patients" element={<AuthWrapper><Patients /></AuthWrapper>} />
+          <Route path="/caregiver" element={<AuthWrapper><Caregiver /></AuthWrapper>} />
+          <Route path="/blogpost" element={<AuthWrapper><BlogPost /></AuthWrapper>} />
+          <Route path="/revenue" element={<AuthWrapper><RevenueAnalytics /></AuthWrapper>} />
+          <Route path="/volunteer" element={<AuthWrapper><Volunteer /></AuthWrapper>} />
+          <Route path="/articles" element={<AuthWrapper><Articles /></AuthWrapper>} />
+          <Route path="/video-lessons" element={<AuthWrapper><VideoLessons /></AuthWrapper>} />
+          <Route path="/subscription-planning" element={<AuthWrapper><SubscriptionPlanning /></AuthWrapper>} />
+          <Route path="/my-account" element={<AuthWrapper><MyAccount /></AuthWrapper>} />
         </Routes>
       </div>
     </Router>

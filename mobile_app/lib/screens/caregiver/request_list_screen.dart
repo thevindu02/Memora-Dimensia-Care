@@ -828,7 +828,7 @@ class _GuardianRequestsPageState extends State<GuardianRequestsPage>
       },
       type: BottomNavigationBarType.fixed,
       backgroundColor: Colors.white,
-      selectedItemColor: Colors.blue,
+      selectedItemColor: Color(0xFF2B3F99),
       unselectedItemColor: Colors.grey[600],
       selectedFontSize: 12,
       unselectedFontSize: 12,

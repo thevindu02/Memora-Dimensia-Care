@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'dart:convert';
+import 'package:http/http.dart' as http;
 
 class CaregiverRegisterPage extends StatefulWidget {
   const CaregiverRegisterPage({Key? key}) : super(key: key);
@@ -228,7 +230,7 @@ class _CaregiverRegisterPageState extends State<CaregiverRegisterPage> {
           width: 4,
           height: 20,
           decoration: BoxDecoration(
-            color: Colors.blue[600],
+            color: const Color(0xFFA0C4FD), // Match login/register button
             borderRadius: BorderRadius.circular(2),
           ),
         ),
@@ -533,7 +535,7 @@ class _CaregiverRegisterPageState extends State<CaregiverRegisterPage> {
           setState(() {
             _selectedDate = date;
             _birthDateController.text =
-                '${date.day.toString().padLeft(2, '0')}/${date.month.toString().padLeft(2, '0')}/${date.year}';
+            '${date.day.toString().padLeft(2, '0')}/${date.month.toString().padLeft(2, '0')}/${date.year}';
           });
         }
       },
@@ -688,8 +690,8 @@ class _CaregiverRegisterPageState extends State<CaregiverRegisterPage> {
       child: ElevatedButton(
         onPressed: _isLoading ? null : _handleRegister,
         style: ElevatedButton.styleFrom(
-          backgroundColor: Colors.blue[600],
-          foregroundColor: Colors.white,
+          backgroundColor: const Color(0xFFA0C4FD), // Match login page
+          foregroundColor: const Color(0xFF2B3F99), // Match login page
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(12),
           ),
@@ -697,20 +699,20 @@ class _CaregiverRegisterPageState extends State<CaregiverRegisterPage> {
         ),
         child: _isLoading
             ? const SizedBox(
-          width: 20,
-          height: 20,
-          child: CircularProgressIndicator(
-            strokeWidth: 2,
-            valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
-          ),
-        )
+                width: 20,
+                height: 20,
+                child: CircularProgressIndicator(
+                  strokeWidth: 2,
+                  valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                ),
+              )
             : const Text(
-          'Register as Caregiver',
-          style: TextStyle(
-            fontSize: 16,
-            fontWeight: FontWeight.w600,
-          ),
-        ),
+                'Register as Caregiver',
+                style: TextStyle(
+                  fontSize: 16,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
       ),
     );
   }
@@ -827,6 +829,33 @@ class _CaregiverRegisterPageState extends State<CaregiverRegisterPage> {
     );
   }
 
+  Future<bool> registerCaregiver(Map<String, dynamic> data) async {
+    const String url = 'http://10.0.2.2:8080/api/caregivers/register'; // or your backend IP
+
+    try {
+      print('Sending POST to $url with data: $data');
+      final response = await http
+          .post(
+        Uri.parse(url),
+        headers: {'Content-Type': 'application/json'},
+        body: jsonEncode(data),
+      )
+          .timeout(const Duration(seconds: 10)); // Add timeout
+
+      print('Status: ${response.statusCode}');
+      print('Body: ${response.body}');
+
+      if (response.statusCode == 200 || response.statusCode == 201) {
+        return true;
+      } else {
+        return false;
+      }
+    } catch (e) {
+      print('Error during registration: $e');
+      return false;
+    }
+  }
+
   void _handleRegister() async {
     if (_formKey.currentState!.validate()) {
       if (_selectedSkills.isEmpty) {
@@ -843,23 +872,51 @@ class _CaregiverRegisterPageState extends State<CaregiverRegisterPage> {
         _isLoading = true;
       });
 
-      // Simulate API call
-      await Future.delayed(const Duration(seconds: 2));
+      print('Starting registration request...');
+      // Build the data map
+      Map<String, dynamic> data = {
+        "fName": _firstNameController.text,
+        "lName": _lastNameController.text,
+        "email": _emailController.text,
+        "password": _passwordController.text,
+        "phoneNumber": _phoneController.text,
+        "street": _streetController.text,
+        "city": _selectedCity,
+        "state": _stateController.text,
+        // Format birthdate as yyyy-MM-dd for backend compatibility
+        "birthdate": _selectedDate != null
+            ? "${_selectedDate!.year.toString().padLeft(4, '0')}-${_selectedDate!.month.toString().padLeft(2, '0')}-${_selectedDate!.day.toString().padLeft(2, '0')}"
+            : null,
+        "profilePic": null, // Handle image upload separately if needed
+        "gender": null, // Add gender if you have it
+        "experience": _selectedExperience,
+        "qualifications": _qualificationController.text,
+        "skills": _selectedSkills,
+      };
+
+      bool success = await registerCaregiver(data);
+      print('Registration request completed. Success: $success');
 
       setState(() {
         _isLoading = false;
       });
 
-      // Show success message
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Registration successful! Please verify your email.'),
-          backgroundColor: Colors.green,
-        ),
-      );
-
-      // Navigate to login or verification page
-      Navigator.pop(context);
+      if (success) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Registration successful! Please verify your email.'),
+            backgroundColor: Colors.green,
+          ),
+        );
+        Navigator.pop(context);
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Registration failed. Please try again.'),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
     }
   }
 }

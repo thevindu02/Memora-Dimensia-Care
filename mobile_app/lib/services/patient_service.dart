@@ -12,6 +12,7 @@ class PatientService {
     required String dateOfDiagnosis, // Format: 'YYYY-MM-DD'
     required String dementiaType,
     required int guardianId, // <-- Add this
+    required String relationship, // <-- Add this
   }) async {
     final body = {
       "userId": userId,
@@ -19,6 +20,7 @@ class PatientService {
       "dateOfDiagnosis": dateOfDiagnosis,
       "dementiaType": dementiaType,
       "guardianId": guardianId, // <-- Add this
+      "relationship": relationship, // <-- Add this
     };
 
     try {
