@@ -4,14 +4,13 @@ import 'volunteer_dashboard_screen.dart';
 import 'volunteer_create_content_screen.dart';
 import 'volunteer_forum_screen.dart';
 import 'volunteer_profile_screen.dart';
+import 'volunteer_community_screen.dart';
 
 class VolunteerBottomNavigation extends StatelessWidget {
   final String currentPage;
-  
-  const VolunteerBottomNavigation({
-    Key? key,
-    required this.currentPage,
-  }) : super(key: key);
+
+  const VolunteerBottomNavigation({Key? key, required this.currentPage})
+    : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -19,9 +18,7 @@ class VolunteerBottomNavigation extends StatelessWidget {
       height: 80,
       decoration: BoxDecoration(
         color: Colors.white,
-        border: Border(
-          top: BorderSide(color: Colors.grey[200]!, width: 1),
-        ),
+        border: Border(top: BorderSide(color: Colors.grey[200]!, width: 1)),
       ),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceEvenly,
@@ -35,7 +32,9 @@ class VolunteerBottomNavigation extends StatelessWidget {
               if (currentPage != 'home') {
                 Navigator.pushReplacement(
                   context,
-                  MaterialPageRoute(builder: (context) => VolunteerDashboardScreen()),
+                  MaterialPageRoute(
+                    builder: (context) => VolunteerDashboardScreen(),
+                  ),
                 );
               }
             },
@@ -49,21 +48,25 @@ class VolunteerBottomNavigation extends StatelessWidget {
               if (currentPage != 'content') {
                 Navigator.pushReplacement(
                   context,
-                  MaterialPageRoute(builder: (context) => VolunteerCreateContentScreen()),
+                  MaterialPageRoute(
+                    builder: (context) => VolunteerCreateContentScreen(),
+                  ),
                 );
               }
             },
           ),
           _buildNavButton(
             context,
-            'Forum',
+            'Community',
             Icons.forum,
-            currentPage == 'forum',
+            currentPage == 'community',
             () {
-              if (currentPage != 'forum') {
+              if (currentPage != 'community') {
                 Navigator.pushReplacement(
                   context,
-                  MaterialPageRoute(builder: (context) => VolunteerForumScreen()),
+                  MaterialPageRoute(
+                    builder: (context) => VolunteerCommunityScreen(),
+                  ),
                 );
               }
             },
@@ -77,7 +80,9 @@ class VolunteerBottomNavigation extends StatelessWidget {
               if (currentPage != 'profile') {
                 Navigator.pushReplacement(
                   context,
-                  MaterialPageRoute(builder: (context) => VolunteerProfileScreen()),
+                  MaterialPageRoute(
+                    builder: (context) => VolunteerProfileScreen(),
+                  ),
                 );
               }
             },
@@ -102,7 +107,7 @@ class VolunteerBottomNavigation extends StatelessWidget {
         children: [
           Icon(
             icon,
-            color: isActive ? Colors.blue[700] : Colors.grey[500],
+            color: isActive ? Color(0xFF2B3F99) : Colors.grey[500],
             size: 24,
           ),
           SizedBox(height: 4),
@@ -111,7 +116,7 @@ class VolunteerBottomNavigation extends StatelessWidget {
             style: TextStyle(
               fontSize: 12,
               fontWeight: FontWeight.w500,
-              color: isActive ? Colors.blue[700] : Colors.grey[500],
+              color: isActive ? Color(0xFF2B3F99) : Colors.grey[500],
             ),
           ),
         ],
@@ -119,4 +124,3 @@ class VolunteerBottomNavigation extends StatelessWidget {
     );
   }
 }
-

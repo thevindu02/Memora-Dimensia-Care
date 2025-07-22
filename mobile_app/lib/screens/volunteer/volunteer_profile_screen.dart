@@ -10,6 +10,23 @@ class VolunteerProfileScreen extends StatefulWidget {
 
 class _VolunteerProfileScreenState extends State<VolunteerProfileScreen> {
   bool receiveNotifications = true;
+  bool isEditMode = false;
+  String selectedLanguage = 'English';
+  
+  // Text editing controllers
+  final TextEditingController _fullNameController = TextEditingController(text: 'John Smith');
+  final TextEditingController _emailController = TextEditingController(text: 'john.smith@example.com');
+  final TextEditingController _phoneController = TextEditingController(text: '+1 (555) 123-4567');
+  final TextEditingController _genderController = TextEditingController(text: 'Male');
+
+  @override
+  void dispose() {
+    _fullNameController.dispose();
+    _emailController.dispose();
+    _phoneController.dispose();
+    _genderController.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -22,8 +39,34 @@ class _VolunteerProfileScreenState extends State<VolunteerProfileScreen> {
           icon: Icon(Icons.arrow_back, color: Colors.black),
           onPressed: () => Navigator.pop(context),
         ),
+        title: Text(
+          'Profile',
+          style: TextStyle(
+            fontSize: 20,
+            fontWeight: FontWeight.w600,
+            color: Colors.black,
+          ),
+        ),
+        centerTitle: false,
+        actions: [
+          TextButton(
+            onPressed: () {
+              setState(() {
+                isEditMode = !isEditMode;
+              });
+            },
+            child: Text(
+              isEditMode ? 'Save' : 'Edit',
+              style: TextStyle(
+                fontSize: 16,
+                fontWeight: FontWeight.w500,
+                color: Colors.blue,
+              ),
+            ),
+          ),
+        ],
       ),
-      body: Padding(
+      body: SingleChildScrollView(
         padding: const EdgeInsets.all(20.0),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -62,9 +105,9 @@ class _VolunteerProfileScreenState extends State<VolunteerProfileScreen> {
             ),
             SizedBox(height: 40),
             
-            // Profile Details Section
+            // Personal Information Section
             Text(
-              'Profile Details',
+              'Personal Information',
               style: TextStyle(
                 fontSize: 18,
                 fontWeight: FontWeight.w600,
@@ -73,29 +116,52 @@ class _VolunteerProfileScreenState extends State<VolunteerProfileScreen> {
             ),
             SizedBox(height: 24),
             
-            // Edit Profile
-            _buildProfileItem(
-              Icons.edit_outlined,
-              'Edit Profile',
-              onTap: () {
-                // Handle edit profile
-              },
+            // Full Name
+            _buildInfoItem(
+              Icons.person_outline,
+              'Full Name',
+              _fullNameController,
             ),
             SizedBox(height: 16),
             
-            // Upload ID Image
-            _buildProfileItem(
-              Icons.image_outlined,
-              'Upload ID Image',
-              onTap: () {
-                // Handle upload ID image
-              },
+            // Email
+            _buildInfoItem(
+              Icons.email_outlined,
+              'Email',
+              _emailController,
+            ),
+            SizedBox(height: 16),
+            
+            // Phone Number
+            _buildInfoItem(
+              Icons.phone_outlined,
+              'Phone Number',
+              _phoneController,
+            ),
+            SizedBox(height: 16),
+            
+            // Gender
+            _buildInfoItem(
+              Icons.person_2_outlined,
+              'Gender',
+              _genderController,
+            ),
+            SizedBox(height: 32),
+            
+            // Settings Section
+            Text(
+              'Settings',
+              style: TextStyle(
+                fontSize: 18,
+                fontWeight: FontWeight.w600,
+                color: Colors.black,
+              ),
             ),
             SizedBox(height: 16),
             
             // Receive Notifications with Toggle
-            _buildProfileItem(
-              null,
+            _buildSettingsItem(
+              Icons.notifications_outlined,
               'Receive notifications',
               hasToggle: true,
               isEnabled: receiveNotifications,
@@ -105,37 +171,160 @@ class _VolunteerProfileScreenState extends State<VolunteerProfileScreen> {
                 });
               },
             ),
+            SizedBox(height: 16),
             
-            Spacer(),
+            // Language Settings
+            _buildSettingsItem(
+              Icons.language_outlined,
+              'Language',
+              hasDropdown: true,
+              dropdownValue: selectedLanguage,
+              onDropdownChanged: (value) {
+                setState(() {
+                  selectedLanguage = value!;
+                });
+              },
+            ),
+            SizedBox(height: 16),
+            
+            // Help & Support
+            _buildSettingsItem(
+              Icons.help_outline,
+              'Help & Support',
+              hasArrow: true,
+              onTap: () {
+                // Navigate to help & support screen
+                print('Navigate to Help & Support');
+              },
+            ),
+            SizedBox(height: 16),
+            
+            // Terms of Service
+            _buildSettingsItem(
+              Icons.description_outlined,
+              'Terms of Service',
+              hasArrow: true,
+              onTap: () {
+                // Navigate to terms of service screen
+                print('Navigate to Terms of Service');
+              },
+            ),
+            SizedBox(height: 16),
+            
+            // Privacy Policy
+            _buildSettingsItem(
+              Icons.privacy_tip_outlined,
+              'Privacy Policy',
+              hasArrow: true,
+              onTap: () {
+                // Navigate to privacy policy screen
+                print('Navigate to Privacy Policy');
+              },
+            ),
+            
+            SizedBox(height: 100), // Add some bottom padding
           ],
         ),
       ),
-       bottomNavigationBar: VolunteerBottomNavigation(currentPage: 'profile'),
+      bottomNavigationBar: VolunteerBottomNavigation(currentPage: 'profile'),
     );
   }
 
-  Widget _buildProfileItem(
-    IconData? icon, 
+  Widget _buildInfoItem(IconData icon, String label, TextEditingController controller) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          label,
+          style: TextStyle(
+            fontSize: 14,
+            fontWeight: FontWeight.w500,
+            color: Colors.grey[600],
+          ),
+        ),
+        SizedBox(height: 8),
+        Container(
+          padding: EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+          decoration: BoxDecoration(
+            color: Colors.grey[100],
+            borderRadius: BorderRadius.circular(8),
+            border: Border.all(
+              color: isEditMode ? Colors.blue.withOpacity(0.5) : Colors.grey[300]!,
+              width: isEditMode ? 2 : 1,
+            ),
+          ),
+          child: Row(
+            children: [
+              Icon(
+                icon,
+                color: Colors.grey[500],
+                size: 20,
+              ),
+              SizedBox(width: 12),
+              Expanded(
+                child: isEditMode
+                    ? TextField(
+                        controller: controller,
+                        decoration: InputDecoration(
+                          border: InputBorder.none,
+                          isDense: true,
+                          contentPadding: EdgeInsets.zero,
+                        ),
+                        style: TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.w500,
+                          color: Colors.black,
+                        ),
+                      )
+                    : Text(
+                        controller.text,
+                        style: TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.w500,
+                          color: Colors.black,
+                        ),
+                      ),
+              ),
+            ],
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildSettingsItem(
+    IconData icon,
     String title, {
     bool hasToggle = false, 
+    bool hasDropdown = false,
+    bool hasArrow = false,
     bool isEnabled = false,
-    VoidCallback? onTap,
+    String? dropdownValue,
     Function(bool)? onToggle,
+    Function(String?)? onDropdownChanged,
+    VoidCallback? onTap,
   }) {
     return GestureDetector(
-      onTap: hasToggle ? null : onTap,
+      onTap: hasArrow ? onTap : null,
       child: Container(
-        padding: EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+        height: 56, // Fixed height for all settings items
+        padding: EdgeInsets.symmetric(horizontal: 16),
+        decoration: BoxDecoration(
+          color: Colors.grey[50],
+          borderRadius: BorderRadius.circular(8),
+          border: Border.all(
+            color: Colors.grey[200]!,
+            width: 1,
+          ),
+        ),
         child: Row(
           children: [
-            if (icon != null) ...[
-              Container(
-                width: 24,
-                height: 24,
-                child: Icon(icon, color: Colors.black, size: 20),
-              ),
-              SizedBox(width: 16),
-            ],
+            Icon(
+              icon,
+              color: Colors.grey[500],
+              size: 20,
+            ),
+            SizedBox(width: 12),
             Expanded(
               child: Text(
                 title,
@@ -154,6 +343,32 @@ class _VolunteerProfileScreenState extends State<VolunteerProfileScreen> {
                 activeTrackColor: Colors.blue.withOpacity(0.3),
                 inactiveTrackColor: Colors.grey[300],
                 inactiveThumbColor: Colors.white,
+              ),
+            if (hasDropdown)
+              DropdownButton<String>(
+                value: dropdownValue,
+                onChanged: onDropdownChanged,
+                underline: SizedBox(),
+                icon: Icon(Icons.keyboard_arrow_down, color: Colors.grey[500]),
+                items: ['English', 'Spanish', 'French', 'German', 'Chinese', 'Arabic']
+                    .map<DropdownMenuItem<String>>((String value) {
+                  return DropdownMenuItem<String>(
+                    value: value,
+                    child: Text(
+                      value,
+                      style: TextStyle(
+                        fontSize: 14,
+                        color: Colors.black,
+                      ),
+                    ),
+                  );
+                }).toList(),
+              ),
+            if (hasArrow)
+              Icon(
+                Icons.chevron_right,
+                color: Colors.grey[400],
+                size: 20,
               ),
           ],
         ),
