@@ -1,13 +1,14 @@
 package Memora.DimensiaCareApplication.repository;
 
-import Memora.DimensiaCareApplication.model.VolunteerRequest;
-import Memora.DimensiaCareApplication.dto.VolunteerRequestWithUserDTO;
+import java.util.List;
+import java.util.Optional;
+
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
-import java.util.List;
-import java.util.Optional;
+import Memora.DimensiaCareApplication.dto.VolunteerRequestWithUserDTO;
+import Memora.DimensiaCareApplication.model.VolunteerRequest;
 
 @Repository
 public interface VolunteerRequestRepository extends JpaRepository<VolunteerRequest, Integer> {

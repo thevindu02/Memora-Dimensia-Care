@@ -104,44 +104,7 @@ const Charts = () => {
       </div>
 
       {/* Emergency Alerts Chart */}
-      <div className="chart-card emergency-chart">
-        <div className="chart-header">
-          <h3>Emergency Alerts</h3>
-          <span className="chart-period">This month</span>
-        </div>
-        <div className="alerts-chart">
-          <div className="chart-y-axis">
-            <span>4</span>
-            <span>3</span>
-            <span>2</span>
-            <span>1</span>
-            <span>0</span>
-          </div>
-          <div className="alerts-line-chart">
-            {emergencyAlerts.map((item, index) => (
-              <div key={index} className="alert-point">
-                <div 
-                  className="alert-bar"
-                  style={{ height: `${(item.alerts / maxAlerts) * 100}%` }}
-                >
-                  <div className="alert-value">{item.alerts}</div>
-                </div>
-                <span className="alert-day">Day {item.day}</span>
-              </div>
-            ))}
-          </div>
-        </div>
-        <div className="alert-summary">
-          <div className="alert-stat">
-            <span className="alert-number">19</span>
-            <span className="alert-label">Total Alerts</span>
-          </div>
-          <div className="alert-stat">
-            <span className="alert-number">1.8</span>
-            <span className="alert-label">Avg/Day</span>
-          </div>
-        </div>
-      </div>
+
     </div>
   );
 };
