@@ -261,7 +261,7 @@ class _GuardianAddPatientScreenState extends State<GuardianAddPatientScreen> {
           );
           Navigator.pushNamedAndRemoveUntil(
             context,
-            AppRoutes.guardianDashboard,
+            AppRoutes.guardianSubscriptionPlans,
             (route) => false,
           );
         } else {

@@ -49,6 +49,10 @@ class AppRoutes {
   static const String guardianArticleDetail = '/guardian/article-detail';
   static const String guardianQAForums = '/guardian/qa-forums';
   static const String guardianProfile = '/guardian/profile';
+  static const String guardianSubscriptionPlans = '/guardian/subplans';
+  static const String guardianPayment = 'guardian/payment';
+  static const String guardianPaymentSuccess = '/guardian/payment/success';
+  static const String guardianPaymentFailed = '/guardian/payment/failed';
   // static const String guardianOrders = '/guardian/orders';
 
   // Caregiver routes
