@@ -1,8 +1,7 @@
 // src/components/for_volunteers/VolunteersIntroBanner.js
 import React from 'react';
 import { Box, Typography, Container, Grid, Button } from '@mui/material';
-import volunteerbg from '../../assets/volunteer-bg.png'; // Adjust the path as necessary
-
+import volunteerbg from '../../assets/volunteer-bg.png'; 
 function VolunteersIntroBanner() {
   return (
     <Box

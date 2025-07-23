@@ -11,6 +11,7 @@ import ForVolunteersPage from './components/for_volunteers/ForVolunteersPage';
 import ContactUsPage from './components/contact_us/ContactUsPage'; 
 import Terms from './components/home/Terms'; 
 import PrivacyPolicy from './components/home/PrivacyPolicy';
+import Community from './components/home/Community';
 function App() {
      console.log('App component rendered'); 
   return (
@@ -27,6 +28,7 @@ function App() {
           <Route path="/contact_us" element={<ContactUsPage />} />
           <Route path="/terms" element={<Terms />} />
           <Route path="/privacy_policy" element={<PrivacyPolicy />} />
+          <Route path="/community" element={<Community />} />
 
 
           {/* Add other routes as needed */}

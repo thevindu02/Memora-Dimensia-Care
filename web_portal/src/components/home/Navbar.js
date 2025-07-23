@@ -9,6 +9,7 @@ const navItems = [
   { label: 'For Caregivers', to: '/for_caregivers', type: 'route' },
   { label: 'For Guardians', to: '/for_guardians', type: 'route' },
   { label: 'For Volunteers', to: '/for_volunteers', type: 'route' },
+  { label: 'Community', to: '/community', type: 'route' },
   { label: 'Contact Us', to: '/contact_us', type: 'route' },
 ];
 
