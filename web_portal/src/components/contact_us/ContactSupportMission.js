@@ -21,16 +21,17 @@ function ContactSupportMission() {
             sx={{
               color: '#390797',
               fontWeight: 700,
-              fontSize: { xs: 22, md: 28 },
+              fontSize: { xs: 22, md: 32 },
               mb: 2,
+              fontFamily: 'Poppins Bold',
             }}
           >
             Support Memora’s Mission
           </Typography>
-          <Typography sx={{ color: '#2B3F99', mb: 3 }}>
-            Interested in supporting Memora’s mission? Learn how you can contribute as a donor, guardian, or volunteer.
+          <Typography sx={{ color: '#2B3F99', mb: 3, fontSize: { xs: 16, md: 20 }, fontFamily: 'Poppins Regular' }}>
+            Interested in supporting Memora’s mission? Learn how you can contribute as a caregiver, guardian, or volunteer.
           </Typography>
-          <Button variant="contained" color="primary" sx={{ borderRadius: 8, px: 5, fontWeight: 700 }}>
+          <Button variant="contained" color="primary" sx={{ borderRadius: 8, px: 5, fontWeight: 700, fontFamily: 'Roboto', fontSize: 18 }}>
             Learn More
           </Button>
         </Box>

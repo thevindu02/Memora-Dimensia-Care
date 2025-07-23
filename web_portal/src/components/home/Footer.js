@@ -1,13 +1,13 @@
 // src/components/Footer.js
 import React from 'react';
 import { Box, Typography, Container, Stack, IconButton, Link } from '@mui/material';
+import { Link as RouterLink } from 'react-router-dom';
 import EmailIcon from '@mui/icons-material/Email';
 import PhoneIcon from '@mui/icons-material/Phone';
 import FacebookIcon from '@mui/icons-material/Facebook';
 import TwitterIcon from '@mui/icons-material/Twitter';
 import LinkedInIcon from '@mui/icons-material/LinkedIn';
 
-// import logo from '../../assets/logo.png'; // Adjust path if necessary
 
 function Footer() {
   return (
@@ -90,7 +90,7 @@ function Footer() {
               Quick Links
             </Typography>
             <Stack spacing={1}>
-              <Link href="#hero" underline="hover" color="inherit" sx={{ cursor: 'pointer' }}>
+              <Link href="/home" underline="hover" color="inherit" sx={{ cursor: 'pointer' }}>
                 Home
               </Link>
               <Link href="/for_patients" underline="hover" color="inherit" sx={{ cursor: 'pointer' }}>
@@ -105,10 +105,10 @@ function Footer() {
               <Link href="/for_volunteers" underline="hover" color="inherit" sx={{ cursor: 'pointer' }}>
                 For Volunteers
               </Link>
-              <Link href="/terms" underline="hover" color="inherit" sx={{ cursor: 'pointer' }}>
+              <Link   component={RouterLink} to="/terms" underline="hover" color="inherit" sx={{ cursor: 'pointer' }}>
                 Terms & Conditions
               </Link>
-              <Link href="/privacy" underline="hover" color="inherit" sx={{ cursor: 'pointer' }}>
+              <Link   component={RouterLink} to="/privacy_policy" underline="hover" color="inherit" sx={{ cursor: 'pointer' }}>
                 Privacy Policy
               </Link>
             </Stack>
@@ -159,5 +159,7 @@ function Footer() {
 }
 
 export default Footer;
+
+
 
 
