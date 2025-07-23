@@ -83,4 +83,7 @@ class AppRoutes {
   static const String volunteerForum = '/volunteer/forum';
   static const String volunteerScheduleSession = '/volunteer/schedule';
   static const String volunteerDraft = '/volunteer/draft';
+  static const String viewArticle = '/volunteer/viewarticle';
+  static const String volunteerArticlesTab = '/volunteer/viewarticle';
+  
 }

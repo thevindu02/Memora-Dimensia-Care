@@ -3,6 +3,7 @@ import 'package:image_picker/image_picker.dart';
 import 'dart:io';
 import 'dart:convert';
 import 'package:http/http.dart' as http;
+import '../../services/api_constants.dart';
 
 class VolunteerArticlesScreen extends StatefulWidget {
   const VolunteerArticlesScreen({Key? key}) : super(key: key);
@@ -238,13 +239,26 @@ class _VolunteerArticlesScreenState extends State<VolunteerArticlesScreen> {
     setState(() {
       _isLoading = true;
     });
+    
     final int volunteerId = 1; // TODO: Get this from your login/session!
-    final String url = 'http://10.0.2.2:8080/api/articles';
-
-    String? articleImg;
+    
+    String? uploadedImageUrl;
+    
+    // Upload image to backend if one is selected
     if (_selectedImages.isNotEmpty) {
-      articleImg = _selectedImages.first.path;
+      uploadedImageUrl = await _uploadImageToBackend(_selectedImages.first);
+      if (uploadedImageUrl == null) {
+        setState(() {
+          _isLoading = false;
+        });
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Failed to upload image. Please try again.')),
+        );
+        return;
+      }
     }
+
+    final String url = '${ApiConstants.baseUrl}/api/articles';
 
     final Map<String, dynamic> articleData = {
       "volunteerId": volunteerId,
@@ -252,7 +266,7 @@ class _VolunteerArticlesScreenState extends State<VolunteerArticlesScreen> {
       "title": _topicController.text,
       "summary": _descriptionController.text,
       "content": _descriptionController.text,
-      "articleImg": articleImg ?? "",
+      "imageUrl": uploadedImageUrl ?? "", // Use uploaded image URL
       "category": _selectedCategory ?? "",
       "tags": _tagsController.text,
       "categoryId": _selectedCategoryId,
@@ -278,13 +292,49 @@ class _VolunteerArticlesScreenState extends State<VolunteerArticlesScreen> {
     } else {
       ScaffoldMessenger.of(
         context,
-      ).showSnackBar(SnackBar(content: Text('Failed: "+response.body')));
+      ).showSnackBar(SnackBar(content: Text('Failed: ${response.body}')));
+    }
+  }
+
+  Future<String?> _uploadImageToBackend(File imageFile) async {
+    try {
+      var request = http.MultipartRequest(
+        'POST',
+        Uri.parse('${ApiConstants.baseUrl}/api/upload/image'),
+      );
+      
+      // Add the image file to the request
+      request.files.add(
+        await http.MultipartFile.fromPath(
+          'image', // This should match the backend parameter name
+          imageFile.path,
+        ),
+      );
+      
+      // Add additional fields if needed
+      request.fields['type'] = 'article';
+      request.fields['volunteerId'] = '1'; // TODO: Get from session
+      
+      var streamedResponse = await request.send();
+      var response = await http.Response.fromStream(streamedResponse);
+      
+      if (response.statusCode == 200) {
+        final responseData = jsonDecode(response.body);
+        // Backend should return the uploaded file URL or path
+        return responseData['imageUrl'] ?? responseData['filePath'];
+      } else {
+        print('Image upload failed: ${response.body}');
+        return null;
+      }
+    } catch (e) {
+      print('Error uploading image: $e');
+      return null;
     }
   }
 
   Future<void> fetchCategories() async {
     final response = await http.get(
-      Uri.parse('http://10.0.2.2:8080/api/categories'),
+      Uri.parse('${ApiConstants.baseUrl}/api/categories'),
     );
     if (response.statusCode == 200) {
       final List<dynamic> data = jsonDecode(response.body);
@@ -310,10 +360,10 @@ class _VolunteerArticlesScreenState extends State<VolunteerArticlesScreen> {
         backgroundColor: Colors.white,
         elevation: 0,
         leading: IconButton(
-          icon: Icon(Icons.arrow_back, color: Colors.black),
+          icon: Icon(Icons.arrow_back, color: Color(0xFF2B3F99)), // Calm Navy
           onPressed: () => Navigator.pop(context),
         ),
-        title: Text('Create Article', style: TextStyle(color: Colors.black)),
+        title: Text('Create Article', style: TextStyle(color: Color(0xFF390797))), // Deep Purple
         centerTitle: true,
       ),
       body: Stack(
@@ -330,14 +380,17 @@ class _VolunteerArticlesScreenState extends State<VolunteerArticlesScreen> {
                     style: TextStyle(
                       fontSize: 20,
                       fontWeight: FontWeight.bold,
-                      color: Colors.black,
+                      color: Color(0xFF390797), // Deep Purple
                     ),
                   ),
                   SizedBox(height: 20),
                   // Category Dropdown
                   Text(
                     'Category',
-                    style: TextStyle(fontWeight: FontWeight.w600),
+                    style: TextStyle(
+                      fontWeight: FontWeight.w600,
+                      color: Color(0xFF2B3F99), // Calm Navy
+                    ),
                   ),
                   SizedBox(height: 6),
                   SizedBox(
@@ -380,7 +433,10 @@ class _VolunteerArticlesScreenState extends State<VolunteerArticlesScreen> {
                   ),
                   SizedBox(height: 16),
                   // Topic Field
-                  Text('Title', style: TextStyle(fontWeight: FontWeight.w600)),
+                  Text('Title', style: TextStyle(
+                    fontWeight: FontWeight.w600,
+                    color: Color(0xFF2B3F99), // Calm Navy
+                  )),
                   SizedBox(height: 6),
                   TextFormField(
                     controller: _topicController,
