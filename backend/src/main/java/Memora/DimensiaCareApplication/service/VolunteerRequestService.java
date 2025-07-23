@@ -2,8 +2,14 @@ package Memora.DimensiaCareApplication.service;
 
 import Memora.DimensiaCareApplication.model.VolunteerRequest;
 import Memora.DimensiaCareApplication.model.User;
+import Memora.DimensiaCareApplication.model.Volunteer;
 import Memora.DimensiaCareApplication.dto.VolunteerRequestCreateDTO;
 import Memora.DimensiaCareApplication.repository.VolunteerRequestRepository;
+
+import Memora.DimensiaCareApplication.repository.UserRepository;
+import Memora.DimensiaCareApplication.repository.VolunteerRepository;
+
+
 import Memora.DimensiaCareApplication.service.UserService;
 
 import java.util.List;
@@ -20,6 +26,18 @@ public class VolunteerRequestService {
     private VolunteerRequestRepository volunteerRequestRepository;
 
     @Autowired
+
+
+    private UserRepository userRepository;
+
+    @Autowired
+    private PasswordEncoder passwordEncoder;
+
+    @Autowired
+    private VolunteerRepository volunteerRepository;
+
+
+
     private UserService userService;
 
     public VolunteerRequest createVolunteerRequest(VolunteerRequestCreateDTO dto) {
@@ -74,6 +92,18 @@ public class VolunteerRequestService {
             newUser.setGender(request.getGender());
             newUser.setRole(User.UserRole.VOLUNTEER);
             newUser.setStatus(User.UserStatus.ACTIVE);
+
+            newUser.setPassword(passwordEncoder.encode(password)); // Encrypt password
+            
+            // Save the user to users table
+            User savedUser = userRepository.save(newUser);
+            
+            // Create volunteer record with user_id and volunteer_id_image
+            Volunteer volunteer = new Volunteer(savedUser.getId(), request.getVolunteerIdImage());
+            volunteerRepository.save(volunteer);
+            
+
+            newUser.setPassword(password); // UserService will encrypt this
 
             // Set the password - UserService will handle encryption
             newUser.setPassword(password);

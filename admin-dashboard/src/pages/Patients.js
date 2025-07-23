@@ -11,68 +11,68 @@ import {
 const patientsData = [
   { 
     id: 1, 
-    name: 'John Smith', 
+    name: 'W.A. Sunil Perera', 
     dementiaType: 'Alzheimer\'s', 
     dementiaStage: 'Early', 
-    phone: '(555) 123-4567', 
+    phone: '+94 77 345 6789', 
     status: 'Active',
-    address: '123 Oak Street, Springfield, IL 62701',
+    address: '12/3 Kandy Road, Kadawatha, Gampaha',
     gender: 'Male',
     age: 72,
-    profilePicture: 'https://via.placeholder.com/150/4A90E2/FFFFFF?text=JS',
+    profilePicture: 'https://via.placeholder.com/150/4A90E2/FFFFFF?text=SP',
     guardian: {
-      name: 'Mary Smith',
-      address: '123 Oak Street, Springfield, IL 62701',
-      phone: '(555) 123-4568'
+      name: 'Kamala Perera',
+      address: '12/3 Kandy Road, Kadawatha, Gampaha',
+      phone: '+94 77 345 6790'
     },
     caregiver: {
-      name: 'Sarah Johnson',
-      address: '456 Pine Avenue, Springfield, IL 62702',
-      phone: '(555) 987-6543'
+      name: 'Nirmala Fernando',
+      address: '25 Temple Road, Nugegoda, Colombo',
+      phone: '+94 71 234 5678'
     }
   },
   { 
     id: 2, 
-    name: 'Mary Johnson', 
+    name: 'H.M. Chandrika Silva', 
     dementiaType: 'Vascular', 
     dementiaStage: 'Moderate', 
-    phone: '(555) 234-5678', 
+    phone: '+94 76 456 7890', 
     status: 'Active',
-    address: '456 Elm Street, Chicago, IL 60601',
+    address: '78 Galle Road, Mount Lavinia, Colombo',
     gender: 'Female',
     age: 68,
-    profilePicture: 'https://via.placeholder.com/150/FF6B6B/FFFFFF?text=MJ',
+    profilePicture: 'https://via.placeholder.com/150/FF6B6B/FFFFFF?text=CS',
     guardian: {
-      name: 'Robert Johnson',
-      address: '456 Elm Street, Chicago, IL 60601',
-      phone: '(555) 234-5679'
+      name: 'Ajith Silva',
+      address: '78 Galle Road, Mount Lavinia, Colombo',
+      phone: '+94 76 456 7891'
     },
     caregiver: {
-      name: 'Lisa Brown',
-      address: '789 Maple Drive, Chicago, IL 60602',
-      phone: '(555) 876-5432'
+      name: 'Malini Rajapaksa',
+      address: '56 High Level Road, Nugegoda, Colombo',
+      phone: '+94 75 567 8901'
     }
   },
   { 
     id: 3, 
-    name: 'Robert Brown', 
+    name: 'K.D. Lal Wickramasinghe', 
     dementiaType: 'Lewy Body', 
     dementiaStage: 'Advanced', 
-    phone: '(555) 345-6789', 
+    phone: '+94 78 567 8901', 
     status: 'Disabled',
-    address: '789 Birch Lane, Peoria, IL 61601',
+    address: '45 Matara Road, Galle, Southern Province',
     gender: 'Male',
     age: 75,
-    profilePicture: 'https://via.placeholder.com/150/50C878/FFFFFF?text=RB',
+    profilePicture: 'https://via.placeholder.com/150/50C878/FFFFFF?text=LW',
     guardian: {
-      name: 'Susan Brown',
-      address: '789 Birch Lane, Peoria, IL 61601',
-      phone: '(555) 345-6790'
+      name: 'Sriyani Wickramasinghe',
+      address: '45 Matara Road, Galle, Southern Province',
+      phone: '+94 78 567 8902'
     },
     caregiver: {
-      name: 'Mike Davis',
-      address: '321 Cedar Road, Peoria, IL 61602',
-      phone: '(555) 765-4321'
+      name: 'Pradeep Gunasekara',
+      address: '89 Wakwella Road, Galle',
+      phone: '+94 70 678 9012'
     }
   }
 ];

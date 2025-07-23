@@ -26,7 +26,7 @@ const Header = ({ pageTitle = "Dashboard" }) => {
   };
 
   return (
-    <div className="header">
+    <div className="header" style={{minHeight: '80px', padding: '20px 0'}}>
       <div className="header-left">
         <span className="page-title">{pageTitle}</span>
       </div>
