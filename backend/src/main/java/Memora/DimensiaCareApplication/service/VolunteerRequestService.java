@@ -23,6 +23,9 @@ public class VolunteerRequestService {
     @Autowired
     private VolunteerRequestRepository volunteerRequestRepository;
 
+    @Autowired
+    private UserService userService;
+
 
     public VolunteerRequest createVolunteerRequest(VolunteerRequestCreateDTO dto) {
         VolunteerRequest volunteerRequest = new VolunteerRequest(
