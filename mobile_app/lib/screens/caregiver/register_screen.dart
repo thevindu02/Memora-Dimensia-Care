@@ -452,13 +452,15 @@ class _CaregiverRegisterPageState extends State<CaregiverRegisterPage> {
               });
             },
           ),
-          keyboardType: TextInputType.number,
           validator: (value) {
             if (value == null || value.isEmpty) {
               return 'Please enter a password';
             }
-            if (!RegExp(r'^\d{6}').hasMatch(value)) {
-              return 'Password must be exactly 6 digits';
+            if (value.length < 6) {
+              return 'Password must be at least 6 characters long';
+            }
+            if (!RegExp(r'^(?=.*[a-zA-Z])(?=.*\d)').hasMatch(value)) {
+              return 'Password must contain at least one letter and one number';
             }
             return null;
           },
@@ -480,13 +482,12 @@ class _CaregiverRegisterPageState extends State<CaregiverRegisterPage> {
               });
             },
           ),
-          keyboardType: TextInputType.number,
           validator: (value) {
             if (value == null || value.isEmpty) {
               return 'Please confirm your password';
             }
-            if (!RegExp(r'^\d{6}').hasMatch(value)) {
-              return 'Password must be exactly 6 digits';
+            if (value.length < 6) {
+              return 'Password must be at least 6 characters long';
             }
             if (value != _passwordController.text) {
               return 'Passwords do not match';
