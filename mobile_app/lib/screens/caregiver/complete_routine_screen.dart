@@ -2,7 +2,9 @@ import 'package:flutter/material.dart';
 import '../../routes/app_routes.dart';
 
 class ScheduleRoutineDialog extends StatefulWidget {
-  const ScheduleRoutineDialog({Key? key}) : super(key: key);
+  final String patientName;
+  const ScheduleRoutineDialog({Key? key, required this.patientName})
+    : super(key: key);
 
   @override
   State<ScheduleRoutineDialog> createState() => _ScheduleRoutineDialogState();
@@ -13,6 +15,13 @@ class _ScheduleRoutineDialogState extends State<ScheduleRoutineDialog> {
 
   @override
   Widget build(BuildContext context) {
+    // Retrieve patientName from arguments if not passed directly
+    final args = ModalRoute.of(context)?.settings.arguments;
+    String patientName = widget.patientName;
+    if (args is Map && args['patientName'] != null) {
+      patientName = args['patientName'];
+    }
+
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: AppBar(
@@ -26,14 +35,15 @@ class _ScheduleRoutineDialogState extends State<ScheduleRoutineDialog> {
           'Schedule Routine',
           style: TextStyle(
             color: Colors.black,
-            fontSize: 18,
-            fontWeight: FontWeight.w500,
+            fontSize: 20,
+            fontWeight: FontWeight.bold,
           ),
         ),
-        centerTitle: true,
+        // Change to left align
+        centerTitle: false,
         actions: [
           IconButton(
-            icon: Icon(Icons.notifications_outlined, color: Colors.grey[600]),
+            icon: Icon(Icons.notifications, color: Colors.black, weight: 900),
             onPressed: () {
               Navigator.pushNamed(context, AppRoutes.caregiverNotification);
             },
@@ -51,7 +61,9 @@ class _ScheduleRoutineDialogState extends State<ScheduleRoutineDialog> {
                     padding: const EdgeInsets.symmetric(horizontal: 20.0),
                     child: ConstrainedBox(
                       constraints: BoxConstraints(
-                        minHeight: constraints.maxHeight - 80, // Adjusted for BottomNavigationBar
+                        minHeight:
+                            constraints.maxHeight -
+                            80, // Adjusted for BottomNavigationBar
                       ),
                       child: Column(
                         children: [
@@ -62,28 +74,26 @@ class _ScheduleRoutineDialogState extends State<ScheduleRoutineDialog> {
                             children: [
                               CircleAvatar(
                                 radius: 22,
-                                backgroundImage: AssetImage('assets/images/patient1.jpg'),
+                                backgroundColor: Color(0xFFA0C4FD),
+                                child: Icon(
+                                  Icons.person,
+                                  color: Color(0xFF2B3F99),
+                                  size: 30,
+                                ),
                               ),
                               const SizedBox(width: 12),
                               Column(
                                 crossAxisAlignment: CrossAxisAlignment.start,
-                                children: const [
+                                children: [
                                   Text(
-                                    'Sarah Johnson',
-                                    style: TextStyle(
+                                    patientName,
+                                    style: const TextStyle(
                                       fontSize: 16,
                                       fontWeight: FontWeight.w600,
                                       color: Colors.black,
                                     ),
                                   ),
-                                  SizedBox(height: 2),
-                                  Text(
-                                    'Patient ID: #12345',
-                                    style: TextStyle(
-                                      fontSize: 14,
-                                      color: Colors.grey,
-                                    ),
-                                  ),
+                                  // Removed Patient ID line
                                 ],
                               ),
                             ],
@@ -92,12 +102,12 @@ class _ScheduleRoutineDialogState extends State<ScheduleRoutineDialog> {
                           const SizedBox(height: 30),
 
                           // Complete Daily Routine Section
-                          const Text(
+                          Text(
                             'Complete Daily Routine',
                             style: TextStyle(
                               fontSize: 18,
                               fontWeight: FontWeight.w600,
-                              color: Colors.black,
+                              color: Color(0xFF2B3F99),
                             ),
                           ),
                           const SizedBox(height: 8),
@@ -133,11 +143,17 @@ class _ScheduleRoutineDialogState extends State<ScheduleRoutineDialog> {
                                   ),
                                 ),
                                 const SizedBox(height: 12),
-                                _buildBulletPoint('Generate detailed completion report'),
+                                _buildBulletPoint(
+                                  'Generate detailed completion report',
+                                ),
                                 const SizedBox(height: 6),
-                                _buildBulletPoint('Send reports to guardian and caregiver'),
+                                _buildBulletPoint(
+                                  'Send reports to guardian and caregiver',
+                                ),
                                 const SizedBox(height: 6),
-                                _buildBulletPoint('Mark routine as finalized for today'),
+                                _buildBulletPoint(
+                                  'Mark routine as finalized for today',
+                                ),
                                 const SizedBox(height: 6),
                                 _buildBulletPoint('Cannot be undone'),
                               ],
@@ -157,7 +173,9 @@ class _ScheduleRoutineDialogState extends State<ScheduleRoutineDialog> {
                                   style: OutlinedButton.styleFrom(
                                     foregroundColor: Colors.red,
                                     side: const BorderSide(color: Colors.red),
-                                    padding: const EdgeInsets.symmetric(vertical: 12),
+                                    padding: const EdgeInsets.symmetric(
+                                      vertical: 12,
+                                    ),
                                     shape: RoundedRectangleBorder(
                                       borderRadius: BorderRadius.circular(8),
                                     ),
@@ -168,12 +186,18 @@ class _ScheduleRoutineDialogState extends State<ScheduleRoutineDialog> {
                               Expanded(
                                 child: ElevatedButton(
                                   onPressed: () {
-                                    Navigator.pushNamed(context, AppRoutes.patientReport);
+                                    Navigator.pushNamed(
+                                      context,
+                                      AppRoutes.patientReport,
+                                      arguments: {'patientName': patientName},
+                                    );
                                   },
                                   style: ElevatedButton.styleFrom(
-                                    backgroundColor: Colors.green,
-                                    foregroundColor: Colors.white,
-                                    padding: const EdgeInsets.symmetric(vertical: 12),
+                                    backgroundColor: Color(0xFFA0C4FD),
+                                    foregroundColor: Color(0xFF2B3F99),
+                                    padding: const EdgeInsets.symmetric(
+                                      vertical: 12,
+                                    ),
                                     shape: RoundedRectangleBorder(
                                       borderRadius: BorderRadius.circular(8),
                                     ),
@@ -181,7 +205,10 @@ class _ScheduleRoutineDialogState extends State<ScheduleRoutineDialog> {
                                   ),
                                   child: const Text(
                                     'Yes, Complete Routine',
-                                    style: TextStyle(fontSize: 14),
+                                    style: TextStyle(
+                                      fontSize: 14,
+                                      fontWeight: FontWeight.bold,
+                                    ),
                                   ),
                                 ),
                               ),
@@ -198,32 +225,6 @@ class _ScheduleRoutineDialogState extends State<ScheduleRoutineDialog> {
             );
           },
         ),
-      ),
-      bottomNavigationBar: BottomNavigationBar(
-        currentIndex: currentIndex,
-        onTap: (index) {
-          if (index == 1) { // Patients tab
-            // Navigate to detailed patients screen
-            Navigator.pushNamed(context, AppRoutes.caregiverPatients);
-          } else if (index == 2) {
-            Navigator.pushNamed(context, AppRoutes.viewArticleList);
-          } else if (index == 3) {
-            Navigator.pushNamed(context, AppRoutes.caregiverProfile);
-          } else {
-            setState(() {
-              currentIndex = index;
-            });
-          }
-        },
-        type: BottomNavigationBarType.fixed,
-        selectedItemColor: Color(0xFF2B3F99),
-        unselectedItemColor: Color(0xFF2B3F99),
-        items: const [
-          BottomNavigationBarItem(icon: Icon(Icons.home_outlined), label: 'Home'),
-          BottomNavigationBarItem(icon: Icon(Icons.people), label: 'Patients'),
-          BottomNavigationBarItem(icon: Icon(Icons.article_outlined), label: 'Articles'),
-          BottomNavigationBarItem(icon: Icon(Icons.person_outlined), label: 'Profile'),
-        ],
       ),
     );
   }
@@ -273,11 +274,10 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       title: 'Schedule Routine App',
-      theme: ThemeData(
-        primarySwatch: Colors.blue,
-        fontFamily: 'Roboto',
-      ),
-      home: const ScheduleRoutineDialog(),
+      theme: ThemeData(primarySwatch: Colors.blue, fontFamily: 'Roboto'),
+      home: const ScheduleRoutineDialog(
+        patientName: 'Sarah Johnson',
+      ), // Pass patientName
       debugShowCheckedModeBanner: false,
     );
   }

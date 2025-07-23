@@ -1,6 +1,7 @@
 package Memora.DimensiaCareApplication.controller;
 
 import Memora.DimensiaCareApplication.model.User;
+import Memora.DimensiaCareApplication.service.UserService;
 
 import Memora.DimensiaCareApplication.service.UserService;
 

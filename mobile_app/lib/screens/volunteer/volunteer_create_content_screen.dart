@@ -29,7 +29,7 @@ class VolunteerCreateContentScreen extends StatelessWidget {
           style: TextStyle(
             fontSize: 22,
             fontWeight: FontWeight.w700,
-            color: Colors.black87,
+            color: Color(0xFF2B3F99), // Calm Navy for text
             letterSpacing: -0.5,
           ),
         ),
@@ -41,88 +41,99 @@ class VolunteerCreateContentScreen extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             SizedBox(height: 8),
-            
+
             // Welcome Section
-            Container(
-              width: double.infinity,
-              padding: EdgeInsets.all(24),
-              decoration: BoxDecoration(
-                gradient: LinearGradient(
-                  colors: [Colors.blue[600]!, Colors.blue[700]!],
-                  begin: Alignment.topLeft,
-                  end: Alignment.bottomRight,
+            GestureDetector(
+              onTap: () => _navigateToViewArticles(context),
+              child: Container(
+                width: double.infinity,
+                padding: EdgeInsets.all(24),
+                decoration: BoxDecoration(
+                  gradient: LinearGradient(
+                    colors: [
+                      Color(0xFF390797),
+                      Color(0xFF1c1c84),
+                    ], // Deep Purple to Deep Navy
+                    begin: Alignment.topLeft,
+                    end: Alignment.bottomRight,
+                  ),
+                  borderRadius: BorderRadius.circular(20),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Color(0xFF390797).withOpacity(0.3),
+                      blurRadius: 20,
+                      offset: Offset(0, 8),
+                      spreadRadius: -5,
+                    ),
+                  ],
                 ),
-                borderRadius: BorderRadius.circular(20),
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.blue.withOpacity(0.3),
-                    blurRadius: 20,
-                    offset: Offset(0, 8),
-                    spreadRadius: -5,
-                  ),
-                ],
-              ),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Row(
-                    children: [
-                      Container(
-                        padding: EdgeInsets.all(12),
-                        decoration: BoxDecoration(
-                          color: Colors.white.withOpacity(0.2),
-                          borderRadius: BorderRadius.circular(16),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Row(
+                      children: [
+                        Container(
+                          padding: EdgeInsets.all(12),
+                          decoration: BoxDecoration(
+                            color: Colors.white.withOpacity(0.2),
+                            borderRadius: BorderRadius.circular(16),
+                          ),
+                          child: Icon(
+                            Icons.article_rounded,
+                            color: Colors.white,
+                            size: 28,
+                          ),
                         ),
-                        child: Icon(
-                          Icons.create_rounded,
-                          color: Colors.white,
-                          size: 28,
-                        ),
-                      ),
-                      SizedBox(width: 16),
-                      Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              'Start Creating',
-                              style: TextStyle(
-                                fontSize: 20,
-                                fontWeight: FontWeight.w700,
-                                color: Colors.white,
+                        SizedBox(width: 16),
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                'View Your Articles',
+                                style: TextStyle(
+                                  fontSize: 20,
+                                  fontWeight: FontWeight.w700,
+                                  color: Colors.white,
+                                ),
                               ),
-                            ),
-                            SizedBox(height: 4),
-                            Text(
-                              'Share your knowledge with the community',
-                              style: TextStyle(
-                                fontSize: 14,
-                                color: Colors.white.withOpacity(0.9),
+                              SizedBox(height: 4),
+                              Text(
+                                'See and manage the articles you\'ve created',
+                                style: TextStyle(
+                                  fontSize: 14,
+                                  color: Colors.white.withOpacity(0.9),
+                                ),
                               ),
-                            ),
-                          ],
+                            ],
+                          ),
                         ),
-                      ),
-                    ],
-                  ),
-                ],
+                        Icon(
+                          Icons.arrow_forward_ios,
+                          color: Colors.white.withOpacity(0.8),
+                          size: 20,
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
               ),
             ),
-            
+
             SizedBox(height: 32),
-            
+
             // Content Options
             Text(
               'Content Options',
               style: TextStyle(
                 fontSize: 18,
                 fontWeight: FontWeight.w700,
-                color: Colors.black87,
+                color: Color(0xFF390797), // Deep Purple for headings
                 letterSpacing: -0.3,
               ),
             ),
             SizedBox(height: 16),
-            
+
             // Two Cards Row
             Row(
               children: [
@@ -131,7 +142,7 @@ class VolunteerCreateContentScreen extends StatelessWidget {
                     Icons.add_circle_outline_rounded,
                     'Create New Article',
                     'Write and publish new content',
-                    Colors.blue,
+                    Color(0xFF2B3F99), // Calm Navy
                     onTap: () => _navigateToArticleCreation(context),
                   ),
                 ),
@@ -141,13 +152,13 @@ class VolunteerCreateContentScreen extends StatelessWidget {
                     Icons.drafts_rounded,
                     'My Drafts',
                     'Continue working on saved drafts',
-                    Colors.orange,
+                    Color(0xFFA0C4FD), // Light Sky Blue
                     onTap: () => _navigateToDraft(context, 'Draft List'),
                   ),
                 ),
               ],
             ),
-            
+
             SizedBox(height: 32),
           ],
         ),
@@ -163,16 +174,24 @@ class VolunteerCreateContentScreen extends StatelessWidget {
     );
   }
 
+  void _navigateToViewArticles(BuildContext context) {
+    Navigator.pushNamed(context, AppRoutes.viewArticle);
+  }
+
   void _navigateToDraft(BuildContext context, String draftName) {
     final int volunteerId = 1;
-    Navigator.pushNamed(context, AppRoutes.volunteerDraft, arguments: volunteerId);
+    Navigator.pushNamed(
+      context,
+      AppRoutes.volunteerDraft,
+      arguments: volunteerId,
+    );
   }
 
   Widget _buildContentTypeCard(
     IconData icon,
     String title,
     String subtitle,
-    MaterialColor color, {
+    Color color, {
     required VoidCallback onTap,
   }) {
     return GestureDetector(
@@ -198,17 +217,13 @@ class VolunteerCreateContentScreen extends StatelessWidget {
               padding: EdgeInsets.all(16),
               decoration: BoxDecoration(
                 gradient: LinearGradient(
-                  colors: [color[50]!, color[100]!],
+                  colors: [color.withOpacity(0.1), color.withOpacity(0.2)],
                   begin: Alignment.topLeft,
                   end: Alignment.bottomRight,
                 ),
                 borderRadius: BorderRadius.circular(16),
               ),
-              child: Icon(
-                icon,
-                size: 32,
-                color: color[700],
-              ),
+              child: Icon(icon, size: 32, color: color),
             ),
             SizedBox(height: 12),
             Text(
@@ -237,7 +252,7 @@ class VolunteerCreateContentScreen extends StatelessWidget {
             Container(
               padding: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
               decoration: BoxDecoration(
-                color: color[600],
+                color: color,
                 borderRadius: BorderRadius.circular(8),
               ),
               child: Row(
@@ -264,15 +279,6 @@ class VolunteerCreateContentScreen extends StatelessWidget {
         ),
       ),
     );
-  }
-
-  Widget _buildDraftItem(
-    String title,
-    String subtitle, {
-    required VoidCallback onTap,
-  }) {
-    // This method is no longer used but kept for compatibility
-    return Container();
   }
 }
 
@@ -315,14 +321,17 @@ class CreateArticleScreen extends StatelessWidget {
               padding: EdgeInsets.all(32),
               decoration: BoxDecoration(
                 gradient: LinearGradient(
-                  colors: [Colors.blue[50]!, Colors.blue[100]!],
+                  colors: [
+                    Color(0xFFC3B1E1).withOpacity(0.3),
+                    Color(0xFFA0C4FD).withOpacity(0.3),
+                  ], // Soft Lavender to Light Sky Blue
                   begin: Alignment.topLeft,
                   end: Alignment.bottomRight,
                 ),
                 borderRadius: BorderRadius.circular(30),
                 boxShadow: [
                   BoxShadow(
-                    color: Colors.blue.withOpacity(0.2),
+                    color: Color(0xFF390797).withOpacity(0.2),
                     blurRadius: 20,
                     offset: Offset(0, 8),
                   ),
@@ -331,7 +340,7 @@ class CreateArticleScreen extends StatelessWidget {
               child: Icon(
                 Icons.article_rounded,
                 size: 80,
-                color: Colors.blue[700],
+                color: Color(0xFF2B3F99), // Calm Navy
               ),
             ),
             SizedBox(height: 24),

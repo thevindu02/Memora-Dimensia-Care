@@ -611,11 +611,15 @@ class _ScheduleRoutineScreenState extends State<ScheduleRoutineScreen> {
               width: double.infinity,
               child: ElevatedButton(
                 onPressed: () {
-                  Navigator.pushNamed(context, AppRoutes.completeRoutine);
+                  Navigator.pushNamed(
+                    context,
+                    AppRoutes.completeRoutine,
+                    arguments: {'patientName': _patientName ?? 'Unknown'},
+                  );
                 },
                 style: ElevatedButton.styleFrom(
                   backgroundColor: Color(0xFF9FC3FC),
-                  foregroundColor: Colors.white,
+                  foregroundColor: Color(0xFF2B3F99),
                   padding: EdgeInsets.symmetric(vertical: 16),
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(12),
@@ -625,7 +629,7 @@ class _ScheduleRoutineScreenState extends State<ScheduleRoutineScreen> {
                 child: Text(
                   'Complete Daily Routine',
                   style: TextStyle(
-                    color: Colors.black,
+                    color: Color(0xFF2B3F99),
                     fontSize: 16,
                     fontWeight: FontWeight.w600,
                   ),
@@ -634,42 +638,6 @@ class _ScheduleRoutineScreenState extends State<ScheduleRoutineScreen> {
             ),
           ],
         ),
-      ),
-      bottomNavigationBar: BottomNavigationBar(
-        currentIndex: _currentIndex,
-        onTap: (index) {
-          if (index == 0) {
-            // Patients tab
-            // Navigate to detailed patients screen
-            Navigator.pushNamed(context, AppRoutes.caregiverDashboard);
-          } else if (index == 3) {
-            Navigator.pushNamed(context, AppRoutes.caregiverProfile);
-          } else if (index == 2) {
-            Navigator.pushNamed(context, AppRoutes.viewArticleList);
-          } else {
-            setState(() {
-              _currentIndex = index;
-            });
-          }
-        },
-        type: BottomNavigationBarType.fixed,
-        selectedItemColor: Color(0xFF2B3F99),
-        unselectedItemColor: Color(0xFF2B3F99),
-        items: const [
-          BottomNavigationBarItem(
-            icon: Icon(Icons.home_outlined),
-            label: 'Home',
-          ),
-          BottomNavigationBarItem(icon: Icon(Icons.people), label: 'Patients'),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.article_outlined),
-            label: 'Articles',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.person_outline),
-            label: 'Profile',
-          ),
-        ],
       ),
     );
   }

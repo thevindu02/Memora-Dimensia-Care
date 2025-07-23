@@ -42,15 +42,16 @@ public class CaregiverService {
             resp.setProfilePic(user.getProfilePic());
             resp.setExperience(caregiver.getExperience());
             resp.setQualifications(caregiver.getQualifications());
-            
+
             // Get skills using the new many-to-many relationship
             List<String> skills = caregiver.getSkills().stream()
-                .map(Skill::getSkillName)
-                .collect(Collectors.toList());
+                    .map(Skill::getSkillName)
+                    .collect(Collectors.toList());
             resp.setSkills(skills);
             return resp;
         }).collect(Collectors.toList());
     }
+
     @Transactional
     public Caregiver registerCaregiver(User user, Caregiver caregiver, List<String> skillNames) {
         // Hash the password before saving
@@ -59,14 +60,14 @@ public class CaregiverService {
         caregiver.setUser(savedUser);
         Caregiver savedCaregiver = caregiverRepository.save(caregiver);
 
-        // Add skills using the new many-to-many relationship
+        // TODO: Add skills association once caregiver_skills table is created
+        // For now, just validate that the skills exist
         for (String skillName : skillNames) {
-            Skill skill = skillRepository.findBySkillName(skillName)
+            skillRepository.findBySkillName(skillName)
                     .orElseThrow(() -> new RuntimeException("Skill not found: " + skillName));
-            savedCaregiver.addSkill(skill);
         }
-        
-        return caregiverRepository.save(savedCaregiver);
+
+        return savedCaregiver;
     }
 
     public List<CaregiverResponse> getCaregiversByCity(String city) {
@@ -81,7 +82,7 @@ public class CaregiverService {
     public void expireOldPendingRequests() {
         LocalDateTime cutoff = LocalDateTime.now().minusHours(24);
         List<GuardianPatientCaregiverConnection> expired = connectionRepository.findByStatusAndConnectedDateTimeBefore(
-            GuardianPatientCaregiverConnection.ConnectionStatus.PENDING, cutoff);
+                GuardianPatientCaregiverConnection.ConnectionStatus.PENDING, cutoff);
         for (GuardianPatientCaregiverConnection conn : expired) {
             conn.setStatus(GuardianPatientCaregiverConnection.ConnectionStatus.EXPIRED);
         }
