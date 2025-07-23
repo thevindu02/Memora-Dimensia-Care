@@ -199,45 +199,6 @@ class _LoginScreenState extends State<LoginScreen> {
                         if (value == null || value.isEmpty) {
                           return 'Password is required';
                         }
-                        
-                        if (value.length < 8) {
-                          return 'Password must be at least 8 characters';
-                        }
-                        
-                        if (value.length > 128) {
-                          return 'Password is too long (max 128 characters)';
-                        }
-                        
-                        // Check for at least one uppercase letter
-                        if (!RegExp(r'[A-Z]').hasMatch(value)) {
-                          return 'Password must contain at least one uppercase letter';
-                        }
-                        
-                        // Check for at least one lowercase letter
-                        if (!RegExp(r'[a-z]').hasMatch(value)) {
-                          return 'Password must contain at least one lowercase letter';
-                        }
-                        
-                        // Check for at least one digit
-                        if (!RegExp(r'\d').hasMatch(value)) {
-                          return 'Password must contain at least one number';
-                        }
-                        
-                        // Check for at least one special character
-                        if (!RegExp(r'[!@#$%^&*(),.?":{}|<>]').hasMatch(value)) {
-                          return 'Password must contain at least one special character';
-                        }
-                        
-                        // Check for common weak passwords
-                        List<String> commonPasswords = [
-                          'password', 'password123', '123456', '123456789', 
-                          'qwerty', 'abc123', 'password1', 'admin', 'letmein'
-                        ];
-                        
-                        if (commonPasswords.contains(value.toLowerCase())) {
-                          return 'Password is too common, please choose a stronger password';
-                        }
-                        
                         return null;
                       },
                     ),
