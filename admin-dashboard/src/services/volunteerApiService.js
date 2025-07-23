@@ -5,7 +5,7 @@ class VolunteerApiService {
     try {
       // Add timestamp to prevent caching
       const timestamp = new Date().getTime();
-      const response = await fetch(`${API_BASE_URL}/volunteer-requests/with-user-data?_t=${timestamp}`, {
+      const response = await fetch(`${API_BASE_URL}/volunteer-requests?_t=${timestamp}`, {
         method: 'GET',
         headers: {
           'Content-Type': 'application/json',
@@ -40,14 +40,13 @@ class VolunteerApiService {
     }
   }
 
-  async updateVolunteerRequestStatus(requestId, status) {
+  async rejectVolunteerRequest(requestId) {
     try {
-      const response = await fetch(`${API_BASE_URL}/volunteer-requests/${requestId}/status`, {
+      const response = await fetch(`${API_BASE_URL}/volunteer-requests/${requestId}/reject`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ status: status }),
+        }
       });
       
       if (!response.ok) {
@@ -57,7 +56,7 @@ class VolunteerApiService {
       const data = await response.json();
       return data;
     } catch (error) {
-      console.error('Error updating volunteer request status:', error);
+      console.error('Error rejecting volunteer request:', error);
       throw error;
     }
   }

@@ -99,7 +99,7 @@ const Volunteer = () => {
 
   const handleRejectVolunteer = async (volunteerId) => {
     try {
-      await volunteerApiService.updateVolunteerRequestStatus(volunteerId, 'rejected');
+      await volunteerApiService.rejectVolunteerRequest(volunteerId);
       // Refresh the data after updating
       await fetchVolunteers();
       handleCloseModal();
