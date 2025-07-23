@@ -15,6 +15,8 @@ const Volunteer = () => {
   const [selectedVolunteer, setSelectedVolunteer] = useState(null);
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState('');
+  const [volunteerPassword, setVolunteerPassword] = useState('');
+  const [showPasswordInput, setShowPasswordInput] = useState(false);
 
   // Fetch volunteer data on component mount
   useEffect(() => {
@@ -40,18 +42,16 @@ const Volunteer = () => {
   // Transform backend data to match frontend expectations
   const transformVolunteerData = (volunteer) => ({
     id: volunteer.requestId,
-    name: `${volunteer.firstName} ${volunteer.lastName}`,
+    name: volunteer.volunteerName,
     email: volunteer.email,
     phone: volunteer.phoneNumber,
     gender: volunteer.gender,
     status: volunteer.requestStatus,
     createdAt: volunteer.createdAt,
-    userId: volunteer.userId,
     volunteerIdImage: volunteer.volunteerIdImage,
-    birthdate: volunteer.birthdate,
-    city: volunteer.city,
-    state: volunteer.state,
-    profilePic: volunteer.profilePic
+    city: 'N/A', // Not available in current structure
+    birthdate: 'N/A', // Not available in current structure
+    profilePic: null // Not available in current structure
   });
 
   const transformedVolunteers = volunteers.map(transformVolunteerData);
@@ -67,16 +67,33 @@ const Volunteer = () => {
 
   const handleCloseModal = () => {
     setSelectedVolunteer(null);
+    setVolunteerPassword('');
+    setShowPasswordInput(false);
   };
 
   const handleAcceptVolunteer = async (volunteerId) => {
+    if (!showPasswordInput) {
+      // Show password input first
+      setShowPasswordInput(true);
+      return;
+    }
+    
+    if (!volunteerPassword.trim()) {
+      alert('Please enter a password for the volunteer');
+      return;
+    }
+    
     try {
-      await volunteerApiService.updateVolunteerRequestStatus(volunteerId, 'approved');
+      await volunteerApiService.acceptVolunteerRequest(volunteerId, volunteerPassword);
       // Refresh the data after updating
       await fetchVolunteers();
       handleCloseModal();
+      // Reset password fields
+      setVolunteerPassword('');
+      setShowPasswordInput(false);
     } catch (error) {
       console.error('Error accepting volunteer:', error);
+      alert('Error accepting volunteer. Please try again.');
     }
   };
 
@@ -118,9 +135,9 @@ const Volunteer = () => {
             
             {error && (
               <div style={{
-                backgroundColor: '#f8d7da',
-                border: '1px solid #f5c6cb',
-                color: '#721c24',
+                backgroundColor: '#C3B1E1',
+                border: '1px solid #A0C4FD',
+                color: '#390797',
                 padding: '0.75rem 1.25rem',
                 marginBottom: '1rem',
                 borderRadius: '0.25rem'
@@ -353,6 +370,27 @@ const Volunteer = () => {
                   </div>
                   
                   <div className="um-modal-footer">
+                    {selectedVolunteer.status === 'pending' && showPasswordInput && (
+                      <div className="um-password-section" style={{ marginBottom: '1rem' }}>
+                        <label htmlFor="volunteerPassword" style={{ display: 'block', marginBottom: '0.5rem', fontWeight: '600' }}>
+                          Create Password for Volunteer:
+                        </label>
+                        <input
+                          type="password"
+                          id="volunteerPassword"
+                          value={volunteerPassword}
+                          onChange={(e) => setVolunteerPassword(e.target.value)}
+                          placeholder="Enter password for volunteer account"
+                          style={{
+                            width: '100%',
+                            padding: '0.75rem',
+                            border: '1px solid #A0C4FD',
+                            borderRadius: '6px',
+                            fontSize: '0.875rem'
+                          }}
+                        />
+                      </div>
+                    )}
                     <div className="um-modal-actions">
                       {selectedVolunteer.status === 'pending' && (
                         <>
@@ -360,7 +398,7 @@ const Volunteer = () => {
                             className="um-btn um-btn-success"
                             onClick={() => handleAcceptVolunteer(selectedVolunteer.id)}
                           >
-                            Accept Volunteer
+                            {showPasswordInput ? 'Confirm Accept' : 'Accept Volunteer'}
                           </button>
                           <button 
                             className="um-btn um-btn-danger"

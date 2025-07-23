@@ -221,20 +221,20 @@ const VideoLessons = () => {
 
   const getStatusColor = (status) => {
     switch(status) {
-      case 'Published': return '#10b981';
-      case 'Pending': return '#f59e0b';
-      case 'Draft': return '#6b7280';
-      case 'Rejected': return '#ef4444';
-      default: return '#6b7280';
+      case 'Published': return '#2B3F99';
+      case 'Pending': return '#A0C4FD';
+      case 'Draft': return '#390797';
+      case 'Rejected': return '#390797';
+      default: return '#390797';
     }
   };
 
   const getDifficultyColor = (difficulty) => {
     switch(difficulty) {
-      case 'Beginner': return '#10b981';
-      case 'Intermediate': return '#f59e0b';
-      case 'Advanced': return '#ef4444';
-      default: return '#6b7280';
+      case 'Beginner': return '#2B3F99';
+      case 'Intermediate': return '#A0C4FD';
+      case 'Advanced': return '#390797';
+      default: return '#390797';
     }
   };
 

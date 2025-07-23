@@ -7,13 +7,14 @@ import 'package:go_router/go_router.dart';
 import 'routes/router.dart';
 import 'package:flutter/services.dart';
 import 'utils/navigator_observer.dart';
+import 'constants/color_constants.dart';
 
 void main() {
 
    WidgetsFlutterBinding.ensureInitialized();
 
-  // Hides status & navigation bars (makes app fullscreen)
-  SystemChrome.setEnabledSystemUIMode(SystemUiMode.immersiveSticky);
+  // Set system UI overlay style (keeps navigation visible)
+  SystemChrome.setEnabledSystemUIMode(SystemUiMode.edgeToEdge);
   
   runApp(MyApp());
 }
@@ -25,6 +26,29 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       title: 'Memora',
+      theme: ThemeData(
+        primarySwatch: AppMaterialColors.primarySwatch,
+        primaryColor: AppColors.primary,
+        scaffoldBackgroundColor: AppColors.background,
+        textTheme: TextTheme(
+          bodyLarge: TextStyle(color: AppColors.textPrimary),
+          bodyMedium: TextStyle(color: AppColors.textSecondary),
+        ),
+        colorScheme: ColorScheme.fromSwatch(
+          primarySwatch: AppMaterialColors.primarySwatch,
+        ).copyWith(
+          primary: AppColors.primary,
+          secondary: AppColors.secondary,
+          surface: AppColors.surface,
+          background: AppColors.background,
+          error: AppColors.error,
+          onPrimary: AppColors.onPrimary,
+          onSecondary: AppColors.onSecondary,
+          onSurface: AppColors.onSurface,
+          onBackground: AppColors.onSurface,
+          onError: AppColors.onPrimary,
+        ),
+      ),
       initialRoute: AppRoutes.splash,
       navigatorObservers: [CustomNavigatorObserver()],
       //initialRoute: AppRoutes.patientGuardianRequest,

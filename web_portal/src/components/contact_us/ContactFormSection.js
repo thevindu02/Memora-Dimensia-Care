@@ -1,8 +1,11 @@
 import React from 'react';
-import { Box, Grid, Paper, Typography, TextField, Button, MenuItem } from '@mui/material';
+import { Box, Grid, Paper, Typography, TextField, Button, MenuItem,IconButton } from '@mui/material';
 import HelpOutlineIcon from '@mui/icons-material/HelpOutline';
 import AccessTimeIcon from '@mui/icons-material/AccessTime';
-import QuestionAnswerIcon from '@mui/icons-material/QuestionAnswer';
+import LocationIcon from '@mui/icons-material/LocationCity';
+import FacebookIcon from '@mui/icons-material/Facebook';
+import TwitterIcon from '@mui/icons-material/Twitter';
+import SocialIcon from '@mui/icons-material/PeopleOutlineTwoTone';
 
 function ContactFormSection() {
   return (
@@ -58,7 +61,7 @@ function ContactFormSection() {
                 variant="contained"
                 color="primary"
                 size="large"
-                sx={{ borderRadius: 8, fontWeight: 700, px: 5 }}
+                sx={{ borderRadius: 8, fontWeight: 700, px: 5, fontFamily: 'Roboto', fontSize: 18 }}
                 type="submit"
               >
                 Send Message
@@ -113,25 +116,43 @@ function ContactFormSection() {
               sx={{
                 p: 3,
                 borderRadius: 3,
-                bgcolor: '#F6F4FB',
+                bgcolor: '#cfe0fdff',
                 color: '#2B3F99',
                 display: 'flex',
                 alignItems: 'center',
                 gap: 2,
               }}
             >
-              <QuestionAnswerIcon sx={{ fontSize: 32 }} />
+              <LocationIcon sx={{ fontSize: 32 }} />
               <Box>
-                <Typography sx={{ fontWeight: 700 }}>Frequently Asked</Typography>
+                <Typography sx={{ fontWeight: 700 }}>Head Office</Typography>
                 <Typography sx={{ fontSize: 16 }}>
-                  <a href="/faq" style={{ color: '#2B3F99', textDecoration: 'underline' }}>
-                    How can I access resources?
-                  </a>
-                  <br />
-                  <a href="/faq" style={{ color: '#2B3F99', textDecoration: 'underline' }}>
-                    Can I volunteer?
-                  </a>
+                  Memora.pvt,
+                  Colombo 10, Sri Lanka
                 </Typography>
+              </Box>
+            </Paper>
+            <Paper
+              elevation={2}
+              sx={{
+                p: 3,
+                borderRadius: 3,
+                bgcolor: '#ece5f7ff',
+                color: '#390797',
+                display: 'flex',
+                alignItems: 'center',
+                gap: 2,
+              }}
+            >
+              <SocialIcon sx={{ fontSize: 32 }} />
+              <Box>
+                <Typography sx={{ fontWeight: 700 }}>Follow Us</Typography>
+                <IconButton color="inherit" href="https://facebook.com" target="_blank">
+                <FacebookIcon />
+              </IconButton>
+              <IconButton color="inherit" href="https://twitter.com" target="_blank">
+                <TwitterIcon />
+              </IconButton>
               </Box>
             </Paper>
           </Box>

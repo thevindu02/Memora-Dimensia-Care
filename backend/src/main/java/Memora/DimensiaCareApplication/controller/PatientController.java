@@ -25,6 +25,7 @@ public class PatientController {
         patient.setDementiaStage(request.getDementiaStage());
         patient.setDateOfDiagnosis(request.getDateOfDiagnosis());
         patient.setDementiaType(request.getDementiaType());
+        patient.setRelationship(request.getRelationship());
         Patient savedPatient = patientService.addPatient(patient, request.getUserId(), request.getGuardianId());
         return ResponseEntity.ok(savedPatient);
     }
@@ -36,5 +37,14 @@ public class PatientController {
                 .map(PatientDetailsResponse::fromPatient)
                 .collect(Collectors.toList());
         return ResponseEntity.ok(response);
+    }
+
+    @GetMapping("/{patientId}")
+    public ResponseEntity<PatientDetailsResponse> getPatientById(@PathVariable Long patientId) {
+        PatientDetailsResponse resp = patientService.getPatientDetailsWithAcceptedDate(patientId);
+        if (resp == null) {
+            return ResponseEntity.notFound().build();
+        }
+        return ResponseEntity.ok(resp);
     }
 }

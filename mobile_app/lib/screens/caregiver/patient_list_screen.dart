@@ -1,12 +1,41 @@
 import 'package:flutter/material.dart';
 import '../../routes/app_routes.dart';
+import '../../services/auth_service.dart';
+import '../../services/caregiver_service.dart';
+import 'package:flutter/foundation.dart' show kIsWeb;
 
 class Patient {
+  final int patientId;
   final String name;
-  final int age;
-  final String imageAsset; // Changed from imageUrl to imageAsset
+  final int? age;
+  final String? dementiaType;
+  final String? dementiaStage;
+  final String? relationship;
+  final String? imageAsset;
 
-  Patient({required this.name, required this.age, required this.imageAsset});
+  Patient({
+    required this.patientId,
+    required this.name,
+    this.age,
+    this.dementiaType,
+    this.dementiaStage,
+    this.relationship,
+    this.imageAsset,
+  });
+
+  factory Patient.fromMap(Map<String, dynamic> map) {
+    return Patient(
+      patientId: map['patientId'] is int
+          ? map['patientId']
+          : int.tryParse(map['patientId'].toString()),
+      name: map['patientName'] ?? 'Unknown',
+      age: map['patientAge'],
+      dementiaType: map['dementiaType'],
+      dementiaStage: map['dementiaStage'],
+      relationship: map['relationship'],
+      imageAsset: null, // Optionally map to an asset if available
+    );
+  }
 }
 
 class PatientListScreen extends StatefulWidget {
@@ -19,33 +48,45 @@ class _PatientsScreenState extends State<PatientListScreen> {
   TextEditingController _searchController = TextEditingController();
   List<Patient> _allPatients = [];
   List<Patient> _filteredPatients = [];
+  bool _isLoading = true;
+  String? _error;
 
   @override
   void initState() {
     super.initState();
-    _initializePatients();
-    _filteredPatients = _allPatients;
+    _fetchPatients();
     _searchController.addListener(_filterPatients);
   }
 
-  void _initializePatients() {
-    _allPatients = [
-      Patient(
-        name: 'John Doe',
-        age: 78,
-        imageAsset: 'assets/images/patient1.jpg', // Using existing logo as placeholder
-      ),
-      Patient(
-        name: 'Mary Smith',
-        age: 82,
-        imageAsset: 'assets/images/patient2.jpg', // Using existing logo as placeholder
-      ),
-      Patient(
-        name: 'Robert Brown',
-        age: 75,
-        imageAsset: 'assets/images/patient3.jpg', // Using existing logo as placeholder
-      ),
-    ];
+  Future<void> _fetchPatients() async {
+    setState(() {
+      _isLoading = true;
+      _error = null;
+    });
+    try {
+      final caregiverId = await AuthService.getCurrentCaregiverId();
+      if (caregiverId == null) {
+        setState(() {
+          _error = 'Unable to determine caregiver ID.';
+          _isLoading = false;
+        });
+        return;
+      }
+      final data = await CaregiverService.getConnectedRequests(caregiverId);
+      final patients = data
+          .map<Patient>((item) => Patient.fromMap(item))
+          .toList();
+      setState(() {
+        _allPatients = patients;
+        _filteredPatients = patients;
+        _isLoading = false;
+      });
+    } catch (e) {
+      setState(() {
+        _error = 'Failed to load patients.';
+        _isLoading = false;
+      });
+    }
   }
 
   void _filterPatients() {
@@ -76,15 +117,15 @@ class _PatientsScreenState extends State<PatientListScreen> {
             Navigator.pop(context);
           },
         ),
-        title: Text(
+        title: const Text(
           'Patients',
           style: TextStyle(
+            fontSize: 20,
+            fontWeight: FontWeight.w600,
             color: Colors.black87,
-            fontSize: 18,
-            fontWeight: FontWeight.w500,
           ),
         ),
-        centerTitle: true,
+        centerTitle: false,
         actions: [
           IconButton(
             icon: Icon(Icons.notifications_outlined, color: Colors.black87),
@@ -94,54 +135,58 @@ class _PatientsScreenState extends State<PatientListScreen> {
           ),
         ],
       ),
-      body: Column(
-        children: [
-          // Search Bar
-          Padding(
-            padding: EdgeInsets.symmetric(horizontal: 16, vertical: 16),
-            child: Container(
-              decoration: BoxDecoration(
-                color: Colors.grey[100],
-                borderRadius: BorderRadius.circular(12),
-              ),
-              child: TextField(
-                controller: _searchController,
-                decoration: InputDecoration(
-                  hintText: 'Search patients',
-                  hintStyle: TextStyle(
-                    color: Colors.grey[500],
-                    fontSize: 16,
+      body: _isLoading
+          ? Center(child: CircularProgressIndicator())
+          : _error != null
+          ? Center(child: Text(_error!))
+          : Column(
+              children: [
+                // Search Bar
+                Padding(
+                  padding: EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+                  child: Container(
+                    decoration: BoxDecoration(
+                      color: Colors.grey[100],
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    child: TextField(
+                      controller: _searchController,
+                      decoration: InputDecoration(
+                        hintText: 'Search patients',
+                        hintStyle: TextStyle(
+                          color: Colors.grey[500],
+                          fontSize: 16,
+                        ),
+                        prefixIcon: Icon(
+                          Icons.search,
+                          color: Colors.grey[500],
+                          size: 20,
+                        ),
+                        border: InputBorder.none,
+                        contentPadding: EdgeInsets.symmetric(
+                          horizontal: 16,
+                          vertical: 14,
+                        ),
+                      ),
+                      style: TextStyle(fontSize: 16, color: Colors.black87),
+                    ),
                   ),
-                  prefixIcon: Icon(
-                    Icons.search,
-                    color: Colors.grey[500],
-                    size: 20,
-                  ),
-                  border: InputBorder.none,
-                  contentPadding:
-                  EdgeInsets.symmetric(horizontal: 16, vertical: 14),
                 ),
-                style: TextStyle(
-                  fontSize: 16,
-                  color: Colors.black87,
+                // Patients List
+                Expanded(
+                  child: _filteredPatients.isEmpty
+                      ? Center(child: Text('No patients found.'))
+                      : ListView.builder(
+                          padding: EdgeInsets.symmetric(horizontal: 16),
+                          itemCount: _filteredPatients.length,
+                          itemBuilder: (context, index) {
+                            final patient = _filteredPatients[index];
+                            return _buildPatientCard(patient);
+                          },
+                        ),
                 ),
-              ),
+              ],
             ),
-          ),
-
-          // Patients List
-          Expanded(
-            child: ListView.builder(
-              padding: EdgeInsets.symmetric(horizontal: 16),
-              itemCount: _filteredPatients.length,
-              itemBuilder: (context, index) {
-                final patient = _filteredPatients[index];
-                return _buildPatientCard(patient);
-              },
-            ),
-          ),
-        ],
-      ),
       bottomNavigationBar: Container(
         decoration: BoxDecoration(
           color: Colors.white,
@@ -156,15 +201,13 @@ class _PatientsScreenState extends State<PatientListScreen> {
         child: BottomNavigationBar(
           currentIndex: _currentIndex,
           onTap: (index) {
-            if (index == 0) { // Patients tab
-              // Navigate to detailed patients screen
+            if (index == 0) {
               Navigator.pushNamed(context, AppRoutes.caregiverDashboard);
-            }else if(index==2){
+            } else if (index == 2) {
               Navigator.pushNamed(context, AppRoutes.viewArticleList);
-            }else if(index==3){
+            } else if (index == 3) {
               Navigator.pushNamed(context, AppRoutes.caregiverProfile);
-            }
-            else {
+            } else {
               setState(() {
                 _currentIndex = index;
               });
@@ -205,87 +248,94 @@ class _PatientsScreenState extends State<PatientListScreen> {
   }
 
   Widget _buildPatientCard(Patient patient) {
-    return GestureDetector(
-      onTap: () {
-        Navigator.pushNamed(context, AppRoutes.patientRoutine);
-      },
-      child: Container(
-        margin: EdgeInsets.only(bottom: 16),
-        padding: EdgeInsets.all(16),
-        decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.circular(12),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withOpacity(0.04),
-              blurRadius: 8,
-              offset: Offset(0, 2),
-            ),
-          ],
-          border: Border.all(
-            color: Colors.grey[100]!,
-            width: 1,
+    final card = Container(
+      margin: EdgeInsets.only(bottom: 16),
+      padding: EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: Color(0x33C3B1E1), // Soft Lavender with 20% opacity
+        borderRadius: BorderRadius.circular(12),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.04),
+            blurRadius: 8,
+            offset: Offset(0, 2),
           ),
-        ),
-        child: Row(
-          children: [
-            // Patient Avatar - Updated to use AssetImage with fallback
-            CircleAvatar(
-              radius: 24,
-              backgroundColor: Colors.grey[200],
-              child: ClipOval(
-                child: Image.asset(
-                  patient.imageAsset,
-                  width: 48,
-                  height: 48,
-                  fit: BoxFit.cover,
-                  errorBuilder: (context, error, stackTrace) {
-                    // Fallback to default avatar icon if image fails to load
-                    return Icon(
-                      Icons.person,
-                      size: 30,
-                      color: Colors.grey[600],
-                    );
-                  },
+        ],
+        border: Border.all(color: Colors.grey[100]!, width: 1),
+      ),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          // Patient Avatar (optional, fallback to icon)
+          CircleAvatar(
+            radius: 24,
+            backgroundColor: Color(0xFFA0C4FD), // Light Sky Blue
+            child: Icon(
+              Icons.person,
+              size: 30,
+              color: Color(0xFF2B3F99), // Calm Navy
+            ),
+          ),
+          SizedBox(width: 16),
+          // Patient Info
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  patient.name,
+                  style: const TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.w600,
+                    color: Color(0xFF390797), // Deep Purple
+                  ),
                 ),
-              ),
-            ),
-            SizedBox(width: 16),
-
-            // Patient Info
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    patient.name,
-                    style: TextStyle(
-                      fontSize: 16,
-                      fontWeight: FontWeight.w600,
-                      color: Colors.black87,
-                    ),
+                Padding(
+                  padding: const EdgeInsets.only(top: 2.0),
+                  child: Text(
+                    'Dementia Type:    ${patient.dementiaType != null && patient.dementiaType!.isNotEmpty ? patient.dementiaType : 'N/A'}',
+                    style: const TextStyle(fontSize: 14, color: Colors.black87),
                   ),
-                  SizedBox(height: 4),
-                  Text(
-                    'Age: ${patient.age}',
-                    style: TextStyle(
-                      fontSize: 14,
-                      color: Colors.grey[600],
-                    ),
+                ),
+                Padding(
+                  padding: const EdgeInsets.only(top: 2.0),
+                  child: Text(
+                    'Dementia Stage:    ${patient.dementiaStage != null && patient.dementiaStage!.isNotEmpty ? patient.dementiaStage : 'N/A'}',
+                    style: const TextStyle(fontSize: 14, color: Colors.black87),
                   ),
-                ],
-              ),
+                ),
+              ],
             ),
-
-            // Arrow Icon
-            Icon(
-              Icons.chevron_right,
-              color: Colors.grey[400],
-              size: 20,
-            ),
-          ],
-        ),
+          ),
+          // Arrow Icon
+          Icon(Icons.chevron_right, color: Color(0xFF2B3F99), size: 20),
+        ],
       ),
     );
+
+    return kIsWeb
+        ? MouseRegion(
+            cursor: SystemMouseCursors.click,
+            child: GestureDetector(
+              onTap: () {
+                Navigator.pushNamed(
+                  context,
+                  AppRoutes.patientRoutine,
+                  arguments: patient.patientId,
+                );
+              },
+              child: card,
+            ),
+          )
+        : GestureDetector(
+            onTap: () {
+              Navigator.pushNamed(
+                context,
+                AppRoutes.patientRoutine,
+                arguments: patient.patientId,
+              );
+            },
+            child: card,
+          );
   }
 }

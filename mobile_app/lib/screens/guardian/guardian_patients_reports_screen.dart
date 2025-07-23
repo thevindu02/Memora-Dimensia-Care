@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import '../../routes/app_routes.dart';
 import '../../services/patient_service.dart';
 import '../../services/auth_service.dart';
+import '../../services/guardian_service.dart'; // Add this import if not present
 
 class GuardianPatientsReportsScreen extends StatefulWidget {
   @override
@@ -18,65 +19,63 @@ class _GuardianPatientsReportsScreenState
   @override
   void initState() {
     super.initState();
-    // _fetchPatients(); // Remove backend fetch
-    // Use hardcoded patient data
-    patients = [
-      {
-        'id': 1,
-        'name': 'John Doe',
-        'label': 'Patient 1',
-        'avatar': 'assets/images/patient1.jpg',
-        'dementiaStage': 'Mild',
-        'fName': 'John',
-        'lName': 'Doe',
-        'totalReports': 12,
-        'lastReportDate': '2024-07-01',
-      },
-      {
-        'id': 2,
-        'name': 'Jane Smith',
-        'label': 'Patient 2',
-        'avatar': 'assets/images/patient2.jpg',
-        'dementiaStage': 'Moderate',
-        'fName': 'Jane',
-        'lName': 'Smith',
-        'totalReports': 8,
-        'lastReportDate': '2024-07-02',
-      },
-    ];
-    isLoading = false;
+    _fetchPatients();
   }
 
   Future<void> _fetchPatients() async {
-    // Remove backend fetch, just set hardcoded data
     setState(() {
-      patients = [
-        {
-          'id': 1,
-          'name': 'John Doe',
-          'label': 'Patient 1',
-          'avatar': 'assets/images/patient1.jpg',
-          'dementiaStage': 'Mild',
-          'fName': 'John',
-          'lName': 'Doe',
-          'totalReports': 12,
-          'lastReportDate': '2024-07-01',
-        },
-        {
-          'id': 2,
-          'name': 'Jane Smith',
-          'label': 'Patient 2',
-          'avatar': 'assets/images/patient2.jpg',
-          'dementiaStage': 'Moderate',
-          'fName': 'Jane',
-          'lName': 'Smith',
-          'totalReports': 8,
-          'lastReportDate': '2024-07-02',
-        },
-      ];
-      isLoading = false;
+      isLoading = true;
       errorMessage = null;
     });
+    try {
+      final int? userId = await AuthService.getCurrentUserId();
+      int? guardianId;
+      if (userId != null) {
+        guardianId = await GuardianService.getGuardianIdByUserId(userId);
+      }
+      if (guardianId != null) {
+        final response = await PatientService.getPatientsWithRequestStatus(
+          guardianId,
+        );
+        // Only use patient name and id, hardcode other fields
+        final List<Map<String, dynamic>> loadedPatients = [];
+        int labelCounter = 1;
+        for (var p in response) {
+          loadedPatients.add({
+            'id': p['patientId'] ?? p['id'],
+            'name': p['name'] ?? p['fName'] + ' ' + p['lName'],
+            'label': 'Patient $labelCounter',
+            'fName': (p['name'] ?? p['fName'] ?? '').split(' ').first,
+            'lName': (p['name'] ?? p['lName'] ?? '').split(' ').length > 1
+                ? (p['name'] ?? p['lName'] ?? '')
+                      .split(' ')
+                      .sublist(1)
+                      .join(' ')
+                : '',
+            'totalReports': 10 + labelCounter, // hardcoded
+            'lastReportDate': '2024-07-0${labelCounter}', // hardcoded
+          });
+          labelCounter++;
+        }
+        setState(() {
+          patients = loadedPatients;
+          isLoading = false;
+          errorMessage = null;
+        });
+      } else {
+        setState(() {
+          patients = [];
+          isLoading = false;
+          errorMessage = 'Could not determine guardian ID.';
+        });
+      }
+    } catch (e) {
+      setState(() {
+        patients = [];
+        isLoading = false;
+        errorMessage = 'Failed to load patients: ' + e.toString();
+      });
+    }
   }
 
   Widget _buildPatientCard(Map<String, dynamic> patient) {
@@ -194,12 +193,7 @@ class _GuardianPatientsReportsScreenState
           icon: Icon(Icons.arrow_back, color: Colors.black87),
           onPressed: () => Navigator.pop(context),
         ),
-        actions: [
-          IconButton(
-            icon: Icon(Icons.refresh, color: Colors.black87),
-            onPressed: _fetchPatients,
-          ),
-        ],
+        // Removed reload icon
         title: Text(
           'Patient Reports',
           style: TextStyle(
@@ -218,63 +212,48 @@ class _GuardianPatientsReportsScreenState
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               // Header section
-              Container(
-                padding: EdgeInsets.all(20),
-                decoration: BoxDecoration(
-                  color: Colors.white,
-                  borderRadius: BorderRadius.circular(12),
-                  boxShadow: [
-                    BoxShadow(
-                      color: Colors.grey.withOpacity(0.1),
-                      spreadRadius: 1,
-                      blurRadius: 4,
-                      offset: Offset(0, 2),
-                    ),
-                  ],
-                ),
-                child: Column(
+              // Make Daily Reports a plain info section, not a card
+              Padding(
+                padding: EdgeInsets.only(bottom: 24),
+                child: Row(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Row(
-                      children: [
-                        Container(
-                          width: 50,
-                          height: 50,
-                          decoration: BoxDecoration(
-                            color: Color(0xFFA0C4FD).withOpacity(0.35),
-                            shape: BoxShape.circle,
+                    Container(
+                      width: 50,
+                      height: 50,
+                      decoration: BoxDecoration(
+                        color: Color(0xFFA0C4FD).withOpacity(0.35),
+                        shape: BoxShape.circle,
+                      ),
+                      child: Icon(
+                        Icons.assessment,
+                        size: 24,
+                        color: Color(0xFF2B3F99),
+                      ),
+                    ),
+                    SizedBox(width: 16),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            'Daily Reports',
+                            style: TextStyle(
+                              fontSize: 20,
+                              fontWeight: FontWeight.w600,
+                              color: Colors.black87,
+                            ),
                           ),
-                          child: Icon(
-                            Icons.assessment,
-                            size: 24,
-                            color: Color(0xFF2B3F99),
+                          SizedBox(height: 4),
+                          Text(
+                            'Select a patient to view their daily reports',
+                            style: TextStyle(
+                              fontSize: 14,
+                              color: Colors.grey[600],
+                            ),
                           ),
-                        ),
-                        SizedBox(width: 16),
-                        Expanded(
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                'Daily Reports',
-                                style: TextStyle(
-                                  fontSize: 20,
-                                  fontWeight: FontWeight.w600,
-                                  color: Colors.black87,
-                                ),
-                              ),
-                              SizedBox(height: 4),
-                              Text(
-                                'Select a patient to view their daily reports',
-                                style: TextStyle(
-                                  fontSize: 14,
-                                  color: Colors.grey[600],
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                      ],
+                        ],
+                      ),
                     ),
                   ],
                 ),

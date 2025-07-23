@@ -34,7 +34,14 @@ class CaregiverService {
 
       if (response.statusCode == 200) {
         final List<dynamic> data = jsonDecode(response.body);
-        return data.cast<Map<String, dynamic>>();
+        // Add 'name' field to each caregiver map
+        return data.map<Map<String, dynamic>>((c) {
+          final map = Map<String, dynamic>.from(c);
+          final fName = map['fName'] ?? '';
+          final lName = map['lName'] ?? '';
+          map['name'] = (fName + ' ' + lName).trim();
+          return map;
+        }).toList();
       } else {
         throw Exception('Failed to load caregivers: ${response.statusCode}');
       }
@@ -57,6 +64,121 @@ class CaregiverService {
       }
     } catch (e) {
       throw Exception('Failed to load caregiver: $e');
+    }
+  }
+
+  static Future<List<Map<String, dynamic>>> getPendingRequests(
+    int caregiverId,
+  ) async {
+    try {
+      final response = await http.get(
+        Uri.parse('$url/$caregiverId/pending-requests'),
+        headers: {'Content-Type': 'application/json'},
+      );
+      if (response.statusCode == 200) {
+        final List<dynamic> data = jsonDecode(response.body);
+        return data.cast<Map<String, dynamic>>();
+      } else {
+        throw Exception(
+          'Failed to load pending requests: \\${response.statusCode}',
+        );
+      }
+    } catch (e) {
+      throw Exception('Failed to load pending requests: $e');
+    }
+  }
+
+  static Future<List<Map<String, dynamic>>> getConnectedRequests(
+    int caregiverId,
+  ) async {
+    try {
+      final response = await http.get(
+        Uri.parse('$url/$caregiverId/connected-requests'),
+        headers: {'Content-Type': 'application/json'},
+      );
+      if (response.statusCode == 200) {
+        final List<dynamic> data = jsonDecode(response.body);
+        return data.cast<Map<String, dynamic>>();
+      } else {
+        throw Exception(
+          'Failed to load connected requests: \\${response.statusCode}',
+        );
+      }
+    } catch (e) {
+      throw Exception('Failed to load connected requests: $e');
+    }
+  }
+
+  static Future<List<Map<String, dynamic>>> getAvailableCaregiversForPatient(
+    int patientId,
+  ) async {
+    try {
+      final response = await http.get(
+        Uri.parse('$url/available-for-patient/$patientId'),
+        headers: {'Content-Type': 'application/json'},
+      );
+      if (response.statusCode == 200) {
+        final List<dynamic> data = jsonDecode(response.body);
+        return data.map<Map<String, dynamic>>((c) {
+          final map = Map<String, dynamic>.from(c);
+          final fName = map['fName'] ?? '';
+          final lName = map['lName'] ?? '';
+          map['name'] = (fName + ' ' + lName).trim();
+          return map;
+        }).toList();
+      } else {
+        throw Exception('Failed to load caregivers: \\${response.statusCode}');
+      }
+    } catch (e) {
+      throw Exception('Failed to load caregivers: $e');
+    }
+  }
+
+  static Future<int?> getCaregiverIdByUserId(int userId) async {
+    try {
+      final response = await http.get(
+        Uri.parse('$url/by-user/$userId'),
+        headers: {'Content-Type': 'application/json'},
+      );
+      if (response.statusCode == 200) {
+        return int.tryParse(response.body);
+      } else {
+        return null;
+      }
+    } catch (e) {
+      return null;
+    }
+  }
+
+  static Future<void> acceptConnectionRequest(int connectionId) async {
+    final response = await http.post(
+      Uri.parse('$url/connection-request/$connectionId/accept'),
+      headers: {'Content-Type': 'application/json'},
+    );
+    if (response.statusCode != 200) {
+      throw Exception('Failed to accept request');
+    }
+  }
+
+  static Future<void> rejectConnectionRequest(int connectionId) async {
+    final response = await http.post(
+      Uri.parse('$url/connection-request/$connectionId/reject'),
+      headers: {'Content-Type': 'application/json'},
+    );
+    if (response.statusCode != 200) {
+      throw Exception('Failed to reject request');
+    }
+  }
+
+  static Future<Map<String, dynamic>?> getPatientDetails(int patientId) async {
+    final response = await http.get(
+      Uri.parse('${ApiConstants.baseUrl}/api/patients/$patientId'),
+      headers: {'Content-Type': 'application/json'},
+    );
+    if (response.statusCode == 200) {
+      return jsonDecode(response.body);
+    } else {
+      return null;
     }
   }
 }

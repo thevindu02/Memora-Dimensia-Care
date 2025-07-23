@@ -18,7 +18,7 @@ const subscriptionPlansData = [
       '6months': 25000,
       'annual': 45000
     },
-    features: ['Basic Health Monitoring', 'Medication Reminders', 'Emergency Alerts', 'Family Updates'],
+    features: ['Basic Health Monitoring', 'Medication Reminders', 'Emergency Alerts', 'View upto 4 caregivers', '1 article or blog per day'],
     isActive: true,
     createdAt: '2024-01-15',
     updatedAt: '2024-02-20'
@@ -32,39 +32,11 @@ const subscriptionPlansData = [
       '6months': 45000,
       'annual': 80000
     },
-    features: ['Advanced Health Monitoring', 'AI Health Assistant', 'Video Consultations', 'Caregiver Network', 'Priority Support'],
+    features: ['Advanced Health Monitoring', 'Smart Watch Integration', 'Video Consultations', 'Unlimited caregiver options', 'Unlimited articles and blog posts', '24/7 Support'],
     isActive: true,
     createdAt: '2024-01-15',
     updatedAt: '2024-03-10'
   },
-  {
-    id: 3,
-    title: 'Family Plus',
-    description: 'Complete family care solution with multiple patient support and extensive caregiver resources.',
-    durations: {
-      '3months': 35000,
-      '6months': 65000,
-      'annual': 120000
-    },
-    features: ['Multi-Patient Support', 'Family Dashboard', 'Professional Caregiver Access', '24/7 Support', 'Advanced Analytics', 'Telehealth Integration'],
-    isActive: true,
-    createdAt: '2024-02-01',
-    updatedAt: '2024-03-15'
-  },
-  {
-    id: 4,
-    title: 'Student Plan',
-    description: 'Affordable plan for students and researchers studying dementia care.',
-    durations: {
-      '3months': 8000,
-      '6months': 14000,
-      'annual': 25000
-    },
-    features: ['Basic Monitoring', 'Educational Resources', 'Research Tools', 'Limited Support'],
-    isActive: false,
-    createdAt: '2024-01-20',
-    updatedAt: '2024-03-01'
-  }
 ];
 
 const SubscriptionPlanning = () => {

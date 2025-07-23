@@ -48,8 +48,17 @@ class AppRoutes {
   static const String guardianForums = '/guardian/forums';
   static const String guardianForumArticle = '/guardian/forum/article';
   static const String guardianProfile = '/guardian/profile';
+
   static const String guardianArticles = '/guardian/articles';
   static const String guardianQAForums = '/guardian/qa_forums';
+
+  static const String guardianNotifications = '/guardian-notifications';
+  static const String guardianAddReviews = '/guardian/add-reviews';
+  static const String guardianSubscriptionPlans = '/guardian/subplans';
+  static const String guardianPayment = 'guardian/payment';
+  static const String guardianPaymentSuccess = '/guardian/payment/success';
+  static const String guardianPaymentFailed = '/guardian/payment/failed';
+
   // static const String guardianOrders = '/guardian/orders';
 
   // Caregiver routes
@@ -66,6 +75,8 @@ class AppRoutes {
   static const String patientReport = '/caregiver/report';
   static const String completeRoutine = '/caregiver/complete';
   static const String careDetails = '/caregiver/careDetails';
+  static const String caregiverConnectionRequests =
+      '/caregiver-connection-requests';
   static const String discussionForum = '/caregiver/forum';
   static const String settings = '/caregiver/settings';
 

@@ -3,7 +3,6 @@ import 'package:http/http.dart' as http;
 import 'api_constants.dart';
 
 class PatientService {
-
   static final String url = '${ApiConstants.baseUrl}/api/patients';
   // Add a new patient
   static Future<PatientResult> addPatient({
@@ -31,7 +30,10 @@ class PatientService {
       );
 
       if (response.statusCode == 200) {
-        return PatientResult(success: true, message: "Patient added successfully");
+        return PatientResult(
+          success: true,
+          message: "Patient added successfully",
+        );
       } else {
         final responseData = jsonDecode(response.body);
         return PatientResult(
@@ -72,9 +74,15 @@ class PatientService {
       );
 
       if (response.statusCode == 204) {
-        return PatientResult(success: true, message: "Patient deleted successfully");
+        return PatientResult(
+          success: true,
+          message: "Patient deleted successfully",
+        );
       } else {
-        return PatientResult(success: false, message: "Failed to delete patient");
+        return PatientResult(
+          success: false,
+          message: "Failed to delete patient",
+        );
       }
     } catch (e) {
       return PatientResult(success: false, message: 'Network error: $e');
@@ -96,6 +104,27 @@ class PatientService {
       }
     } catch (e) {
       // Optionally handle network error
+      return [];
+    }
+  }
+
+  // Fetch all patients for a specific guardian with their latest connection request status
+  static Future<List<dynamic>> getPatientsWithRequestStatus(
+    int guardianId,
+  ) async {
+    try {
+      final response = await http.get(
+        Uri.parse(
+          '${ApiConstants.baseUrl}/api/guardians/$guardianId/patients-with-request-status',
+        ),
+        headers: {"Content-Type": "application/json"},
+      );
+      if (response.statusCode == 200) {
+        return jsonDecode(response.body) as List<dynamic>;
+      } else {
+        return [];
+      }
+    } catch (e) {
       return [];
     }
   }

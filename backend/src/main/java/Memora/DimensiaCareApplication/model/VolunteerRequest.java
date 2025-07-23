@@ -1,12 +1,19 @@
 package Memora.DimensiaCareApplication.model;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
-import jakarta.persistence.*;
+import java.time.LocalDateTime;
+
 import org.springframework.data.annotation.CreatedDate;
-import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
-import java.time.LocalDateTime;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.EntityListeners;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.Table;
 
 @Entity
 @Table(name = "volunteer_requests")
@@ -18,6 +25,7 @@ public class VolunteerRequest {
     @Column(name = "request_id")
     private Integer requestId;
 
+
     @Column(name = "volunteer_name", nullable = false, length = 100)
     private String volunteerName;
 
@@ -28,6 +36,7 @@ public class VolunteerRequest {
     private String phoneNumber;
 
     @Column(name = "gender", nullable = false, length = 10)
+
     private String gender;
 
     @Column(name = "volunteer_id_image", nullable = true)

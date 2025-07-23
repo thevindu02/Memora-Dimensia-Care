@@ -6,21 +6,7 @@ class GuardianSettingsPrivacyScreen extends StatefulWidget {
 }
 
 class _PrivacySettingsScreenState extends State<GuardianSettingsPrivacyScreen> {
-  bool _profileVisibility = true;
-  bool _shareLocation = false;
-  bool _allowMessages = true;
-  bool _shareActivity = false;
-  bool _dataCollection = true;
-  bool _marketingEmails = false;
-  String _selectedDataRetention = '1 year';
-
-  final List<String> _dataRetentionOptions = [
-    '6 months',
-    '1 year',
-    '2 years',
-    '5 years',
-    'Until deleted'
-  ];
+  bool _privacyExpanded = false;
 
   Widget _buildSettingTile({
     required String title,
@@ -41,10 +27,7 @@ class _PrivacySettingsScreenState extends State<GuardianSettingsPrivacyScreen> {
         ),
         subtitle: Text(
           subtitle,
-          style: TextStyle(
-            fontSize: 14,
-            color: Colors.grey[600],
-          ),
+          style: TextStyle(fontSize: 14, color: Colors.grey[600]),
         ),
         value: value,
         onChanged: onChanged,
@@ -78,10 +61,7 @@ class _PrivacySettingsScreenState extends State<GuardianSettingsPrivacyScreen> {
           SizedBox(height: 4),
           Text(
             subtitle,
-            style: TextStyle(
-              fontSize: 14,
-              color: Colors.grey[600],
-            ),
+            style: TextStyle(fontSize: 14, color: Colors.grey[600]),
           ),
           SizedBox(height: 12),
           Container(
@@ -130,10 +110,7 @@ class _PrivacySettingsScreenState extends State<GuardianSettingsPrivacyScreen> {
         ),
         subtitle: Text(
           subtitle,
-          style: TextStyle(
-            fontSize: 14,
-            color: Colors.grey[600],
-          ),
+          style: TextStyle(fontSize: 14, color: Colors.grey[600]),
         ),
         trailing: Icon(Icons.chevron_right, color: Colors.grey[600]),
         onTap: onTap,
@@ -214,123 +191,99 @@ class _PrivacySettingsScreenState extends State<GuardianSettingsPrivacyScreen> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // Profile Privacy Section
-            _buildSectionHeader('Profile Privacy'),
-            _buildSettingTile(
-              title: 'Profile Visibility',
-              subtitle: 'Make your profile visible to other users',
-              value: _profileVisibility,
-              onChanged: (value) {
-                setState(() {
-                  _profileVisibility = value;
-                });
-              },
+            // Privacy Policy (expandable)
+            Container(
+              color: Colors.white,
+              child: ExpansionTile(
+                title: Text(
+                  'Privacy Policy',
+                  style: TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.w500,
+                    color: Colors.black87,
+                  ),
+                ),
+                trailing: Icon(
+                  _privacyExpanded
+                      ? Icons.keyboard_arrow_up
+                      : Icons.keyboard_arrow_down,
+                  color: Colors.grey[700],
+                ),
+                initiallyExpanded: _privacyExpanded,
+                onExpansionChanged: (expanded) {
+                  setState(() {
+                    _privacyExpanded = expanded;
+                  });
+                },
+                children: [
+                  Padding(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 20,
+                      vertical: 8,
+                    ),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          'Your Privacy Matters',
+                          style: TextStyle(
+                            fontSize: 18,
+                            fontWeight: FontWeight.bold,
+                            color: Colors.black87,
+                          ),
+                        ),
+                        SizedBox(height: 10),
+                        Text(
+                          'We are committed to protecting your personal information and being transparent about how we use it. Please read our privacy policy below:',
+                          style: TextStyle(
+                            fontSize: 15,
+                            color: Colors.grey[800],
+                          ),
+                        ),
+                        SizedBox(height: 16),
+                        Text(
+                          '• We collect only the information necessary to provide and improve our services, such as your name, contact details, and health/activity data if you use connected devices.\n\n'
+                          '• Your data is used to personalize your experience, send important notifications, and ensure the safety and well-being of patients.\n\n'
+                          '• We do not sell your personal data. Data may be shared with caregivers, guardians, or healthcare professionals only as required for care and safety.\n\n'
+                          '• We use industry-standard security measures to keep your data safe. Only authorized personnel can access your information.\n\n'
+                          '• You can update or delete your information at any time, and you are always in control of what you share.\n\n'
+                          'If you have any questions or concerns about your privacy, please contact our support team. Thank you for trusting us with your care.',
+                          style: TextStyle(
+                            fontSize: 15,
+                            color: Colors.black87,
+                            height: 1.5,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
             ),
             Divider(height: 1, thickness: 1, color: Colors.grey[200]),
-            _buildSettingTile(
-              title: 'Share Location',
-              subtitle: 'Allow the app to access your location',
-              value: _shareLocation,
-              onChanged: (value) {
-                setState(() {
-                  _shareLocation = value;
-                });
-              },
+            Container(
+              color: Colors.white,
+              child: ListTile(
+                leading: Icon(Icons.delete_forever, color: Colors.red),
+                title: Text(
+                  'Delete Account',
+                  style: TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.w500,
+                    color: Colors.red,
+                  ),
+                ),
+                subtitle: Text(
+                  'Permanently delete your account and all data',
+                  style: TextStyle(fontSize: 14, color: Colors.grey[600]),
+                ),
+                onTap: _showDeleteAccountDialog,
+                contentPadding: EdgeInsets.symmetric(
+                  horizontal: 20,
+                  vertical: 4,
+                ),
+              ),
             ),
-            Divider(height: 1, thickness: 1, color: Colors.grey[200]),
-            _buildSettingTile(
-              title: 'Allow Messages',
-              subtitle: 'Receive messages from other users',
-              value: _allowMessages,
-              onChanged: (value) {
-                setState(() {
-                  _allowMessages = value;
-                });
-              },
-            ),
-
-            // Data & Activity Section
-            _buildSectionHeader('Data & Activity'),
-            _buildSettingTile(
-              title: 'Share Activity',
-              subtitle: 'Share your app activity with other users',
-              value: _shareActivity,
-              onChanged: (value) {
-                setState(() {
-                  _shareActivity = value;
-                });
-              },
-            ),
-            Divider(height: 1, thickness: 1, color: Colors.grey[200]),
-            _buildSettingTile(
-              title: 'Data Collection',
-              subtitle: 'Allow anonymous data collection for app improvement',
-              value: _dataCollection,
-              onChanged: (value) {
-                setState(() {
-                  _dataCollection = value;
-                });
-              },
-            ),
-            Divider(height: 1, thickness: 1, color: Colors.grey[200]),
-            _buildDropdownTile(
-              title: 'Data Retention',
-              subtitle: 'How long should we keep your data',
-              value: _selectedDataRetention,
-              options: _dataRetentionOptions,
-              onChanged: (value) {
-                setState(() {
-                  _selectedDataRetention = value!;
-                });
-              },
-            ),
-
-            // Communications Section
-            _buildSectionHeader('Communications'),
-            _buildSettingTile(
-              title: 'Marketing Emails',
-              subtitle: 'Receive promotional emails and updates',
-              value: _marketingEmails,
-              onChanged: (value) {
-                setState(() {
-                  _marketingEmails = value;
-                });
-              },
-            ),
-
-            // Account Management Section
-            _buildSectionHeader('Account Management'),
-            _buildActionTile(
-              title: 'Download My Data',
-              subtitle: 'Request a copy of your personal data',
-              icon: Icons.download,
-              onTap: () {
-                ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(content: Text('Data download request submitted')),
-                );
-              },
-            ),
-            Divider(height: 1, thickness: 1, color: Colors.grey[200]),
-            _buildActionTile(
-              title: 'Privacy Policy',
-              subtitle: 'Read our privacy policy',
-              icon: Icons.privacy_tip,
-              onTap: () {
-                // TODO: Navigate to privacy policy
-                ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(content: Text('Privacy policy would open here')),
-                );
-              },
-            ),
-            Divider(height: 1, thickness: 1, color: Colors.grey[200]),
-            _buildActionTile(
-              title: 'Delete Account',
-              subtitle: 'Permanently delete your account and all data',
-              icon: Icons.delete_forever,
-              titleColor: Colors.red,
-              onTap: _showDeleteAccountDialog,
-            ),
-
             SizedBox(height: 32),
           ],
         ),

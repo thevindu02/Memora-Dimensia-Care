@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import '../../routes/app_routes.dart';
 import '../../services/patient_service.dart';
 import '../../services/auth_service.dart';
+import '../../services/guardian_service.dart'; // Add this import
 
 class GuardianAddCaregiverScreen extends StatefulWidget {
   @override
@@ -19,151 +20,164 @@ class _GuardianAddCaregiverScreenState
   @override
   void initState() {
     super.initState();
-    // _fetchPatients(); // Remove backend fetch
-    // Use hardcoded patient data
-    patients = [
-      {
-        'id': 1,
-        'name': 'John Doe',
-        'label': 'Patient 1',
-        'avatar': 'assets/images/patient1.jpg',
-        'dementiaStage': 'Mild',
-        'fName': 'John',
-        'lName': 'Doe',
-      },
-      {
-        'id': 2,
-        'name': 'Jane Smith',
-        'label': 'Patient 2',
-        'avatar': 'assets/images/patient2.jpg',
-        'dementiaStage': 'Moderate',
-        'fName': 'Jane',
-        'lName': 'Smith',
-      },
-    ];
-    isLoading = false;
+    _fetchPatients();
   }
 
   Future<void> _fetchPatients() async {
-    // Remove backend fetch, just set hardcoded data
     setState(() {
-      patients = [
-        {
-          'id': 1,
-          'name': 'John Doe',
-          'label': 'Patient 1',
-          'avatar': 'assets/images/patient1.jpg',
-          'dementiaStage': 'Mild',
-          'fName': 'John',
-          'lName': 'Doe',
-        },
-        {
-          'id': 2,
-          'name': 'Jane Smith',
-          'label': 'Patient 2',
-          'avatar': 'assets/images/patient2.jpg',
-          'dementiaStage': 'Moderate',
-          'fName': 'Jane',
-          'lName': 'Smith',
-        },
-      ];
-      isLoading = false;
+      isLoading = true;
       errorMessage = null;
     });
+    try {
+      final int? userId = await AuthService.getCurrentUserId();
+      int? guardianId;
+      if (userId != null) {
+        guardianId = await GuardianService.getGuardianIdByUserId(userId);
+      }
+      if (guardianId != null) {
+        // Use new endpoint
+        final response = await PatientService.getPatientsWithRequestStatus(
+          guardianId,
+        );
+        setState(() {
+          patients = List<Map<String, dynamic>>.from(response);
+          isLoading = false;
+        });
+      } else {
+        setState(() {
+          patients = [];
+          isLoading = false;
+          errorMessage = 'Could not determine guardian ID.';
+        });
+      }
+    } catch (e) {
+      setState(() {
+        patients = [];
+        isLoading = false;
+        errorMessage = 'Failed to fetch patients: ' + e.toString();
+      });
+    }
   }
 
   Widget _buildPatientCard(Map<String, dynamic> patient) {
-    bool isSelected = selectedPatient?['id'] == patient['id'];
+    bool isSelected = selectedPatient?['patientId'] == patient['patientId'];
+    String status = patient['latestRequestStatus'] ?? 'NONE';
+    bool isDisabled = status == 'ACTIVE' || status == 'PENDING';
+    String statusLabel;
+    switch (status) {
+      case 'ACTIVE':
+        statusLabel = 'Caregiver Assigned';
+        break;
+      case 'PENDING':
+        statusLabel = 'Request Pending';
+        break;
+      case 'REJECTED':
+        statusLabel =
+            'Previous request was rejected. You can send a new request.';
+        break;
+      case 'EXPIRED':
+        statusLabel = 'Previous request expired. You can send a new request.';
+        break;
+      default:
+        statusLabel = '';
+    }
 
-    // Debug print to see what data we have
-    print('Building patient card: ${patient['name']} (ID: ${patient['id']})');
-
-    return Material(
-      color: Colors.transparent,
-      child: InkWell(
-        onTap: () {
-          setState(() {
-            selectedPatient = patient;
-          });
-        },
-        borderRadius: BorderRadius.circular(12),
-        splashColor: Color(0xFF2B3F99).withOpacity(0.2),
-        highlightColor: Color(0xFF2B3F99).withOpacity(0.1),
-        child: Container(
-          margin: EdgeInsets.only(bottom: 12),
-          padding: EdgeInsets.all(16),
-          decoration: BoxDecoration(
-            color: isSelected
-                ? Color(0xFFA0C4FD).withOpacity(0.35)
-                : Colors.white,
+    return Opacity(
+      opacity: isDisabled ? 0.5 : 1.0,
+      child: IgnorePointer(
+        ignoring: isDisabled,
+        child: Material(
+          color: Colors.transparent,
+          child: InkWell(
+            onTap: () {
+              setState(() {
+                selectedPatient = patient;
+              });
+            },
             borderRadius: BorderRadius.circular(12),
-            border: Border.all(
-              color: isSelected
-                  ? Color(0xFF2B3F99)
-                  : Colors.grey.withOpacity(0.3),
-              width: isSelected ? 2 : 1,
-            ),
-            boxShadow: [
-              BoxShadow(
-                color: Colors.grey.withOpacity(0.1),
-                spreadRadius: 1,
-                blurRadius: 4,
-                offset: Offset(0, 2),
+            splashColor: Colors.grey.withOpacity(0.08),
+            highlightColor: Colors.grey.withOpacity(0.04),
+            child: Container(
+              margin: EdgeInsets.only(bottom: 12),
+              padding: EdgeInsets.all(16),
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(12),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.grey.withOpacity(0.18),
+                    spreadRadius: 1,
+                    blurRadius: 12,
+                    offset: Offset(0, 4),
+                  ),
+                ],
               ),
-            ],
-          ),
-          child: Row(
-            children: [
-              CircleAvatar(
-                radius: 25,
-                backgroundColor: Colors.grey[300],
-                child: Icon(Icons.person, color: Colors.grey[600], size: 30),
-              ),
-              SizedBox(width: 16),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      '${patient['fName'] ?? patient['FName'] ?? patient['fname'] ?? ''} ${patient['lName'] ?? patient['LName'] ?? patient['lname'] ?? ''}',
-                      style: TextStyle(
-                        fontSize: 16,
-                        fontWeight: FontWeight.w600,
-                        color: Colors.black87,
-                      ),
+              child: Row(
+                children: [
+                  CircleAvatar(
+                    radius: 25,
+                    backgroundColor: Colors.grey[300],
+                    child: Icon(
+                      Icons.person,
+                      color: Colors.grey[600],
+                      size: 30,
                     ),
-                    SizedBox(height: 4),
-                    Text(
-                      patient['label'],
-                      style: TextStyle(fontSize: 14, color: Colors.grey[600]),
-                    ),
-                    if (patient['dementiaStage'] != null) ...[
-                      SizedBox(height: 4),
-                      Container(
-                        padding: EdgeInsets.symmetric(
-                          horizontal: 8,
-                          vertical: 2,
-                        ),
-                        decoration: BoxDecoration(
-                          color: Color(0xFFA0C4FD).withOpacity(0.2),
-                          borderRadius: BorderRadius.circular(8),
-                        ),
-                        child: Text(
-                          patient['dementiaStage'],
+                  ),
+                  SizedBox(width: 16),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          patient['name'] ?? '',
                           style: TextStyle(
-                            fontSize: 12,
-                            color: Color(0xFF2B3F99),
-                            fontWeight: FontWeight.w500,
+                            fontSize: 16,
+                            fontWeight: FontWeight.w600,
+                            color: Colors.black87,
                           ),
                         ),
-                      ),
-                    ],
-                  ],
-                ),
+                        SizedBox(height: 4),
+                        if ((patient['dementiaStage'] ?? '') != '') ...[
+                          Container(
+                            padding: EdgeInsets.symmetric(
+                              horizontal: 8,
+                              vertical: 2,
+                            ),
+                            decoration: BoxDecoration(
+                              color: Color(0xFFA0C4FD).withOpacity(0.35),
+                              borderRadius: BorderRadius.circular(8),
+                            ),
+                            child: Text(
+                              patient['dementiaStage'] ?? '',
+                              style: TextStyle(
+                                fontSize: 12,
+                                color: Color(0xFF2B3F99),
+                                fontWeight: FontWeight.w500,
+                              ),
+                            ),
+                          ),
+                        ],
+                        if (statusLabel.isNotEmpty) ...[
+                          SizedBox(height: 4),
+                          Text(
+                            statusLabel,
+                            style: TextStyle(
+                              fontSize: 12,
+                              color: status == 'ACTIVE'
+                                  ? Colors.green
+                                  : status == 'PENDING'
+                                  ? Colors.orange
+                                  : Colors.grey[700],
+                              fontWeight: FontWeight.w600,
+                            ),
+                          ),
+                        ],
+                      ],
+                    ),
+                  ),
+                ],
               ),
-              if (isSelected)
-                Icon(Icons.check_circle, color: Color(0xFF2B3F99), size: 24),
-            ],
+            ),
           ),
         ),
       ),
@@ -240,6 +254,13 @@ class _GuardianAddCaregiverScreenState
 
   @override
   Widget build(BuildContext context) {
+    // Debug print to check patient data
+    print('Patients for selection:');
+    for (var p in patients) {
+      print(
+        'Name: ${p['name']}, ID: ${p['patientId']}, Status: ${p['latestRequestStatus']}',
+      );
+    }
     return Scaffold(
       backgroundColor: Colors.grey[50],
       appBar: AppBar(
@@ -256,7 +277,15 @@ class _GuardianAddCaregiverScreenState
         centerTitle: false,
         leading: IconButton(
           icon: Icon(Icons.arrow_back, color: Colors.black87),
-          onPressed: () => Navigator.pop(context),
+          onPressed: () {
+            if (selectedPatient != null) {
+              setState(() {
+                selectedPatient = null;
+              });
+            } else {
+              Navigator.of(context).pushNamed(AppRoutes.guardianDashboard);
+            }
+          },
         ),
         actions: [
           if (selectedPatient == null)
@@ -386,11 +415,16 @@ class _GuardianAddCaregiverScreenState
                 Container(
                   padding: EdgeInsets.all(16),
                   decoration: BoxDecoration(
-                    color: Color(0xFFA0C4FD).withOpacity(0.35),
+                    color: Colors.white, // PURE WHITE background
                     borderRadius: BorderRadius.circular(12),
-                    border: Border.all(
-                      color: Color(0xFFA0C4FD).withOpacity(0.3),
-                    ),
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.grey.withOpacity(0.18),
+                        spreadRadius: 1,
+                        blurRadius: 12,
+                        offset: Offset(0, 4),
+                      ),
+                    ],
                   ),
                   child: Row(
                     children: [
@@ -405,7 +439,7 @@ class _GuardianAddCaregiverScreenState
                         style: TextStyle(fontSize: 14, color: Colors.grey[700]),
                       ),
                       Text(
-                        '${selectedPatient!['fName'] ?? selectedPatient!['FName'] ?? selectedPatient!['fname'] ?? ''} ${selectedPatient!['lName'] ?? selectedPatient!['LName'] ?? selectedPatient!['lname'] ?? ''}',
+                        selectedPatient?['name'] ?? 'N/A',
                         style: TextStyle(
                           fontSize: 14,
                           fontWeight: FontWeight.w600,
@@ -450,10 +484,20 @@ class _GuardianAddCaregiverScreenState
                   title: 'Add an Unknown Caregiver',
                   subtitle: 'Search and connect with caregivers by location',
                   onTap: () {
+                    // Build a map with name and city for the next screen
+                    final patientArg = Map<String, dynamic>.from(
+                      selectedPatient!,
+                    );
+                    patientArg['name'] = selectedPatient?['name'] ?? '';
+                    // Optionally, ensure city is present
+                    if (patientArg['city'] == null &&
+                        selectedPatient?['city'] != null) {
+                      patientArg['city'] = selectedPatient?['city'];
+                    }
                     Navigator.pushNamed(
                       context,
                       AppRoutes.guardianAddUnknownCaregiver,
-                      arguments: selectedPatient,
+                      arguments: patientArg,
                     );
                   },
                 ),

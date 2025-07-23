@@ -1,74 +1,69 @@
 package Memora.DimensiaCareApplication.service;
-import Memora.DimensiaCareApplication.model.*;
-import Memora.DimensiaCareApplication.repository.*;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-import Memora.DimensiaCareApplication.dto.response.CaregiverResponse;
+
+import Memora.DimensiaCareApplication.dto.response.CaregiverDetailsResponse;
+import Memora.DimensiaCareApplication.model.User;
 import Memora.DimensiaCareApplication.model.Caregiver;
+import Memora.DimensiaCareApplication.model.Skill;
+import Memora.DimensiaCareApplication.model.GuardianPatientCaregiverConnection;
+import Memora.DimensiaCareApplication.repository.UserRepository;
 import Memora.DimensiaCareApplication.repository.CaregiverRepository;
-import java.util.stream.Collectors;
+import Memora.DimensiaCareApplication.repository.SkillRepository;
+import Memora.DimensiaCareApplication.repository.CaregiverSkillRepository;
+import Memora.DimensiaCareApplication.repository.GuardianPatientCaregiverConnectionRepository;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+import org.springframework.scheduling.annotation.Scheduled;
 import java.util.List;
+import java.util.stream.Collectors;
+import java.time.LocalDateTime;
 
 @Service
 public class CaregiverService {
     @Autowired
-    private UserRepository userRepository;
-    @Autowired
     private CaregiverRepository caregiverRepository;
+    @Autowired
+    private UserRepository userRepository;
     @Autowired
     private CaregiverSkillRepository caregiverSkillRepository;
     @Autowired
-    private PasswordEncoder passwordEncoder;
-    @Autowired
     private SkillRepository skillRepository;
+    @Autowired
+    private GuardianPatientCaregiverConnectionRepository connectionRepository;
 
-    @Transactional
-    public Caregiver registerCaregiver(User user, Caregiver caregiver, List<String> skillNames) {
-        // Hash the password before saving
-        user.setPassword(passwordEncoder.encode(user.getPassword()));
-        User savedUser = userRepository.save(user);
-        caregiver.setUser(savedUser);
-        Caregiver savedCaregiver = caregiverRepository.save(caregiver);
-
-        for (String skillName : skillNames) {
-            Skill skill = skillRepository.findBySkillName(skillName)
-                    .orElseThrow(() -> new RuntimeException("Skill not found: " + skillName));
-            CaregiverSkill caregiverSkill = new CaregiverSkill();
-            caregiverSkill.setCaregiver(savedCaregiver);
-            caregiverSkill.setSkill(skill);
-            caregiverSkillRepository.save(caregiverSkill);
-        }
-        return savedCaregiver;
-    }
-     public List<CaregiverResponse> getCaregiversByCity(String city) {
-        List<Caregiver> caregivers = caregiverRepository.findByUserCity(city);
-        return caregivers.stream()
-                .map(CaregiverResponse::new)
+    public List<CaregiverDetailsResponse> getAllCaregivers() {
+        List<Caregiver> caregivers = caregiverRepository.findAll();
+        return caregivers.stream().map(caregiver -> {
+            User user = caregiver.getUser();
+            CaregiverDetailsResponse resp = new CaregiverDetailsResponse();
+            resp.setCaregiverId(caregiver.getCaregiverId().longValue());
+            resp.setUserId(user.getId());
+            resp.setFName(user.getFName());
+            resp.setLName(user.getLName());
+            resp.setEmail(user.getEmail());
+            resp.setPhoneNumber(user.getPhoneNumber());
+            resp.setCity(user.getCity());
+            resp.setState(user.getState());
+            resp.setProfilePic(user.getProfilePic());
+            resp.setExperience(caregiver.getExperience());
+            resp.setQualifications(caregiver.getQualifications());
+            List<String> skills = caregiverSkillRepository.findByCaregiverId(caregiver.getCaregiverId())
+                .stream()
+                .map(cs -> skillRepository.findById(cs.getSkillId()).map(Skill::getSkillName).orElse(""))
                 .collect(Collectors.toList());
+            resp.setSkills(skills);
+            return resp;
+        }).collect(Collectors.toList());
     }
 
-    public List<CaregiverResponse> getAllActiveCaregivers() {
-        List<Caregiver> caregivers = caregiverRepository.findAllActiveCaregivers();
-        return caregivers.stream()
-                .map(CaregiverResponse::new)
-                .collect(Collectors.toList());
-    }
-
-    public CaregiverResponse getCaregiverById(Integer caregiverId) {
-        Caregiver caregiver = caregiverRepository.findById(caregiverId)
-                .orElseThrow(() -> new RuntimeException("Caregiver not found with id: " + caregiverId));
-        return new CaregiverResponse(caregiver);
-    }
-
-    public CaregiverResponse getCaregiverByUserId(Long userId) {
-        Caregiver caregiver = caregiverRepository.findByUserId(userId);
-        if (caregiver == null) {
-            throw new RuntimeException("Caregiver not found with user id: " + userId);
+    // Scheduled job to expire pending requests older than 24 hours
+    @Scheduled(cron = "0 0 * * * *") // every hour
+    public void expireOldPendingRequests() {
+        LocalDateTime cutoff = LocalDateTime.now().minusHours(24);
+        List<GuardianPatientCaregiverConnection> expired = connectionRepository.findByStatusAndConnectedDateTimeBefore(
+            GuardianPatientCaregiverConnection.ConnectionStatus.PENDING, cutoff);
+        for (GuardianPatientCaregiverConnection conn : expired) {
+            conn.setStatus(GuardianPatientCaregiverConnection.ConnectionStatus.EXPIRED);
         }
-        return new CaregiverResponse(caregiver);
+        connectionRepository.saveAll(expired);
     }
-}
-
-
+} 

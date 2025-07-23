@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import '../../routes/app_routes.dart';
 import '../../services/patient_service.dart'; // Update the path as needed
 import '../../services/user_service.dart';
@@ -71,11 +72,132 @@ class _GuardianAddPatientScreenState extends State<GuardianAddPatientScreen> {
     super.dispose();
   }
 
+  // Enhanced validation methods
+  String? _validateName(String? value) {
+    if (value == null || value.trim().isEmpty) {
+      return 'This field is required';
+    }
+    if (value.trim().length < 2) {
+      return 'Name must be at least 2 characters';
+    }
+    if (!RegExp(r'^[a-zA-Z\s]+$').hasMatch(value.trim())) {
+      return 'Name can only contain letters and spaces';
+    }
+    return null;
+  }
+
+  String? _validateEmail(String? value) {
+    if (value == null || value.trim().isEmpty) {
+      return 'Email is required';
+    }
+    if (!RegExp(r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$').hasMatch(value.trim())) {
+      return 'Please enter a valid email address';
+    }
+    return null;
+  }
+
+  String? _validatePassword(String? value) {
+    if (value == null || value.isEmpty) {
+      return 'Password is required';
+    }
+    if (value.length < 8) {
+      return 'Password must be at least 8 characters';
+    }
+    if (!RegExp(r'^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)').hasMatch(value)) {
+      return 'Password must contain uppercase, lowercase, and number';
+    }
+    return null;
+  }
+
+  String? _validatePhone(String? value) {
+    if (value == null || value.trim().isEmpty) {
+      return 'Contact number is required';
+    }
+    String cleanedValue = value.replaceAll(RegExp(r'[^\d+]'), '');
+    if (cleanedValue.length < 10) {
+      return 'Contact number must be at least 10 digits';
+    }
+    if (!RegExp(r'^[\+]?[\d\s\-\(\)]{10,15}$').hasMatch(value.trim())) {
+      return 'Please enter a valid contact number';
+    }
+    return null;
+  }
+
+  String? _validateAddress(String? value) {
+    if (value == null || value.trim().isEmpty) {
+      return 'This field is required';
+    }
+    if (value.trim().length < 3) {
+      return 'Address must be at least 3 characters';
+    }
+    return null;
+  }
+
+  String? _validateRelationship(String? value) {
+    if (value == null || value.trim().isEmpty) {
+      return 'Relationship is required';
+    }
+    if (value.trim().length < 2) {
+      return 'Relationship must be at least 2 characters';
+    }
+    if (!RegExp(r'^[a-zA-Z\s]+$').hasMatch(value.trim())) {
+      return 'Relationship can only contain letters and spaces';
+    }
+    return null;
+  }
+
+  String? _validateDateField(String? value, String fieldName) {
+    if (value == null || value.trim().isEmpty) {
+      return '$fieldName is required';
+    }
+    return null;
+  }
+
+  String? _validateDOB() {
+    if (_selectedDOB == null) {
+      return 'Date of birth is required';
+    }
+    
+    final now = DateTime.now();
+    final age = now.year - _selectedDOB!.year;
+    
+    if (_selectedDOB!.isAfter(now)) {
+      return 'Date of birth cannot be in the future';
+    }
+    
+    if (age > 150) {
+      return 'Please enter a valid date of birth';
+    }
+    
+    return null;
+  }
+
+  String? _validateDiagnosisDate() {
+    if (_selectedDiagnosisDate == null) {
+      return 'Diagnosis date is required';
+    }
+    
+    final now = DateTime.now();
+    
+    if (_selectedDiagnosisDate!.isAfter(now)) {
+      return 'Diagnosis date cannot be in the future';
+    }
+    
+    if (_selectedDOB != null && _selectedDiagnosisDate!.isBefore(_selectedDOB!)) {
+      return 'Diagnosis date cannot be before date of birth';
+    }
+    
+    return null;
+  }
+
   Widget _buildTextField({
     required TextEditingController controller,
     required String hintText,
     bool readOnly = false,
     VoidCallback? onTap,
+    String? Function(String?)? validator,
+    TextInputType? keyboardType,
+    List<TextInputFormatter>? inputFormatters,
   }) {
     return Container(
       margin: EdgeInsets.only(bottom: 16),
@@ -87,6 +209,8 @@ class _GuardianAddPatientScreenState extends State<GuardianAddPatientScreen> {
         controller: controller,
         readOnly: readOnly,
         onTap: onTap,
+        keyboardType: keyboardType,
+        inputFormatters: inputFormatters,
         decoration: InputDecoration(
           hintText: hintText,
           hintStyle: TextStyle(
@@ -96,7 +220,7 @@ class _GuardianAddPatientScreenState extends State<GuardianAddPatientScreen> {
           border: InputBorder.none,
           contentPadding: EdgeInsets.symmetric(horizontal: 16, vertical: 16),
         ),
-        validator: (value) {
+        validator: validator ?? (value) {
           if (value == null || value.isEmpty) {
             return 'This field is required';
           }
@@ -170,6 +294,24 @@ class _GuardianAddPatientScreenState extends State<GuardianAddPatientScreen> {
     try {
       print('Save Patient button pressed');
       if (_formKey.currentState!.validate()) {
+        // Additional custom validations for dates
+        String? dobError = _validateDOB();
+        String? diagnosisError = _validateDiagnosisDate();
+        
+        if (dobError != null || diagnosisError != null) {
+          String errorMessage = '';
+          if (dobError != null) errorMessage += dobError + '\n';
+          if (diagnosisError != null) errorMessage += diagnosisError;
+          
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text(errorMessage.trim()),
+              backgroundColor: Colors.red,
+            ),
+          );
+          return;
+        }
+
         setState(() {
           _isLoading = true;
         });
@@ -261,7 +403,7 @@ class _GuardianAddPatientScreenState extends State<GuardianAddPatientScreen> {
           );
           Navigator.pushNamedAndRemoveUntil(
             context,
-            AppRoutes.guardianDashboard,
+            AppRoutes.guardianSubscriptionPlans,
             (route) => false,
           );
         } else {
@@ -323,11 +465,13 @@ class _GuardianAddPatientScreenState extends State<GuardianAddPatientScreen> {
               _buildTextField(
                 controller: _firstNameController,
                 hintText: 'First Name',
+                validator: _validateName,
               ),
 
               _buildTextField(
                 controller: _lastNameController,
                 hintText: 'Last Name',
+                validator: _validateName,
               ),
 
               _buildTextField(
@@ -335,6 +479,7 @@ class _GuardianAddPatientScreenState extends State<GuardianAddPatientScreen> {
                 hintText: 'Date of Birth',
                 readOnly: true,
                 onTap: () => _selectDate(context, true),
+                validator: (value) => _validateDateField(value, 'Date of birth'),
               ),
 
               _buildDropdownField(
@@ -351,20 +496,29 @@ class _GuardianAddPatientScreenState extends State<GuardianAddPatientScreen> {
               _buildTextField(
                 controller: _contactController,
                 hintText: 'Contact Number',
+                validator: _validatePhone,
+                keyboardType: TextInputType.phone,
+                inputFormatters: [
+                  FilteringTextInputFormatter.digitsOnly,
+                  LengthLimitingTextInputFormatter(10),
+                ],
               ),
 
               _buildTextField(
                 controller: _emailController,
                 hintText: 'Email',
+                validator: _validateEmail,
               ),
               _buildTextField(
                 controller: _passwordController,
                 hintText: 'Password',
+                validator: _validatePassword,
               ),
 
               _buildTextField(
                 controller: _relationshipController,
                 hintText: 'Relationship with Patient',
+                validator: _validateRelationship,
               ),
 
               // Address section
@@ -385,14 +539,17 @@ class _GuardianAddPatientScreenState extends State<GuardianAddPatientScreen> {
                     _buildTextField(
                       controller: _streetController,
                       hintText: 'Street',
+                      validator: _validateAddress,
                     ),
                     _buildTextField(
                       controller: _cityController,
                       hintText: 'City',
+                      validator: _validateAddress,
                     ),
                     _buildTextField(
                       controller: _stateController,
                       hintText: 'State',
+                      validator: _validateAddress,
                     ),
                   ],
                 ),
@@ -425,6 +582,7 @@ class _GuardianAddPatientScreenState extends State<GuardianAddPatientScreen> {
                 hintText: 'Date of diagnosis',
                 readOnly: true,
                 onTap: () => _selectDate(context, false),
+                validator: (value) => _validateDateField(value, 'Diagnosis date'),
               ),
 
               SizedBox(height: 24),

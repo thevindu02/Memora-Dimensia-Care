@@ -395,7 +395,7 @@ const Caregiver = () => {
                             {selectedCaregiver.patients.length < 2 && (
                               <div className="um-detail-row">
                                 <span className="um-detail-label">Available Slots</span>
-                                <span className="um-detail-value" style={{color: '#28a745'}}>
+                                <span className="um-detail-value" style={{color: '#2B3F99'}}>
                                   ✨ {2 - selectedCaregiver.patients.length} slot(s) available
                                 </span>
                               </div>
@@ -404,7 +404,7 @@ const Caregiver = () => {
                         ) : (
                           <div className="um-detail-row">
                             <span className="um-detail-label">Patient Assignment</span>
-                            <span className="um-detail-value" style={{color: '#28a745'}}>
+                            <span className="um-detail-value" style={{color: '#2B3F99'}}>
                               📋 Available for 2 patients
                             </span>
                           </div>
