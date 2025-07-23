@@ -86,7 +86,7 @@ function CaregiversSupportSection() {
               </Stack>
             </Paper>
           </Grid>
-          <Grid item xs={12} md={5} sx={{ textAlign: 'center' }}>
+          {/* <Grid item xs={12} md={5} sx={{ textAlign: 'center' }}>
             <Box
               component="img"
               src="/assets/caregiver-support-group.jpg"
@@ -100,7 +100,7 @@ function CaregiversSupportSection() {
                 p: 1,
               }}
             />
-          </Grid>
+          </Grid> */}
         </Grid>
       </Container>
       {/* CTA Banner */}

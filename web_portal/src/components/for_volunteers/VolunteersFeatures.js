@@ -25,7 +25,7 @@ const features = [
 
 function VolunteersFeatures() {
   return (
-    <Box sx={{ py: 7, bgcolor: '#fafdff', position: 'relative' }}>
+    <Box sx={{ py: 7, bgcolor: '#cadcf9ff', position: 'relative' }}>
       {/* Decorative low-opacity background image */}
       <Box
         sx={{
