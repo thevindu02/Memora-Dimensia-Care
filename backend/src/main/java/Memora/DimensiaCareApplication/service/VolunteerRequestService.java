@@ -3,6 +3,8 @@ package Memora.DimensiaCareApplication.service;
 import Memora.DimensiaCareApplication.model.VolunteerRequest;
 import Memora.DimensiaCareApplication.dto.VolunteerRequestCreateDTO;
 import Memora.DimensiaCareApplication.repository.VolunteerRequestRepository;
+import Memora.DimensiaCareApplication.model.User;
+import Memora.DimensiaCareApplication.service.UserService;
 
 import java.util.List;
 import java.util.Optional;
@@ -10,10 +12,6 @@ import java.util.Optional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
-import Memora.DimensiaCareApplication.model.User;
-import Memora.DimensiaCareApplication.model.VolunteerRequest;
-import Memora.DimensiaCareApplication.repository.VolunteerRequestRepository;
 
 @Service
 public class VolunteerRequestService {

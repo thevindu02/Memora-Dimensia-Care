@@ -9,160 +9,146 @@ class VolunteerCreateContentScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Color(0xFFF8F9FB),
+      backgroundColor: Colors.grey[50],
       appBar: AppBar(
         backgroundColor: Colors.white,
         elevation: 0,
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back, color: Colors.black),
-          onPressed: () {
-            Navigator.pushNamed(context, AppRoutes.volunteerDashboard);
-          },
+          icon: Container(
+            padding: EdgeInsets.all(8),
+            decoration: BoxDecoration(
+              color: Colors.grey[100],
+              borderRadius: BorderRadius.circular(12),
+            ),
+            child: Icon(Icons.arrow_back, color: Colors.black87, size: 20),
+          ),
+          onPressed: () => Navigator.pop(context),
         ),
         title: Text(
           'Create Content',
           style: TextStyle(
-            fontSize: 20,
-            fontWeight: FontWeight.bold,
-            color: Colors.black,
+            fontSize: 22,
+            fontWeight: FontWeight.w700,
+            color: Colors.black87,
+            letterSpacing: -0.5,
           ),
         ),
         centerTitle: false,
       ),
       body: SingleChildScrollView(
+        padding: const EdgeInsets.all(24.0),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            SizedBox(height: 32),
-            Center(
-              child: Column(
-                children: [
-                  Text(
-                    'What would you like to create today?',
-                    style: TextStyle(
-                      fontSize: 20,
-                      fontWeight: FontWeight.bold,
-                      color: Colors.black87,
-                    ),
+            SizedBox(height: 8),
+            
+            // Welcome Section
+            Container(
+              width: double.infinity,
+              padding: EdgeInsets.all(24),
+              decoration: BoxDecoration(
+                gradient: LinearGradient(
+                  colors: [Colors.blue[600]!, Colors.blue[700]!],
+                  begin: Alignment.topLeft,
+                  end: Alignment.bottomRight,
+                ),
+                borderRadius: BorderRadius.circular(20),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.blue.withOpacity(0.3),
+                    blurRadius: 20,
+                    offset: Offset(0, 8),
+                    spreadRadius: -5,
                   ),
-                  SizedBox(height: 24),
-                  MouseRegion(
-                    cursor: SystemMouseCursors.click,
-                    child: GestureDetector(
-                      onTap: () {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (context) => VolunteerArticlesScreen(),
-                          ),
-                        );
-                      },
-                      child: Container(
-                        width: 160,
-                        height: 160,
+                ],
+              ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    children: [
+                      Container(
+                        padding: EdgeInsets.all(12),
                         decoration: BoxDecoration(
-                          borderRadius: BorderRadius.circular(24),
-                          color: Colors.white,
-                          boxShadow: [
-                            BoxShadow(
-                              color: Color(0xFF2B3F99).withOpacity(0.08),
-                              blurRadius: 16,
-                              offset: Offset(0, 8),
-                            ),
-                          ],
+                          color: Colors.white.withOpacity(0.2),
+                          borderRadius: BorderRadius.circular(16),
                         ),
+                        child: Icon(
+                          Icons.create_rounded,
+                          color: Colors.white,
+                          size: 28,
+                        ),
+                      ),
+                      SizedBox(width: 16),
+                      Expanded(
                         child: Column(
-                          mainAxisAlignment: MainAxisAlignment.center,
+                          crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            Icon(
-                              Icons.article,
-                              size: 56,
-                              color: Color(0xFF2B3F99),
-                            ),
-                            SizedBox(height: 16),
                             Text(
-                              'Article',
+                              'Start Creating',
                               style: TextStyle(
-                                fontSize: 18,
-                                fontWeight: FontWeight.bold,
-                                color: Color(0xFF2B3F99),
+                                fontSize: 20,
+                                fontWeight: FontWeight.w700,
+                                color: Colors.white,
                               ),
                             ),
-                            SizedBox(height: 8),
+                            SizedBox(height: 4),
                             Text(
                               'Share your knowledge with the community',
-                              textAlign: TextAlign.center,
                               style: TextStyle(
-                                fontSize: 13,
-                                color: Color(0xFF2B3F99),
+                                fontSize: 14,
+                                color: Colors.white.withOpacity(0.9),
                               ),
                             ),
                           ],
                         ),
                       ),
-                    ),
+                    ],
                   ),
                 ],
               ),
             ),
-            SizedBox(height: 40),
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 24.0),
-              child: Divider(thickness: 1, color: Colors.grey[300]),
-            ),
-            SizedBox(height: 24),
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 24.0),
-              child: Text(
-                'Drafts',
-                style: TextStyle(
-                  fontSize: 18,
-                  fontWeight: FontWeight.bold,
-                  color: Colors.black87,
-                ),
+            
+            SizedBox(height: 32),
+            
+            // Content Options
+            Text(
+              'Content Options',
+              style: TextStyle(
+                fontSize: 18,
+                fontWeight: FontWeight.w700,
+                color: Colors.black87,
+                letterSpacing: -0.3,
               ),
             ),
-            SizedBox(height: 12),
-            ListView.builder(
-              shrinkWrap: true,
-              physics: NeverScrollableScrollPhysics(),
-              padding: EdgeInsets.symmetric(horizontal: 16, vertical: 0),
-              itemCount: 2, // Replace with your actual drafts count
-              itemBuilder: (context, index) {
-                return Container(
-                  margin: EdgeInsets.only(bottom: 16),
-                  decoration: BoxDecoration(
-                    color: Colors.white,
-                    borderRadius: BorderRadius.circular(16),
-                    boxShadow: [
-                      BoxShadow(
-                        color: Color(0xFF2B3F99).withOpacity(0.05),
-                        blurRadius: 8,
-                        offset: Offset(0, 2),
-                      ),
-                    ],
+            SizedBox(height: 16),
+            
+            // Two Cards Row
+            Row(
+              children: [
+                Expanded(
+                  child: _buildContentTypeCard(
+                    Icons.add_circle_outline_rounded,
+                    'Create New Article',
+                    'Write and publish new content',
+                    Colors.blue,
+                    onTap: () => _navigateToArticleCreation(context),
                   ),
-                  child: ListTile(
-                    leading: Icon(Icons.edit, color: Color(0xFF2B3F99)),
-                    title: Text(
-                      'Draft ${index + 1}',
-                      style: TextStyle(
-                        fontWeight: FontWeight.bold,
-                        color: Colors.black,
-                      ),
-                    ),
-                    trailing: Icon(
-                      Icons.arrow_forward_ios,
-                      color: Colors.grey[400],
-                    ),
-                    onTap: () {
-                      // TODO: Navigate to edit draft
-                    },
+                ),
+                SizedBox(width: 16),
+                Expanded(
+                  child: _buildContentTypeCard(
+                    Icons.drafts_rounded,
+                    'My Drafts',
+                    'Continue working on saved drafts',
+                    Colors.orange,
+                    onTap: () => _navigateToDraft(context, 'Draft List'),
                   ),
-                );
-              },
+                ),
+              ],
             ),
-            SizedBox(height: 24),
+            
+            SizedBox(height: 32),
           ],
         ),
       ),
@@ -171,73 +157,107 @@ class VolunteerCreateContentScreen extends StatelessWidget {
   }
 
   void _navigateToArticleCreation(BuildContext context) {
-    // Navigate to Article Creation Screen
     Navigator.push(
       context,
       MaterialPageRoute(builder: (context) => VolunteerArticlesScreen()),
     );
   }
 
-  void _navigateToBlogCreation(BuildContext context) {
-    // Navigate to Blog Creation Screen
-    Navigator.push(
-      context,
-      MaterialPageRoute(builder: (context) => CreateBlogScreen()),
-    );
-  }
-
   void _navigateToDraft(BuildContext context, String draftName) {
-    // Navigate to Draft Screen (will be implemented when backend is connected)
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text('Opening $draftName - Will be implemented with backend'),
-        duration: Duration(seconds: 2),
-      ),
-    );
+    final int volunteerId = 1;
+    Navigator.pushNamed(context, AppRoutes.volunteerDraft, arguments: volunteerId);
   }
 
   Widget _buildContentTypeCard(
     IconData icon,
-    String title, {
+    String title,
+    String subtitle,
+    MaterialColor color, {
     required VoidCallback onTap,
   }) {
     return GestureDetector(
       onTap: onTap,
       child: Container(
-        width: 100,
-        height: 100,
+        padding: EdgeInsets.all(20),
         decoration: BoxDecoration(
           color: Colors.white,
           borderRadius: BorderRadius.circular(16),
+          border: Border.all(color: Colors.grey[200]!),
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withOpacity(0.04),
-              blurRadius: 8,
-              offset: Offset(0, 2),
+              color: Colors.black.withOpacity(0.08),
+              blurRadius: 15,
+              offset: Offset(0, 4),
+              spreadRadius: -2,
             ),
           ],
         ),
         child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
           children: [
             Container(
-              width: 48,
-              height: 48,
+              padding: EdgeInsets.all(16),
               decoration: BoxDecoration(
-                color: Color(0xFFEEF1F8),
-                shape: BoxShape.circle,
+                gradient: LinearGradient(
+                  colors: [color[50]!, color[100]!],
+                  begin: Alignment.topLeft,
+                  end: Alignment.bottomRight,
+                ),
+                borderRadius: BorderRadius.circular(16),
               ),
-              child: Center(
-                child: Icon(icon, size: 28, color: Color(0xFF2B3F99)),
+              child: Icon(
+                icon,
+                size: 32,
+                color: color[700],
               ),
             ),
-            SizedBox(height: 8),
+            SizedBox(height: 12),
             Text(
               title,
               style: TextStyle(
-                fontSize: 12,
-                fontWeight: FontWeight.w600,
-                color: Colors.black,
+                fontSize: 14,
+                fontWeight: FontWeight.w700,
+                color: Colors.black87,
+                letterSpacing: -0.2,
+              ),
+              textAlign: TextAlign.center,
+            ),
+            SizedBox(height: 6),
+            Text(
+              subtitle,
+              style: TextStyle(
+                fontSize: 11,
+                color: Colors.grey[600],
+                fontWeight: FontWeight.w400,
+                height: 1.3,
+              ),
+              textAlign: TextAlign.center,
+              maxLines: 2,
+            ),
+            SizedBox(height: 12),
+            Container(
+              padding: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+              decoration: BoxDecoration(
+                color: color[600],
+                borderRadius: BorderRadius.circular(8),
+              ),
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Text(
+                    'Open',
+                    style: TextStyle(
+                      fontSize: 12,
+                      fontWeight: FontWeight.w600,
+                      color: Colors.white,
+                    ),
+                  ),
+                  SizedBox(width: 4),
+                  Icon(
+                    Icons.arrow_forward_rounded,
+                    color: Colors.white,
+                    size: 14,
+                  ),
+                ],
               ),
             ),
           ],
@@ -248,72 +268,41 @@ class VolunteerCreateContentScreen extends StatelessWidget {
 
   Widget _buildDraftItem(
     String title,
-    String imagePath, {
+    String subtitle, {
     required VoidCallback onTap,
   }) {
-    return GestureDetector(
-      onTap: onTap,
-      child: Container(
-        padding: EdgeInsets.all(12),
-        decoration: BoxDecoration(
-          color: Colors.grey[50],
-          borderRadius: BorderRadius.circular(12),
-          border: Border.all(color: Colors.grey[200]!),
-        ),
-        child: Row(
-          children: [
-            Container(
-              width: 40,
-              height: 40,
-              decoration: BoxDecoration(
-                color: Color(0xFFEEF1F8),
-                shape: BoxShape.circle,
-              ),
-              child: Center(
-                child: Icon(Icons.drafts, color: Color(0xFF2B3F99), size: 20),
-              ),
-            ),
-            SizedBox(width: 12),
-            Text(
-              title,
-              style: TextStyle(
-                fontSize: 14,
-                fontWeight: FontWeight.w500,
-                color: Colors.black,
-              ),
-            ),
-            Spacer(),
-            Icon(
-              Icons.arrow_forward_ios_rounded,
-              color: Colors.grey[400],
-              size: 16,
-            ),
-          ],
-        ),
-      ),
-    );
+    // This method is no longer used but kept for compatibility
+    return Container();
   }
 }
 
-// Placeholder screens for Article and Blog creation
+// Enhanced Article Creation Screen
 class CreateArticleScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.white,
+      backgroundColor: Colors.grey[50],
       appBar: AppBar(
         backgroundColor: Colors.white,
         elevation: 0,
         leading: IconButton(
-          icon: Icon(Icons.arrow_back, color: Colors.black),
+          icon: Container(
+            padding: EdgeInsets.all(8),
+            decoration: BoxDecoration(
+              color: Colors.grey[100],
+              borderRadius: BorderRadius.circular(12),
+            ),
+            child: Icon(Icons.arrow_back, color: Colors.black87, size: 20),
+          ),
           onPressed: () => Navigator.pop(context),
         ),
         title: Text(
           'Create Article',
           style: TextStyle(
-            color: Colors.black,
-            fontSize: 18,
-            fontWeight: FontWeight.w600,
+            color: Colors.black87,
+            fontSize: 20,
+            fontWeight: FontWeight.w700,
+            letterSpacing: -0.3,
           ),
         ),
         centerTitle: true,
@@ -323,89 +312,50 @@ class CreateArticleScreen extends StatelessWidget {
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             Container(
-              padding: EdgeInsets.all(16),
+              padding: EdgeInsets.all(32),
               decoration: BoxDecoration(
-                color: Colors.lightBlue[50],
-                borderRadius: BorderRadius.circular(20),
+                gradient: LinearGradient(
+                  colors: [Colors.blue[50]!, Colors.blue[100]!],
+                  begin: Alignment.topLeft,
+                  end: Alignment.bottomRight,
+                ),
+                borderRadius: BorderRadius.circular(30),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.blue.withOpacity(0.2),
+                    blurRadius: 20,
+                    offset: Offset(0, 8),
+                  ),
+                ],
               ),
               child: Icon(
-                Icons.newspaper_rounded,
-                size: 64,
-                color: Colors.lightBlue[700],
+                Icons.article_rounded,
+                size: 80,
+                color: Colors.blue[700],
               ),
             ),
-            SizedBox(height: 16),
+            SizedBox(height: 24),
             Text(
-              'Article Creation Screen',
+              'Article Creation',
               style: TextStyle(
-                fontSize: 20,
-                fontWeight: FontWeight.w600,
-                color: Colors.black,
+                fontSize: 24,
+                fontWeight: FontWeight.w700,
+                color: Colors.black87,
+                letterSpacing: -0.5,
               ),
             ),
-            SizedBox(height: 8),
-            Text(
-              'This screen will contain article creation features',
-              style: TextStyle(fontSize: 14, color: Colors.grey[600]),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-}
-
-class CreateBlogScreen extends StatelessWidget {
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: Colors.white,
-      appBar: AppBar(
-        backgroundColor: Colors.white,
-        elevation: 0,
-        leading: IconButton(
-          icon: Icon(Icons.arrow_back, color: Colors.black),
-          onPressed: () => Navigator.pop(context),
-        ),
-        title: Text(
-          'Create Blog',
-          style: TextStyle(
-            color: Colors.black,
-            fontSize: 18,
-            fontWeight: FontWeight.w600,
-          ),
-        ),
-        centerTitle: true,
-      ),
-      body: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Container(
-              padding: EdgeInsets.all(16),
-              decoration: BoxDecoration(
-                color: Colors.lightBlue[50],
-                borderRadius: BorderRadius.circular(20),
+            SizedBox(height: 12),
+            Padding(
+              padding: EdgeInsets.symmetric(horizontal: 40),
+              child: Text(
+                'This screen will contain comprehensive article creation features with rich text editing capabilities',
+                style: TextStyle(
+                  fontSize: 16,
+                  color: Colors.grey[600],
+                  height: 1.5,
+                ),
+                textAlign: TextAlign.center,
               ),
-              child: Icon(
-                Icons.edit_note_rounded,
-                size: 64,
-                color: Colors.lightBlue[700],
-              ),
-            ),
-            SizedBox(height: 16),
-            Text(
-              'Blog Creation Screen',
-              style: TextStyle(
-                fontSize: 20,
-                fontWeight: FontWeight.w600,
-                color: Colors.black,
-              ),
-            ),
-            SizedBox(height: 8),
-            Text(
-              'This screen will contain blog creation features',
-              style: TextStyle(fontSize: 14, color: Colors.grey[600]),
             ),
           ],
         ),

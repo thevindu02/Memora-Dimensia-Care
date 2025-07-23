@@ -31,6 +31,7 @@ class _CaregiverRegisterPageState extends State<CaregiverRegisterPage> {
   bool _confirmPasswordVisible = false;
   bool _isLoading = false;
   String? _selectedExperience;
+  String? _selectedGender;
   List<String> _selectedSkills = [];
 
   final List<String> _experienceOptions = [
@@ -38,8 +39,10 @@ class _CaregiverRegisterPageState extends State<CaregiverRegisterPage> {
     '1-3 years',
     '3-5 years',
     '5-10 years',
-    'More than 10 years'
+    'More than 10 years',
   ];
+
+  final List<String> _genderOptions = ['Male', 'Female', 'Other'];
 
   final List<String> _skillOptions = [
     'Elder Care',
@@ -49,7 +52,7 @@ class _CaregiverRegisterPageState extends State<CaregiverRegisterPage> {
     'Housekeeping',
     'Cooking',
     'Transportation',
-    'Companionship'
+    'Companionship',
   ];
 
   final List<String> _cityOptions = [
@@ -195,11 +198,7 @@ class _CaregiverRegisterPageState extends State<CaregiverRegisterPage> {
                 color: Colors.blue[50],
                 border: Border.all(color: Colors.blue[200]!, width: 2),
               ),
-              child: Icon(
-                Icons.person,
-                size: 40,
-                color: Colors.blue[400],
-              ),
+              child: Icon(Icons.person, size: 40, color: Colors.blue[400]),
             ),
           ),
           const SizedBox(height: 10),
@@ -214,10 +213,7 @@ class _CaregiverRegisterPageState extends State<CaregiverRegisterPage> {
           const SizedBox(height: 5),
           Text(
             'Tap to select photo',
-            style: TextStyle(
-              fontSize: 12,
-              color: Colors.grey[500],
-            ),
+            style: TextStyle(fontSize: 12, color: Colors.grey[500]),
           ),
         ],
       ),
@@ -293,6 +289,24 @@ class _CaregiverRegisterPageState extends State<CaregiverRegisterPage> {
         const SizedBox(height: 15),
         _buildDateField(),
         const SizedBox(height: 15),
+        _buildDropdownField(
+          value: _selectedGender,
+          label: 'Gender',
+          icon: Icons.person_outline,
+          items: _genderOptions,
+          onChanged: (value) {
+            setState(() {
+              _selectedGender = value;
+            });
+          },
+          validator: (value) {
+            if (value == null || value.isEmpty) {
+              return 'Please select your gender';
+            }
+            return null;
+          },
+        ),
+        const SizedBox(height: 15),
         _buildTextField(
           controller: _phoneController,
           label: 'Phone Number',
@@ -324,6 +338,12 @@ class _CaregiverRegisterPageState extends State<CaregiverRegisterPage> {
             setState(() {
               _selectedExperience = value;
             });
+          },
+          validator: (value) {
+            if (value == null || value.isEmpty) {
+              return 'Please select your experience level';
+            }
+            return null;
           },
         ),
         const SizedBox(height: 15),
@@ -371,15 +391,18 @@ class _CaregiverRegisterPageState extends State<CaregiverRegisterPage> {
             value: _selectedCity,
             decoration: InputDecoration(
               labelText: 'City',
-              prefixIcon: Icon(Icons.location_city_outlined, color: Colors.grey[600]),
+              prefixIcon: Icon(
+                Icons.location_city_outlined,
+                color: Colors.grey[600],
+              ),
               border: InputBorder.none,
-              contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+              contentPadding: const EdgeInsets.symmetric(
+                horizontal: 16,
+                vertical: 16,
+              ),
             ),
             items: _cityOptions.map((city) {
-              return DropdownMenuItem<String>(
-                value: city,
-                child: Text(city),
-              );
+              return DropdownMenuItem<String>(value: city, child: Text(city));
             }).toList(),
             onChanged: (value) {
               setState(() {
@@ -528,7 +551,9 @@ class _CaregiverRegisterPageState extends State<CaregiverRegisterPage> {
         final today = DateTime(now.year, now.month, now.day);
         final date = await showDatePicker(
           context: context,
-          initialDate: today.subtract(const Duration(days: 6570)), // 18 years ago
+          initialDate: today.subtract(
+            const Duration(days: 6570),
+          ), // 18 years ago
           firstDate: DateTime(1950),
           lastDate: today,
         );
@@ -536,7 +561,7 @@ class _CaregiverRegisterPageState extends State<CaregiverRegisterPage> {
           setState(() {
             _selectedDate = date;
             _birthDateController.text =
-            '${date.day.toString().padLeft(2, '0')}/${date.month.toString().padLeft(2, '0')}/${date.year}';
+                '${date.day.toString().padLeft(2, '0')}/${date.month.toString().padLeft(2, '0')}/${date.year}';
           });
         }
       },
@@ -555,7 +580,10 @@ class _CaregiverRegisterPageState extends State<CaregiverRegisterPage> {
               prefixIcon: Icon(Icons.calendar_today, color: Colors.grey[600]),
               hintText: 'Select your birth date',
               border: InputBorder.none,
-              contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+              contentPadding: const EdgeInsets.symmetric(
+                horizontal: 16,
+                vertical: 16,
+              ),
             ),
             validator: (value) {
               final now = DateTime.now();
@@ -564,10 +592,19 @@ class _CaregiverRegisterPageState extends State<CaregiverRegisterPage> {
                 return 'Please select your birth date';
               }
               // Defensive: compare only date part
-              final selected = DateTime(_selectedDate!.year, _selectedDate!.month, _selectedDate!.day);
+              final selected = DateTime(
+                _selectedDate!.year,
+                _selectedDate!.month,
+                _selectedDate!.day,
+              );
               // Debug print for troubleshooting
               // ignore: avoid_print
-              print('Selected: ' + selected.toIso8601String() + ', Today: ' + today.toIso8601String());
+              print(
+                'Selected: ' +
+                    selected.toIso8601String() +
+                    ', Today: ' +
+                    today.toIso8601String(),
+              );
               if (selected.isAfter(today)) {
                 return 'Birth date cannot be in the future';
               }
@@ -585,6 +622,7 @@ class _CaregiverRegisterPageState extends State<CaregiverRegisterPage> {
     required IconData icon,
     required List<String> items,
     required void Function(String?) onChanged,
+    String? Function(String?)? validator,
   }) {
     return Container(
       decoration: BoxDecoration(
@@ -598,21 +636,23 @@ class _CaregiverRegisterPageState extends State<CaregiverRegisterPage> {
           labelText: label,
           prefixIcon: Icon(icon, color: Colors.grey[600]),
           border: InputBorder.none,
-          contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+          contentPadding: const EdgeInsets.symmetric(
+            horizontal: 16,
+            vertical: 16,
+          ),
         ),
         items: items.map((item) {
-          return DropdownMenuItem<String>(
-            value: item,
-            child: Text(item),
-          );
+          return DropdownMenuItem<String>(value: item, child: Text(item));
         }).toList(),
         onChanged: onChanged,
-        validator: (value) {
-          if (value == null || value.isEmpty) {
-            return 'Please select your experience level';
-          }
-          return null;
-        },
+        validator:
+            validator ??
+            (value) {
+              if (value == null || value.isEmpty) {
+                return 'Please select a value';
+              }
+              return null;
+            },
       ),
     );
   }
@@ -659,7 +699,10 @@ class _CaregiverRegisterPageState extends State<CaregiverRegisterPage> {
                   });
                 },
                 child: Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 12,
+                    vertical: 8,
+                  ),
                   decoration: BoxDecoration(
                     color: isSelected ? Colors.blue[600] : Colors.grey[100],
                     borderRadius: BorderRadius.circular(20),
@@ -709,10 +752,7 @@ class _CaregiverRegisterPageState extends State<CaregiverRegisterPage> {
               )
             : const Text(
                 'Register as Caregiver',
-                style: TextStyle(
-                  fontSize: 16,
-                  fontWeight: FontWeight.w600,
-                ),
+                style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
               ),
       ),
     );
@@ -724,10 +764,7 @@ class _CaregiverRegisterPageState extends State<CaregiverRegisterPage> {
       children: [
         Text(
           'Already have an account? ',
-          style: TextStyle(
-            color: Colors.grey[600],
-            fontSize: 14,
-          ),
+          style: TextStyle(color: Colors.grey[600], fontSize: 14),
         ),
         GestureDetector(
           onTap: () {
@@ -761,10 +798,7 @@ class _CaregiverRegisterPageState extends State<CaregiverRegisterPage> {
             children: [
               const Text(
                 'Select Profile Photo',
-                style: TextStyle(
-                  fontSize: 18,
-                  fontWeight: FontWeight.w600,
-                ),
+                style: TextStyle(fontSize: 18, fontWeight: FontWeight.w600),
               ),
               const SizedBox(height: 20),
               Row(
@@ -837,10 +871,10 @@ class _CaregiverRegisterPageState extends State<CaregiverRegisterPage> {
       print('Sending POST to $url with data: $data');
       final response = await http
           .post(
-        Uri.parse(url),
-        headers: {'Content-Type': 'application/json'},
-        body: jsonEncode(data),
-      )
+            Uri.parse(url),
+            headers: {'Content-Type': 'application/json'},
+            body: jsonEncode(data),
+          )
           .timeout(const Duration(seconds: 10)); // Add timeout
 
       print('Status: ${response.statusCode}');
@@ -891,8 +925,8 @@ class _CaregiverRegisterPageState extends State<CaregiverRegisterPage> {
         "birthdate": _selectedDate != null
             ? "${_selectedDate!.year.toString().padLeft(4, '0')}-${_selectedDate!.month.toString().padLeft(2, '0')}-${_selectedDate!.day.toString().padLeft(2, '0')}"
             : "",
-        "profilePic": "", // Empty string instead of null
-        "gender": "Other", // Provide a default value instead of null
+        "profilePic": "", // Empty string instead of null for now
+        "gender": _selectedGender ?? "Other", // Provide default if null
         "experience": _selectedExperience ?? "",
         "qualifications": _qualificationController.text.trim(),
         "skills": _selectedSkills.isNotEmpty ? _selectedSkills : [],
