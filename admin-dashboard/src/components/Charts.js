@@ -2,14 +2,14 @@ import React from 'react';
 import '../styles/Charts.css';
 
 const Charts = () => {
-  // More realistic and human-like mock data
+  // More realistic and human-like mock data in LKR
   const monthlyRevenue = [
-    { month: 'Jan', amount: 12500 },
-    { month: 'Feb', amount: 15200 },
-    { month: 'Mar', amount: 18700 },
-    { month: 'Apr', amount: 16900 },
-    { month: 'May', amount: 22100 },
-    { month: 'Jun', amount: 19800 }
+    { month: 'Jan', amount: 325000 },
+    { month: 'Feb', amount: 395000 },
+    { month: 'Mar', amount: 485000 },
+    { month: 'Apr', amount: 440000 },
+    { month: 'May', amount: 575000 },
+    { month: 'Jun', amount: 515000 }
   ];
 
   const appUsage = [
@@ -34,8 +34,8 @@ const Charts = () => {
   const maxAlerts = Math.max(...emergencyAlerts.map(item => item.alerts));
   const totalUsage = appUsage.reduce((sum, item) => sum + item.count, 0);
   
-  // Fixed scale to match Y-axis labels (25K max)
-  const yAxisMax = 25000;
+  // Fixed scale to match Y-axis labels (650K LKR max)
+  const yAxisMax = 650000;
 
   return (
     <div className="charts-section">
@@ -47,12 +47,12 @@ const Charts = () => {
         </div>
         <div className="revenue-chart">
           <div className="chart-y-axis">
-            <span>$25K</span>
-            <span>$20K</span>
-            <span>$15K</span>
-            <span>$10K</span>
-            <span>$5K</span>
-            <span>$0</span>
+            <span>LKR 650K</span>
+            <span>LKR 520K</span>
+            <span>LKR 390K</span>
+            <span>LKR 260K</span>
+            <span>LKR 130K</span>
+            <span>LKR 0</span>
           </div>
           <div className="chart-bars">
             {monthlyRevenue.map((item, index) => (
@@ -66,7 +66,7 @@ const Charts = () => {
                                    index % 4 === 2 ? '#A0C4FD' : '#C3B1E1'
                   }}
                 >
-                  <div className="bar-value">${(item.amount / 1000).toFixed(1)}K</div>
+                  <div className="bar-value">LKR {(item.amount / 1000).toFixed(0)}K</div>
                 </div>
                 <span className="bar-label">{item.month}</span>
               </div>

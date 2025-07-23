@@ -9,14 +9,14 @@ import {
 
 // Admin account data
 const initialAdminData = {
-  fullName: 'Dr. Amara Perera',
-  email: 'admin@memoradimensia.lk',
+  fullName: 'Dr. Priyantha Wickramasinghe',
+  email: 'admin@memoracare.lk',
   password: '••••••••••',
-  phoneNumber: '+94 77 123 4567',
-  birthday: '1985-06-15',
-  profilePicture: 'https://via.placeholder.com/150/2563eb/FFFFFF?text=AP',
-  address: '123 Hospital Road, Colombo 07, Sri Lanka',
-  gender: 'Female',
+  phoneNumber: '+94 77 234 5678',
+  birthday: '1980-03-15',
+  profilePicture: 'https://via.placeholder.com/150/2563eb/FFFFFF?text=PW',
+  address: '45/1 Galle Road, Bambalapitiya, Colombo 04, Sri Lanka',
+  gender: 'Male',
   role: 'System Administrator',
   lastLogin: new Date().toLocaleDateString(),
   status: 'Active'

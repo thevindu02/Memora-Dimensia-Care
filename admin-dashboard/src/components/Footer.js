@@ -3,7 +3,7 @@ import memoraLogo from '../assets/memora.png';
 
 const Footer = () => {
   return (
-    <div className="footer">
+    <div className="footer" style={{minHeight: '80px', padding: '20px 0'}}>
       <div className="footer-logo">
         <img src={memoraLogo} alt="Memora Logo" className="logo-image" />
         <span className="logo-text">Memora Admin</span>
