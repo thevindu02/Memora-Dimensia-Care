@@ -8,7 +8,6 @@ import org.springframework.web.bind.annotation.*;
 @RestController
 @RequestMapping("/api/articles")
 public class ArticleController {
-
     @Autowired
     private ArticleService articleService;
 
@@ -29,5 +28,10 @@ public class ArticleController {
     @GetMapping("/{id}")
     public ArticleDTO getArticle(@PathVariable String id) throws Exception {
         return articleService.getArticle(id);
+    }
+
+    @GetMapping("/drafts")
+    public java.util.List<ArticleDTO> getDraftArticles(@RequestParam Long volunteerId) throws Exception {
+        return articleService.getDraftArticles(volunteerId);
     }
 }

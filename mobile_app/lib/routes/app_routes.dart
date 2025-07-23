@@ -82,4 +82,5 @@ class AppRoutes {
   static const String volunteerCreateContent = '/volunteer/createcontent';
   static const String volunteerForum = '/volunteer/forum';
   static const String volunteerScheduleSession = '/volunteer/schedule';
+  static const String volunteerDraft = '/volunteer/draft';
 }

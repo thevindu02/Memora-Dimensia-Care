@@ -53,7 +53,7 @@ class CaregiverRoutes {
         );
       case AppRoutes.viewArticleList:
         return MaterialPageRoute(
-            builder: (_) => ArticleList(),
+            builder: (_) => ViewArticleScreen(),
             settings: settings,
         );
       case AppRoutes.caregiverNotification:

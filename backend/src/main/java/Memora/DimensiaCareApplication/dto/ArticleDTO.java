@@ -3,7 +3,8 @@ package Memora.DimensiaCareApplication.dto;
 public class ArticleDTO {
     private String articleId; // Firestore document ID
     private Long volunteerId; // from PostgreSQL
-    private boolean draft;
+    private Integer categoryId;
+    private Boolean draft;
     private String status;
     private String title;
     private String summary;
@@ -13,10 +14,12 @@ public class ArticleDTO {
     public ArticleDTO() {
     }
 
-    public ArticleDTO(String articleId, Long volunteerId, boolean draft, String status, String title, String summary,
-            String content, String articleImg) {
+    public ArticleDTO(String articleId, Long volunteerId, Integer categoryId, Boolean draft, String status,
+            String title,
+            String summary, String content, String articleImg) {
         this.articleId = articleId;
         this.volunteerId = volunteerId;
+        this.categoryId = categoryId;
         this.draft = draft;
         this.status = status;
         this.title = title;
@@ -41,11 +44,19 @@ public class ArticleDTO {
         this.volunteerId = volunteerId;
     }
 
-    public boolean isDraft() {
+    public Integer getCategoryId() {
+        return categoryId;
+    }
+
+    public void setCategoryId(Integer categoryId) {
+        this.categoryId = categoryId;
+    }
+
+    public Boolean getDraft() {
         return draft;
     }
 
-    public void setDraft(boolean draft) {
+    public void setDraft(Boolean draft) {
         this.draft = draft;
     }
 
