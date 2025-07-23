@@ -12,12 +12,12 @@ class _SubscriptionPlanScreenState extends State<SubscriptionPlanScreen> {
   String? selectedDuration;
 
   final Map<String, double> planPrices = {
-    'basic_3': 8999.00,    // ~$30 USD
-    'basic_6': 16499.00,   // ~$55 USD
-    'basic_12': 29999.00,  // ~$100 USD
-    'premium_3': 14999.00, // ~$50 USD
-    'premium_6': 26999.00, // ~$90 USD
-    'premium_12': 47999.00, // ~$160 USD
+    'basic_3': 499.00,    // ~$30 USD
+    'basic_6': 899.00,   // ~$55 USD
+    'basic_12': 1499.00,  // ~$100 USD
+    'premium_3': 999.00, // ~$50 USD
+    'premium_6': 1899.00, // ~$90 USD
+    'premium_12': 2499.00, // ~$160 USD
   };
 
   @override

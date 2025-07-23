@@ -76,7 +76,7 @@ class _VolunteerArticlesScreenState extends State<VolunteerArticlesScreen> {
           mainAxisSize: MainAxisSize.min,
           children: [
             ListTile(
-              leading: Icon(Icons.photo_library, color: Colors.blue),
+              leading: Icon(Icons.photo_library, color: Color(0xFF2B3F99)),
               title: Text('Choose from Gallery'),
               onTap: () {
                 Navigator.pop(context);
@@ -84,7 +84,7 @@ class _VolunteerArticlesScreenState extends State<VolunteerArticlesScreen> {
               },
             ),
             ListTile(
-              leading: Icon(Icons.camera_alt, color: Colors.blue),
+              leading: Icon(Icons.camera_alt, color: Color(0xFF2B3F99)),
               title: Text('Take Photo'),
               onTap: () {
                 Navigator.pop(context);
@@ -92,7 +92,7 @@ class _VolunteerArticlesScreenState extends State<VolunteerArticlesScreen> {
               },
             ),
             ListTile(
-              leading: Icon(Icons.link, color: Colors.blue),
+              leading: Icon(Icons.link, color: Color(0xFF2B3F99)),
               title: Text('Add Image URL'),
               onTap: () {
                 Navigator.pop(context);
@@ -203,7 +203,7 @@ class _VolunteerArticlesScreenState extends State<VolunteerArticlesScreen> {
     required VoidCallback onPressed,
   }) {
     return Material(
-      color: isActive ? Colors.blue.withOpacity(0.1) : Colors.transparent,
+      color: isActive ? Color(0xFFA0C4FD).withOpacity(0.3) : Colors.transparent,
       borderRadius: BorderRadius.circular(4),
       child: InkWell(
         borderRadius: BorderRadius.circular(4),
@@ -213,7 +213,7 @@ class _VolunteerArticlesScreenState extends State<VolunteerArticlesScreen> {
           child: Icon(
             icon,
             size: 18,
-            color: isActive ? Colors.blue : Colors.grey[600],
+            color: isActive ? Color(0xFF2B3F99) : Colors.grey[600],
           ),
         ),
       ),
@@ -360,10 +360,10 @@ class _VolunteerArticlesScreenState extends State<VolunteerArticlesScreen> {
         backgroundColor: Colors.white,
         elevation: 0,
         leading: IconButton(
-          icon: Icon(Icons.arrow_back, color: Color(0xFF2B3F99)), // Calm Navy
+          icon: Icon(Icons.arrow_back, color: Color(0xFF2B3F99)),
           onPressed: () => Navigator.pop(context),
         ),
-        title: Text('Create Article', style: TextStyle(color: Color(0xFF390797))), // Deep Purple
+        title: Text('Create Article', style: TextStyle(color: Color(0xFF2B3F99))),
         centerTitle: true,
       ),
       body: Stack(
@@ -380,7 +380,7 @@ class _VolunteerArticlesScreenState extends State<VolunteerArticlesScreen> {
                     style: TextStyle(
                       fontSize: 20,
                       fontWeight: FontWeight.bold,
-                      color: Color(0xFF390797), // Deep Purple
+                      color: Color(0xFF2B3F99),
                     ),
                   ),
                   SizedBox(height: 20),
@@ -389,7 +389,7 @@ class _VolunteerArticlesScreenState extends State<VolunteerArticlesScreen> {
                     'Category',
                     style: TextStyle(
                       fontWeight: FontWeight.w600,
-                      color: Color(0xFF2B3F99), // Calm Navy
+                      color: Color(0xFF2B3F99),
                     ),
                   ),
                   SizedBox(height: 6),
@@ -435,7 +435,7 @@ class _VolunteerArticlesScreenState extends State<VolunteerArticlesScreen> {
                   // Topic Field
                   Text('Title', style: TextStyle(
                     fontWeight: FontWeight.w600,
-                    color: Color(0xFF2B3F99), // Calm Navy
+                    color: Color(0xFF2B3F99),
                   )),
                   SizedBox(height: 6),
                   TextFormField(
@@ -450,7 +450,10 @@ class _VolunteerArticlesScreenState extends State<VolunteerArticlesScreen> {
                   ),
                   SizedBox(height: 16),
                   // Tags Field
-                  Text('Tags', style: TextStyle(fontWeight: FontWeight.w600)),
+                  Text('Tags', style: TextStyle(
+                    fontWeight: FontWeight.w600,
+                    color: Color(0xFF2B3F99),
+                  )),
                   SizedBox(height: 6),
                   TextFormField(
                     controller: _tagsController,
@@ -464,7 +467,10 @@ class _VolunteerArticlesScreenState extends State<VolunteerArticlesScreen> {
                   // Description Field with Formatting Toolbar
                   Text(
                     'Content',
-                    style: TextStyle(fontWeight: FontWeight.w600),
+                    style: TextStyle(
+                      fontWeight: FontWeight.w600,
+                      color: Color(0xFF2B3F99),
+                    ),
                   ),
                   SizedBox(height: 6),
                   Container(
@@ -593,7 +599,7 @@ class _VolunteerArticlesScreenState extends State<VolunteerArticlesScreen> {
                               ? null
                               : () => submitArticle(draft: false),
                           style: ElevatedButton.styleFrom(
-                            backgroundColor: Colors.blue,
+                            backgroundColor: Color(0xFF2B3F99),
                             foregroundColor: Colors.white,
                             padding: EdgeInsets.symmetric(vertical: 12),
                             shape: RoundedRectangleBorder(
@@ -616,12 +622,12 @@ class _VolunteerArticlesScreenState extends State<VolunteerArticlesScreen> {
                               ? null
                               : () => submitArticle(draft: true),
                           style: OutlinedButton.styleFrom(
-                            foregroundColor: Colors.grey[600],
+                            foregroundColor: Color(0xFF2B3F99),
                             padding: EdgeInsets.symmetric(vertical: 12),
                             shape: RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(8),
                             ),
-                            side: BorderSide(color: Colors.grey[300]!),
+                            side: BorderSide(color: Color(0xFFA0C4FD)),
                           ),
                           child: Text(
                             'Save Draft',
@@ -638,8 +644,11 @@ class _VolunteerArticlesScreenState extends State<VolunteerArticlesScreen> {
                   Center(
                     child: TextButton.icon(
                       onPressed: _isLoading ? null : _clearForm,
-                      icon: Icon(Icons.clear),
-                      label: Text('Clear Form'),
+                      icon: Icon(Icons.clear, color: Color(0xFF2B3F99)),
+                      label: Text(
+                        'Clear Form',
+                        style: TextStyle(color: Color(0xFF2B3F99)),
+                      ),
                     ),
                   ),
                   SizedBox(height: 16),

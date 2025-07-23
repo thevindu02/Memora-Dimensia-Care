@@ -86,9 +86,9 @@ class _LoginScreenState extends State<LoginScreen> {
   }
 
   void _handlePatientLogin() {
-    // Navigate directly to patient email verification
+    // Navigate directly to patient guardian request
     Navigator.of(context).pushNamed(
-      AppRoutes.patientEmailVerification,
+      AppRoutes.patientGuardianRequest,
     );
   }
 

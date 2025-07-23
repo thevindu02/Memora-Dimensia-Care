@@ -78,7 +78,7 @@ class _PaymentScreenState extends State<PaymentScreen> {
                           ),
                         ),
                         Text(
-                          '\$${widget.price.toStringAsFixed(2)}',
+                          'LKR ${widget.price.toStringAsFixed(2)}',
                           style: TextStyle(
                             fontSize: 16,
                             fontWeight: FontWeight.bold,
@@ -348,7 +348,7 @@ class _PaymentScreenState extends State<PaymentScreen> {
                     elevation: 2,
                   ),
                   child: Text(
-                    'Complete Payment - \$${widget.price.toStringAsFixed(2)}',
+                    'Complete Payment - LKR ${widget.price.toStringAsFixed(2)}',
                     style: TextStyle(
                       fontSize: 16,
                       fontWeight: FontWeight.w600,

@@ -41,7 +41,6 @@ dependencies:
   confetti: ^0.7.0
   network_info_plus: ^5.0.0
   connectivity_plus: ^6.0.0
-  ping_discover_network: ^3.0.0
 
 
 dev_dependencies:

@@ -47,7 +47,7 @@ class _VolunteerDashboardScreenState extends State<VolunteerDashboardScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Color(0xFFF8F9FB),
+      backgroundColor: Colors.white,
       appBar: AppBar(
         backgroundColor: Colors.white,
         elevation: 0,
@@ -57,9 +57,9 @@ class _VolunteerDashboardScreenState extends State<VolunteerDashboardScreen> {
           child: Text(
             'Dashboard',
             style: TextStyle(
-              fontSize: 20,
+              fontSize: 24,
               fontWeight: FontWeight.bold,
-              color: Colors.black,
+              color: Color(0xFF2B3F99),
             ),
           ),
         ),
@@ -68,20 +68,57 @@ class _VolunteerDashboardScreenState extends State<VolunteerDashboardScreen> {
       body: SingleChildScrollView(
         child: Container(
           width: MediaQuery.of(context).size.width,
-          padding: const EdgeInsets.all(16.0),
+          padding: const EdgeInsets.all(20.0),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              SizedBox(height: 16),
+              // Welcome section
+              Container(
+                width: double.infinity,
+                padding: EdgeInsets.all(24),
+                decoration: BoxDecoration(
+                  color: Color(0xFF2B3F99),
+                  borderRadius: BorderRadius.circular(20),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Color(0xFF2B3F99).withOpacity(0.3),
+                      blurRadius: 12,
+                      offset: Offset(0, 4),
+                    ),
+                  ],
+                ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      'Welcome Back!',
+                      style: TextStyle(
+                        fontSize: 20,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.white,
+                      ),
+                    ),
+                    SizedBox(height: 8),
+                    Text(
+                      'Ready to make a difference today?',
+                      style: TextStyle(
+                        fontSize: 14,
+                        color: Colors.white.withOpacity(0.9),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              SizedBox(height: 32),
               Text(
                 'Quick Actions',
                 style: TextStyle(
-                  fontSize: 16,
-                  fontWeight: FontWeight.w600,
-                  color: Colors.black,
+                  fontSize: 18,
+                  fontWeight: FontWeight.bold,
+                  color: Color(0xFF2B3F99),
                 ),
               ),
-              SizedBox(height: 12),
+              SizedBox(height: 16),
               SingleChildScrollView(
                 scrollDirection: Axis.horizontal,
                 child: Row(
@@ -98,7 +135,7 @@ class _VolunteerDashboardScreenState extends State<VolunteerDashboardScreen> {
                         ),
                       ),
                     ),
-                    SizedBox(width: 12),
+                    SizedBox(width: 16),
                     _buildQuickActionButton(
                       context,
                       'Settings',
@@ -113,54 +150,51 @@ class _VolunteerDashboardScreenState extends State<VolunteerDashboardScreen> {
                   ],
                 ),
               ),
-              SizedBox(height: 24),
+              SizedBox(height: 32),
               Text(
                 'Your Statistics',
                 style: TextStyle(
-                  fontSize: 16,
-                  fontWeight: FontWeight.w600,
-                  color: Colors.black,
+                  fontSize: 18,
+                  fontWeight: FontWeight.bold,
+                  color: Color(0xFF2B3F99),
                 ),
               ),
-              SizedBox(height: 12),
+              SizedBox(height: 16),
               // Fixed statistics section with proper height constraint
-              Container(
-                height: 140,
-                child: SingleChildScrollView(
-                  scrollDirection: Axis.horizontal,
-                  child: Row(
-                    children: [
-                      _buildStatCard('Scheduled Sessions', '3', Icons.schedule),
-                      SizedBox(width: 12),
-                      _buildStatCard(
-                        'Articles Contributed',
-                        '5',
-                        Icons.article,
-                      ),
-                      SizedBox(width: 12),
-                      _buildStatCard('Forum Replies', '12', Icons.forum),
-                      SizedBox(width: 12),
-                      _buildStatCard(
-                        'Hours Volunteered',
-                        '8',
-                        Icons.access_time,
-                      ),
-                    ],
-                  ),
+              SingleChildScrollView(
+                scrollDirection: Axis.horizontal,
+                child: Row(
+                  children: [
+                    _buildStatCard('Scheduled Sessions', '3', Icons.schedule),
+                    SizedBox(width: 16),
+                    _buildStatCard(
+                      'Articles Contributed',
+                      '5',
+                      Icons.article,
+                    ),
+                    SizedBox(width: 16),
+                    _buildStatCard('Forum Replies', '12', Icons.forum),
+                    SizedBox(width: 16),
+                    _buildStatCard(
+                      'Hours Volunteered',
+                      '8',
+                      Icons.access_time,
+                    ),
+                  ],
                 ),
               ),
-              SizedBox(height: 24),
+              SizedBox(height: 32),
               Text(
                 'Upcoming Sessions',
                 style: TextStyle(
-                  fontSize: 16,
-                  fontWeight: FontWeight.w600,
-                  color: Colors.black,
+                  fontSize: 18,
+                  fontWeight: FontWeight.bold,
+                  color: Color(0xFF2B3F99),
                 ),
               ),
-              SizedBox(height: 12),
+              SizedBox(height: 16),
               _buildUpcomingSessionCard(),
-              SizedBox(height: 24),
+              SizedBox(height: 32),
             ],
           ),
         ),
@@ -180,41 +214,52 @@ class _VolunteerDashboardScreenState extends State<VolunteerDashboardScreen> {
       child: GestureDetector(
         onTap: onPressed,
         child: Container(
-          width: 85,
-          padding: EdgeInsets.symmetric(vertical: 16, horizontal: 8),
+          width: 100,
+          padding: EdgeInsets.symmetric(vertical: 20, horizontal: 12),
           decoration: BoxDecoration(
             color: Colors.white,
-            borderRadius: BorderRadius.circular(16),
+            borderRadius: BorderRadius.circular(20),
             boxShadow: [
               BoxShadow(
-                color: Colors.black.withOpacity(0.04),
-                blurRadius: 8,
-                offset: Offset(0, 2),
+                color: Colors.black.withOpacity(0.08),
+                blurRadius: 12,
+                offset: Offset(0, 4),
               ),
             ],
+            border: Border.all(
+              color: Color(0xFFA0C4FD).withOpacity(0.3),
+              width: 1,
+            ),
           ),
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
               Container(
-                width: 48,
-                height: 48,
+                width: 56,
+                height: 56,
                 decoration: BoxDecoration(
-                  color: Color(0xFFEEF1F8),
+                  color: Color(0xFF2B3F99),
                   shape: BoxShape.circle,
+                  boxShadow: [
+                    BoxShadow(
+                      color: Color(0xFF2B3F99).withOpacity(0.3),
+                      blurRadius: 8,
+                      offset: Offset(0, 2),
+                    ),
+                  ],
                 ),
                 child: Center(
-                  child: Icon(icon, color: Color(0xFF2B3F99), size: 28),
+                  child: Icon(icon, color: Colors.white, size: 28),
                 ),
               ),
-              SizedBox(height: 8),
+              SizedBox(height: 12),
               Text(
                 title,
                 textAlign: TextAlign.center,
                 style: TextStyle(
                   fontSize: 13,
                   fontWeight: FontWeight.w600,
-                  color: Colors.black,
+                  color: Color(0xFF2B3F99),
                   height: 1.2,
                 ),
               ),
@@ -228,34 +273,39 @@ class _VolunteerDashboardScreenState extends State<VolunteerDashboardScreen> {
   Widget _buildStatCard(String label, String value, IconData icon) {
     return Container(
       width: 90,
-      padding: EdgeInsets.symmetric(vertical: 16, horizontal: 8),
+      height: 120,
+      padding: EdgeInsets.symmetric(vertical: 12, horizontal: 6),
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(16),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.04),
-            blurRadius: 8,
-            offset: Offset(0, 2),
+            color: Colors.black.withOpacity(0.08),
+            blurRadius: 12,
+            offset: Offset(0, 4),
           ),
         ],
+        border: Border.all(
+          color: Color(0xFFA0C4FD).withOpacity(0.3),
+          width: 1,
+        ),
       ),
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         mainAxisSize: MainAxisSize.min,
         children: [
           Container(
-            width: 40,
-            height: 40,
+            width: 36,
+            height: 36,
             decoration: BoxDecoration(
-              color: Color(0xFFEEF1F8),
+              color: Color(0xFFA0C4FD).withOpacity(0.2),
               shape: BoxShape.circle,
             ),
             child: Center(
-              child: Icon(icon, color: Color(0xFF2B3F99), size: 22),
+              child: Icon(icon, color: Color(0xFF2B3F99), size: 18),
             ),
           ),
-          SizedBox(height: 8),
+          SizedBox(height: 6),
           Text(
             value,
             style: TextStyle(
@@ -264,18 +314,20 @@ class _VolunteerDashboardScreenState extends State<VolunteerDashboardScreen> {
               color: Color(0xFF2B3F99),
             ),
           ),
-          SizedBox(height: 4),
-          Text(
-            label,
-            textAlign: TextAlign.center,
-            style: TextStyle(
-              fontSize: 11,
-              color: Colors.black,
-              fontWeight: FontWeight.w600,
-              height: 1.1,
+          SizedBox(height: 2),
+          Flexible(
+            child: Text(
+              label,
+              textAlign: TextAlign.center,
+              style: TextStyle(
+                fontSize: 9,
+                color: Colors.grey[600],
+                fontWeight: FontWeight.w500,
+                height: 1.0,
+              ),
+              maxLines: 2,
+              overflow: TextOverflow.ellipsis,
             ),
-            maxLines: 2,
-            overflow: TextOverflow.ellipsis,
           ),
         ],
       ),
@@ -286,32 +338,43 @@ class _VolunteerDashboardScreenState extends State<VolunteerDashboardScreen> {
     // Placeholder for demo; in real app, pull from data
     return Container(
       width: double.infinity,
-      padding: EdgeInsets.all(18),
+      padding: EdgeInsets.all(24),
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(16),
+        borderRadius: BorderRadius.circular(20),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.04),
-            blurRadius: 8,
-            offset: Offset(0, 2),
+            color: Colors.black.withOpacity(0.08),
+            blurRadius: 12,
+            offset: Offset(0, 4),
           ),
         ],
+        border: Border.all(
+          color: Color(0xFFA0C4FD).withOpacity(0.3),
+          width: 1,
+        ),
       ),
       child: Row(
         children: [
           Container(
-            width: 44,
-            height: 44,
+            width: 56,
+            height: 56,
             decoration: BoxDecoration(
-              color: Color(0xFFEEF1F8),
+              color: Color(0xFF2B3F99),
               shape: BoxShape.circle,
+              boxShadow: [
+                BoxShadow(
+                  color: Color(0xFF2B3F99).withOpacity(0.3),
+                  blurRadius: 8,
+                  offset: Offset(0, 2),
+                ),
+              ],
             ),
             child: Center(
-              child: Icon(Icons.schedule, color: Color(0xFF2B3F99), size: 24),
+              child: Icon(Icons.schedule, color: Colors.white, size: 28),
             ),
           ),
-          SizedBox(width: 16),
+          SizedBox(width: 20),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -319,24 +382,46 @@ class _VolunteerDashboardScreenState extends State<VolunteerDashboardScreen> {
                 Text(
                   'Next Session',
                   style: TextStyle(
-                    fontSize: 14,
-                    fontWeight: FontWeight.w600,
-                    color: Colors.black,
+                    fontSize: 16,
+                    fontWeight: FontWeight.bold,
+                    color: Color(0xFF2B3F99),
                   ),
                 ),
-                SizedBox(height: 4),
+                SizedBox(height: 6),
                 Text(
                   'With: Jane Doe',
-                  style: TextStyle(fontSize: 13, color: Colors.grey[700]),
+                  style: TextStyle(
+                    fontSize: 14,
+                    color: Colors.grey[600],
+                    fontWeight: FontWeight.w500,
+                  ),
                 ),
                 Text(
                   'Today at 3:00 PM',
-                  style: TextStyle(fontSize: 13, color: Colors.grey[700]),
+                  style: TextStyle(
+                    fontSize: 14,
+                    color: Colors.grey[600],
+                    fontWeight: FontWeight.w500,
+                  ),
                 ),
               ],
             ),
           ),
-          Icon(Icons.arrow_forward_ios, color: Color(0xFF2B3F99), size: 18),
+          Container(
+            width: 36,
+            height: 36,
+            decoration: BoxDecoration(
+              color: Color(0xFFA0C4FD).withOpacity(0.2),
+              shape: BoxShape.circle,
+            ),
+            child: Center(
+              child: Icon(
+                Icons.arrow_forward_ios,
+                color: Color(0xFF2B3F99),
+                size: 16,
+              ),
+            ),
+          ),
         ],
       ),
     );

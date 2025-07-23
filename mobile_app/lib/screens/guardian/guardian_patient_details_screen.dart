@@ -18,26 +18,44 @@ class _GuardianPatientDetailsScreenState
   Map<String, dynamic>? patientData;
 
   Widget _buildInfoRow(String label, String value) {
-    return Padding(
-      padding: EdgeInsets.symmetric(vertical: 8),
+    return Container(
+      margin: EdgeInsets.only(bottom: 12),
+      padding: EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: Colors.grey[200]!),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.02),
+            blurRadius: 4,
+            offset: Offset(0, 1),
+          ),
+        ],
+      ),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           SizedBox(
-            width: 120,
+            width: 100,
             child: Text(
               label,
               style: TextStyle(
-                fontSize: 16,
+                fontSize: 14,
                 fontWeight: FontWeight.w600,
-                color: Colors.black87,
+                color: Color(0xFF6B73FF),
               ),
             ),
           ),
+          SizedBox(width: 12),
           Expanded(
             child: Text(
               value,
-              style: TextStyle(fontSize: 16, color: Colors.grey[600]),
+              style: TextStyle(
+                fontSize: 14,
+                color: Colors.black87,
+                fontWeight: FontWeight.w400,
+              ),
             ),
           ),
         ],
@@ -91,7 +109,7 @@ class _GuardianPatientDetailsScreenState
           backgroundColor: Colors.white,
           elevation: 0,
           leading: IconButton(
-            icon: Icon(Icons.arrow_back, color: Colors.black),
+            icon: Icon(Icons.arrow_back, color: Color(0xFF2B3F99)),
             onPressed: () => Navigator.pop(context),
           ),
           title: Text(
@@ -99,7 +117,7 @@ class _GuardianPatientDetailsScreenState
             style: TextStyle(
               fontSize: 20,
               fontWeight: FontWeight.w600,
-              color: Colors.black87,
+              color: Color(0xFF2B3F99),
             ),
           ),
           centerTitle: false,
@@ -114,7 +132,7 @@ class _GuardianPatientDetailsScreenState
         backgroundColor: Colors.white,
         elevation: 0,
         leading: IconButton(
-          icon: Icon(Icons.arrow_back, color: Colors.black),
+          icon: Icon(Icons.arrow_back, color: Color(0xFF2B3F99)),
           onPressed: () => Navigator.pop(context),
         ),
         title: Text(
@@ -122,7 +140,7 @@ class _GuardianPatientDetailsScreenState
           style: TextStyle(
             fontSize: 20,
             fontWeight: FontWeight.w600,
-            color: Colors.black87,
+            color: Color(0xFF2B3F99),
           ),
         ),
         centerTitle: false,
@@ -134,40 +152,83 @@ class _GuardianPatientDetailsScreenState
           children: [
             // Patient header section
             Container(
+              width: double.infinity,
               padding: EdgeInsets.all(20),
               decoration: BoxDecoration(
-                color: Colors.grey[50],
-                borderRadius: BorderRadius.circular(16),
+                gradient: LinearGradient(
+                  begin: Alignment.topLeft,
+                  end: Alignment.bottomRight,
+                  colors: [
+                    Color(0xFFF8F9FF),
+                    Color(0xFFE8EFFF),
+                  ],
+                ),
+                borderRadius: BorderRadius.circular(20),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black.withOpacity(0.05),
+                    blurRadius: 10,
+                    offset: Offset(0, 2),
+                  ),
+                ],
               ),
               child: Row(
                 children: [
-                  CircleAvatar(
-                    radius: 40,
-                    backgroundColor: Colors.grey[300],
-                    child: Icon(
-                      Icons.person,
-                      color: Colors.grey[600],
-                      size: 40,
+                  Container(
+                    decoration: BoxDecoration(
+                      shape: BoxShape.circle,
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.black.withOpacity(0.1),
+                          blurRadius: 8,
+                          offset: Offset(0, 2),
+                        ),
+                      ],
+                    ),
+                    child: CircleAvatar(
+                      radius: 35,
+                      backgroundColor: Color(0xFF6B73FF),
+                      child: Icon(
+                        Icons.person,
+                        color: Colors.white,
+                        size: 35,
+                      ),
                     ),
                   ),
-                  SizedBox(width: 20),
-                  Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        '${patientData!['fName'] ?? patientData!['FName'] ?? patientData!['fname'] ?? ''} ${patientData!['lName'] ?? patientData!['LName'] ?? patientData!['lname'] ?? ''}',
-                        style: TextStyle(
-                          fontSize: 24,
-                          fontWeight: FontWeight.bold,
-                          color: Colors.black87,
+                  SizedBox(width: 16),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Text(
+                          '${patientData!['fName'] ?? patientData!['FName'] ?? patientData!['fname'] ?? ''} ${patientData!['lName'] ?? patientData!['LName'] ?? patientData!['lname'] ?? ''}',
+                          style: TextStyle(
+                            fontSize: 20,
+                            fontWeight: FontWeight.bold,
+                            color: Color(0xFF2B3F99),
+                          ),
+                          maxLines: 2,
+                          overflow: TextOverflow.ellipsis,
                         ),
-                      ),
-                      SizedBox(height: 4),
-                      Text(
-                        patientData!['label'] ?? 'Patient',
-                        style: TextStyle(fontSize: 16, color: Colors.grey[600]),
-                      ),
-                    ],
+                        SizedBox(height: 4),
+                        Container(
+                          padding: EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                          decoration: BoxDecoration(
+                            color: Color(0xFF6B73FF).withOpacity(0.1),
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                          child: Text(
+                            patientData!['label'] ?? 'Patient',
+                            style: TextStyle(
+                              fontSize: 12,
+                              color: Color(0xFF6B73FF),
+                              fontWeight: FontWeight.w500,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
                   ),
                 ],
               ),
@@ -199,32 +260,33 @@ class _GuardianPatientDetailsScreenState
             SizedBox(height: 40),
 
             // Action buttons
-            Row(
-              children: [
-                Expanded(
-                  child: Container(
-                    height: 50,
-                    child: ElevatedButton(
-                      onPressed: _editPatient,
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: Color(0xFFA0C4FD),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(12),
-                        ),
-                        elevation: 0,
-                      ),
-                      child: Text(
-                        'Edit',
-                        style: TextStyle(
-                          fontSize: 16,
-                          fontWeight: FontWeight.w600,
-                          color: Color(0xFF2B3F99),
-                        ),
-                      ),
-                    ),
+            Container(
+              width: double.infinity,
+              height: 50,
+              child: ElevatedButton.icon(
+                onPressed: _editPatient,
+                icon: Icon(
+                  Icons.edit,
+                  color: Colors.white,
+                  size: 18,
+                ),
+                label: Text(
+                  'Edit Patient Details',
+                  style: TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.w600,
+                    color: Colors.white,
                   ),
                 ),
-              ],
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Color(0xFF6B73FF),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  elevation: 2,
+                  shadowColor: Color(0xFF6B73FF).withOpacity(0.3),
+                ),
+              ),
             ),
 
             SizedBox(height: 20),

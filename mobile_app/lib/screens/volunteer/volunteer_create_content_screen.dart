@@ -9,7 +9,7 @@ class VolunteerCreateContentScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.grey[50],
+      backgroundColor: Colors.white,
       appBar: AppBar(
         backgroundColor: Colors.white,
         elevation: 0,
@@ -17,21 +17,18 @@ class VolunteerCreateContentScreen extends StatelessWidget {
         title: Text(
           'Create Content',
           style: TextStyle(
-            fontSize: 22,
-            fontWeight: FontWeight.w700,
-            color: Color(0xFF2B3F99), // Calm Navy for text
-            letterSpacing: -0.5,
+            fontSize: 24,
+            fontWeight: FontWeight.bold,
+            color: Color(0xFF2B3F99),
           ),
         ),
         centerTitle: false,
       ),
       body: SingleChildScrollView(
-        padding: const EdgeInsets.all(24.0),
+        padding: const EdgeInsets.all(20.0),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            SizedBox(height: 8),
-
             // Welcome Section
             GestureDetector(
               onTap: () => _navigateToViewArticles(context),
@@ -39,21 +36,13 @@ class VolunteerCreateContentScreen extends StatelessWidget {
                 width: double.infinity,
                 padding: EdgeInsets.all(24),
                 decoration: BoxDecoration(
-                  gradient: LinearGradient(
-                    colors: [
-                      Color(0xFF390797),
-                      Color(0xFF1c1c84),
-                    ], // Deep Purple to Deep Navy
-                    begin: Alignment.topLeft,
-                    end: Alignment.bottomRight,
-                  ),
+                  color: Color(0xFF2B3F99),
                   borderRadius: BorderRadius.circular(20),
                   boxShadow: [
                     BoxShadow(
-                      color: Color(0xFF390797).withOpacity(0.3),
-                      blurRadius: 20,
-                      offset: Offset(0, 8),
-                      spreadRadius: -5,
+                      color: Color(0xFF2B3F99).withOpacity(0.3),
+                      blurRadius: 12,
+                      offset: Offset(0, 4),
                     ),
                   ],
                 ),
@@ -117,9 +106,8 @@ class VolunteerCreateContentScreen extends StatelessWidget {
               'Content Options',
               style: TextStyle(
                 fontSize: 18,
-                fontWeight: FontWeight.w700,
-                color: Color(0xFF390797), // Deep Purple for headings
-                letterSpacing: -0.3,
+                fontWeight: FontWeight.bold,
+                color: Color(0xFF2B3F99),
               ),
             ),
             SizedBox(height: 16),
@@ -132,7 +120,7 @@ class VolunteerCreateContentScreen extends StatelessWidget {
                     Icons.add_circle_outline_rounded,
                     'Create New Article',
                     'Write and publish new content',
-                    Color(0xFF2B3F99), // Calm Navy
+                    Color(0xFF2B3F99),
                     onTap: () => _navigateToArticleCreation(context),
                   ),
                 ),
@@ -142,7 +130,7 @@ class VolunteerCreateContentScreen extends StatelessWidget {
                     Icons.drafts_rounded,
                     'My Drafts',
                     'Continue working on saved drafts',
-                    Color(0xFFA0C4FD), // Light Sky Blue
+                    Color(0xFF2B3F99),
                     onTap: () => _navigateToDraft(context, 'Draft List'),
                   ),
                 ),
@@ -190,14 +178,16 @@ class VolunteerCreateContentScreen extends StatelessWidget {
         padding: EdgeInsets.all(20),
         decoration: BoxDecoration(
           color: Colors.white,
-          borderRadius: BorderRadius.circular(16),
-          border: Border.all(color: Colors.grey[200]!),
+          borderRadius: BorderRadius.circular(20),
+          border: Border.all(
+            color: Color(0xFFA0C4FD).withOpacity(0.3),
+            width: 1,
+          ),
           boxShadow: [
             BoxShadow(
               color: Colors.black.withOpacity(0.08),
-              blurRadius: 15,
+              blurRadius: 12,
               offset: Offset(0, 4),
-              spreadRadius: -2,
             ),
           ],
         ),
@@ -206,11 +196,7 @@ class VolunteerCreateContentScreen extends StatelessWidget {
             Container(
               padding: EdgeInsets.all(16),
               decoration: BoxDecoration(
-                gradient: LinearGradient(
-                  colors: [color.withOpacity(0.1), color.withOpacity(0.2)],
-                  begin: Alignment.topLeft,
-                  end: Alignment.bottomRight,
-                ),
+                color: Color(0xFFA0C4FD).withOpacity(0.2),
                 borderRadius: BorderRadius.circular(16),
               ),
               child: Icon(icon, size: 32, color: color),
@@ -220,9 +206,8 @@ class VolunteerCreateContentScreen extends StatelessWidget {
               title,
               style: TextStyle(
                 fontSize: 14,
-                fontWeight: FontWeight.w700,
-                color: Colors.black87,
-                letterSpacing: -0.2,
+                fontWeight: FontWeight.w600,
+                color: Color(0xFF2B3F99),
               ),
               textAlign: TextAlign.center,
             ),
@@ -277,7 +262,7 @@ class CreateArticleScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.grey[50],
+      backgroundColor: Colors.white,
       appBar: AppBar(
         backgroundColor: Colors.white,
         elevation: 0,
@@ -285,20 +270,19 @@ class CreateArticleScreen extends StatelessWidget {
           icon: Container(
             padding: EdgeInsets.all(8),
             decoration: BoxDecoration(
-              color: Colors.grey[100],
+              color: Color(0xFFA0C4FD).withOpacity(0.2),
               borderRadius: BorderRadius.circular(12),
             ),
-            child: Icon(Icons.arrow_back, color: Colors.black87, size: 20),
+            child: Icon(Icons.arrow_back, color: Color(0xFF2B3F99), size: 20),
           ),
           onPressed: () => Navigator.pop(context),
         ),
         title: Text(
           'Create Article',
           style: TextStyle(
-            color: Colors.black87,
-            fontSize: 20,
-            fontWeight: FontWeight.w700,
-            letterSpacing: -0.3,
+            color: Color(0xFF2B3F99),
+            fontSize: 24,
+            fontWeight: FontWeight.bold,
           ),
         ),
         centerTitle: true,
@@ -310,27 +294,20 @@ class CreateArticleScreen extends StatelessWidget {
             Container(
               padding: EdgeInsets.all(32),
               decoration: BoxDecoration(
-                gradient: LinearGradient(
-                  colors: [
-                    Color(0xFFC3B1E1).withOpacity(0.3),
-                    Color(0xFFA0C4FD).withOpacity(0.3),
-                  ], // Soft Lavender to Light Sky Blue
-                  begin: Alignment.topLeft,
-                  end: Alignment.bottomRight,
-                ),
+                color: Color(0xFFA0C4FD).withOpacity(0.2),
                 borderRadius: BorderRadius.circular(30),
                 boxShadow: [
                   BoxShadow(
-                    color: Color(0xFF390797).withOpacity(0.2),
-                    blurRadius: 20,
-                    offset: Offset(0, 8),
+                    color: Color(0xFF2B3F99).withOpacity(0.2),
+                    blurRadius: 12,
+                    offset: Offset(0, 4),
                   ),
                 ],
               ),
               child: Icon(
                 Icons.article_rounded,
                 size: 80,
-                color: Color(0xFF2B3F99), // Calm Navy
+                color: Color(0xFF2B3F99),
               ),
             ),
             SizedBox(height: 24),
@@ -338,9 +315,8 @@ class CreateArticleScreen extends StatelessWidget {
               'Article Creation',
               style: TextStyle(
                 fontSize: 24,
-                fontWeight: FontWeight.w700,
-                color: Colors.black87,
-                letterSpacing: -0.5,
+                fontWeight: FontWeight.bold,
+                color: Color(0xFF2B3F99),
               ),
             ),
             SizedBox(height: 12),

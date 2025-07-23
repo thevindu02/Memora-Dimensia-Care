@@ -8,6 +8,7 @@ import 'package:mobile_app/screens/patient/patient_main_screen.dart';
 import 'package:mobile_app/screens/patient/patient_notification_screen.dart';
 import 'package:mobile_app/screens/patient/patient_verify_code_screen.dart';
 import 'package:mobile_app/screens/patient/patient_welcome_screen.dart';
+import 'package:mobile_app/screens/patient/patient_guardian_request_screen.dart';
 import '../../routes/app_routes.dart';
 import 'patient_dashboard_screen.dart';
 import 'patient_profile_screen.dart';
@@ -36,6 +37,11 @@ class PatientRoutes {
       case AppRoutes.patientVerifyCode:
         return MaterialPageRoute(
           builder: (_) => PatientVerifyCodeScreen(),
+          settings: settings,
+        );
+      case AppRoutes.patientGuardianRequest:
+        return MaterialPageRoute(
+          builder: (_) => PatientGuardianRequestScreen(),
           settings: settings,
         );
       case AppRoutes.patientWelcome:

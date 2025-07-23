@@ -12,6 +12,7 @@ class AppRoutes {
   static const String patientEmailVerification = '/patient/emailVerification';
   static const String patientVerifyCode = '/patient/verifyCode';
   static const String patientWelcome = '/patient/welcome';
+  static const String patientGuardianRequest = '/patient/guardianRequest';
   static const String patientNotifications = '/patient/notification';
   static const String patientGames = '/patient/games';
   static const String patientMain = '/patient/main';
