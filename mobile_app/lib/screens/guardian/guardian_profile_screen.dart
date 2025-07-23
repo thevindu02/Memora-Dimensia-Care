@@ -3,6 +3,8 @@ import 'package:image_picker/image_picker.dart';
 import 'dart:io';
 import '../../routes/app_routes.dart';
 import 'guardian_bottom_nav_bar.dart';
+import '../../services/auth_service.dart';
+import '../../services/guardian_service.dart';
 
 class GuardianProfileScreen extends StatefulWidget {
   @override
@@ -22,16 +24,18 @@ class _GuardianProfileScreenState extends State<GuardianProfileScreen> {
   final _nameController = TextEditingController(text: 'John Doe');
   final _emailController = TextEditingController(text: 'john.doe@example.com');
   final _phoneController = TextEditingController(text: '+1 234 567 8900');
-  final _addressController = TextEditingController(text: '123 Main St, City, State');
+  final _addressController = TextEditingController(
+    text: '123 Main St, City, State',
+  );
   final _currentPasswordController = TextEditingController();
   final _newPasswordController = TextEditingController();
   final _confirmPasswordController = TextEditingController();
 
   // Store original values to compare
-  late String _originalName;
-  late String _originalEmail;
-  late String _originalPhone;
-  late String _originalAddress;
+  String _originalName = '';
+  String _originalEmail = '';
+  String _originalPhone = '';
+  String _originalAddress = '';
 
   bool _showCurrentPassword = false;
   bool _showNewPassword = false;
@@ -41,12 +45,47 @@ class _GuardianProfileScreenState extends State<GuardianProfileScreen> {
   void initState() {
     super.initState();
     _selectedIndex = 3; // Updated to match Profile tab index
-    // Store original values
-    _originalName = _nameController.text;
-    _originalEmail = _emailController.text;
-    _originalPhone = _phoneController.text;
-    _originalAddress = _addressController.text;
-    _originalProfileImage = _profileImage;
+    _fetchGuardianProfile();
+  }
+
+  Future<void> _fetchGuardianProfile() async {
+    setState(() {
+      _isLoading = true;
+    });
+
+    final userId = await AuthService.getCurrentUserId();
+    if (userId != null) {
+      final guardianId = await GuardianService.getGuardianIdByUserId(userId);
+      if (guardianId != null) {
+        final profile = await GuardianService.getGuardianDetailsById(
+          guardianId,
+        );
+        if (profile != null) {
+          _nameController.text = profile['name'] ?? '';
+          _emailController.text = profile['email'] ?? '';
+          _phoneController.text = profile['phone'] ?? '';
+          // Combine address fields: street, city, state
+          String street = profile['street'] ?? '';
+          String city = profile['city'] ?? '';
+          String state = profile['state'] ?? '';
+          String address = [
+            street,
+            city,
+            state,
+          ].where((e) => e.isNotEmpty).join(', ');
+          _addressController.text = address;
+          // Store original values for edit/cancel logic
+          _originalName = _nameController.text;
+          _originalEmail = _emailController.text;
+          _originalPhone = _phoneController.text;
+          _originalAddress = _addressController.text;
+        }
+      }
+    }
+
+    setState(() {
+      _isLoading = false;
+    });
   }
 
   @override
@@ -149,7 +188,11 @@ class _GuardianProfileScreenState extends State<GuardianProfileScreen> {
     });
   }
 
-  Color _getTextColor(String fieldName, String currentValue, String originalValue) {
+  Color _getTextColor(
+    String fieldName,
+    String currentValue,
+    String originalValue,
+  ) {
     if (!_isEditing) return Colors.black87;
 
     // If field has been modified, show black text
@@ -291,17 +334,21 @@ class _GuardianProfileScreenState extends State<GuardianProfileScreen> {
               fontSize: 16,
               fontWeight: FontWeight.w500,
             ),
-            hintText: _isEditing && controller.text.isEmpty ? 'Enter $label' : null,
+            hintText: _isEditing && controller.text.isEmpty
+                ? 'Enter $label'
+                : null,
             hintStyle: TextStyle(color: Colors.grey[400]),
             prefixIcon: Icon(icon, color: Colors.grey[600]),
             suffixIcon: isPassword
                 ? IconButton(
-              icon: Icon(
-                showPassword ?? false ? Icons.visibility : Icons.visibility_off,
-                color: Colors.grey[600],
-              ),
-              onPressed: togglePasswordVisibility,
-            )
+                    icon: Icon(
+                      showPassword ?? false
+                          ? Icons.visibility
+                          : Icons.visibility_off,
+                      color: Colors.grey[600],
+                    ),
+                    onPressed: togglePasswordVisibility,
+                  )
                 : null,
             border: OutlineInputBorder(
               borderRadius: BorderRadius.circular(8),
@@ -336,62 +383,22 @@ class _GuardianProfileScreenState extends State<GuardianProfileScreen> {
     Navigator.pushNamedAndRemoveUntil(
       context,
       AppRoutes.guardianDashboard,
-          (route) => false,
+      (route) => false,
     );
   }
 
   Future<bool> _onWillPop() async {
     if (_isEditing) {
-      if (_hasChanges()) {
-        // Case 1: Editing with changes - show confirmation dialog
-        bool? shouldDiscard = await showDialog<bool>(
-          context: context,
-          builder: (context) => AlertDialog(
-            title: Text('Discard Changes?'),
-            content: Text('You have unsaved changes. Are you sure you want to discard them?'),
-            actions: [
-              TextButton(
-                onPressed: () => Navigator.of(context).pop(false),
-                child: Text('Cancel'),
-              ),
-              TextButton(
-                onPressed: () => Navigator.of(context).pop(true),
-                child: Text('Discard'),
-              ),
-            ],
-          ),
-        );
-        if (shouldDiscard == true) {
-          // Reset to original values and exit edit mode
-          setState(() {
-            _nameController.text = _originalName;
-            _emailController.text = _originalEmail;
-            _phoneController.text = _originalPhone;
-            _addressController.text = _originalAddress;
-            _currentPasswordController.clear();
-            _newPasswordController.clear();
-            _confirmPasswordController.clear();
-            _modifiedFields.clear();
-            _focusedFields.clear();
-            _profileImage = _originalProfileImage;
-            _isEditing = false;
-          });
-          _navigateToHome();
-        }
-        return false; // Stay on profile page
-      } else {
-        // Case 2: Editing without changes - just exit edit mode and go home
-        setState(() {
-          _isEditing = false;
-        });
-        _navigateToHome();
-        return false; // Stay on profile page
-      }
+      print('Exiting edit mode, staying on profile (WillPopScope)');
+      setState(() {
+        _isEditing = false;
+      });
+      return false; // Stay on profile screen
+    } else {
+      print('Navigating to dashboard (WillPopScope)');
+      _navigateToHome();
+      return false; // Prevent default pop, handle navigation
     }
-
-    // Case 3: Not editing - navigate to home
-    _navigateToHome();
-    return false;
   }
 
   @override
@@ -407,51 +414,12 @@ class _GuardianProfileScreenState extends State<GuardianProfileScreen> {
             icon: Icon(Icons.arrow_back, color: Colors.black87),
             onPressed: () {
               if (_isEditing) {
-                if (_hasChanges()) {
-                  // Show confirmation dialog for unsaved changes
-                  showDialog(
-                    context: context,
-                    builder: (context) => AlertDialog(
-                      title: Text('Discard Changes?'),
-                      content: Text('You have unsaved changes. Are you sure you want to discard them?'),
-                      actions: [
-                        TextButton(
-                          onPressed: () => Navigator.of(context).pop(),
-                          child: Text('Cancel'),
-                        ),
-                        TextButton(
-                          onPressed: () {
-                            Navigator.of(context).pop();
-                            // Reset to original values and exit edit mode
-                            setState(() {
-                              _nameController.text = _originalName;
-                              _emailController.text = _originalEmail;
-                              _phoneController.text = _originalPhone;
-                              _addressController.text = _originalAddress;
-                              _currentPasswordController.clear();
-                              _newPasswordController.clear();
-                              _confirmPasswordController.clear();
-                              _modifiedFields.clear();
-                              _focusedFields.clear();
-                              _profileImage = _originalProfileImage;
-                              _isEditing = false;
-                            });
-                            _navigateToHome();
-                          },
-                          child: Text('Discard'),
-                        ),
-                      ],
-                    ),
-                  );
-                } else {
-                  // If editing but no changes, just exit edit mode and go home
-                  setState(() {
-                    _isEditing = false;
-                  });
-                  _navigateToHome();
-                }
+                print('Exiting edit mode, staying on profile (AppBar)');
+                setState(() {
+                  _isEditing = false;
+                });
               } else {
-                // If not editing, navigate to home
+                print('Navigating to dashboard (AppBar)');
                 _navigateToHome();
               }
             },
@@ -500,10 +468,10 @@ class _GuardianProfileScreenState extends State<GuardianProfileScreen> {
                               : null,
                           child: _profileImage == null
                               ? Icon(
-                            Icons.person,
-                            color: Colors.white,
-                            size: 35,
-                          )
+                                  Icons.person,
+                                  color: Colors.white,
+                                  size: 35,
+                                )
                               : null,
                         ),
                         if (_isEditing)
@@ -518,7 +486,10 @@ class _GuardianProfileScreenState extends State<GuardianProfileScreen> {
                                 decoration: BoxDecoration(
                                   color: Color(0xFF2B3F99),
                                   shape: BoxShape.circle,
-                                  border: Border.all(color: Colors.white, width: 2),
+                                  border: Border.all(
+                                    color: Colors.white,
+                                    width: 2,
+                                  ),
                                 ),
                                 child: Icon(
                                   Icons.camera_alt,
@@ -680,10 +651,13 @@ class _GuardianProfileScreenState extends State<GuardianProfileScreen> {
                             });
                           },
                           validator: (value) {
-                            if (_currentPasswordController.text.isNotEmpty && (value == null || value.isEmpty)) {
+                            if (_currentPasswordController.text.isNotEmpty &&
+                                (value == null || value.isEmpty)) {
                               return 'Please enter a new password';
                             }
-                            if (value != null && value.isNotEmpty && value.length < 6) {
+                            if (value != null &&
+                                value.isNotEmpty &&
+                                value.length < 6) {
                               return 'Password must be at least 6 characters';
                             }
                             return null;
@@ -704,7 +678,8 @@ class _GuardianProfileScreenState extends State<GuardianProfileScreen> {
                             });
                           },
                           validator: (value) {
-                            if (_newPasswordController.text.isNotEmpty && value != _newPasswordController.text) {
+                            if (_newPasswordController.text.isNotEmpty &&
+                                value != _newPasswordController.text) {
                               return 'Passwords do not match';
                             }
                             return null;
@@ -720,7 +695,9 @@ class _GuardianProfileScreenState extends State<GuardianProfileScreen> {
                               child: ElevatedButton(
                                 onPressed: _cancelEdit,
                                 style: ElevatedButton.styleFrom(
-                                  backgroundColor: Color(0xFFA0C4FD).withOpacity(0.35),
+                                  backgroundColor: Color(
+                                    0xFFA0C4FD,
+                                  ).withOpacity(0.35),
                                   elevation: 0,
                                   shape: RoundedRectangleBorder(
                                     borderRadius: BorderRadius.circular(8),
@@ -750,21 +727,24 @@ class _GuardianProfileScreenState extends State<GuardianProfileScreen> {
                                 ),
                                 child: _isLoading
                                     ? SizedBox(
-                                  height: 20,
-                                  width: 20,
-                                  child: CircularProgressIndicator(
-                                    strokeWidth: 2,
-                                    valueColor: AlwaysStoppedAnimation<Color>(Color(0xFF2B3F99)),
-                                  ),
-                                )
+                                        height: 20,
+                                        width: 20,
+                                        child: CircularProgressIndicator(
+                                          strokeWidth: 2,
+                                          valueColor:
+                                              AlwaysStoppedAnimation<Color>(
+                                                Color(0xFF2B3F99),
+                                              ),
+                                        ),
+                                      )
                                     : Text(
-                                  'Save Changes',
-                                  style: TextStyle(
-                                    fontSize: 16,
-                                    fontWeight: FontWeight.w600,
-                                    color: Color(0xFF2B3F99),
-                                  ),
-                                ),
+                                        'Save Changes',
+                                        style: TextStyle(
+                                          fontSize: 16,
+                                          fontWeight: FontWeight.w600,
+                                          color: Color(0xFF2B3F99),
+                                        ),
+                                      ),
                               ),
                             ),
                           ],

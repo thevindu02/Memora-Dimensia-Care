@@ -18,6 +18,9 @@ public class CaregiverDetailsResponse {
     private String experience;
     private String qualifications;
     private List<String> skills;
+    private String gender;
+    private String birthdate;
+    private String address;
 
     // Getters and setters
     public Long getCaregiverId() { return caregiverId; }
@@ -44,4 +47,10 @@ public class CaregiverDetailsResponse {
     public void setQualifications(String qualifications) { this.qualifications = qualifications; }
     public List<String> getSkills() { return skills; }
     public void setSkills(List<String> skills) { this.skills = skills; }
+    public String getGender() { return gender; }
+    public void setGender(String gender) { this.gender = gender; }
+    public String getBirthdate() { return birthdate; }
+    public void setBirthdate(String birthdate) { this.birthdate = birthdate; }
+    public String getAddress() { return address; }
+    public void setAddress(String address) { this.address = address; }
 } 

@@ -37,7 +37,8 @@ class CaregiverNotificationScreen extends StatefulWidget {
   const CaregiverNotificationScreen({Key? key}) : super(key: key);
 
   @override
-  State<CaregiverNotificationScreen> createState() => _NotificationScreenState();
+  State<CaregiverNotificationScreen> createState() =>
+      _NotificationScreenState();
 }
 
 class _NotificationScreenState extends State<CaregiverNotificationScreen>
@@ -169,10 +170,7 @@ class _NotificationScreenState extends State<CaregiverNotificationScreen>
                 const SizedBox(height: 16),
                 Text(
                   'You are about to skip:',
-                  style: TextStyle(
-                    fontSize: 14,
-                    color: Colors.grey[600],
-                  ),
+                  style: TextStyle(fontSize: 14, color: Colors.grey[600]),
                 ),
                 const SizedBox(height: 4),
                 Text(
@@ -185,10 +183,7 @@ class _NotificationScreenState extends State<CaregiverNotificationScreen>
                 const SizedBox(height: 16),
                 Text(
                   'Reason for skipping:',
-                  style: TextStyle(
-                    fontSize: 14,
-                    color: Colors.grey[600],
-                  ),
+                  style: TextStyle(fontSize: 14, color: Colors.grey[600]),
                 ),
                 const SizedBox(height: 8),
                 TextField(
@@ -225,7 +220,9 @@ class _NotificationScreenState extends State<CaregiverNotificationScreen>
                         _markAsRead(notification.id);
                         ScaffoldMessenger.of(context).showSnackBar(
                           SnackBar(
-                            content: Text('Task skipped: ${notification.taskName}'),
+                            content: Text(
+                              'Task skipped: ${notification.taskName}',
+                            ),
                             backgroundColor: Colors.orange,
                           ),
                         );
@@ -286,8 +283,8 @@ class _NotificationScreenState extends State<CaregiverNotificationScreen>
           'Notification',
           style: TextStyle(
             color: Colors.black,
-            fontSize: 18,
-            fontWeight: FontWeight.w500,
+            fontSize: 20,
+            fontWeight: FontWeight.bold,
           ),
         ),
         centerTitle: false,
@@ -297,9 +294,9 @@ class _NotificationScreenState extends State<CaregiverNotificationScreen>
             margin: const EdgeInsets.symmetric(horizontal: 16),
             child: TabBar(
               controller: _tabController,
-              labelColor: Colors.blue,
-              unselectedLabelColor: Colors.grey[600],
-              indicatorColor: Colors.blue,
+              labelColor: Color(0xFF2B3F99), // Calm Navy
+              unselectedLabelColor: Color(0xFF390797), // Deep Purple
+              indicatorColor: Color(0xFF2B3F99), // Calm Navy
               indicatorWeight: 2,
               tabs: [
                 Tab(
@@ -309,15 +306,18 @@ class _NotificationScreenState extends State<CaregiverNotificationScreen>
                       const Text('Unread'),
                       const SizedBox(width: 6),
                       Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 6,
+                          vertical: 2,
+                        ),
                         decoration: BoxDecoration(
-                          color: Colors.red,
+                          color: Color(0xFFA0C4FD), // Light Sky Blue
                           borderRadius: BorderRadius.circular(10),
                         ),
                         child: Text(
                           '${unreadNotifications.length}',
                           style: const TextStyle(
-                            color: Colors.white,
+                            color: Color(0xFF2B3F99), // Calm Navy
                             fontSize: 12,
                             fontWeight: FontWeight.w600,
                           ),
@@ -405,15 +405,15 @@ class NotificationCard extends StatelessWidget {
   Color _getNotificationColor() {
     switch (notification.type) {
       case NotificationType.taskReminder:
-        return Colors.blue;
+        return Color(0xFF2B3F99); // Calm Navy
       case NotificationType.skipRequest:
-        return Colors.orange;
+        return Color(0xFFC3B1E1); // Soft Lavender
       case NotificationType.medicationReminder:
-        return Colors.green;
+        return Color(0xFFA0C4FD); // Light Sky Blue
       case NotificationType.emergency:
         return Colors.red;
       case NotificationType.dailyReport:
-        return Colors.purple;
+        return Color(0xFF390797); // Deep Purple
       default:
         return Colors.grey;
     }
@@ -425,7 +425,9 @@ class NotificationCard extends StatelessWidget {
       margin: const EdgeInsets.only(bottom: 12),
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: notification.isUnread
+            ? Colors.white
+            : Color(0xFFC3B1E1).withOpacity(0.18), // Soft Lavender for read
         borderRadius: BorderRadius.circular(12),
         border: Border.all(color: Colors.grey[200]!),
         boxShadow: [
@@ -465,7 +467,9 @@ class NotificationCard extends StatelessWidget {
                       notification.title,
                       style: TextStyle(
                         fontSize: 14,
-                        fontWeight: notification.isUnread ? FontWeight.w600 : FontWeight.w400,
+                        fontWeight: notification.isUnread
+                            ? FontWeight.w600
+                            : FontWeight.w400,
                         color: Colors.black,
                       ),
                       overflow: TextOverflow.ellipsis,
@@ -474,13 +478,11 @@ class NotificationCard extends StatelessWidget {
                     const SizedBox(height: 4),
                     Text(
                       notification.subtitle,
-                      style: TextStyle(
-                        fontSize: 12,
-                        color: Colors.grey[600],
-                      ),
+                      style: TextStyle(fontSize: 12, color: Colors.grey[600]),
                       overflow: TextOverflow.ellipsis,
                     ),
-                    if (notification.type == NotificationType.skipRequest && notification.skipReason != null) ...[
+                    if (notification.type == NotificationType.skipRequest &&
+                        notification.skipReason != null) ...[
                       const SizedBox(height: 4),
                       Text(
                         'Reason: ${notification.skipReason}',
@@ -501,10 +503,7 @@ class NotificationCard extends StatelessWidget {
                 children: [
                   Text(
                     notification.time,
-                    style: TextStyle(
-                      fontSize: 12,
-                      color: Colors.grey[500],
-                    ),
+                    style: TextStyle(fontSize: 12, color: Colors.grey[500]),
                   ),
                   if (notification.isUnread) ...[
                     const SizedBox(height: 4),
@@ -512,7 +511,7 @@ class NotificationCard extends StatelessWidget {
                       width: 8,
                       height: 8,
                       decoration: const BoxDecoration(
-                        color: Colors.blue,
+                        color: Color(0xFF2B3F99), // Calm Navy
                         shape: BoxShape.circle,
                       ),
                     ),
@@ -526,12 +525,16 @@ class NotificationCard extends StatelessWidget {
           Row(
             mainAxisAlignment: MainAxisAlignment.end,
             children: [
-              if (notification.type == NotificationType.skipRequest && notification.isUnread) ...[
+              if (notification.type == NotificationType.skipRequest &&
+                  notification.isUnread) ...[
                 TextButton(
                   onPressed: () => onDenySkip(notification),
                   style: TextButton.styleFrom(
                     foregroundColor: Colors.red,
-                    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 12,
+                      vertical: 4,
+                    ),
                   ),
                   child: const Text('Deny', style: TextStyle(fontSize: 12)),
                 ),
@@ -539,43 +542,76 @@ class NotificationCard extends StatelessWidget {
                 ElevatedButton(
                   onPressed: () => onApproveSkip(notification),
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.green,
-                    foregroundColor: Colors.white,
-                    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
+                    backgroundColor: Color(0xFFA0C4FD), // Light Sky Blue
+                    foregroundColor: Color(0xFF2B3F99), // Calm Navy
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 12,
+                      vertical: 4,
+                    ),
                     minimumSize: const Size(0, 32),
                   ),
-                  child: const Text('Approve', style: TextStyle(fontSize: 12)),
+                  child: const Text(
+                    'Approve',
+                    style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold),
+                  ),
                 ),
-              ] else if (notification.type == NotificationType.taskReminder && notification.isUnread) ...[
+              ] else if (notification.type == NotificationType.taskReminder &&
+                  notification.isUnread) ...[
                 TextButton(
                   onPressed: () => onSkipTask(notification),
                   style: TextButton.styleFrom(
                     foregroundColor: Colors.red,
-                    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 12,
+                      vertical: 4,
+                    ),
                   ),
-                  child: const Text('Skip Task', style: TextStyle(fontSize: 12)),
+                  child: const Text(
+                    'Skip Task',
+                    style: TextStyle(fontSize: 12),
+                  ),
                 ),
                 const SizedBox(width: 8),
                 ElevatedButton(
                   onPressed: () => onMarkAsRead(notification.id),
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.blue,
-                    foregroundColor: Colors.white,
-                    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
+                    backgroundColor: Color(0xFFA0C4FD), // Light Sky Blue
+                    foregroundColor: Color(0xFF2B3F99), // Calm Navy
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 12,
+                      vertical: 4,
+                    ),
                     minimumSize: const Size(0, 32),
                   ),
-                  child: const Text('Mark as Read', style: TextStyle(fontSize: 12)),
+                  child: const Text(
+                    'Mark as Read',
+                    style: TextStyle(
+                      fontSize: 12,
+                      fontWeight: FontWeight.bold,
+                      color: Color(0xFF2B3F99),
+                    ),
+                  ),
                 ),
               ] else if (notification.isUnread) ...[
                 ElevatedButton(
                   onPressed: () => onMarkAsRead(notification.id),
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.blue,
-                    foregroundColor: Colors.white,
-                    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
+                    backgroundColor: Color(0xFFA0C4FD), // Light Sky Blue
+                    foregroundColor: Color(0xFF2B3F99), // Calm Navy
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 12,
+                      vertical: 4,
+                    ),
                     minimumSize: const Size(0, 32),
                   ),
-                  child: const Text('Mark as Read', style: TextStyle(fontSize: 12)),
+                  child: const Text(
+                    'Mark as Read',
+                    style: TextStyle(
+                      fontSize: 12,
+                      fontWeight: FontWeight.bold,
+                      color: Color(0xFF2B3F99),
+                    ),
+                  ),
                 ),
               ],
             ],
@@ -585,7 +621,6 @@ class NotificationCard extends StatelessWidget {
     );
   }
 }
-
 
 // Usage in your main screen where you handle bottom navigation
 class MainScren extends StatefulWidget {
@@ -610,10 +645,7 @@ class _MainScreenState extends State<MainScren> {
       appBar: AppBar(
         backgroundColor: Colors.white,
         elevation: 0,
-        title: const Text(
-          'Home',
-          style: TextStyle(color: Colors.black),
-        ),
+        title: const Text('Home', style: TextStyle(color: Colors.black)),
         actions: [
           IconButton(
             icon: Stack(
@@ -648,7 +680,8 @@ class _MainScreenState extends State<MainScren> {
       bottomNavigationBar: BottomNavigationBar(
         currentIndex: _currentIndex,
         onTap: (index) {
-          if (index == 1) { // Patients tab
+          if (index == 1) {
+            // Patients tab
             // Navigate to detailed patients screen
             Navigator.pushNamed(context, AppRoutes.caregiverPatients);
           } else if (index == 2) {

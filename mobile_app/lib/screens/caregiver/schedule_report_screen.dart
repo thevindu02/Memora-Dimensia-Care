@@ -1,12 +1,10 @@
 import 'package:flutter/material.dart';
 import '../../routes/app_routes.dart';
 
-
 class ScheduleReportScreen extends StatefulWidget {
   @override
   _ScheduleReportScreenState createState() => _ScheduleReportScreenState();
 }
-
 
 class _ScheduleReportScreenState extends State<ScheduleReportScreen> {
   int _currentIndex = 1; // Patients tab is selected
@@ -19,6 +17,12 @@ class _ScheduleReportScreenState extends State<ScheduleReportScreen> {
 
   @override
   Widget build(BuildContext context) {
+    // Fetch patient name from arguments
+    final args = ModalRoute.of(context)?.settings.arguments;
+    String patientName = 'Unknown';
+    if (args is Map && args['patientName'] != null) {
+      patientName = args['patientName'];
+    }
     return Scaffold(
       appBar: AppBar(
         backgroundColor: Colors.white,
@@ -35,7 +39,7 @@ class _ScheduleReportScreenState extends State<ScheduleReportScreen> {
             fontWeight: FontWeight.w600,
           ),
         ),
-        centerTitle: true,
+        centerTitle: false,
         actions: [
           IconButton(
             icon: Icon(Icons.notifications_outlined, color: Colors.grey[600]),
@@ -69,48 +73,31 @@ class _ScheduleReportScreenState extends State<ScheduleReportScreen> {
                 children: [
                   CircleAvatar(
                     radius: 22,
-                    backgroundImage: AssetImage('assets/images/patient1.jpg'),
+                    backgroundColor: Color(0xFFA0C4FD),
+                    child: Icon(
+                      Icons.person,
+                      color: Color(0xFF2B3F99),
+                      size: 30,
+                    ),
                   ),
                   SizedBox(width: 12),
                   Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        'Sarah Johnson',
+                        patientName,
                         style: TextStyle(
                           fontSize: 16,
                           fontWeight: FontWeight.w600,
                         ),
                       ),
                       Text(
-                        'Report for 21-06-24',
-                        style: TextStyle(
-                          fontSize: 12,
-                          color: Colors.grey[600],
-                        ),
+                        'Report for 24-07-2025',
+                        style: TextStyle(fontSize: 12, color: Colors.grey[600]),
                       ),
                     ],
                   ),
                 ],
-              ),
-            ),
-
-            SizedBox(height: 20),
-
-            // Date and Review Section
-            Container(
-              padding: EdgeInsets.all(16),
-              decoration: BoxDecoration(
-                color: Colors.blue[50],
-                borderRadius: BorderRadius.circular(12),
-              ),
-              child: Text(
-                'Today : 21 June, 2025 | End of day Review',
-                style: TextStyle(
-                  fontSize: 14,
-                  color: Colors.blue[800],
-                  fontWeight: FontWeight.w500,
-                ),
               ),
             ),
 
@@ -201,6 +188,7 @@ class _ScheduleReportScreenState extends State<ScheduleReportScreen> {
                 onPressed: () {},
                 style: ElevatedButton.styleFrom(
                   backgroundColor: Color(0xFF9FC3FC),
+                  foregroundColor: Color(0xFF2B3F99),
                   padding: EdgeInsets.symmetric(vertical: 16),
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(12),
@@ -211,7 +199,7 @@ class _ScheduleReportScreenState extends State<ScheduleReportScreen> {
                   style: TextStyle(
                     fontSize: 16,
                     fontWeight: FontWeight.w600,
-                    color: Colors.black,
+                    color: Color(0xFF2B3F99),
                   ),
                 ),
               ),
@@ -219,37 +207,7 @@ class _ScheduleReportScreenState extends State<ScheduleReportScreen> {
           ],
         ),
       ),
-      bottomNavigationBar: BottomNavigationBar(
-        currentIndex: _currentIndex,
-        onTap: (index) {
-          if (index == 0) { // Patients tab
-            // Navigate to detailed patients screen
-            Navigator.pushNamed(context, AppRoutes.caregiverDashboard);
-          }else if(index==3){
-            Navigator.pushNamed(context, AppRoutes.caregiverProfile);
-          }
-          else if(index==2){
-            Navigator.pushNamed(context, AppRoutes.viewArticleList);
-          }
-          else {
-            setState(() {
-              _currentIndex = index;
-            });
-          }
-        },
-        type: BottomNavigationBarType.fixed,
-        selectedItemColor: Color(0xFF2B3F99),
-        unselectedItemColor: Color(0xFF2B3F99),
-        items: const [
-          BottomNavigationBarItem(icon: Icon(Icons.home_outlined), label: 'Home'),
-          BottomNavigationBarItem(icon: Icon(Icons.people), label: 'Patients'),
-          BottomNavigationBarItem(icon: Icon(Icons.article_outlined), label: 'Articles'),
-          BottomNavigationBarItem(icon: Icon(Icons.person_outline), label: 'Profile'),
-        ],
-      ),
     );
-
-
   }
 
   Widget _buildStatCard(String title, IconData icon, Color color) {
@@ -269,11 +227,7 @@ class _ScheduleReportScreenState extends State<ScheduleReportScreen> {
       ),
       child: Column(
         children: [
-          Icon(
-            icon,
-            size: 32,
-            color: color,
-          ),
+          Icon(icon, size: 32, color: color),
           SizedBox(height: 8),
           Text(
             title,
@@ -318,17 +272,11 @@ class _ScheduleReportScreenState extends State<ScheduleReportScreen> {
               children: [
                 Text(
                   title,
-                  style: TextStyle(
-                    fontSize: 14,
-                    fontWeight: FontWeight.w500,
-                  ),
+                  style: TextStyle(fontSize: 14, fontWeight: FontWeight.w500),
                 ),
                 Text(
                   time,
-                  style: TextStyle(
-                    fontSize: 12,
-                    color: Colors.grey[600],
-                  ),
+                  style: TextStyle(fontSize: 12, color: Colors.grey[600]),
                 ),
               ],
             ),
@@ -344,10 +292,7 @@ class _ScheduleReportScreenState extends State<ScheduleReportScreen> {
       decoration: BoxDecoration(
         color: Colors.red[50],
         borderRadius: BorderRadius.circular(8),
-        border: Border.all(
-          color: Colors.red[200]!,
-          width: 1,
-        ),
+        border: Border.all(color: Colors.red[200]!, width: 1),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -376,10 +321,7 @@ class _ScheduleReportScreenState extends State<ScheduleReportScreen> {
                     ),
                     Text(
                       '3:00 - 3:30',
-                      style: TextStyle(
-                        fontSize: 12,
-                        color: Colors.grey[600],
-                      ),
+                      style: TextStyle(fontSize: 12, color: Colors.grey[600]),
                     ),
                   ],
                 ),
@@ -397,10 +339,7 @@ class _ScheduleReportScreenState extends State<ScheduleReportScreen> {
           ),
           Text(
             'Patient showing signs of agitation, declined recommended activity engagement instead.',
-            style: TextStyle(
-              fontSize: 12,
-              color: Colors.grey[600],
-            ),
+            style: TextStyle(fontSize: 12, color: Colors.grey[600]),
           ),
         ],
       ),

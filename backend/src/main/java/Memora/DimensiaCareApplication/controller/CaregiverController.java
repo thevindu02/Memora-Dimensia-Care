@@ -58,6 +58,41 @@ public class CaregiverController {
         return ResponseEntity.ok(caregivers);
     }
 
+    @GetMapping("/{caregiverId}")
+    public ResponseEntity<CaregiverDetailsResponse> getCaregiverById(@PathVariable Long caregiverId) {
+        Caregiver caregiver = caregiverRepository.findById(caregiverId.intValue()).orElse(null);
+        if (caregiver == null) {
+            return ResponseEntity.notFound().build();
+        }
+        User user = caregiver.getUser();
+        CaregiverDetailsResponse resp = new CaregiverDetailsResponse();
+        resp.setCaregiverId(caregiver.getCaregiverId().longValue());
+        resp.setUserId(user.getId());
+        resp.setFName(user.getFName());
+        resp.setLName(user.getLName());
+        resp.setEmail(user.getEmail());
+        resp.setPhoneNumber(user.getPhoneNumber());
+        resp.setCity(user.getCity());
+        resp.setState(user.getState());
+        resp.setProfilePic(user.getProfilePic());
+        resp.setExperience(caregiver.getExperience());
+        resp.setQualifications(caregiver.getQualifications());
+        // Add new fields
+        resp.setGender(user.getGender());
+        resp.setBirthdate(user.getBirthdate() != null ? user.getBirthdate().toString() : null);
+        String address = "";
+        if (user.getStreet() != null && !user.getStreet().isEmpty()) address += user.getStreet();
+        if (user.getCity() != null && !user.getCity().isEmpty()) address += (address.isEmpty() ? "" : ", ") + user.getCity();
+        if (user.getState() != null && !user.getState().isEmpty()) address += (address.isEmpty() ? "" : ", ") + user.getState();
+        resp.setAddress(address);
+        // Add skills if needed
+        List<String> skills = caregiverSkillRepository.findByCaregiverId(caregiver.getCaregiverId()).stream()
+            .map(cs -> skillRepository.findById(cs.getSkillId()).map(Skill::getSkillName).orElse(""))
+            .collect(Collectors.toList());
+        resp.setSkills(skills);
+        return ResponseEntity.ok(resp);
+    }
+
     @GetMapping("/by-user/{userId}")
     public ResponseEntity<Long> getCaregiverIdByUserId(
             @org.springframework.web.bind.annotation.PathVariable Long userId) {
