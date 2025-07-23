@@ -7,7 +7,6 @@ import 'schedule_routine_screen.dart';
 import 'select_routine_screen.dart';
 import 'view_article_screen.dart';
 import 'profile_view_screen.dart';
-import 'profile_edit_screen.dart';
 import 'caregiver_notification.dart';
 import 'schedule_report_screen.dart';
 import 'complete_routine_screen.dart';

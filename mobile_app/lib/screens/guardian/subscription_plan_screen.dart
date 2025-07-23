@@ -12,12 +12,12 @@ class _SubscriptionPlanScreenState extends State<SubscriptionPlanScreen> {
   String? selectedDuration;
 
   final Map<String, double> planPrices = {
-    'basic_3': 29.99,
-    'basic_6': 54.99,
-    'basic_12': 99.99,
-    'premium_3': 49.99,
-    'premium_6': 89.99,
-    'premium_12': 159.99,
+    'basic_3': 8999.00,    // ~$30 USD
+    'basic_6': 16499.00,   // ~$55 USD
+    'basic_12': 29999.00,  // ~$100 USD
+    'premium_3': 14999.00, // ~$50 USD
+    'premium_6': 26999.00, // ~$90 USD
+    'premium_12': 47999.00, // ~$160 USD
   };
 
   @override
@@ -359,7 +359,7 @@ class _SubscriptionPlanScreenState extends State<SubscriptionPlanScreen> {
               SizedBox(width: 12),
             ],
             Text(
-              '\$${price.toStringAsFixed(2)}',
+              'LKR ${price.toStringAsFixed(2)}',
               style: TextStyle(
                 fontSize: 18,
                 fontWeight: FontWeight.bold,
@@ -406,7 +406,7 @@ class _SubscriptionPlanScreenState extends State<SubscriptionPlanScreen> {
                 ),
               ),
               Text(
-                '\$${price.toStringAsFixed(2)}',
+                'LKR ${price.toStringAsFixed(2)}',
                 style: TextStyle(
                   fontSize: 14,
                   fontWeight: FontWeight.w500,
@@ -427,7 +427,7 @@ class _SubscriptionPlanScreenState extends State<SubscriptionPlanScreen> {
                 ),
               ),
               Text(
-                '\$${monthlyPrice.toStringAsFixed(2)}/month',
+                'LKR ${monthlyPrice.toStringAsFixed(2)}/month',
                 style: TextStyle(
                   fontSize: 12,
                   color: AppColors.onSurfaceVariant,
@@ -448,7 +448,7 @@ class _SubscriptionPlanScreenState extends State<SubscriptionPlanScreen> {
                 ),
               ),
               Text(
-                '\$${price.toStringAsFixed(2)}',
+                'LKR ${price.toStringAsFixed(2)}',
                 style: TextStyle(
                   fontSize: 18,
                   fontWeight: FontWeight.bold,

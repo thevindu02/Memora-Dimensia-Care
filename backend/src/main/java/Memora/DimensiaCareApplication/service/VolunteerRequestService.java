@@ -2,9 +2,13 @@ package Memora.DimensiaCareApplication.service;
 
 import Memora.DimensiaCareApplication.model.VolunteerRequest;
 import Memora.DimensiaCareApplication.model.User;
+import Memora.DimensiaCareApplication.model.Volunteer;
 import Memora.DimensiaCareApplication.dto.VolunteerRequestCreateDTO;
 import Memora.DimensiaCareApplication.repository.VolunteerRequestRepository;
-import Memora.DimensiaCareApplication.service.UserService;
+
+import Memora.DimensiaCareApplication.repository.UserRepository;
+import Memora.DimensiaCareApplication.repository.VolunteerRepository;
+import org.springframework.security.crypto.password.PasswordEncoder;
 
 import java.util.List;
 import java.util.Optional;
@@ -20,8 +24,14 @@ public class VolunteerRequestService {
     private VolunteerRequestRepository volunteerRequestRepository;
 
     @Autowired
-    private UserService userService;
 
+    private UserRepository userRepository;
+
+    @Autowired
+    private PasswordEncoder passwordEncoder;
+
+    @Autowired
+    private VolunteerRepository volunteerRepository;
 
     public VolunteerRequest createVolunteerRequest(VolunteerRequestCreateDTO dto) {
         VolunteerRequest volunteerRequest = new VolunteerRequest(
@@ -75,13 +85,14 @@ public class VolunteerRequestService {
             newUser.setGender(request.getGender());
             newUser.setRole(User.UserRole.VOLUNTEER);
             newUser.setStatus(User.UserStatus.ACTIVE);
+            newUser.setPassword(passwordEncoder.encode(password)); // Encrypt password
 
-            // Set the password - UserService will handle encryption
-            newUser.setPassword(password);
+            // Save the user to users table
+            User savedUser = userRepository.save(newUser);
 
-            // Create the user using UserService (handles password encryption)
-            userService.createUser(newUser);
-
+            // Create volunteer record with user_id and volunteer_id_image
+            Volunteer volunteer = new Volunteer(savedUser.getId(), request.getVolunteerIdImage());
+            volunteerRepository.save(volunteer);
 
             // Update request status to accepted
             request.setRequestStatus(VolunteerRequest.RequestStatus.accepted);

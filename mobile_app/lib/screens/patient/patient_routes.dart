@@ -11,7 +11,9 @@ import 'package:mobile_app/screens/patient/patient_welcome_screen.dart';
 import '../../routes/app_routes.dart';
 import 'patient_dashboard_screen.dart';
 import 'patient_profile_screen.dart';
-import 'patient_settings.dart';
+import 'patient_settings_screens.dart';
+import 'patient_settings_help_support.dart';
+import 'patient_settings_privacy_screen.dart';
 
 class PatientRoutes {
   static Route<dynamic> generateRoute(RouteSettings settings) {
@@ -24,11 +26,6 @@ class PatientRoutes {
       case AppRoutes.patientProfile:
         return MaterialPageRoute(
           builder: (_) => PatientProfileScreen(),
-          settings: settings,
-        );
-      case AppRoutes.patientSettings:
-        return MaterialPageRoute(
-          builder: (_) => PatientSettingsScreen(),
           settings: settings,
         );
       case AppRoutes.patientEmailVerification:
@@ -94,6 +91,21 @@ class PatientRoutes {
       case AppRoutes.patientMemoryMatchControls:
         return MaterialPageRoute(
           builder: (_) => GameControlsPage(),
+          settings: settings,
+        );
+      case AppRoutes.patientSettings:
+        return MaterialPageRoute(
+          builder: (_) => PatientSettingsScreen(),
+          settings: settings,
+        );
+      case AppRoutes.patientSettingsHelpSupport:
+        return MaterialPageRoute(
+          builder: (_) => PatientSettingsHelpSupportScreen(),
+          settings: settings,
+        );
+      case AppRoutes.patientSettingsPrivacy:
+        return MaterialPageRoute(
+          builder: (_) => PatientSettingsPrivacyScreen(),
           settings: settings,
         );
       default:

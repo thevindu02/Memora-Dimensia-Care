@@ -9,7 +9,6 @@ class AppRoutes {
   // Patient routes
   static const String patientDashboard = '/patient/dashboard';
   static const String patientProfile = '/patient/profile';
-  static const String patientSettings = '/patient/settings';
   static const String patientEmailVerification = '/patient/emailVerification';
   static const String patientVerifyCode = '/patient/verifyCode';
   static const String patientWelcome = '/patient/welcome';
@@ -26,6 +25,12 @@ class AppRoutes {
   static const String patientMemoryMatchQuit = '/patient/memory_match/quit';
   static const String patientMemoryMatchControls =
       '/patient/memory_match/controls';
+  static const String patientSettings = '/patient/settings';
+  static const String patientSettingsPrivacy = '/patient/settings/privacy';
+  static const String patientSettingsHelpSupport =
+      '/patient/settings/help_support';
+
+      
   // Guardian routes
   static const String guardianSignup = '/guardian/signup';
   static const String guardianDashboard = '/guardian/dashboard';
@@ -100,4 +105,7 @@ class AppRoutes {
   static const String volunteerSettings = '/volunteer/settings';
   static const String guardianForumArticles = '/guardianForumArticles';
   static const String volunteerDraft = '/volunteer/draft';
+  static const String viewArticle = '/volunteer/viewarticle';
+  static const String volunteerArticlesTab = '/volunteer/viewarticle';
+  
 }
