@@ -1,14 +1,20 @@
 package Memora.DimensiaCareApplication.controller;
 
-import Memora.DimensiaCareApplication.model.VolunteerRequest;
-import Memora.DimensiaCareApplication.dto.VolunteerRequestWithUserDTO;
-import Memora.DimensiaCareApplication.service.VolunteerRequestService;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
-
 import java.util.List;
 import java.util.Map;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
+
+import Memora.DimensiaCareApplication.model.VolunteerRequest;
+import Memora.DimensiaCareApplication.service.VolunteerRequestService;
 
 @RestController
 @RequestMapping("/api/volunteer-requests")
@@ -20,19 +26,23 @@ public class VolunteerRequestController {
     @PostMapping
     public ResponseEntity<?> createVolunteerRequest(@RequestBody Map<String, Object> request) {
         try {
-            Long userId = Long.parseLong(request.get("userId").toString());
+            String volunteerName = request.get("volunteerName").toString();
+            String email = request.get("email").toString();
+            String phoneNumber = request.get("phoneNumber").toString();
+            String gender = request.get("gender").toString();
             String volunteerIdImage = request.get("volunteerIdImage").toString();
             
-            VolunteerRequest volunteerRequest = volunteerRequestService.createVolunteerRequest(userId, volunteerIdImage);
+            VolunteerRequest volunteerRequest = volunteerRequestService.createVolunteerRequest(
+                volunteerName, email, phoneNumber, gender, volunteerIdImage);
             return ResponseEntity.ok(volunteerRequest);
         } catch (Exception e) {
             return ResponseEntity.badRequest().body("Error creating volunteer request: " + e.getMessage());
         }
     }
 
-    @GetMapping("/user/{userId}")
-    public ResponseEntity<?> getVolunteerRequestByUserId(@PathVariable Long userId) {
-        return volunteerRequestService.findByUserId(userId)
+    @GetMapping("/email/{email}")
+    public ResponseEntity<?> getVolunteerRequestByEmail(@PathVariable String email) {
+        return volunteerRequestService.findByEmail(email)
                 .map(ResponseEntity::ok)
                 .orElse(ResponseEntity.notFound().build());
     }
@@ -54,19 +64,19 @@ public class VolunteerRequestController {
         return ResponseEntity.ok(requests);
     }
 
-    // New endpoint to get volunteer requests with user data
+    // Simple endpoint to get all volunteer requests (same as above, for compatibility)
     @GetMapping("/with-user-data")
-    public ResponseEntity<List<VolunteerRequestWithUserDTO>> getAllVolunteerRequestsWithUserData() {
-        List<VolunteerRequestWithUserDTO> requests = volunteerRequestService.getAllVolunteerRequestsWithUserData();
+    public ResponseEntity<List<VolunteerRequest>> getAllVolunteerRequestsWithUserData() {
+        List<VolunteerRequest> requests = volunteerRequestService.getAllVolunteerRequests();
         return ResponseEntity.ok(requests);
     }
 
-    // New endpoint to get volunteer requests with user data by status
+    // Simple endpoint to get volunteer requests by status (for compatibility)
     @GetMapping("/with-user-data/status/{status}")
-    public ResponseEntity<List<VolunteerRequestWithUserDTO>> getVolunteerRequestsWithUserDataByStatus(@PathVariable String status) {
+    public ResponseEntity<List<VolunteerRequest>> getVolunteerRequestsWithUserDataByStatus(@PathVariable String status) {
         try {
             VolunteerRequest.RequestStatus requestStatus = VolunteerRequest.RequestStatus.valueOf(status.toLowerCase());
-            List<VolunteerRequestWithUserDTO> requests = volunteerRequestService.getVolunteerRequestsWithUserDataByStatus(requestStatus);
+            List<VolunteerRequest> requests = volunteerRequestService.findByStatus(requestStatus);
             return ResponseEntity.ok(requests);
         } catch (IllegalArgumentException e) {
             return ResponseEntity.badRequest().build();
@@ -90,6 +100,24 @@ public class VolunteerRequestController {
             }
         } catch (Exception e) {
             return ResponseEntity.badRequest().body("Error updating request status: " + e.getMessage());
+        }
+    }
+
+    @PutMapping("/{requestId}/accept")
+    public ResponseEntity<?> acceptVolunteerRequest(
+            @PathVariable Integer requestId,
+            @RequestBody Map<String, String> request) {
+        try {
+            String password = request.get("password");
+            
+            if (password == null || password.trim().isEmpty()) {
+                return ResponseEntity.badRequest().body("Password is required");
+            }
+            
+            VolunteerRequest updatedRequest = volunteerRequestService.acceptVolunteerRequest(requestId, password);
+            return ResponseEntity.ok(updatedRequest);
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body("Error accepting volunteer request: " + e.getMessage());
         }
     }
 }
