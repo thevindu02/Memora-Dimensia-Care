@@ -7,15 +7,21 @@ class VolunteerRequestService {
       '${ApiConstants.baseUrl}/api/volunteer-requests';
 
   static Future<VolunteerRequestResult> createVolunteerRequest({
-    required int userId,
+    required String volunteerName,
+    required String email,
+    required String phoneNumber,
+    required String gender,
     required String volunteerIdImage,
   }) async {
     try {
       final response = await http.post(
-        Uri.parse('${ApiConstants.baseUrl}/api/users/volunteer-request'),
+        Uri.parse('$baseUrl'),
         headers: {'Content-Type': 'application/json'},
         body: jsonEncode({
-          'userId': userId,
+          'volunteerName': volunteerName,
+          'email': email,
+          'phoneNumber': phoneNumber,
+          'gender': gender,
           'volunteerIdImage': volunteerIdImage,
         }),
       );

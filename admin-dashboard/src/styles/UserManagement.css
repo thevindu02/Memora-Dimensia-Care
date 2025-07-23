@@ -3,26 +3,26 @@
 
 :root {
   /* Primary User Management Color Palette */
-  --um-primary: #2563eb;
-  --um-primary-light: #3b82f6;
-  --um-primary-dark: #1d4ed8;
-  --um-secondary: #6366f1;
-  --um-success: #10b981;
-  --um-success-light: #34d399;
-  --um-warning: #f59e0b;
-  --um-danger: #ef4444;
-  --um-danger-light: #f87171;
+  --um-primary: #2B3F99;
+  --um-primary-light: #2B3F99;
+  --um-primary-dark: #2B3F99;
+  --um-secondary: #2B3F99;
+  --um-success: #2B3F99;
+  --um-success-light: #2B3F99;
+  --um-warning: #A0C4FD;
+  --um-danger: #390797;
+  --um-danger-light: #390797;
   
   /* Neutral Colors */
-  --um-gray-50: #f9fafb;
-  --um-gray-100: #f3f4f6;
-  --um-gray-200: #e5e7eb;
-  --um-gray-300: #d1d5db;
-  --um-gray-500: #6b7280;
-  --um-gray-600: #4b5563;
-  --um-gray-700: #374151;
-  --um-gray-800: #1f2937;
-  --um-gray-900: #111827;
+  --um-gray-50: white;
+  --um-gray-100: #C3B1E1;
+  --um-gray-200: #A0C4FD;
+  --um-gray-300: #A0C4FD;
+  --um-gray-500: #390797;
+  --um-gray-600: #390797;
+  --um-gray-700: #390797;
+  --um-gray-800: #390797;
+  --um-gray-900: #390797;
   
   /* Shadows */
   --um-shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
@@ -33,7 +33,7 @@
 
 /* Main Container for User Management Pages */
 .user-management-container {
-  background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+  background: white;
   min-height: calc(100vh - 120px);
   padding: 2rem;
 }
@@ -123,7 +123,7 @@
   background: white;
   padding: 1.5rem;
   border-radius: 8px;
-  border: 1px solid #e5e7eb;
+  border: 1px solid #A0C4FD;
   display: flex;
   align-items: center;
   gap: 1rem;
@@ -141,7 +141,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  background: #f3f4f6;
+  background: #C3B1E1;
   border-radius: 50%;
 }
 
@@ -149,13 +149,13 @@
   margin: 0;
   font-size: 1.75rem;
   font-weight: 600;
-  color: #1f2937;
+  color: #390797;
 }
 
 .um-stat-content p {
   margin: 0;
   font-size: 0.875rem;
-  color: #6b7280;
+  color: #390797;
 }
 
 .um-stat-header {
@@ -168,7 +168,7 @@
 .um-stat-icon {
   width: 2.5rem;
   height: 2.5rem;
-  background: linear-gradient(135deg, var(--um-primary), var(--um-secondary));
+  background: #2B3F99;
   color: white;
   border-radius: 8px;
   display: flex;
@@ -192,12 +192,12 @@
 }
 
 .um-table thead {
-  background: linear-gradient(135deg, var(--um-gray-50), var(--um-gray-100));
+  background: white;
 }
 
 .um-table th {
   padding: 1rem 1.5rem;
-  text-align: left;
+  text-align: center;
   font-weight: 600;
   color: var(--um-gray-700);
   font-size: 0.875rem;
@@ -241,18 +241,23 @@
 }
 
 .um-status-badge.active {
-  background: linear-gradient(135deg, var(--um-success), var(--um-success-light));
+  background: #2B3F99;
+  color: white;
+}
+
+.um-status-badge.approved {
+  background: #2B3F99;
   color: white;
 }
 
 .um-status-badge.pending {
-  background: linear-gradient(135deg, var(--um-warning), #fbbf24);
+  background: #2B3F99;
   color: white;
 }
 
 .um-status-badge.inactive,
 .um-status-badge.disabled {
-  background: linear-gradient(135deg, var(--um-danger), var(--um-danger-light));
+  background: #2B3F99;
   color: white;
 }
 
@@ -302,37 +307,37 @@
 }
 
 .um-btn-primary {
-  background: linear-gradient(135deg, var(--um-primary), var(--um-primary-light));
+  background: #2B3F99;
   color: white;
   box-shadow: var(--um-shadow-sm);
 }
 
 .um-btn-primary:hover {
-  background: linear-gradient(135deg, var(--um-primary-dark), var(--um-primary));
+  background: #2B3F99;
   transform: translateY(-1px);
   box-shadow: var(--um-shadow);
 }
 
 .um-btn-success {
-  background: linear-gradient(135deg, var(--um-success), var(--um-success-light));
+  background: #2B3F99;
   color: white;
   box-shadow: var(--um-shadow-sm);
 }
 
 .um-btn-success:hover {
-  background: linear-gradient(135deg, #059669, var(--um-success));
+  background: #2B3F99;
   transform: translateY(-1px);
   box-shadow: var(--um-shadow);
 }
 
 .um-btn-danger {
-  background: linear-gradient(135deg, var(--um-danger), var(--um-danger-light));
+  background: #2B3F99;
   color: white;
   box-shadow: var(--um-shadow-sm);
 }
 
 .um-btn-danger:hover {
-  background: linear-gradient(135deg, #dc2626, var(--um-danger));
+  background: #2B3F99;
   transform: translateY(-1px);
   box-shadow: var(--um-shadow);
 }
@@ -379,7 +384,7 @@
 .um-modal-header {
   padding: 2rem 2rem 1rem 2rem;
   border-bottom: 1px solid var(--um-gray-200);
-  background: linear-gradient(135deg, var(--um-gray-50), white);
+  background: white;
   position: relative;
 }
 
@@ -393,7 +398,7 @@
 .um-modal-icon {
   width: 3rem;
   height: 3rem;
-  background: linear-gradient(135deg, var(--um-primary), var(--um-secondary));
+  background: #2B3F99;
   color: white;
   border-radius: 12px;
   display: flex;
@@ -468,7 +473,7 @@
 .um-section-icon {
   width: 2rem;
   height: 2rem;
-  background: var(--um-primary);
+  background: #2B3F99;
   color: white;
   border-radius: 6px;
   display: flex;
@@ -525,7 +530,7 @@
 
 /* Additional styles for Articles and Blogs */
 .featured-badge {
-  background: linear-gradient(135deg, #f59e0b, #d97706);
+  background: #2B3F99;
   color: white;
   padding: 0.25rem 0.5rem;
   border-radius: 4px;

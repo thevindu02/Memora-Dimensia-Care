@@ -1,7 +1,7 @@
 /* Caregivers Page Styles */
 .caregivers-page {
   padding: 1.5rem;
-  background: #f8fafc;
+  background: white;
   min-height: calc(100vh - 120px);
 }
 
@@ -15,7 +15,7 @@
   padding: 1rem 1.5rem;
   border-radius: 8px;
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-  border: 1px solid #e5e7eb;
+  border: 1px solid #A0C4FD;
 }
 
 .search-box {
@@ -27,16 +27,16 @@
 .search-input {
   width: 100%;
   padding: 10px 16px 10px 40px;
-  border: 1px solid #d1d5db;
+  border: 1px solid #A0C4FD;
   border-radius: 6px;
   font-size: 0.875rem;
   transition: border-color 0.2s ease;
-  background: #f9fafb;
+  background: white;
 }
 
 .search-input:focus {
   outline: none;
-  border-color: #3b82f6;
+  border-color: #2B3F99;
   background: white;
 }
 
@@ -45,7 +45,7 @@
   left: 12px;
   top: 50%;
   transform: translateY(-50%);
-  color: #6b7280;
+  color: #390797;
   font-size: 1rem;
 }
 
@@ -62,7 +62,7 @@
   padding: 1.5rem;
   border-radius: 12px;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
-  border: 1px solid #e5e7eb;
+  border: 1px solid #A0C4FD;
   display: flex;
   align-items: center;
   gap: 1rem;
@@ -86,18 +86,18 @@
 }
 
 .stat-card:nth-child(1) .stat-icon {
-  background: #eff6ff;
-  color: #2563eb;
+  background: #C3B1E1;
+  color: #2B3F99;
 }
 
 .stat-card:nth-child(2) .stat-icon {
-  background: #f0fdf4;
-  color: #16a34a;
+  background: #C3B1E1;
+  color: #2B3F99;
 }
 
 .stat-card:nth-child(3) .stat-icon {
-  background: #fef2f2;
-  color: #dc2626;
+  background: #C3B1E1;
+  color: #390797;
 }
 
 .stat-content {
@@ -107,14 +107,14 @@
 .stat-number {
   font-size: 2rem;
   font-weight: 700;
-  color: #1f2937;
+  color: #390797;
   margin-bottom: 0.25rem;
   line-height: 1;
 }
 
 .stat-label {
   font-size: 0.875rem;
-  color: #6b7280;
+  color: #390797;
   font-weight: 500;
 }
 
@@ -123,7 +123,7 @@
   background: white;
   border-radius: 12px;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
-  border: 1px solid #e5e7eb;
+  border: 1px solid #A0C4FD;
   overflow: hidden;
   max-height: 500px;
   overflow-y: auto;
@@ -136,24 +136,24 @@
 }
 
 .table-container::-webkit-scrollbar-track {
-  background: #f1f5f9;
+  background: #C3B1E1;
   border-radius: 7px;
   margin: 2px;
 }
 
 .table-container::-webkit-scrollbar-thumb {
-  background: #64748b;
+  background: #2B3F99;
   border-radius: 7px;
-  border: 2px solid #f1f5f9;
+  border: 2px solid #C3B1E1;
   min-height: 40px;
 }
 
 .table-container::-webkit-scrollbar-thumb:hover {
-  background: #475569;
+  background: #2B3F99;
 }
 
 .table-container::-webkit-scrollbar-thumb:active {
-  background: #334155;
+  background: #2B3F99;
 }
 
 /* Caregivers Table */
@@ -165,12 +165,12 @@
 }
 
 .caregivers-table th {
-  background: #f8fafc;
-  color: #374151;
+  background: white;
+  color: #390797;
   font-weight: 600;
   padding: 1rem 1.5rem;
-  text-align: left;
-  border-bottom: 2px solid #e5e7eb;
+  text-align: center;
+  border-bottom: 2px solid #A0C4FD;
   font-size: 0.75rem;
   text-transform: uppercase;
   letter-spacing: 0.05em;
@@ -180,18 +180,18 @@
 }
 
 .caregivers-table th:not(:last-child) {
-  border-right: 1px solid #e5e7eb;
+  border-right: 1px solid #A0C4FD;
 }
 
 .caregivers-table td {
   padding: 1rem 1.5rem;
-  border-bottom: 1px solid #f3f4f6;
-  color: #1f2937;
+  border-bottom: 1px solid #C3B1E1;
+  color: #390797;
   vertical-align: middle;
 }
 
 .caregivers-table td:not(:last-child) {
-  border-right: 1px solid #f3f4f6;
+  border-right: 1px solid #C3B1E1;
 }
 
 .caregivers-table tbody tr {
@@ -199,7 +199,7 @@
 }
 
 .caregivers-table tbody tr:hover {
-  background: #f9fafb;
+  background: #C3B1E1;
 }
 
 .caregivers-table tbody tr:last-child td {
@@ -220,32 +220,32 @@
 }
 
 .status-badge.active {
-  background: #dcfce7;
-  color: #166534;
-  border: 1px solid #bbf7d0;
+  background: #C3B1E1;
+  color: #2B3F99;
+  border: 1px solid #A0C4FD;
 }
 
 .status-badge.disabled {
-  background: #fef2f2;
-  color: #dc2626;
-  border: 1px solid #fecaca;
+  background: #C3B1E1;
+  color: #390797;
+  border: 1px solid #C3B1E1;
 }
 
 /* Caregiver Name Styling */
 .caregivers-table td:first-child {
   font-weight: 600;
-  color: #1f2937;
+  color: #390797;
 }
 
 /* Phone Number Styling */
 .caregivers-table td:nth-child(2) {
   font-family: 'Courier New', monospace;
-  color: #6b7280;
+  color: #390797;
 }
 
 /* Address Styling */
 .caregivers-table td:nth-child(3) {
-  color: #6b7280;
+  color: #390797;
   font-size: 0.8125rem;
   line-height: 1.4;
 }
@@ -254,7 +254,7 @@
 .caregivers-table td:nth-child(4) {
   text-align: center;
   font-weight: 600;
-  color: #1f2937;
+  color: #390797;
 }
 
 /* Clickable Row */
@@ -264,7 +264,7 @@
 }
 
 .clickable-row:hover {
-  background-color: #f8fafc !important;
+  background-color: #C3B1E1 !important;
 }
 
 /* Responsive */

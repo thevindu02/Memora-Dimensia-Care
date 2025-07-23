@@ -1,18 +1,30 @@
 package Memora.DimensiaCareApplication.repository;
 
+
 import Memora.DimensiaCareApplication.model.VolunteerRequest;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
+
+
 import java.util.Optional;
+
+
+
+
+
+
 
 @Repository
 public interface VolunteerRequestRepository extends JpaRepository<VolunteerRequest, Integer> {
     
-    Optional<VolunteerRequest> findByUserId(Long userId);
-    
     List<VolunteerRequest> findByRequestStatus(VolunteerRequest.RequestStatus status);
+
+    Optional<VolunteerRequest> findByEmail(String email);
     
-    boolean existsByUserId(Long userId);
-} 
+   
+    
+    boolean existsByEmail(String email);
+
+}

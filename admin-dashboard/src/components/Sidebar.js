@@ -18,10 +18,18 @@ const Sidebar = ({ currentPage = 'dashboard' }) => {
       navigate('/blogpost');
     } else if (page === 'revenue') {
       navigate('/revenue');
+    } else if (page === 'usage-report') {
+      navigate('/usage-report');
+    } else if (page === 'volunteer-engagement') {
+      navigate('/volunteer-engagement');
+    } else if (page === 'subscription-report') {
+      navigate('/subscription-report');
     } else if (page === 'articles') {
       navigate('/articles');
     } else if (page === 'video-lessons') {
       navigate('/video-lessons');
+    } else if (page === 'subscription-planning') {
+      navigate('/subscription-planning');
     }
   };
 
@@ -104,6 +112,19 @@ const Sidebar = ({ currentPage = 'dashboard' }) => {
               </li>
             </ul>
           </div>
+
+          <div className="sidebar-section">
+            <h3>Business Management</h3>
+            <ul>
+              <li 
+                className={currentPage === 'subscription-planning' ? 'active' : ''}
+                onClick={() => handleNavigation('subscription-planning')}
+              >
+                <span className="sidebar-icon">💳</span>
+                Subscription Planning
+              </li>
+            </ul>
+          </div>
           
           <div className="sidebar-section">
             <h3>Reports & Analysis</h3>
@@ -115,17 +136,26 @@ const Sidebar = ({ currentPage = 'dashboard' }) => {
                 <span className="sidebar-icon">💰</span>
                 Revenue Analytics
               </li>
-              <li>
+              <li 
+                className={currentPage === 'usage-report' ? 'active' : ''}
+                onClick={() => handleNavigation('usage-report')}
+              >
                 <span className="sidebar-icon">📊</span>
-                User Overview
+                Usage Report
               </li>
-              <li>
+              <li 
+                className={currentPage === 'volunteer-engagement' ? 'active' : ''}
+                onClick={() => handleNavigation('volunteer-engagement')}
+              >
                 <span className="sidebar-icon">📈</span>
                 Volunteer Engagement
               </li>
-              <li>
-                <span className="sidebar-icon">📉</span>
-                System Usage
+              <li 
+                className={currentPage === 'subscription-report' ? 'active' : ''}
+                onClick={() => handleNavigation('subscription-report')}
+              >
+                <span className="sidebar-icon">�</span>
+                Subscription Report
               </li>
             </ul>
           </div>

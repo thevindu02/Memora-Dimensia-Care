@@ -45,12 +45,21 @@ class AppRoutes {
   static const String guardianSettingsPrivacy = '/guardian/settings/privacy';
   static const String guardianSettingsHelpSupport =
       '/guardian/settings/help_support';
-  static const String guardianArticles = '/guardian/articles';
-  static const String guardianArticleDetail = '/guardian/article-detail';
-  static const String guardianQAForums = '/guardian/qa-forums';
+  static const String guardianForums = '/guardian/forums';
+  static const String guardianForumArticle = '/guardian/forum/article';
   static const String guardianProfile = '/guardian/profile';
+
+  static const String guardianArticles = '/guardian/articles';
+  static const String guardianArticleDetail = '/guardian/article/detail';
+  static const String guardianQAForums = '/guardian/qa_forums';
+
   static const String guardianNotifications = '/guardian-notifications';
   static const String guardianAddReviews = '/guardian/add-reviews';
+  static const String guardianSubscriptionPlans = '/guardian/subplans';
+  static const String guardianPayment = 'guardian/payment';
+  static const String guardianPaymentSuccess = '/guardian/payment/success';
+  static const String guardianPaymentFailed = '/guardian/payment/failed';
+
   // static const String guardianOrders = '/guardian/orders';
 
   // Caregiver routes
@@ -88,4 +97,7 @@ class AppRoutes {
   static const String volunteerCreateContent = '/volunteer/createcontent';
   static const String volunteerForum = '/volunteer/forum';
   static const String volunteerScheduleSession = '/volunteer/schedule';
+  static const String volunteerSettings = '/volunteer/settings';
+  static const String guardianForumArticles = '/guardianForumArticles';
+  static const String volunteerDraft = '/volunteer/draft';
 }

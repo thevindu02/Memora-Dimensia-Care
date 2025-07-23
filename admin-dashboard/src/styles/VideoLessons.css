@@ -1,7 +1,7 @@
 /* Video Lessons Page Styles */
 .video-lessons-page {
   padding: 1.5rem;
-  background: #f8fafc;
+  background: white;
   min-height: calc(100vh - 120px);
 }
 
@@ -17,7 +17,7 @@
   background: white;
   padding: 1.5rem;
   border-radius: 8px;
-  border: 1px solid #e5e7eb;
+  border: 1px solid #A0C4FD;
   display: flex;
   align-items: center;
   gap: 1rem;
@@ -35,7 +35,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  background: #f3f4f6;
+  background: #C3B1E1;
   border-radius: 50%;
 }
 
@@ -43,13 +43,13 @@
   margin: 0;
   font-size: 1.75rem;
   font-weight: 600;
-  color: #1f2937;
+  color: #390797;
 }
 
 .stat-content p {
   margin: 0;
   font-size: 0.875rem;
-  color: #6b7280;
+  color: #390797;
 }
 
 /* Search and Filters */
@@ -62,7 +62,7 @@
   background: white;
   padding: 1rem 1.5rem;
   border-radius: 8px;
-  border: 1px solid #e5e7eb;
+  border: 1px solid #A0C4FD;
 }
 
 .search-box {
@@ -74,16 +74,16 @@
 .search-input {
   width: 100%;
   padding: 10px 16px 10px 40px;
-  border: 1px solid #d1d5db;
+  border: 1px solid #A0C4FD;
   border-radius: 6px;
   font-size: 0.875rem;
   transition: border-color 0.2s ease;
-  background: #f9fafb;
+  background: white;
 }
 
 .search-input:focus {
   outline: none;
-  border-color: #3b82f6;
+  border-color: #2B3F99;
   background: white;
 }
 
@@ -92,7 +92,7 @@
   left: 12px;
   top: 50%;
   transform: translateY(-50%);
-  color: #6b7280;
+  color: #390797;
   font-size: 1rem;
 }
 
@@ -103,7 +103,7 @@
 
 .filter-select {
   padding: 8px 12px;
-  border: 1px solid #d1d5db;
+  border: 1px solid #A0C4FD;
   border-radius: 6px;
   font-size: 0.875rem;
   background: white;
@@ -113,7 +113,7 @@
 
 .filter-select:focus {
   outline: none;
-  border-color: #3b82f6;
+  border-color: #2B3F99;
 }
 
 /* Video Grid */
@@ -126,7 +126,7 @@
 .video-card {
   background: white;
   border-radius: 8px;
-  border: 1px solid #e5e7eb;
+  border: 1px solid #A0C4FD;
   overflow: hidden;
   cursor: pointer;
   transition: transform 0.2s ease, box-shadow 0.2s ease;
@@ -140,7 +140,7 @@
 .video-thumbnail {
   position: relative;
   height: 180px;
-  background: #f3f4f6;
+  background: #C3B1E1;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -152,7 +152,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: #2B3F99;
   color: white;
 }
 
@@ -182,7 +182,7 @@
   position: absolute;
   top: 8px;
   left: 8px;
-  background: #f59e0b;
+  background: #A0C4FD;
   color: white;
   padding: 0.25rem 0.5rem;
   border-radius: 4px;
@@ -198,7 +198,7 @@
   margin: 0 0 0.5rem 0;
   font-size: 1rem;
   font-weight: 600;
-  color: #1f2937;
+  color: #390797;
   line-height: 1.4;
   display: -webkit-box;
   -webkit-line-clamp: 2;
@@ -210,7 +210,7 @@
 .video-instructor {
   margin: 0 0 0.75rem 0;
   font-size: 0.875rem;
-  color: #6b7280;
+  color: #390797;
 }
 
 .video-meta {
@@ -220,8 +220,8 @@
 }
 
 .category-badge {
-  background: #eff6ff;
-  color: #1d4ed8;
+  background: #C3B1E1;
+  color: #2B3F99;
   padding: 0.25rem 0.5rem;
   border-radius: 12px;
   font-size: 0.75rem;
@@ -242,7 +242,7 @@
   gap: 1rem;
   margin-bottom: 0.75rem;
   font-size: 0.75rem;
-  color: #6b7280;
+  color: #390797;
 }
 
 .views, .likes {
@@ -259,11 +259,11 @@
 
 .star {
   font-size: 0.75rem;
-  color: #d1d5db;
+  color: #A0C4FD;
 }
 
 .star.filled {
-  color: #f59e0b;
+  color: #A0C4FD;
 }
 
 .video-status {
@@ -283,7 +283,7 @@
 
 .upload-date {
   font-size: 0.75rem;
-  color: #6b7280;
+  color: #390797;
 }
 
 /* Modal Styles */
@@ -309,7 +309,7 @@
   max-height: 90vh;
   display: flex;
   flex-direction: column;
-  border: 1px solid #e5e7eb;
+  border: 1px solid #A0C4FD;
 }
 
 .modal-header {
@@ -317,13 +317,13 @@
   justify-content: space-between;
   align-items: center;
   padding: 1.5rem;
-  border-bottom: 1px solid #e5e7eb;
+  border-bottom: 1px solid #A0C4FD;
 }
 
 .modal-header h2 {
   margin: 0;
   font-size: 1.5rem;
-  color: #1f2937;
+  color: #390797;
 }
 
 .close-button {
@@ -331,13 +331,13 @@
   border: none;
   font-size: 1.5rem;
   cursor: pointer;
-  color: #6b7280;
+  color: #390797;
   padding: 0.25rem;
   border-radius: 4px;
 }
 
 .close-button:hover {
-  background: #f3f4f6;
+  background: #C3B1E1;
 }
 
 .modal-body {
@@ -362,7 +362,7 @@
   position: relative;
   width: 320px;
   height: 180px;
-  background: #f3f4f6;
+  background: #C3B1E1;
   border-radius: 8px;
   overflow: hidden;
   flex-shrink: 0;
@@ -374,7 +374,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: #2B3F99;
   color: white;
 }
 
@@ -390,13 +390,13 @@
 .video-info-detailed h3 {
   margin: 0 0 0.5rem 0;
   font-size: 1.25rem;
-  color: #1f2937;
+  color: #390797;
 }
 
 .instructor {
   margin: 0 0 1rem 0;
   font-size: 1rem;
-  color: #6b7280;
+  color: #390797;
 }
 
 .rating-section {
@@ -413,7 +413,7 @@
 
 .rating-text {
   font-size: 0.875rem;
-  color: #6b7280;
+  color: #390797;
   font-weight: 500;
 }
 
@@ -422,7 +422,7 @@
   grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
   gap: 1rem;
   padding: 1rem;
-  background: #f9fafb;
+  background: #C3B1E1;
   border-radius: 6px;
 }
 
@@ -434,21 +434,21 @@
 
 .meta-label {
   font-size: 0.75rem;
-  color: #6b7280;
+  color: #390797;
   font-weight: 500;
   text-transform: uppercase;
 }
 
 .meta-value {
   font-size: 0.875rem;
-  color: #1f2937;
+  color: #390797;
 }
 
 .video-stats-detailed {
   display: flex;
   gap: 2rem;
   padding: 1rem;
-  background: #f9fafb;
+  background: #C3B1E1;
   border-radius: 6px;
 }
 
@@ -462,31 +462,31 @@
 .stat-number {
   font-size: 1.5rem;
   font-weight: 600;
-  color: #1f2937;
+  color: #390797;
 }
 
 .stat-label {
   font-size: 0.75rem;
-  color: #6b7280;
+  color: #390797;
   text-transform: uppercase;
 }
 
 .video-description {
   padding: 1rem;
-  background: #f9fafb;
+  background: #C3B1E1;
   border-radius: 6px;
 }
 
 .video-description h4 {
   margin: 0 0 0.75rem 0;
   font-size: 1rem;
-  color: #1f2937;
+  color: #390797;
 }
 
 .video-description p {
   margin: 0;
   line-height: 1.6;
-  color: #6b7280;
+  color: #390797;
 }
 
 .video-tags {
@@ -498,13 +498,13 @@
 
 .tags-label {
   font-size: 0.875rem;
-  color: #6b7280;
+  color: #390797;
   font-weight: 500;
 }
 
 .tag {
-  background: #f3f4f6;
-  color: #374151;
+  background: #C3B1E1;
+  color: #390797;
   padding: 0.25rem 0.75rem;
   border-radius: 12px;
   font-size: 0.75rem;
@@ -514,12 +514,12 @@
   display: flex;
   gap: 1rem;
   padding: 1.5rem;
-  border-top: 1px solid #e5e7eb;
-  background: #f9fafb;
+  border-top: 1px solid #A0C4FD;
+  background: #C3B1E1;
 }
 
 .watch-button {
-  background: #10b981;
+  background: #2B3F99;
   color: white;
   border: none;
   padding: 0.75rem 1.5rem;
@@ -531,11 +531,11 @@
 }
 
 .watch-button:hover {
-  background: #059669;
+  background: #2B3F99;
 }
 
 .publish-button {
-  background: #10b981;
+  background: #2B3F99;
   color: white;
   border: none;
   padding: 0.75rem 1.5rem;
@@ -547,11 +547,11 @@
 }
 
 .publish-button:hover {
-  background: #059669;
+  background: #2B3F99;
 }
 
 .reject-button {
-  background: #ef4444;
+  background: #2B3F99;
   color: white;
   border: none;
   padding: 0.75rem 1.5rem;
@@ -563,11 +563,11 @@
 }
 
 .reject-button:hover {
-  background: #dc2626;
+  background: #2B3F99;
 }
 
 .edit-button {
-  background: #3b82f6;
+  background: #2B3F99;
   color: white;
   border: none;
   padding: 0.75rem 1.5rem;
@@ -579,11 +579,11 @@
 }
 
 .edit-button:hover {
-  background: #2563eb;
+  background: #2B3F99;
 }
 
 .close-modal-button {
-  background: #6b7280;
+  background: #2B3F99;
   color: white;
   border: none;
   padding: 0.75rem 1.5rem;
@@ -596,7 +596,7 @@
 }
 
 .close-modal-button:hover {
-  background: #4b5563;
+  background: #2B3F99;
 }
 
 /* Responsive Design */

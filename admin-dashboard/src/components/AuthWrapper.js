@@ -59,7 +59,7 @@ const AuthWrapper = ({ children }) => {
         justifyContent: 'center',
         alignItems: 'center',
         minHeight: '100vh',
-        backgroundColor: '#f5f5f5'
+        backgroundColor: '#C3B1E1'
       }}>
         <div>Loading...</div>
       </div>

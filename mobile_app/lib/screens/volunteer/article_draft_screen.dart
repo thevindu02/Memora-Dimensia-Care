@@ -1,0 +1,684 @@
+import 'package:flutter/material.dart';
+import 'dart:convert';
+import 'package:http/http.dart' as http;
+import '../../services/api_constants.dart';
+import '../../services/auth_service.dart';
+
+class ArticleDraftScreen extends StatefulWidget {
+  const ArticleDraftScreen({Key? key}) : super(key: key);
+
+  @override
+  State<ArticleDraftScreen> createState() => _ArticleDraftScreenState();
+}
+
+class _ArticleDraftScreenState extends State<ArticleDraftScreen> {
+  late Future<List<Map<String, dynamic>>> _draftsFuture;
+  bool _initialized = false;
+
+  @override
+  void initState() {
+    super.initState();
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    if (!_initialized) {
+      // Get the volunteerId from arguments or use current user ID
+      int volunteerId = _getVolunteerId();
+      _draftsFuture = fetchAllDrafts(volunteerId);
+      _initialized = true;
+    }
+  }
+
+  /// Get volunteer ID from navigation arguments or AuthService
+  int _getVolunteerId() {
+    // Try to get from navigation arguments first
+    final Object? args = ModalRoute.of(context)?.settings.arguments;
+    if (args != null && args is int) {
+      return args;
+    }
+
+    // Fallback to AuthService current user ID
+    if (AuthService.currentUserId != null) {
+      return AuthService.currentUserId!;
+    }
+
+    // Default fallback (this should not happen in production)
+    return 1;
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: Text('My Drafts'),
+        backgroundColor: Colors.white,
+        elevation: 0,
+        iconTheme: IconThemeData(color: Colors.black),
+        titleTextStyle: TextStyle(
+          color: Colors.black,
+          fontWeight: FontWeight.bold,
+          fontSize: 20,
+        ),
+        centerTitle: true,
+        actions: [
+          IconButton(
+            icon: Icon(Icons.refresh, color: Colors.black),
+            onPressed: () {
+              setState(() {
+                _draftsFuture = fetchAllDrafts(_getVolunteerId());
+              });
+            },
+          ),
+        ],
+      ),
+      backgroundColor: Colors.white,
+      body: FutureBuilder<List<Map<String, dynamic>>>(
+        future: _draftsFuture,
+        builder: (context, snapshot) {
+          if (snapshot.connectionState == ConnectionState.waiting) {
+            return Center(child: CircularProgressIndicator());
+          } else if (snapshot.hasError) {
+            return Center(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Icon(Icons.error_outline, size: 64, color: Colors.red),
+                  SizedBox(height: 16),
+                  Text('Error: ${snapshot.error}'),
+                  SizedBox(height: 16),
+                  ElevatedButton(
+                    onPressed: () {
+                      setState(() {
+                        _draftsFuture = fetchAllDrafts(_getVolunteerId());
+                      });
+                    },
+                    child: Text('Retry'),
+                  ),
+                ],
+              ),
+            );
+          } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
+            return Center(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Icon(Icons.drafts, size: 64, color: Colors.grey),
+                  SizedBox(height: 16),
+                  Text(
+                    'No drafts found.',
+                    style: TextStyle(fontSize: 18, color: Colors.grey[600]),
+                  ),
+                  SizedBox(height: 8),
+                  Text(
+                    'Create your first article draft!',
+                    style: TextStyle(color: Colors.grey[500]),
+                  ),
+                ],
+              ),
+            );
+          }
+          final drafts = snapshot.data!;
+          return ListView.separated(
+            padding: EdgeInsets.all(16),
+            itemCount: drafts.length,
+            separatorBuilder: (_, __) => SizedBox(height: 12),
+            itemBuilder: (context, index) {
+              final draft = drafts[index];
+              return _buildDraftCard(draft);
+            },
+          );
+        },
+      ),
+    );
+  }
+
+  Widget _buildDraftCard(Map<String, dynamic> draft) {
+    return Card(
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+      elevation: 2,
+      child: InkWell(
+        borderRadius: BorderRadius.circular(12),
+        onTap: () => _editDraft(draft),
+        child: Padding(
+          padding: EdgeInsets.all(16),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                children: [
+                  Icon(Icons.drafts, color: Colors.orange, size: 24),
+                  SizedBox(width: 8),
+                  Expanded(
+                    child: Text(
+                      draft['title'] ?? 'Untitled',
+                      style: TextStyle(
+                        fontWeight: FontWeight.bold,
+                        fontSize: 16,
+                      ),
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                  ),
+                  PopupMenuButton<String>(
+                    onSelected: (value) => _handleMenuAction(value, draft),
+                    itemBuilder: (context) => [
+                      PopupMenuItem(
+                        value: 'edit',
+                        child: Row(
+                          children: [
+                            Icon(Icons.edit, size: 20),
+                            SizedBox(width: 8),
+                            Text('Edit'),
+                          ],
+                        ),
+                      ),
+                      PopupMenuItem(
+                        value: 'publish',
+                        child: Row(
+                          children: [
+                            Icon(Icons.publish, size: 20),
+                            SizedBox(width: 8),
+                            Text('Publish'),
+                          ],
+                        ),
+                      ),
+                      PopupMenuItem(
+                        value: 'delete',
+                        child: Row(
+                          children: [
+                            Icon(Icons.delete, size: 20, color: Colors.red),
+                            SizedBox(width: 8),
+                            Text('Delete', style: TextStyle(color: Colors.red)),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+              SizedBox(height: 8),
+              if (draft['summary'] != null && draft['summary'].isNotEmpty)
+                Text(
+                  draft['summary'],
+                  maxLines: 3,
+                  overflow: TextOverflow.ellipsis,
+                  style: TextStyle(color: Colors.grey[700]),
+                ),
+              SizedBox(height: 8),
+              Row(
+                children: [
+                  if (draft['categoryName'] != null)
+                    Container(
+                      padding: EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                      decoration: BoxDecoration(
+                        color: Colors.blue.withOpacity(0.1),
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      child: Text(
+                        draft['categoryName'],
+                        style: TextStyle(
+                          fontSize: 12,
+                          color: Colors.blue[700],
+                          fontWeight: FontWeight.w500,
+                        ),
+                      ),
+                    ),
+                  Spacer(),
+                  Icon(Icons.arrow_forward_ios, size: 16, color: Colors.grey),
+                ],
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  void _handleMenuAction(String action, Map<String, dynamic> draft) {
+    switch (action) {
+      case 'edit':
+        _editDraft(draft);
+        break;
+      case 'publish':
+        _publishDraft(draft);
+        break;
+      case 'delete':
+        _deleteDraft(draft);
+        break;
+    }
+  }
+
+  void _editDraft(Map<String, dynamic> draft) {
+    Navigator.push(
+      context,
+      MaterialPageRoute(builder: (context) => DraftEditScreen(draft: draft)),
+    ).then((_) {
+      // Refresh drafts when returning from edit screen
+      setState(() {
+        _draftsFuture = fetchAllDrafts(_getVolunteerId());
+      });
+    });
+  }
+
+  void _publishDraft(Map<String, dynamic> draft) {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: Text('Publish Draft'),
+        content: Text('Are you sure you want to publish "${draft['title']}"?'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: Text('Cancel'),
+          ),
+          ElevatedButton(
+            onPressed: () async {
+              Navigator.pop(context);
+              await _performPublish(draft);
+            },
+            style: ElevatedButton.styleFrom(
+              backgroundColor: Color(0xFF87CEEB), // Sky blue color
+              foregroundColor: Colors.white,
+            ),
+            child: Text('Publish'),
+          ),
+        ],
+      ),
+    );
+  }
+
+  void _deleteDraft(Map<String, dynamic> draft) {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: Text('Delete Draft'),
+        content: Text(
+          'Are you sure you want to delete "${draft['title']}"? This action cannot be undone.',
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: Text('Cancel'),
+          ),
+          ElevatedButton(
+            onPressed: () async {
+              Navigator.pop(context);
+              await _performDelete(draft);
+            },
+            style: ElevatedButton.styleFrom(backgroundColor: Colors.red),
+            child: Text('Delete'),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Future<void> _performPublish(Map<String, dynamic> draft) async {
+    try {
+      final response = await http.put(
+        Uri.parse('${ApiConstants.baseUrl}/api/articles/${draft['articleId']}'),
+        headers: {'Content-Type': 'application/json'},
+        body: jsonEncode({
+          ...draft,
+          'draft': false,
+          'status': 'pending', // Set to pending for admin approval
+        }),
+      );
+
+      if (response.statusCode == 200) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Article published successfully!')),
+        );
+        setState(() {
+          _draftsFuture = fetchAllDrafts(_getVolunteerId());
+        });
+      } else {
+        throw Exception('Failed to publish article');
+      }
+    } catch (e) {
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text('Error publishing article: $e')));
+    }
+  }
+
+  Future<void> _performDelete(Map<String, dynamic> draft) async {
+    try {
+      final response = await http.delete(
+        Uri.parse('${ApiConstants.baseUrl}/api/articles/${draft['articleId']}'),
+      );
+
+      if (response.statusCode == 200) {
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text('Draft deleted successfully!')));
+        setState(() {
+          _draftsFuture = fetchAllDrafts(_getVolunteerId());
+        });
+      } else {
+        throw Exception('Failed to delete draft');
+      }
+    } catch (e) {
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text('Error deleting draft: $e')));
+    }
+  }
+}
+
+Future<List<Map<String, dynamic>>> fetchAllDrafts(int volunteerId) async {
+  final response = await http.get(
+    Uri.parse(
+      '${ApiConstants.baseUrl}/api/articles/drafts?volunteerId=$volunteerId',
+    ),
+  );
+  if (response.statusCode == 200) {
+    final List<dynamic> data = jsonDecode(response.body);
+    return data.cast<Map<String, dynamic>>();
+  } else {
+    throw Exception('Failed to load drafts');
+  }
+}
+
+// Draft Edit Screen
+class DraftEditScreen extends StatefulWidget {
+  final Map<String, dynamic> draft;
+
+  const DraftEditScreen({Key? key, required this.draft}) : super(key: key);
+
+  @override
+  State<DraftEditScreen> createState() => _DraftEditScreenState();
+}
+
+class _DraftEditScreenState extends State<DraftEditScreen> {
+  late TextEditingController _titleController;
+  late TextEditingController _summaryController;
+  late TextEditingController _contentController;
+  late TextEditingController _tagsController;
+
+  List<String> _categories = [];
+  List<int> _categoryIds = [];
+  int? _selectedCategoryId;
+  bool _isLoading = false;
+  final _formKey = GlobalKey<FormState>();
+
+  @override
+  void initState() {
+    super.initState();
+    _initializeControllers();
+    _fetchCategories();
+  }
+
+  void _initializeControllers() {
+    _titleController = TextEditingController(text: widget.draft['title'] ?? '');
+    _summaryController = TextEditingController(
+      text: widget.draft['summary'] ?? '',
+    );
+    _contentController = TextEditingController(
+      text: widget.draft['content'] ?? '',
+    );
+    _tagsController = TextEditingController(text: widget.draft['tags'] ?? '');
+    _selectedCategoryId = widget.draft['categoryId'];
+  }
+
+  @override
+  void dispose() {
+    _titleController.dispose();
+    _summaryController.dispose();
+    _contentController.dispose();
+    _tagsController.dispose();
+    super.dispose();
+  }
+
+  Future<void> _fetchCategories() async {
+    try {
+      final response = await http.get(
+        Uri.parse('${ApiConstants.baseUrl}/api/categories'),
+      );
+      if (response.statusCode == 200) {
+        final List<dynamic> data = jsonDecode(response.body);
+        setState(() {
+          _categories = data
+              .map<String>((cat) => cat['categoryName'] as String)
+              .toList();
+          _categoryIds = data
+              .map<int>((cat) => cat['categoryId'] as int)
+              .toList();
+        });
+      }
+    } catch (e) {
+      print('Failed to load categories: $e');
+    }
+  }
+
+  Future<void> _saveDraft() async {
+    if (!_formKey.currentState!.validate()) return;
+
+    setState(() {
+      _isLoading = true;
+    });
+
+    try {
+      final updatedDraft = {
+        ...widget.draft,
+        'title': _titleController.text,
+        'summary': _summaryController.text,
+        'content': _contentController.text,
+        'tags': _tagsController.text,
+        'categoryId': _selectedCategoryId,
+        'draft': true,
+      };
+
+      final response = await http.put(
+        Uri.parse(
+          '${ApiConstants.baseUrl}/api/articles/${widget.draft['articleId']}',
+        ),
+        headers: {'Content-Type': 'application/json'},
+        body: jsonEncode(updatedDraft),
+      );
+
+      if (response.statusCode == 200) {
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text('Draft saved successfully!')));
+        Navigator.pop(context);
+      } else {
+        throw Exception('Failed to save draft');
+      }
+    } catch (e) {
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text('Error saving draft: $e')));
+    } finally {
+      setState(() {
+        _isLoading = false;
+      });
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: Text('Edit Draft'),
+        backgroundColor: Colors.white,
+        elevation: 0,
+        iconTheme: IconThemeData(color: Colors.black),
+        titleTextStyle: TextStyle(
+          color: Colors.black,
+          fontWeight: FontWeight.bold,
+          fontSize: 20,
+        ),
+        actions: [
+          Padding(
+            padding: EdgeInsets.only(right: 8),
+            child: ElevatedButton(
+              onPressed: _isLoading ? null : _saveDraft,
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Color(0xFF87CEEB), // Sky blue color
+                foregroundColor: Colors.white,
+                padding: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                elevation: 2,
+              ),
+              child: Text(
+                'Save',
+                style: TextStyle(
+                  fontWeight: FontWeight.w600,
+                  color: Colors.black,
+                ),
+              ),
+            ),
+          ),
+        ],
+      ),
+      backgroundColor: Colors.white,
+      body: Stack(
+        children: [
+          SingleChildScrollView(
+            padding: EdgeInsets.all(16),
+            child: Form(
+              key: _formKey,
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  // Category Dropdown
+                  Text(
+                    'Category',
+                    style: TextStyle(fontWeight: FontWeight.w600),
+                  ),
+                  SizedBox(height: 8),
+                  DropdownButtonFormField<int>(
+                    value: _selectedCategoryId,
+                    items: List.generate(_categories.length, (index) {
+                      return DropdownMenuItem(
+                        value: _categoryIds[index],
+                        child: Text(_categories[index]),
+                      );
+                    }),
+                    onChanged: (val) =>
+                        setState(() => _selectedCategoryId = val),
+                    decoration: InputDecoration(
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      contentPadding: EdgeInsets.symmetric(
+                        horizontal: 16,
+                        vertical: 16,
+                      ),
+                    ),
+                    validator: (val) =>
+                        val == null ? 'Please select a category' : null,
+                    hint: Text('Select Category'),
+                  ),
+                  SizedBox(height: 16),
+
+                  // Title Field
+                  Text('Title', style: TextStyle(fontWeight: FontWeight.w600)),
+                  SizedBox(height: 8),
+                  TextFormField(
+                    controller: _titleController,
+                    decoration: InputDecoration(
+                      hintText: 'Enter article title',
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      contentPadding: EdgeInsets.all(16),
+                    ),
+                    validator: (val) =>
+                        val == null || val.isEmpty ? 'Title is required' : null,
+                  ),
+                  SizedBox(height: 16),
+
+                  // tag Field
+                  Text('Tags', style: TextStyle(fontWeight: FontWeight.w600)),
+                  SizedBox(height: 8),
+                  TextFormField(
+                    controller: _summaryController,
+                    maxLines: 1,
+                    decoration: InputDecoration(
+                      hintText: 'Enter tags (comma separated)',
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      contentPadding: EdgeInsets.all(16),
+                    ),
+                  ),
+                  SizedBox(height: 16),
+
+                  // Content Field
+                  Text(
+                    'Content',
+                    style: TextStyle(fontWeight: FontWeight.w600),
+                  ),
+                  SizedBox(height: 8),
+                  TextFormField(
+                    controller: _contentController,
+                    maxLines: 8,
+                    decoration: InputDecoration(
+                      hintText: 'Write your article content here...',
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      contentPadding: EdgeInsets.all(16),
+                    ),
+                    validator: (val) => val == null || val.isEmpty
+                        ? 'Content is required'
+                        : null,
+                  ),
+                  SizedBox(height: 16),
+
+                  // Action Buttons
+                  Row(
+                    children: [
+                      Expanded(
+                        child: ElevatedButton(
+                          onPressed: _isLoading ? null : _saveDraft,
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: Color(
+                              0xFF87CEEB,
+                            ), // Sky blue color
+                            foregroundColor: Colors.white,
+                            padding: EdgeInsets.symmetric(vertical: 16),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(12),
+                            ),
+                          ),
+                          child: Text('Save Draft'),
+                        ),
+                      ),
+                      SizedBox(width: 16),
+                      Expanded(
+                        child: OutlinedButton(
+                          onPressed: _isLoading
+                              ? null
+                              : () => Navigator.pop(context),
+                          style: OutlinedButton.styleFrom(
+                            padding: EdgeInsets.symmetric(vertical: 16),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(12),
+                            ),
+                          ),
+                          child: Text('Cancel'),
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+            ),
+          ),
+          if (_isLoading)
+            Container(
+              color: Colors.black.withOpacity(0.3),
+              child: Center(child: CircularProgressIndicator()),
+            ),
+        ],
+      ),
+    );
+  }
+}

@@ -1,33 +1,71 @@
 package Memora.DimensiaCareApplication.dto;
 
-import java.util.List;
-
 public class ArticleDTO {
-    private String id; // Firestore document ID
+    private String articleId; // Firestore document ID
+    private Long volunteerId; // from PostgreSQL
+    private Integer categoryId;
+    private Boolean draft;
+    private String status;
     private String title;
+    private String summary;
     private String content;
-    private String author;
-    private int authorId; // Postgres user ID
-    private List<String> images; // URLs or paths to images
+    private String articleImg;
 
     public ArticleDTO() {
     }
 
-    public ArticleDTO(String id, String title, String content, String author, int authorId, List<String> images) {
-        this.id = id;
+    public ArticleDTO(String articleId, Long volunteerId, Integer categoryId, Boolean draft, String status,
+            String title,
+            String summary, String content, String articleImg) {
+        this.articleId = articleId;
+        this.volunteerId = volunteerId;
+        this.categoryId = categoryId;
+        this.draft = draft;
+        this.status = status;
         this.title = title;
+        this.summary = summary;
         this.content = content;
-        this.author = author;
-        this.authorId = authorId;
-        this.images = images;
+        this.articleImg = articleImg;
     }
 
-    public String getId() {
-        return id;
+    public String getArticleId() {
+        return articleId;
     }
 
-    public void setId(String id) {
-        this.id = id;
+    public void setArticleId(String articleId) {
+        this.articleId = articleId;
+    }
+
+    public Long getVolunteerId() {
+        return volunteerId;
+    }
+
+    public void setVolunteerId(Long volunteerId) {
+        this.volunteerId = volunteerId;
+    }
+
+    public Integer getCategoryId() {
+        return categoryId;
+    }
+
+    public void setCategoryId(Integer categoryId) {
+        this.categoryId = categoryId;
+    }
+
+    public Boolean getDraft() {
+        return draft;
+    }
+
+    public void setDraft(Boolean draft) {
+        this.draft = draft;
+    }
+
+    public String getStatus() {
+        return status;
+    }
+
+    public void setStatus(String status) {
+        this.status = status;
     }
 
     public String getTitle() {
@@ -38,6 +76,14 @@ public class ArticleDTO {
         this.title = title;
     }
 
+    public String getSummary() {
+        return summary;
+    }
+
+    public void setSummary(String summary) {
+        this.summary = summary;
+    }
+
     public String getContent() {
         return content;
     }
@@ -46,27 +92,11 @@ public class ArticleDTO {
         this.content = content;
     }
 
-    public String getAuthor() {
-        return author;
+    public String getArticleImg() {
+        return articleImg;
     }
 
-    public void setAuthor(String author) {
-        this.author = author;
-    }
-
-    public int getAuthorId() {
-        return authorId;
-    }
-
-    public void setAuthorId(int authorId) {
-        this.authorId = authorId;
-    }
-
-    public List<String> getImages() {
-        return images;
-    }
-
-    public void setImages(List<String> images) {
-        this.images = images;
+    public void setArticleImg(String articleImg) {
+        this.articleImg = articleImg;
     }
 }

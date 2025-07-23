@@ -11,7 +11,7 @@ class GameControlsPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.black.withOpacity(0.8),
+      backgroundColor: Colors.white.withOpacity(0.8),
       body: SafeArea(
         child: Padding(
           padding: const EdgeInsets.all(20),

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../../routes/app_routes.dart';
+import '../../constants/color_constants.dart';
 import 'games/memory_match/memory_match_game.dart';
 
 class PatientGamesScreen extends StatelessWidget {
@@ -8,14 +9,14 @@ class PatientGamesScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.grey[50],
+      backgroundColor: PatientColors.background,
       appBar: AppBar(
-        backgroundColor: Colors.white,
+        backgroundColor: PatientColors.surface,
         elevation: 0,
         title: const Text(
           'Play Games',
           style: TextStyle(
-            color: Colors.black,
+            color: PatientColors.onSurface,
             fontSize: 20,
             fontWeight: FontWeight.w600,
           ),
@@ -23,7 +24,7 @@ class PatientGamesScreen extends StatelessWidget {
         centerTitle: true,
         actions: [
           IconButton(
-            icon: const Icon(Icons.notifications_outlined, color: Colors.black),
+            icon: const Icon(Icons.notifications_outlined, color: PatientColors.onSurface),
             onPressed: () {
               // Handle notification tap
             },
@@ -39,7 +40,7 @@ class PatientGamesScreen extends StatelessWidget {
               'Fun and memory games for everyone',
               style: TextStyle(
                 fontSize: 16,
-                color: Colors.grey,
+                color: PatientColors.onSurface,
                 fontWeight: FontWeight.w500,
               ),
             ),
@@ -84,11 +85,11 @@ class PatientGamesScreen extends StatelessWidget {
   }) {
     return Container(
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: PatientColors.surface,
         borderRadius: BorderRadius.circular(16),
         boxShadow: [
           BoxShadow(
-            color: Colors.grey.withOpacity(0.1),
+            color: PatientColors.shadow,
             spreadRadius: 1,
             blurRadius: 10,
             offset: const Offset(0, 2),
@@ -106,16 +107,16 @@ class PatientGamesScreen extends StatelessWidget {
               style: const TextStyle(
                 fontSize: 24,
                 fontWeight: FontWeight.bold,
-                color: Colors.black,
+                color: PatientColors.onSurface,
               ),
             ),
             const SizedBox(height: 8),
             Text(
               description,
               textAlign: TextAlign.center,
-              style: TextStyle(
+              style: const TextStyle(
                 fontSize: 14,
-                color: Colors.grey[600],
+                color: PatientColors.onSurfaceVariant,
                 height: 1.5,
               ),
             ),
@@ -125,8 +126,8 @@ class PatientGamesScreen extends StatelessWidget {
               child: ElevatedButton(
                 onPressed: onTap,
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: const Color(0xFFA0C4FD),
-                  foregroundColor: Color(0xFF2B3F99),
+                  backgroundColor: PatientColors.primaryLight,
+                  foregroundColor: PatientColors.primary,
                   padding: const EdgeInsets.symmetric(vertical: 16),
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(12),
@@ -153,7 +154,7 @@ class PatientGamesScreen extends StatelessWidget {
       width: 60,
       height: 60,
       decoration: BoxDecoration(
-        color: Colors.purple[50],
+        color: PatientColors.activityMeditation,
         borderRadius: BorderRadius.circular(30),
       ),
       child: Center(
@@ -170,7 +171,7 @@ class PatientGamesScreen extends StatelessWidget {
       width: 60,
       height: 60,
       decoration: BoxDecoration(
-        color: Colors.orange[50],
+        color: PatientColors.activityCreativity,
         borderRadius: BorderRadius.circular(30),
       ),
       child: Center(
@@ -187,7 +188,7 @@ class BrainIconPainter extends CustomPainter {
   @override
   void paint(Canvas canvas, Size size) {
     final paint = Paint()
-      ..color = Colors.purple
+      ..color = PatientColors.primaryDark
       ..style = PaintingStyle.stroke
       ..strokeWidth = 2.5;
 
@@ -213,7 +214,7 @@ class BrainIconPainter extends CustomPainter {
 
     // Draw brain folds
     final foldPaint = Paint()
-      ..color = Colors.purple
+      ..color = PatientColors.primaryDark
       ..style = PaintingStyle.stroke
       ..strokeWidth = 1.5;
 

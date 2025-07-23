@@ -10,7 +10,6 @@ const StatsSection = () => {
     { number: 8, label: 'Articles', icon: '📄' },
     { number: 8, label: 'Videos', icon: '🎬' }
   ];
-
   return (
     <div className="stats-section">
       {statsData.map((stat, index) => (

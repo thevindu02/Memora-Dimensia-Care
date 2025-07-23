@@ -8,7 +8,8 @@ class GuardianArticlesScreen extends StatefulWidget {
 }
 
 class _GuardianForumsScreenState extends State<GuardianArticlesScreen> {
-  int _selectedIndex = 1; // Articles tab is selected (index 1 based on your new nav structure)
+  int _selectedIndex =
+      1; // Articles tab is selected (index 1 based on your new nav structure)
   TextEditingController _searchController = TextEditingController();
   String _searchQuery = '';
 
@@ -21,10 +22,12 @@ class _GuardianForumsScreenState extends State<GuardianArticlesScreen> {
       'category': 'Caregiver Tips',
       'author': 'Anonymous Guardian', // Changed to anonymous
       'authorType': 'Guardian',
-      'imageUrl': 'https://images.unsplash.com/photo-1559757148-5c350d0d3c56?w=300&h=200&fit=crop',
+      'imageUrl':
+          'https://images.unsplash.com/photo-1559757148-5c350d0d3c56?w=300&h=200&fit=crop',
       'comments': 15,
       'likes': 24,
-      'content': 'Dementia is a complex condition that affects millions of people worldwide. Understanding its symptoms and progression is crucial for providing effective care. This discussion covers the basics of dementia, including early warning signs, different types, and practical tips for caregivers.',
+      'content':
+          'Dementia is a complex condition that affects millions of people worldwide. Understanding its symptoms and progression is crucial for providing effective care. This discussion covers the basics of dementia, including early warning signs, different types, and practical tips for caregivers.',
       'tags': ['dementia', 'symptoms', 'care', 'understanding'],
     },
     {
@@ -34,10 +37,12 @@ class _GuardianForumsScreenState extends State<GuardianArticlesScreen> {
       'category': 'Caregiver Tips',
       'author': 'Anonymous Guardian', // Changed to anonymous
       'authorType': 'Guardian',
-      'imageUrl': 'https://images.unsplash.com/photo-1582750433449-648ed127bb54?w=300&h=200&fit=crop',
+      'imageUrl':
+          'https://images.unsplash.com/photo-1582750433449-648ed127bb54?w=300&h=200&fit=crop',
       'comments': 8,
       'likes': 18,
-      'content': 'Being a caregiver can be emotionally and physically demanding. This space is for sharing experiences, challenges, and solutions. Together, we can support each other through this journey.',
+      'content':
+          'Being a caregiver can be emotionally and physically demanding. This space is for sharing experiences, challenges, and solutions. Together, we can support each other through this journey.',
       'tags': ['support', 'caregiver', 'experiences', 'community'],
     },
     {
@@ -50,7 +55,8 @@ class _GuardianForumsScreenState extends State<GuardianArticlesScreen> {
       'imageUrl': 'https://picsum.photos/300/200?random=3',
       'comments': 12,
       'likes': 31,
-      'content': 'Modern technology offers many tools to assist in dementia care. From medication reminders to GPS tracking, learn about the latest apps and devices that can make caregiving easier and more effective.',
+      'content':
+          'Modern technology offers many tools to assist in dementia care. From medication reminders to GPS tracking, learn about the latest apps and devices that can make caregiving easier and more effective.',
       'tags': ['technology', 'apps', 'care', 'tools', 'assistance'],
     },
     {
@@ -60,10 +66,12 @@ class _GuardianForumsScreenState extends State<GuardianArticlesScreen> {
       'category': 'Medication',
       'author': 'Anonymous Guardian', // Changed to anonymous
       'authorType': 'Guardian',
-      'imageUrl': 'https://images.unsplash.com/photo-1471864190281-a93a3070b6de?w=300&h=200&fit=crop',
+      'imageUrl':
+          'https://images.unsplash.com/photo-1471864190281-a93a3070b6de?w=300&h=200&fit=crop',
       'comments': 22,
       'likes': 45,
-      'content': 'Proper medication management is crucial for dementia patients. This guide covers organizing pills, setting reminders, understanding side effects, and working with healthcare providers.',
+      'content':
+          'Proper medication management is crucial for dementia patients. This guide covers organizing pills, setting reminders, understanding side effects, and working with healthcare providers.',
       'tags': ['medication', 'management', 'pills', 'reminders', 'healthcare'],
     },
     {
@@ -73,11 +81,19 @@ class _GuardianForumsScreenState extends State<GuardianArticlesScreen> {
       'category': 'Activities',
       'author': 'Anonymous Guardian', // Changed to anonymous
       'authorType': 'Guardian',
-      'imageUrl': 'https://images.unsplash.com/photo-1511632765486-a01980e01a18?w=300&h=200&fit=crop',
+      'imageUrl':
+          'https://images.unsplash.com/photo-1511632765486-a01980e01a18?w=300&h=200&fit=crop',
       'comments': 18,
       'likes': 33,
-      'content': 'Keeping dementia patients engaged with meaningful activities can improve their quality of life. Explore various activities, games, and routines that work well for different stages of dementia.',
-      'tags': ['activities', 'daily', 'engagement', 'routines', 'quality of life'],
+      'content':
+          'Keeping dementia patients engaged with meaningful activities can improve their quality of life. Explore various activities, games, and routines that work well for different stages of dementia.',
+      'tags': [
+        'activities',
+        'daily',
+        'engagement',
+        'routines',
+        'quality of life',
+      ],
     },
     {
       'id': 6,
@@ -86,10 +102,12 @@ class _GuardianForumsScreenState extends State<GuardianArticlesScreen> {
       'category': 'Health',
       'author': 'Anonymous Guardian', // Changed to anonymous
       'authorType': 'Guardian',
-      'imageUrl': 'https://images.unsplash.com/photo-1490645935967-10de6ba17061?w=300&h=200&fit=crop',
+      'imageUrl':
+          'https://images.unsplash.com/photo-1490645935967-10de6ba17061?w=300&h=200&fit=crop',
       'comments': 14,
       'likes': 28,
-      'content': 'Proper nutrition plays a vital role in dementia care. Learn about dietary requirements, meal planning, and strategies to encourage eating in dementia patients.',
+      'content':
+          'Proper nutrition plays a vital role in dementia care. Learn about dietary requirements, meal planning, and strategies to encourage eating in dementia patients.',
       'tags': ['nutrition', 'diet', 'health', 'meals', 'eating'],
     },
   ];
@@ -113,7 +131,13 @@ class _GuardianForumsScreenState extends State<GuardianArticlesScreen> {
   }
 
   List<String> get popularTopics {
-    return ['Caregiver Tips', 'Medication', 'Technology', 'Health', 'Activities'];
+    return [
+      'Caregiver Tips',
+      'Medication',
+      'Technology',
+      'Health',
+      'Activities',
+    ];
   }
 
   // Method to clear search and return to main forums view
@@ -129,7 +153,7 @@ class _GuardianForumsScreenState extends State<GuardianArticlesScreen> {
     Navigator.pushNamedAndRemoveUntil(
       context,
       AppRoutes.guardianDashboard,
-          (route) => false,
+      (route) => false,
       arguments: {'selectedIndex': 0}, // Pass the home index
     );
   }
@@ -154,9 +178,9 @@ class _GuardianForumsScreenState extends State<GuardianArticlesScreen> {
           prefixIcon: Icon(Icons.search, color: Colors.grey[500]),
           suffixIcon: _searchQuery.isNotEmpty
               ? IconButton(
-            icon: Icon(Icons.clear, color: Colors.grey[500]),
-            onPressed: _clearSearch,
-          )
+                  icon: Icon(Icons.clear, color: Colors.grey[500]),
+                  onPressed: _clearSearch,
+                )
               : null,
           border: InputBorder.none,
           contentPadding: EdgeInsets.symmetric(horizontal: 16, vertical: 12),
@@ -188,7 +212,7 @@ class _GuardianForumsScreenState extends State<GuardianArticlesScreen> {
               itemBuilder: (context, index) {
                 final topic = popularTopics[index];
                 final relatedDiscussion = allDiscussions.firstWhere(
-                      (d) => d['category'] == topic,
+                  (d) => d['category'] == topic,
                   orElse: () => allDiscussions[0],
                 );
                 return _buildTopicCard(topic, relatedDiscussion);
@@ -226,10 +250,7 @@ class _GuardianForumsScreenState extends State<GuardianArticlesScreen> {
               gradient: LinearGradient(
                 begin: Alignment.topCenter,
                 end: Alignment.bottomCenter,
-                colors: [
-                  Colors.transparent,
-                  Colors.black.withOpacity(0.7),
-                ],
+                colors: [Colors.transparent, Colors.black.withOpacity(0.7)],
               ),
             ),
             padding: EdgeInsets.all(16),
@@ -268,11 +289,11 @@ class _GuardianForumsScreenState extends State<GuardianArticlesScreen> {
       cursor: SystemMouseCursors.click, // Add proper cursor
       child: GestureDetector(
         onTap: () {
-          Navigator.pushNamed(
-            context,
-            AppRoutes.guardianArticleDetail,
-            arguments: discussion,
-          );
+          // Navigator.pushNamed(
+          //   context,
+          //   AppRoutes.guardianArticleDetail,
+          //   arguments: discussion,
+          // );
         },
         child: Container(
           margin: EdgeInsets.symmetric(horizontal: 20, vertical: 8),
@@ -330,7 +351,11 @@ class _GuardianForumsScreenState extends State<GuardianArticlesScreen> {
                         SizedBox(height: 8),
                         Row(
                           children: [
-                            Icon(Icons.person, size: 14, color: Colors.grey[500]),
+                            Icon(
+                              Icons.person,
+                              size: 14,
+                              color: Colors.grey[500],
+                            ),
                             SizedBox(width: 4),
                             Text(
                               discussion['author'],
@@ -341,7 +366,10 @@ class _GuardianForumsScreenState extends State<GuardianArticlesScreen> {
                             ),
                             SizedBox(width: 8),
                             Container(
-                              padding: EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                              padding: EdgeInsets.symmetric(
+                                horizontal: 8,
+                                vertical: 2,
+                              ),
                               decoration: BoxDecoration(
                                 color: discussion['authorType'] == 'Guardian'
                                     ? Colors.blue[100]
@@ -369,14 +397,22 @@ class _GuardianForumsScreenState extends State<GuardianArticlesScreen> {
               SizedBox(height: 12),
               Row(
                 children: [
-                  Icon(Icons.chat_bubble_outline, size: 16, color: Colors.grey[500]),
+                  Icon(
+                    Icons.chat_bubble_outline,
+                    size: 16,
+                    color: Colors.grey[500],
+                  ),
                   SizedBox(width: 4),
                   Text(
                     '${discussion['comments']} comments',
                     style: TextStyle(fontSize: 12, color: Colors.grey[500]),
                   ),
                   SizedBox(width: 16),
-                  Icon(Icons.thumb_up_outlined, size: 16, color: Colors.grey[500]),
+                  Icon(
+                    Icons.thumb_up_outlined,
+                    size: 16,
+                    color: Colors.grey[500],
+                  ),
                   SizedBox(width: 4),
                   Text(
                     '${discussion['likes']} likes',
@@ -427,13 +463,13 @@ class _GuardianForumsScreenState extends State<GuardianArticlesScreen> {
           elevation: 0,
           leading: _searchQuery.isNotEmpty
               ? IconButton(
-            icon: Icon(Icons.arrow_back, color: Colors.black),
-            onPressed: _clearSearch,
-          )
+                  icon: Icon(Icons.arrow_back, color: Colors.black),
+                  onPressed: _clearSearch,
+                )
               : IconButton(
-            icon: Icon(Icons.arrow_back, color: Colors.black),
-            onPressed: _navigateBackToDashboard,
-          ),
+                  icon: Icon(Icons.arrow_back, color: Colors.black),
+                  onPressed: _navigateBackToDashboard,
+                ),
           title: Text(
             _searchQuery.isNotEmpty ? 'Search: $_searchQuery' : 'Articles',
             style: TextStyle(
@@ -456,7 +492,9 @@ class _GuardianForumsScreenState extends State<GuardianArticlesScreen> {
               child: Row(
                 children: [
                   Text(
-                    _searchQuery.isEmpty ? 'Recent Discussions' : 'Search Results',
+                    _searchQuery.isEmpty
+                        ? 'Recent Discussions'
+                        : 'Search Results',
                     style: TextStyle(
                       fontSize: 18,
                       fontWeight: FontWeight.w600,
@@ -467,10 +505,7 @@ class _GuardianForumsScreenState extends State<GuardianArticlesScreen> {
                     Spacer(),
                     Text(
                       '${filteredDiscussions.length} results',
-                      style: TextStyle(
-                        fontSize: 14,
-                        color: Colors.grey[600],
-                      ),
+                      style: TextStyle(fontSize: 14, color: Colors.grey[600]),
                     ),
                   ],
                 ],
@@ -480,39 +515,39 @@ class _GuardianForumsScreenState extends State<GuardianArticlesScreen> {
             Expanded(
               child: filteredDiscussions.isEmpty
                   ? Center(
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Icon(
-                      Icons.search_off,
-                      size: 64,
-                      color: Colors.grey[400],
-                    ),
-                    SizedBox(height: 16),
-                    Text(
-                      'No discussions found',
-                      style: TextStyle(
-                        fontSize: 16,
-                        color: Colors.grey[600],
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Icon(
+                            Icons.search_off,
+                            size: 64,
+                            color: Colors.grey[400],
+                          ),
+                          SizedBox(height: 16),
+                          Text(
+                            'No discussions found',
+                            style: TextStyle(
+                              fontSize: 16,
+                              color: Colors.grey[600],
+                            ),
+                          ),
+                          SizedBox(height: 8),
+                          Text(
+                            'Try different keywords',
+                            style: TextStyle(
+                              fontSize: 14,
+                              color: Colors.grey[500],
+                            ),
+                          ),
+                        ],
                       ),
-                    ),
-                    SizedBox(height: 8),
-                    Text(
-                      'Try different keywords',
-                      style: TextStyle(
-                        fontSize: 14,
-                        color: Colors.grey[500],
-                      ),
-                    ),
-                  ],
-                ),
-              )
+                    )
                   : ListView.builder(
-                itemCount: filteredDiscussions.length,
-                itemBuilder: (context, index) {
-                  return _buildDiscussionCard(filteredDiscussions[index]);
-                },
-              ),
+                      itemCount: filteredDiscussions.length,
+                      itemBuilder: (context, index) {
+                        return _buildDiscussionCard(filteredDiscussions[index]);
+                      },
+                    ),
             ),
           ],
         ),

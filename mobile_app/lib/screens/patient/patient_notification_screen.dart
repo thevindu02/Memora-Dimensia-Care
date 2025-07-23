@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../../routes/app_routes.dart';
+import '../../constants/color_constants.dart';
 
 class PatientNotificationScreen extends StatefulWidget {
   const PatientNotificationScreen({Key? key}) : super(key: key);
@@ -18,7 +19,7 @@ class _PatientNotificationScreenState extends State<PatientNotificationScreen> {
       title: "Mealtime Reminder",
       time: "2min ago",
       icon: Icons.restaurant,
-      iconColor: Colors.orange,
+      iconColor: PatientColors.activityNutrition,
       isRead: false,
     ),
     NotificationItem(
@@ -26,7 +27,7 @@ class _PatientNotificationScreenState extends State<PatientNotificationScreen> {
       title: "Accept request skip task",
       time: "2min ago",
       icon: Icons.playlist_add_check,
-      iconColor: Colors.red,
+      iconColor: PatientColors.error,
       isRead: false,
     ),
     NotificationItem(
@@ -34,7 +35,7 @@ class _PatientNotificationScreenState extends State<PatientNotificationScreen> {
       title: "Accept request skip task",
       time: "2min ago",
       icon: Icons.playlist_add_check,
-      iconColor: Colors.red,
+      iconColor: PatientColors.error,
       isRead: false,
     ),
   ];
@@ -65,14 +66,14 @@ class _PatientNotificationScreenState extends State<PatientNotificationScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.grey[100],
+      backgroundColor: PatientColors.background,
       appBar: AppBar(
-        backgroundColor: Colors.white,
+        backgroundColor: PatientColors.surface,
         elevation: 0,
         title: const Text(
           'Notification',
           style: TextStyle(
-            color: Colors.black,
+            color: PatientColors.onSurface,
             fontSize: 20,
             fontWeight: FontWeight.w600,
           ),
@@ -80,7 +81,7 @@ class _PatientNotificationScreenState extends State<PatientNotificationScreen> {
         centerTitle: true,
         actions: [
           IconButton(
-            icon: const Icon(Icons.notifications, color: Colors.black),
+            icon: const Icon(Icons.notifications, color: PatientColors.onSurface),
             onPressed: () {
               Navigator.of(context).pushNamed(AppRoutes.patientNotifications);
             },
@@ -91,7 +92,7 @@ class _PatientNotificationScreenState extends State<PatientNotificationScreen> {
         children: [
           // Tab section
           Container(
-            color: Colors.white,
+            color: PatientColors.surface,
             padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
             child: Row(
               children: [
@@ -100,7 +101,7 @@ class _PatientNotificationScreenState extends State<PatientNotificationScreen> {
                   child: Container(
                     padding: const EdgeInsets.symmetric(vertical: 12),
                     decoration: BoxDecoration(
-                      color: Colors.blue[50],
+                      color: PatientColors.primaryLight,
                       borderRadius: BorderRadius.circular(25),
                     ),
                     child: Row(
@@ -110,7 +111,7 @@ class _PatientNotificationScreenState extends State<PatientNotificationScreen> {
                           width: 8,
                           height: 8,
                           decoration: const BoxDecoration(
-                            color: Colors.blue,
+                            color: PatientColors.primary,
                             shape: BoxShape.circle,
                           ),
                         ),
@@ -118,7 +119,7 @@ class _PatientNotificationScreenState extends State<PatientNotificationScreen> {
                         const Text(
                           'Unread notification',
                           style: TextStyle(
-                            color: Colors.blue,
+                            color: PatientColors.primary,
                             fontWeight: FontWeight.w500,
                           ),
                         ),
@@ -126,13 +127,13 @@ class _PatientNotificationScreenState extends State<PatientNotificationScreen> {
                         Container(
                           padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
                           decoration: BoxDecoration(
-                            color: Colors.blue,
+                            color: PatientColors.primary,
                             borderRadius: BorderRadius.circular(10),
                           ),
                           child: Text(
                             '$unreadCount',
                             style: const TextStyle(
-                              color: Colors.white,
+                              color: PatientColors.onPrimary,
                               fontSize: 12,
                               fontWeight: FontWeight.bold,
                             ),
@@ -153,13 +154,13 @@ class _PatientNotificationScreenState extends State<PatientNotificationScreen> {
                         Container(
                           width: 20,
                           height: 20,
-                          decoration: BoxDecoration(
-                            color: Colors.green,
+                          decoration: const BoxDecoration(
+                            color: PatientColors.success,
                             shape: BoxShape.circle,
                           ),
                           child: const Icon(
                             Icons.check,
-                            color: Colors.white,
+                            color: PatientColors.onPrimary,
                             size: 14,
                           ),
                         ),
@@ -167,7 +168,7 @@ class _PatientNotificationScreenState extends State<PatientNotificationScreen> {
                         const Text(
                           'Read notifications',
                           style: TextStyle(
-                            color: Colors.grey,
+                            color: PatientColors.onSurfaceVariant,
                             fontWeight: FontWeight.w500,
                           ),
                         ),
@@ -175,13 +176,13 @@ class _PatientNotificationScreenState extends State<PatientNotificationScreen> {
                         Container(
                           padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
                           decoration: BoxDecoration(
-                            color: Colors.green,
+                            color: PatientColors.success,
                             borderRadius: BorderRadius.circular(10),
                           ),
                           child: Text(
                             '$readCount',
                             style: const TextStyle(
-                              color: Colors.white,
+                              color: PatientColors.onPrimary,
                               fontSize: 12,
                               fontWeight: FontWeight.bold,
                             ),
@@ -207,11 +208,11 @@ class _PatientNotificationScreenState extends State<PatientNotificationScreen> {
                 return Container(
                   margin: const EdgeInsets.only(bottom: 12),
                   decoration: BoxDecoration(
-                    color: Colors.white,
+                    color: PatientColors.surface,
                     borderRadius: BorderRadius.circular(12),
                     boxShadow: [
                       BoxShadow(
-                        color: Colors.grey.withOpacity(0.1),
+                        color: PatientColors.shadow,
                         blurRadius: 4,
                         offset: const Offset(0, 2),
                       ),
@@ -226,7 +227,7 @@ class _PatientNotificationScreenState extends State<PatientNotificationScreen> {
                           width: 4,
                           height: 40,
                           decoration: BoxDecoration(
-                            color: Colors.blue,
+                            color: PatientColors.primary,
                             borderRadius: BorderRadius.circular(2),
                           ),
                         ),
@@ -256,14 +257,14 @@ class _PatientNotificationScreenState extends State<PatientNotificationScreen> {
                                 style: const TextStyle(
                                   fontWeight: FontWeight.w600,
                                   fontSize: 14,
-                                  color: Colors.black,
+                                  color: PatientColors.onSurface,
                                 ),
                               ),
                               const SizedBox(height: 4),
                               Text(
                                 notification.time,
-                                style: TextStyle(
-                                  color: Colors.grey[600],
+                                style: const TextStyle(
+                                  color: PatientColors.onSurfaceVariant,
                                   fontSize: 12,
                                 ),
                               ),
@@ -278,7 +279,7 @@ class _PatientNotificationScreenState extends State<PatientNotificationScreen> {
                               child: Text(
                                 'Mark as read',
                                 style: TextStyle(
-                                  color: Colors.blue[600],
+                                  color: PatientColors.primary,
                                   fontSize: 12,
                                   fontWeight: FontWeight.w500,
                                 ),
@@ -289,7 +290,7 @@ class _PatientNotificationScreenState extends State<PatientNotificationScreen> {
                               onTap: () => dismissNotification(notification.id),
                               child: Icon(
                                 Icons.close,
-                                color: Colors.grey[400],
+                                color: PatientColors.onSurfaceVariant,
                                 size: 20,
                               ),
                             ),

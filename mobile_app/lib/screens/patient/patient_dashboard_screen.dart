@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
-import '../../widgets/patient/PatientBottomNavigationBar.dart';
+import 'dart:ui';
 import '../../routes/app_routes.dart';
+import '../../constants/color_constants.dart';
 
 class PatientDashboardScreen extends StatefulWidget {
   const PatientDashboardScreen({Key? key}) : super(key: key);
@@ -19,7 +20,7 @@ class _PatientDashboardScreenState extends State<PatientDashboardScreen> {
       subtitle: 'Morning meal',
       time: '8:00 AM',
       isCompleted: true,
-      color: Colors.orange,
+      color: PatientColors.activityMeal,
     ),
     Activity(
       icon: Icons.dinner_dining,
@@ -27,7 +28,7 @@ class _PatientDashboardScreenState extends State<PatientDashboardScreen> {
       subtitle: 'Evening meal',
       time: '6:00 PM',
       isCompleted: false,
-      color: Colors.purple,
+      color: PatientColors.activityMeal,
     ),
     Activity(
       icon: Icons.bathtub,
@@ -35,7 +36,7 @@ class _PatientDashboardScreenState extends State<PatientDashboardScreen> {
       subtitle: 'Personal hygiene',
       time: '7:00 PM',
       isCompleted: false,
-      color: Colors.blue,
+      color: PatientColors.activityHygiene,
     ),
     Activity(
       icon: Icons.bed,
@@ -43,25 +44,185 @@ class _PatientDashboardScreenState extends State<PatientDashboardScreen> {
       subtitle: 'Night rest',
       time: '7:00 PM',
       isCompleted: false,
-      color: Colors.indigo,
+      color: PatientColors.activitySleep,
     ),
   ];
+
+  void _showSkipDialog(Activity activity) {
+    final TextEditingController reasonController = TextEditingController();
+
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (BuildContext context) {
+        return Stack(
+          children: [
+            // Blurred background
+            Positioned.fill(
+              child: Container(
+                color: Colors.black.withOpacity(0.3),
+                child: BackdropFilter(
+                  filter: ImageFilter.blur(sigmaX: 5.0, sigmaY: 5.0),
+                  child: Container(color: Colors.black.withOpacity(0.1)),
+                ),
+              ),
+            ),
+            // Dialog
+            Dialog(
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(20),
+              ),
+              child: Container(
+                padding: EdgeInsets.all(24),
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(20),
+                  color: Colors.white,
+                ),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Text(
+                          'Skip Task',
+                          style: TextStyle(
+                            fontSize: 20,
+                            fontWeight: FontWeight.bold,
+                            color: Colors.black87,
+                          ),
+                        ),
+                        IconButton(
+                          onPressed: () {
+                            Navigator.of(context).pop();
+                          },
+                          icon: Icon(Icons.close, color: Colors.grey),
+                        ),
+                      ],
+                    ),
+                    SizedBox(height: 16),
+                    Text(
+                      'You are about to skip: ${activity.title}',
+                      style: TextStyle(fontSize: 16, color: Colors.black54),
+                    ),
+                    SizedBox(height: 20),
+                    Text(
+                      'Reason for skipping:',
+                      style: TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.w500,
+                        color: Colors.black87,
+                      ),
+                    ),
+                    SizedBox(height: 12),
+                    TextField(
+                      controller: reasonController,
+                      maxLines: 3,
+                      decoration: InputDecoration(
+                        hintText: 'Please provide a reason...',
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(12),
+                          borderSide: BorderSide(color: Colors.grey.shade300),
+                        ),
+                        focusedBorder: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(12),
+                          borderSide: BorderSide(color: Colors.blue, width: 2),
+                        ),
+                        contentPadding: EdgeInsets.all(16),
+                      ),
+                    ),
+                    SizedBox(height: 24),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.end,
+                      children: [
+                        TextButton(
+                          onPressed: () {
+                            Navigator.of(context).pop();
+                          },
+                          child: Text(
+                            'Cancel',
+                            style: TextStyle(
+                              color: Colors.grey.shade600,
+                              fontSize: 16,
+                            ),
+                          ),
+                        ),
+                        SizedBox(width: 12),
+                        ElevatedButton(
+                          onPressed: () {
+                            if (reasonController.text.trim().isNotEmpty) {
+                              setState(() {
+                                activity.isSkipped = true;
+                                activity.isCompleted = false;
+                              });
+                              Navigator.of(context).pop();
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                SnackBar(
+                                  content: Text('Task "${activity.title}" has been skipped'),
+                                  backgroundColor: Colors.orange,
+                                ),
+                              );
+                            } else {
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                SnackBar(
+                                  content: Text('Please provide a reason for skipping'),
+                                  backgroundColor: Colors.red,
+                                ),
+                              );
+                            }
+                          },
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: Colors.red,
+                            foregroundColor: Colors.white,
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(12),
+                            ),
+                          ),
+                          child: Text(
+                            'Skip Task',
+                            style: TextStyle(fontSize: 16),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ],
+        );
+      },
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.grey[50],
+      backgroundColor: PatientColors.backgroundGrey,
       appBar: AppBar(
-        backgroundColor: Colors.white,
+        backgroundColor: PatientColors.backgroundWhite,
         elevation: 0,
         centerTitle: true,
-        title: const Text(
-          'Schedule Routine',
-          style: TextStyle(
-            color: Colors.black,
-            fontWeight: FontWeight.w600,
-            fontSize: 18,
-          ),
+        title: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Image.asset(
+              'assets/images/light_logo.png',
+              height: 32,
+              width: 32,
+              fit: BoxFit.contain,
+            ),
+            const SizedBox(width: 8),
+            const Text(
+              'Memora',
+              style: TextStyle(
+                color: Colors.black,
+                fontWeight: FontWeight.w600,
+                fontSize: 18,
+              ),
+            ),
+          ],
         ),
         actions: [
           IconButton(
@@ -252,7 +413,22 @@ class _PatientDashboardScreenState extends State<PatientDashboardScreen> {
                         onToggle: () {
                           setState(() {
                             activity.isCompleted = !activity.isCompleted;
+                            if (activity.isCompleted) {
+                              activity.isSkipped = false; // Reset skip when completed
+                            }
                           });
+                        },
+                        onSkip: () => _showSkipDialog(activity),
+                        onUndoSkip: () {
+                          setState(() {
+                            activity.isSkipped = false;
+                          });
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            SnackBar(
+                              content: Text('Task "${activity.title}" is back on track'),
+                              backgroundColor: Colors.green,
+                            ),
+                          );
                         },
                       );
                     },
@@ -310,6 +486,7 @@ class Activity {
   final String subtitle;
   final String time;
   bool isCompleted;
+  bool isSkipped;
   final Color color;
 
   Activity({
@@ -318,6 +495,7 @@ class Activity {
     required this.subtitle,
     required this.time,
     required this.isCompleted,
+    this.isSkipped = false,
     required this.color,
   });
 }
@@ -325,11 +503,15 @@ class Activity {
 class ActivityCard extends StatelessWidget {
   final Activity activity;
   final VoidCallback onToggle;
+  final VoidCallback onSkip;
+  final VoidCallback onUndoSkip;
 
   const ActivityCard({
     Key? key,
     required this.activity,
     required this.onToggle,
+    required this.onSkip,
+    required this.onUndoSkip,
   }) : super(key: key);
 
   @override
@@ -338,8 +520,13 @@ class ActivityCard extends StatelessWidget {
       margin: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: activity.isSkipped 
+            ? Colors.orange.shade50 
+            : Colors.white,
         borderRadius: BorderRadius.circular(15),
+        border: activity.isSkipped 
+            ? Border.all(color: Colors.orange.shade300, width: 1)
+            : null,
         boxShadow: [
           BoxShadow(
             color: Colors.grey.withOpacity(0.1),
@@ -349,98 +536,176 @@ class ActivityCard extends StatelessWidget {
           ),
         ],
       ),
-      child: Row(
+      child: Column(
         children: [
-          Container(
-            padding: const EdgeInsets.all(12),
-            decoration: BoxDecoration(
-              color: activity.color.withOpacity(0.1),
-              borderRadius: BorderRadius.circular(12),
-            ),
-            child: Icon(
-              activity.icon,
-              color: activity.color,
-              size: 24,
-            ),
-          ),
-          const SizedBox(width: 15),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  activity.title,
-                  style: const TextStyle(
-                    fontSize: 16,
-                    fontWeight: FontWeight.w600,
-                  ),
+          Row(
+            children: [
+              Container(
+                padding: const EdgeInsets.all(12),
+                decoration: BoxDecoration(
+                  color: activity.color.withOpacity(0.1),
+                  borderRadius: BorderRadius.circular(12),
                 ),
-                const SizedBox(height: 2),
-                Text(
-                  activity.subtitle,
-                  style: TextStyle(
-                    fontSize: 14,
-                    color: Colors.grey[600],
-                  ),
+                child: Icon(
+                  activity.icon,
+                  color: activity.color,
+                  size: 24,
                 ),
-                const SizedBox(height: 10),
-                Row(
+              ),
+              const SizedBox(width: 15),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Container(
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 12,
-                        vertical: 6,
-                      ),
-                      decoration: BoxDecoration(
-                        color: Colors.grey[100],
-                        borderRadius: BorderRadius.circular(15),
-                      ),
-                      child: Row(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          Icon(
-                            Icons.access_time,
-                            size: 16,
-                            color: Colors.grey[600],
+                    Row(
+                      children: [
+                        Text(
+                          activity.title,
+                          style: TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.w600,
+                            decoration: activity.isSkipped ? TextDecoration.lineThrough : null,
+                            color: activity.isSkipped ? Colors.grey : Colors.black,
                           ),
-                          const SizedBox(width: 5),
-                          Text(
-                            activity.time,
-                            style: TextStyle(
-                              fontSize: 12,
-                              color: Colors.grey[600],
+                        ),
+                        if (activity.isSkipped) ...[
+                          const SizedBox(width: 8),
+                          Container(
+                            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                            decoration: BoxDecoration(
+                              color: Colors.orange.shade100,
+                              borderRadius: BorderRadius.circular(12),
+                            ),
+                            child: Text(
+                              'SKIPPED',
+                              style: TextStyle(
+                                fontSize: 10,
+                                fontWeight: FontWeight.bold,
+                                color: Colors.orange.shade700,
+                              ),
                             ),
                           ),
                         ],
+                      ],
+                    ),
+                    const SizedBox(height: 2),
+                    Text(
+                      activity.subtitle,
+                      style: TextStyle(
+                        fontSize: 14,
+                        color: activity.isSkipped ? Colors.grey.shade400 : Colors.grey[600],
                       ),
+                    ),
+                    const SizedBox(height: 10),
+                    Row(
+                      children: [
+                        Container(
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 12,
+                            vertical: 6,
+                          ),
+                          decoration: BoxDecoration(
+                            color: Colors.grey[100],
+                            borderRadius: BorderRadius.circular(15),
+                          ),
+                          child: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Icon(
+                                Icons.access_time,
+                                size: 16,
+                                color: Colors.grey[600],
+                              ),
+                              const SizedBox(width: 5),
+                              Text(
+                                activity.time,
+                                style: TextStyle(
+                                  fontSize: 12,
+                                  color: Colors.grey[600],
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ],
                     ),
                   ],
                 ),
-              ],
-            ),
-          ),
-          GestureDetector(
-            onTap: onToggle,
-            child: Container(
-              width: 24,
-              height: 24,
-              decoration: BoxDecoration(
-                shape: BoxShape.circle,
-                border: Border.all(
-                  color: activity.isCompleted ? Colors.green : Colors.grey[300]!,
-                  width: 2,
-                ),
-                color: activity.isCompleted ? Colors.green : Colors.transparent,
               ),
-              child: activity.isCompleted
-                  ? const Icon(
-                Icons.check,
-                color: Colors.white,
-                size: 16,
-              )
-                  : null,
-            ),
+              Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  // Skip button - only show if task is not completed and not skipped
+                  if (!activity.isCompleted && !activity.isSkipped) ...[
+                    GestureDetector(
+                      onTap: onSkip,
+                      child: Container(
+                        padding: const EdgeInsets.all(8),
+                        decoration: BoxDecoration(
+                          color: Colors.orange.shade50,
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                        child: Icon(
+                          Icons.skip_next,
+                          color: Colors.orange.shade600,
+                          size: 20,
+                        ),
+                      ),
+                    ),
+                    const SizedBox(width: 8),
+                  ],
+                  // Complete/Undo button
+                  GestureDetector(
+                    onTap: activity.isSkipped ? null : onToggle,
+                    child: Container(
+                      width: 24,
+                      height: 24,
+                      decoration: BoxDecoration(
+                        shape: BoxShape.circle,
+                        border: Border.all(
+                          color: activity.isCompleted 
+                              ? Colors.green 
+                              : activity.isSkipped 
+                                  ? Colors.grey.shade300
+                                  : Colors.grey[300]!,
+                          width: 2,
+                        ),
+                        color: activity.isCompleted ? Colors.green : Colors.transparent,
+                      ),
+                      child: activity.isCompleted
+                          ? const Icon(
+                        Icons.check,
+                        color: Colors.white,
+                        size: 16,
+                      )
+                          : null,
+                    ),
+                  ),
+                ],
+              ),
+            ],
           ),
+          // Show undo skip option for skipped tasks
+          if (activity.isSkipped) ...[
+            const SizedBox(height: 12),
+            Container(
+              width: double.infinity,
+              child: ElevatedButton.icon(
+                onPressed: onUndoSkip,
+                icon: Icon(Icons.undo, size: 16),
+                label: Text('Undo Skip'),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.orange.shade100,
+                  foregroundColor: Colors.orange.shade700,
+                  elevation: 0,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  padding: const EdgeInsets.symmetric(vertical: 8),
+                ),
+              ),
+            ),
+          ],
         ],
       ),
     );

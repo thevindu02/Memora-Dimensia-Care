@@ -6,9 +6,10 @@
   <component name="ChangeListManager">
     <list default="true" id="3d8ebd94-6307-43eb-b4a1-fbeb986836cf" name="Changes" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/misc.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/misc.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/src/main/resources/application.properties" beforeDir="false" afterPath="$PROJECT_DIR$/backend/src/main/resources/application.properties" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/mobile_app/lib/screens/auth/login_screen.dart" beforeDir="false" afterPath="$PROJECT_DIR$/mobile_app/lib/screens/auth/login_screen.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/mobile_app/lib/services/auth_service.dart" beforeDir="false" afterPath="$PROJECT_DIR$/mobile_app/lib/services/auth_service.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/mobile_app/lib/routes/app_routes.dart" beforeDir="false" afterPath="$PROJECT_DIR$/mobile_app/lib/routes/app_routes.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/mobile_app/lib/screens/guardian/guardian_articles_screen.dart" beforeDir="false" afterPath="$PROJECT_DIR$/mobile_app/lib/screens/guardian/guardian_articles_screen.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/mobile_app/lib/screens/guardian/guardian_routes.dart" beforeDir="false" afterPath="$PROJECT_DIR$/mobile_app/lib/screens/guardian/guardian_routes.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/mobile_app/lib/screens/volunteer/volunteer_community_screen.dart" beforeDir="false" afterPath="$PROJECT_DIR$/mobile_app/lib/screens/volunteer/volunteer_community_screen.dart" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -41,6 +42,7 @@
     "dart.analysis.tool.window.visible": "false",
     "git-widget-placeholder": "thevindu",
     "kotlin-language-version-configured": "true",
+    "last_opened_file_path": "F:/UCSC/Third Year/Group Project II/dimentia-care-platform/mobile_app",
     "settings.editor.selected.configurable": "AndroidSdkUpdater",
     "show.migrate.to.gradle.popup": "false"
   }

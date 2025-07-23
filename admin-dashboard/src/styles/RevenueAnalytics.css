@@ -1,0 +1,664 @@
+/* Revenue Analytics Page Styles */
+.revenue-analytics-page {
+  padding: 2rem;
+  background: white;
+  min-height: 100vh;
+}
+
+.page-header {
+  margin-bottom: 2rem;
+}
+
+.page-header h1 {
+  color: #390797;
+  font-size: 2rem;
+  font-weight: 700;
+  margin-bottom: 1rem;
+}
+
+/* Header Controls */
+.analytics-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: white;
+  padding: 1.5rem 2rem;
+  border-radius: 12px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+  margin-bottom: 2rem;
+}
+
+.period-selector {
+  display: flex;
+  background: #C3B1E1;
+  border-radius: 8px;
+  padding: 4px;
+}
+
+.period-selector button {
+  padding: 0.5rem 1rem;
+  border: none;
+  background: transparent;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 0.9rem;
+  font-weight: 500;
+  color: #390797;
+  transition: all 0.2s ease;
+}
+
+.period-selector button.active {
+  background: white;
+  color: #2B3F99;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.analytics-actions {
+  display: flex;
+  gap: 1rem;
+}
+
+.refresh-btn {
+  padding: 0.5rem 1rem;
+  border: 1px solid #A0C4FD;
+  background: white;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 0.9rem;
+  font-weight: 500;
+  color: #390797;
+  transition: all 0.2s ease;
+}
+
+.refresh-btn:hover {
+  background: white;
+  border-color: #2B3F99;
+  color: #2B3F99;
+}
+
+/* Revenue Summary Cards */
+.revenue-summary {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 1.5rem;
+  margin-bottom: 2rem;
+}
+
+.summary-card {
+  background: white;
+  border-radius: 12px;
+  padding: 1.5rem;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.summary-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+}
+
+.summary-card.primary {
+  background: #2B3F99;
+  color: white;
+}
+
+.summary-icon {
+  font-size: 2.5rem;
+  opacity: 0.9;
+}
+
+.summary-content {
+  flex: 1;
+}
+
+.summary-number {
+  font-size: 1.8rem;
+  font-weight: 700;
+  margin-bottom: 0.25rem;
+}
+
+.summary-label {
+  font-size: 0.9rem;
+  opacity: 0.8;
+  margin-bottom: 0.25rem;
+}
+
+.summary-change {
+  font-size: 0.8rem;
+  font-weight: 500;
+}
+
+.summary-change.positive {
+  color: #2B3F99;
+}
+
+.summary-card.primary .summary-change.positive {
+  color: #A0C4FD;
+}
+
+.summary-note {
+  font-size: 0.8rem;
+  opacity: 0.7;
+}
+
+/* Transactions Container */
+.transactions-container {
+  margin-bottom: 2rem;
+}
+
+.transactions-card {
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+  overflow: hidden;
+}
+
+.transactions-header {
+  padding: 1.5rem 2rem;
+  border-bottom: 1px solid #A0C4FD;
+}
+
+.transactions-header h3 {
+  color: #390797;
+  font-size: 1.25rem;
+  font-weight: 600;
+  margin-bottom: 0.5rem;
+}
+
+.transactions-header p {
+  color: #390797;
+  font-size: 0.9rem;
+  margin: 0;
+}
+
+.transactions-table {
+  overflow-x: auto;
+}
+
+.table-header {
+  display: grid;
+  grid-template-columns: 2fr 1.5fr 1fr 1fr 1fr;
+  gap: 1rem;
+  padding: 1rem 2rem;
+  background: white;
+  font-weight: 600;
+  color: #390797;
+  font-size: 0.85rem;
+  text-transform: uppercase;
+  text-align: center;
+  letter-spacing: 0.5px;
+}
+
+.table-body {
+  max-height: 400px;
+  overflow-y: auto;
+}
+
+.table-row {
+  display: grid;
+  grid-template-columns: 2fr 1.5fr 1fr 1fr 1fr;
+  gap: 1rem;
+  padding: 1rem 2rem;
+  border-bottom: 1px solid #C3B1E1;
+  transition: background-color 0.2s ease;
+}
+
+.table-row:hover {
+  background: #f8f9fa;
+}
+
+.patient-info {
+  display: flex;
+  flex-direction: column;
+}
+
+.patient-name {
+  font-weight: 500;
+  color: #390797;
+  margin-bottom: 0.25rem;
+}
+
+.patient-id {
+  font-size: 0.8rem;
+  color: #390797;
+}
+
+.plan-badge {
+  display: inline-block;
+  padding: 0.25rem 0.75rem;
+  background: #C3B1E1;
+  color: #390797;
+  border-radius: 6px;
+  font-size: 0.8rem;
+  font-weight: 500;
+}
+
+.amount {
+  font-weight: 600;
+  color: #2B3F99;
+}
+
+.status-badge {
+  display: inline-block;
+  padding: 0.25rem 0.75rem;
+  border-radius: 6px;
+  font-size: 0.8rem;
+  font-weight: 500;
+  text-transform: capitalize;
+}
+
+.status-badge.completed {
+  background: #C3B1E1;
+  color: #390797;
+}
+
+.status-badge.pending {
+  background: #C3B1E1;
+  color: #390797;
+}
+
+.status-badge.active {
+  background: #C3B1E1;
+  color: #390797;
+}
+
+.table-footer {
+  padding: 1rem 2rem;
+  text-align: center;
+  border-top: 1px solid #A0C4FD;
+}
+
+.view-all-btn {
+  padding: 0.5rem 1rem;
+  background: #2B3F99;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 0.9rem;
+  font-weight: 500;
+  transition: background-color 0.2s ease;
+}
+
+.view-all-btn:hover {
+  background: #2B3F99;
+}
+
+/* Revenue by Plan Container */
+.revenue-by-plan-container {
+  margin-bottom: 2rem;
+}
+
+.revenue-by-plan-card {
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+  padding: 1.5rem 2rem;
+}
+
+.revenue-by-plan-header {
+  margin-bottom: 1.5rem;
+}
+
+.revenue-by-plan-header h3 {
+  color: #390797;
+  font-size: 1.25rem;
+  font-weight: 600;
+  margin-bottom: 0.5rem;
+}
+
+.revenue-by-plan-header p {
+  color: #390797;
+  font-size: 0.9rem;
+  margin: 0;
+}
+
+.plans-revenue-list {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.plan-revenue-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 1rem;
+  background: #C3B1E1;
+  border-radius: 8px;
+  transition: background-color 0.2s ease;
+}
+
+.plan-revenue-item:hover {
+  background: #C3B1E1;
+}
+
+.plan-info {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.plan-indicator {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+}
+
+.plan-details {
+  display: flex;
+  flex-direction: column;
+}
+
+.plan-name {
+  font-weight: 600;
+  color: #390797;
+  margin-bottom: 0.25rem;
+}
+
+.plan-pricing {
+  font-size: 0.8rem;
+  color: #390797;
+}
+
+.plan-revenue-metrics {
+  text-align: right;
+}
+
+.revenue-amount {
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: #2B3F99;
+  margin-bottom: 0.25rem;
+}
+
+.revenue-percentage {
+  font-size: 0.8rem;
+  color: #390797;
+}
+
+/* Report Generation Container */
+.report-generation-container {
+  margin-bottom: 2rem;
+}
+
+.report-generation-card {
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+  padding: 1.5rem 2rem;
+}
+
+.report-generation-header {
+  margin-bottom: 1.5rem;
+}
+
+.report-generation-header h3 {
+  color: #390797;
+  font-size: 1.25rem;
+  font-weight: 600;
+  margin-bottom: 0.5rem;
+}
+
+.report-generation-header p {
+  color: #390797;
+  font-size: 0.9rem;
+  margin: 0;
+}
+
+.report-generation-content {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 2rem;
+}
+
+.report-info {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.report-icon {
+  font-size: 2rem;
+}
+
+.report-description h4 {
+  color: #390797;
+  font-size: 1rem;
+  font-weight: 600;
+  margin-bottom: 0.25rem;
+}
+
+.report-description p {
+  color: #390797;
+  font-size: 0.9rem;
+  margin: 0;
+}
+
+.generate-report-btn {
+  padding: 0.75rem 1.5rem;
+  background: #2B3F99;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 0.9rem;
+  font-weight: 500;
+  transition: background-color 0.2s ease;
+}
+
+.generate-report-btn:hover {
+  background: #2B3F99;
+}
+
+/* Modal Styles */
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+}
+
+.modal-content {
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
+  width: 90%;
+  max-width: 500px;
+  max-height: 90vh;
+  overflow-y: auto;
+}
+
+.modal-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 1.5rem;
+  border-bottom: 1px solid #A0C4FD;
+}
+
+.modal-header h3 {
+  color: #390797;
+  font-size: 1.25rem;
+  font-weight: 600;
+  margin: 0;
+}
+
+.close-btn {
+  background: none;
+  border: none;
+  font-size: 1.5rem;
+  color: #390797;
+  cursor: pointer;
+  padding: 0;
+  line-height: 1;
+}
+
+.close-btn:hover {
+  color: #390797;
+}
+
+.modal-body {
+  padding: 1.5rem;
+}
+
+.filter-section {
+  margin-bottom: 1.5rem;
+}
+
+.filter-group {
+  margin-bottom: 1rem;
+}
+
+.filter-group label {
+  display: block;
+  font-weight: 500;
+  color: #390797;
+  margin-bottom: 0.5rem;
+}
+
+.filter-select {
+  width: 100%;
+  padding: 0.5rem;
+  border: 1px solid #A0C4FD;
+  border-radius: 6px;
+  font-size: 0.9rem;
+  color: #390797;
+  background: white;
+}
+
+.filter-select:focus {
+  outline: none;
+  border-color: #2B3F99;
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+}
+
+.report-preview {
+  background: #C3B1E1;
+  padding: 1rem;
+  border-radius: 8px;
+}
+
+.report-preview h4 {
+  color: #390797;
+  font-size: 1rem;
+  font-weight: 600;
+  margin-bottom: 0.75rem;
+}
+
+.preview-info {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.preview-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.preview-label {
+  font-weight: 500;
+  color: #390797;
+}
+
+.preview-value {
+  font-weight: 500;
+  color: #390797;
+}
+
+.modal-footer {
+  display: flex;
+  gap: 1rem;
+  justify-content: flex-end;
+  padding: 1.5rem;
+  border-top: 1px solid #A0C4FD;
+}
+
+.cancel-btn {
+  padding: 0.5rem 1rem;
+  background: white;
+  color: #390797;
+  border: 1px solid #A0C4FD;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 0.9rem;
+  font-weight: 500;
+  transition: all 0.2s ease;
+}
+
+.cancel-btn:hover {
+  background: #C3B1E1;
+}
+
+.download-btn {
+  padding: 0.5rem 1rem;
+  background: #2B3F99;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 0.9rem;
+  font-weight: 500;
+  transition: background-color 0.2s ease;
+}
+
+.download-btn:hover {
+  background: #2B3F99;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .revenue-analytics-page {
+    padding: 1rem;
+  }
+
+  .analytics-header {
+    flex-direction: column;
+    gap: 1rem;
+    align-items: stretch;
+  }
+
+  .revenue-summary {
+    grid-template-columns: 1fr;
+  }
+
+  .summary-card {
+    flex-direction: column;
+    align-items: flex-start;
+    text-align: left;
+  }
+
+  .table-header,
+  .table-row {
+    grid-template-columns: 1fr;
+    gap: 0.5rem;
+  }
+
+  .table-header > div,
+  .table-row > div {
+    padding: 0.5rem 0;
+  }
+
+  .report-generation-content {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .modal-content {
+    margin: 1rem;
+    width: calc(100% - 2rem);
+  }
+}
+
