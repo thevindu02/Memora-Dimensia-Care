@@ -100,4 +100,7 @@ class AppRoutes {
   static const String volunteerSettings = '/volunteer/settings';
   static const String guardianForumArticles = '/guardianForumArticles';
   static const String volunteerDraft = '/volunteer/draft';
+  static const String viewArticle = '/volunteer/viewarticle';
+  static const String volunteerArticlesTab = '/volunteer/viewarticle';
+  
 }
