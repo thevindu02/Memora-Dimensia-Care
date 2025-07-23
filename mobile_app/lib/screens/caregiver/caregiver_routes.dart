@@ -72,10 +72,14 @@ class CaregiverRoutes {
           settings: settings,
         );
       case AppRoutes.careDetails:
-        return MaterialPageRoute(builder: (_) => CareDetailsScreen());
+        return MaterialPageRoute(
+            builder: (_) => CareDetailsScreen(),
+            settings: settings,
+        );
       case AppRoutes.caregiverConnectionRequests:
         return MaterialPageRoute(
           builder: (_) => CaregiverConnectionRequestsScreen(),
+          settings: settings,
         );
         return MaterialPageRoute(
           builder: (_) => CareDetailsScreen(),

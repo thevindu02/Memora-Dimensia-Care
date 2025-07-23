@@ -129,7 +129,7 @@ class _HelpSupportScreenState extends State<GuardianSettingsHelpSupportScreen> {
                         ),
                       ),
                       Text(
-                        'support@guardianapp.com',
+                        'support@memora.com',
                         style: TextStyle(fontSize: 15),
                       ),
                     ],
@@ -151,7 +151,7 @@ class _HelpSupportScreenState extends State<GuardianSettingsHelpSupportScreen> {
                           fontSize: 16,
                         ),
                       ),
-                      Text('+1-800-GUARDIAN', style: TextStyle(fontSize: 15)),
+                      Text('+94 011 1234567', style: TextStyle(fontSize: 15)),
                     ],
                   ),
                 ],

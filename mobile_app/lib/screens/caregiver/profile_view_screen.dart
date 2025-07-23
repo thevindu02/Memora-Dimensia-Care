@@ -22,15 +22,15 @@ class _ProfileViewState extends State<CaregiverProfileScreen> {
           icon: Icon(Icons.arrow_back, color: Colors.black),
           onPressed: () => Navigator.pop(context),
         ),
-        title: Text(
+        title: const Text(
           'Profile',
           style: TextStyle(
-            color: Colors.black,
-            fontSize: 18,
+            fontSize: 20,
             fontWeight: FontWeight.w600,
+            color: Colors.black87,
           ),
         ),
-        centerTitle: true,
+        centerTitle: false,
         actions: [
           IconButton(
             icon: Icon(Icons.settings, color: Colors.black),
@@ -54,7 +54,9 @@ class _ProfileViewState extends State<CaregiverProfileScreen> {
                       // Profile Image Container
                       CircleAvatar(
                         radius: 50,
-                        backgroundImage: AssetImage('assets/images/caregiver.png'),
+                        backgroundImage: AssetImage(
+                          'assets/images/caregiver.png',
+                        ),
                       ),
                       // Online status indicator
                       Positioned(
@@ -66,10 +68,7 @@ class _ProfileViewState extends State<CaregiverProfileScreen> {
                           decoration: BoxDecoration(
                             color: Color(0xFF4CAF50),
                             borderRadius: BorderRadius.circular(10),
-                            border: Border.all(
-                              color: Colors.white,
-                              width: 3,
-                            ),
+                            border: Border.all(color: Colors.white, width: 3),
                           ),
                         ),
                       ),
@@ -87,17 +86,14 @@ class _ProfileViewState extends State<CaregiverProfileScreen> {
                   SizedBox(height: 4),
                   Text(
                     'Primary Caregiver',
-                    style: TextStyle(
-                      fontSize: 14,
-                      color: Colors.grey[600],
-                    ),
+                    style: TextStyle(fontSize: 14, color: Colors.grey[600]),
                   ),
                 ],
               ),
             ),
-            
+
             SizedBox(height: 30),
-            
+
             // Profile Information
             _buildInfoSection('Email', 'john.smith@example.com'),
             _buildInfoSection('Phone Number', '+1 234 567 890'),
@@ -114,16 +110,17 @@ class _ProfileViewState extends State<CaregiverProfileScreen> {
             _buildInfoSection('Experience', '3-5 years'),
             _buildInfoSection('Qualifications', 'Nursing, CPR Certified'),
             _buildInfoSection('Skills', 'Elder Care, Medical Care, Cooking'),
-            
 
-            
             // Action Buttons
             Row(
               children: [
                 Expanded(
                   child: ElevatedButton(
                     onPressed: () {
-                      Navigator.pushNamed(context, AppRoutes.caregiverProfileEdit);
+                      Navigator.pushNamed(
+                        context,
+                        AppRoutes.caregiverProfileEdit,
+                      );
                     },
                     style: ElevatedButton.styleFrom(
                       backgroundColor: Color(0xFF9FC3FC),
@@ -147,7 +144,6 @@ class _ProfileViewState extends State<CaregiverProfileScreen> {
                   child: OutlinedButton(
                     onPressed: () {
                       Navigator.pushNamed(context, AppRoutes.login);
-
                     },
                     style: OutlinedButton.styleFrom(
                       padding: EdgeInsets.symmetric(vertical: 15),
@@ -171,21 +167,20 @@ class _ProfileViewState extends State<CaregiverProfileScreen> {
           ],
         ),
       ),
-      
+
       // Bottom Navigation
       bottomNavigationBar: BottomNavigationBar(
         currentIndex: _currentIndex,
         onTap: (index) {
-          if (index == 0) { // Patients tab
+          if (index == 0) {
+            // Patients tab
             // Navigate to detailed patients screen
             Navigator.pushNamed(context, AppRoutes.caregiverDashboard);
-          }else if(index==1){
+          } else if (index == 1) {
             Navigator.pushNamed(context, AppRoutes.caregiverPatients);
-          }
-          else if(index==2){
+          } else if (index == 2) {
             Navigator.pushNamed(context, AppRoutes.viewArticleList);
-          }
-          else {
+          } else {
             setState(() {
               _currentIndex = index;
             });
@@ -195,14 +190,21 @@ class _ProfileViewState extends State<CaregiverProfileScreen> {
         selectedItemColor: Color(0xFF2B3F99),
         unselectedItemColor: Color(0xFF2B3F99),
         items: const [
-          BottomNavigationBarItem(icon: Icon(Icons.home_outlined), label: 'Home'),
-          BottomNavigationBarItem(icon: Icon(Icons.people_outline), label: 'Patients'),
-          BottomNavigationBarItem(icon: Icon(Icons.article_outlined), label: 'Articles'),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.home_outlined),
+            label: 'Home',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.people_outline),
+            label: 'Patients',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.article_outlined),
+            label: 'Articles',
+          ),
           BottomNavigationBarItem(icon: Icon(Icons.person), label: 'Profile'),
         ],
       ),
-
-
     );
   }
 
@@ -214,33 +216,18 @@ class _ProfileViewState extends State<CaregiverProfileScreen> {
         children: [
           Text(
             title,
-            style: TextStyle(
+            style: const TextStyle(
               fontSize: 16,
-              fontWeight: FontWeight.w500,
-              color: Colors.black,
+              fontWeight: FontWeight.w600,
+              color: Colors.black87,
             ),
           ),
           SizedBox(height: 5),
           Text(
             content,
-            style: TextStyle(
-              fontSize: 14,
-              color: Colors.grey[600],
-              height: 1.4,
-            ),
+            style: const TextStyle(fontSize: 14, color: Colors.grey),
           ),
         ],
-      ),
-    );
-  }
-
-  Widget _buildNavItem(IconData icon, bool isActive) {
-    return Container(
-      padding: EdgeInsets.all(12),
-      child: Icon(
-        icon,
-        color: isActive ? Color(0xFF6B73FF) : Colors.grey[400],
-        size: 24,
       ),
     );
   }

@@ -50,6 +50,7 @@ class AppRoutes {
   static const String guardianQAForums = '/guardian/qa-forums';
   static const String guardianProfile = '/guardian/profile';
   static const String guardianNotifications = '/guardian-notifications';
+  static const String guardianAddReviews = '/guardian/add-reviews';
   // static const String guardianOrders = '/guardian/orders';
 
   // Caregiver routes

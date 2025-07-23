@@ -3,6 +3,7 @@ import 'package:flutter/services.dart';
 import '../../routes/app_routes.dart';
 import '../../services/patient_service.dart';
 import '../../services/auth_service.dart';
+import '../../services/guardian_service.dart'; // Added import for GuardianService
 import 'guardian_bottom_nav_bar.dart';
 
 class GuardianDashboardScreen extends StatefulWidget {
@@ -356,7 +357,11 @@ class _GuardianDashboardScreenState extends State<GuardianDashboardScreen> {
   }
 
   Future<void> _fetchPatients() async {
-    final int? guardianId = await AuthService.getCurrentUserId();
+    final int? userId = await AuthService.getCurrentUserId();
+    int? guardianId;
+    if (userId != null) {
+      guardianId = await GuardianService.getGuardianIdByUserId(userId);
+    }
     if (guardianId != null) {
       final patients = await PatientService.getPatientsByGuardian(guardianId);
       setState(() {
@@ -403,12 +408,13 @@ class _GuardianDashboardScreenState extends State<GuardianDashboardScreen> {
           ),
         ),
         centerTitle: false,
+        automaticallyImplyLeading: false,
         systemOverlayStyle: SystemUiOverlayStyle.dark,
         actions: [
           IconButton(
             icon: Icon(
               Icons.notifications_none_outlined,
-              color: calmNavy,
+              color: Colors.black,
               size: 28,
             ),
             onPressed: () {
@@ -533,6 +539,13 @@ class _GuardianDashboardScreenState extends State<GuardianDashboardScreen> {
                       context,
                       AppRoutes.guardianPatientsReports,
                     );
+                  },
+                ),
+                _buildQuickAccessButton(
+                  icon: Icons.reviews_outlined,
+                  label: 'Add Reviews',
+                  onTap: () {
+                    Navigator.pushNamed(context, AppRoutes.guardianAddReviews);
                   },
                 ),
                 _buildQuickAccessButton(

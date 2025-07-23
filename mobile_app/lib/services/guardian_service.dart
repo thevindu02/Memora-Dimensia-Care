@@ -15,4 +15,66 @@ class GuardianService {
       return null;
     }
   }
-} 
+
+  static Future<Map<String, dynamic>?> getGuardianDetailsById(
+    int guardianId,
+  ) async {
+    final url = Uri.parse('$baseUrl/$guardianId');
+    final response = await http.get(url);
+    if (response.statusCode == 200) {
+      return jsonDecode(response.body) as Map<String, dynamic>;
+    } else {
+      return null;
+    }
+  }
+
+  /// Sends a caregiver connection request. Returns true if successful, false otherwise.
+  static Future<bool> sendCaregiverConnectionRequest({
+    required int guardianId,
+    required int patientId,
+    required int caregiverId, // <-- back to id
+  }) async {
+    final url = Uri.parse('$baseUrl/send-caregiver-connection-request');
+    final response = await http.post(
+      url,
+      headers: {'Content-Type': 'application/json'},
+      body: jsonEncode({
+        'guardianId': guardianId,
+        'patientId': patientId,
+        'caregiverId': caregiverId, // <-- send id
+      }),
+    );
+    if (response.statusCode == 200) {
+      return true;
+    } else {
+      return false;
+    }
+  }
+
+  static Future<String> addKnownCaregiver({
+    required int guardianId,
+    required int patientId,
+    required String caregiverEmail,
+  }) async {
+    final url = '${ApiConstants.baseUrl}/api/guardians/add-known-caregiver';
+    final body = {
+      'guardianId': guardianId,
+      'patientId': patientId,
+      'caregiverEmail': caregiverEmail,
+    };
+    try {
+      final response = await http.post(
+        Uri.parse(url),
+        headers: {'Content-Type': 'application/json'},
+        body: jsonEncode(body),
+      );
+      if (response.statusCode == 200) {
+        return response.body;
+      } else {
+        return response.body;
+      }
+    } catch (e) {
+      return 'Network error: $e';
+    }
+  }
+}

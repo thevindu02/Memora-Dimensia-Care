@@ -32,7 +32,7 @@ class _GuardianQAForumsScreenState extends State<GuardianQAForumsScreen> {
     Navigator.pushNamedAndRemoveUntil(
       context,
       AppRoutes.guardianDashboard,
-          (route) => false,
+      (route) => false,
       arguments: {'selectedIndex': 0}, // Pass the home index
     );
   }
@@ -42,7 +42,8 @@ class _GuardianQAForumsScreenState extends State<GuardianQAForumsScreen> {
     {
       'id': 1,
       'title': 'How to manage medication schedules for elderly patients?',
-      'content': 'I\'m struggling to keep track of multiple medications for my elderly parent. What are some effective strategies or tools that can help?',
+      'content':
+          'I\'m struggling to keep track of multiple medications for my elderly parent. What are some effective strategies or tools that can help?',
       'tags': ['Medication', 'Elderly Care', 'Scheduling'],
       'askedBy': 'Anonymous Guardian',
       'timeAgo': '2 hours ago',
@@ -53,7 +54,8 @@ class _GuardianQAForumsScreenState extends State<GuardianQAForumsScreen> {
     {
       'id': 2,
       'title': 'Best practices for emergency preparedness?',
-      'content': 'What should I include in an emergency kit for someone with chronic conditions? Are there specific items I should prioritize?',
+      'content':
+          'What should I include in an emergency kit for someone with chronic conditions? Are there specific items I should prioritize?',
       'tags': ['Emergency', 'Preparedness', 'Chronic Conditions'],
       'askedBy': 'Anonymous Guardian',
       'timeAgo': '5 hours ago',
@@ -64,7 +66,8 @@ class _GuardianQAForumsScreenState extends State<GuardianQAForumsScreen> {
     {
       'id': 3,
       'title': 'How to encourage physical activity in seniors?',
-      'content': 'My parent is reluctant to exercise. What are some gentle ways to encourage physical activity that won\'t overwhelm them?',
+      'content':
+          'My parent is reluctant to exercise. What are some gentle ways to encourage physical activity that won\'t overwhelm them?',
       'tags': ['Exercise', 'Seniors', 'Motivation'],
       'askedBy': 'Anonymous Guardian',
       'timeAgo': '1 day ago',
@@ -75,7 +78,8 @@ class _GuardianQAForumsScreenState extends State<GuardianQAForumsScreen> {
     {
       'id': 4,
       'title': 'Nutrition guidelines for diabetic patients?',
-      'content': 'I need help understanding what foods are safe and beneficial for someone with diabetes. Any meal planning tips?',
+      'content':
+          'I need help understanding what foods are safe and beneficial for someone with diabetes. Any meal planning tips?',
       'tags': ['Nutrition', 'Diabetes', 'Meal Planning'],
       'askedBy': 'Anonymous Guardian',
       'timeAgo': '3 days ago',
@@ -173,7 +177,9 @@ class _GuardianQAForumsScreenState extends State<GuardianQAForumsScreen> {
                       question['isAnswered'] ? 'Answered' : 'Unanswered',
                       style: TextStyle(
                         fontSize: 10,
-                        color: question['isAnswered'] ? Colors.green[700] : Colors.orange[700],
+                        color: question['isAnswered']
+                            ? Colors.green[700]
+                            : Colors.orange[700],
                         fontWeight: FontWeight.w600,
                       ),
                     ),
@@ -181,10 +187,7 @@ class _GuardianQAForumsScreenState extends State<GuardianQAForumsScreen> {
                   Spacer(),
                   Text(
                     question['timeAgo'],
-                    style: TextStyle(
-                      fontSize: 12,
-                      color: Colors.grey[600],
-                    ),
+                    style: TextStyle(fontSize: 12, color: Colors.grey[600]),
                   ),
                 ],
               ),
@@ -245,20 +248,14 @@ class _GuardianQAForumsScreenState extends State<GuardianQAForumsScreen> {
                   SizedBox(width: 4),
                   Text(
                     '${question['views']} views',
-                    style: TextStyle(
-                      fontSize: 12,
-                      color: Colors.grey[600],
-                    ),
+                    style: TextStyle(fontSize: 12, color: Colors.grey[600]),
                   ),
                   SizedBox(width: 16),
                   Icon(Icons.comment, size: 16, color: Colors.grey[600]),
                   SizedBox(width: 4),
                   Text(
                     '${question['replies']} replies',
-                    style: TextStyle(
-                      fontSize: 12,
-                      color: Colors.grey[600],
-                    ),
+                    style: TextStyle(fontSize: 12, color: Colors.grey[600]),
                   ),
                   Spacer(),
                   Text(
@@ -304,10 +301,7 @@ class _GuardianQAForumsScreenState extends State<GuardianQAForumsScreen> {
               SizedBox(height: 8),
               Text(
                 'Your question will be posted anonymously',
-                style: TextStyle(
-                  fontSize: 14,
-                  color: Colors.grey[600],
-                ),
+                style: TextStyle(fontSize: 14, color: Colors.grey[600]),
               ),
               SizedBox(height: 20),
               TextField(
@@ -381,7 +375,11 @@ class _GuardianQAForumsScreenState extends State<GuardianQAForumsScreen> {
                           'id': questions.length + 1,
                           'title': titleController.text.trim(),
                           'content': contentController.text.trim(),
-                          'tags': tagsController.text.trim().split(',').map((tag) => tag.trim()).toList(),
+                          'tags': tagsController.text
+                              .trim()
+                              .split(',')
+                              .map((tag) => tag.trim())
+                              .toList(),
                           'askedBy': 'Anonymous Guardian',
                           'timeAgo': 'Just now',
                           'replies': 0,
@@ -461,10 +459,14 @@ class _GuardianQAForumsScreenState extends State<GuardianQAForumsScreen> {
                   SingleChildScrollView(
                     scrollDirection: Axis.horizontal,
                     child: Row(
-                      children: _filters.map((filter) => Padding(
-                        padding: EdgeInsets.only(right: 8),
-                        child: _buildFilterChip(filter),
-                      )).toList(),
+                      children: _filters
+                          .map(
+                            (filter) => Padding(
+                              padding: EdgeInsets.only(right: 8),
+                              child: _buildFilterChip(filter),
+                            ),
+                          )
+                          .toList(),
                     ),
                   ),
                 ],
@@ -516,7 +518,8 @@ class _QuestionDetailScreenState extends State<QuestionDetailScreen> {
   List<Map<String, dynamic>> replies = [
     {
       'id': 1,
-      'content': 'I recommend using a pill organizer with multiple compartments. Also, setting phone reminders can be very helpful. Many pharmacies offer blister packing services which can simplify medication management.',
+      'content':
+          'I recommend using a pill organizer with multiple compartments. Also, setting phone reminders can be very helpful. Many pharmacies offer blister packing services which can simplify medication management.',
       'author': 'Dr. Sarah Johnson',
       'authorType': 'Medical Professional',
       'timeAgo': '1 hour ago',
@@ -524,7 +527,8 @@ class _QuestionDetailScreenState extends State<QuestionDetailScreen> {
     },
     {
       'id': 2,
-      'content': 'We use a medication app that sends notifications. It has been a game changer for our family. The app also tracks when medications are taken and can send alerts to family members.',
+      'content':
+          'We use a medication app that sends notifications. It has been a game changer for our family. The app also tracks when medications are taken and can send alerts to family members.',
       'author': 'Mike Chen',
       'authorType': 'Volunteer Caregiver',
       'timeAgo': '3 hours ago',
@@ -580,20 +584,14 @@ class _QuestionDetailScreenState extends State<QuestionDetailScreen> {
                     ),
                     Text(
                       reply['authorType'],
-                      style: TextStyle(
-                        fontSize: 12,
-                        color: Colors.grey[600],
-                      ),
+                      style: TextStyle(fontSize: 12, color: Colors.grey[600]),
                     ),
                   ],
                 ),
               ),
               Text(
                 reply['timeAgo'],
-                style: TextStyle(
-                  fontSize: 12,
-                  color: Colors.grey[600],
-                ),
+                style: TextStyle(fontSize: 12, color: Colors.grey[600]),
               ),
             ],
           ),
@@ -627,10 +625,7 @@ class _QuestionDetailScreenState extends State<QuestionDetailScreen> {
                       SizedBox(width: 4),
                       Text(
                         '${reply['likes']}',
-                        style: TextStyle(
-                          fontSize: 12,
-                          color: Colors.grey[600],
-                        ),
+                        style: TextStyle(fontSize: 12, color: Colors.grey[600]),
                       ),
                     ],
                   ),
@@ -692,7 +687,10 @@ class _QuestionDetailScreenState extends State<QuestionDetailScreen> {
                         Row(
                           children: [
                             Container(
-                              padding: EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                              padding: EdgeInsets.symmetric(
+                                horizontal: 8,
+                                vertical: 4,
+                              ),
                               decoration: BoxDecoration(
                                 color: widget.question['isAnswered']
                                     ? Colors.green.withOpacity(0.1)
@@ -700,10 +698,14 @@ class _QuestionDetailScreenState extends State<QuestionDetailScreen> {
                                 borderRadius: BorderRadius.circular(12),
                               ),
                               child: Text(
-                                widget.question['isAnswered'] ? 'Answered' : 'Unanswered',
+                                widget.question['isAnswered']
+                                    ? 'Answered'
+                                    : 'Unanswered',
                                 style: TextStyle(
                                   fontSize: 10,
-                                  color: widget.question['isAnswered'] ? Colors.green[700] : Colors.orange[700],
+                                  color: widget.question['isAnswered']
+                                      ? Colors.green[700]
+                                      : Colors.orange[700],
                                   fontWeight: FontWeight.w600,
                                 ),
                               ),
@@ -742,7 +744,10 @@ class _QuestionDetailScreenState extends State<QuestionDetailScreen> {
                           runSpacing: 8,
                           children: widget.question['tags'].map<Widget>((tag) {
                             return Container(
-                              padding: EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                              padding: EdgeInsets.symmetric(
+                                horizontal: 12,
+                                vertical: 6,
+                              ),
                               decoration: BoxDecoration(
                                 color: Color(0xFFA0C4FD).withOpacity(0.2),
                                 borderRadius: BorderRadius.circular(16),
@@ -761,7 +766,11 @@ class _QuestionDetailScreenState extends State<QuestionDetailScreen> {
                         SizedBox(height: 12),
                         Row(
                           children: [
-                            Icon(Icons.visibility, size: 16, color: Colors.grey[600]),
+                            Icon(
+                              Icons.visibility,
+                              size: 16,
+                              color: Colors.grey[600],
+                            ),
                             SizedBox(width: 4),
                             Text(
                               '${widget.question['views']} views',
@@ -805,68 +814,68 @@ class _QuestionDetailScreenState extends State<QuestionDetailScreen> {
           ),
 
           // Reply input (only for volunteers)
-          Container(
-            padding: EdgeInsets.all(16),
-            decoration: BoxDecoration(
-              color: Colors.white,
-              boxShadow: [
-                BoxShadow(
-                  color: Colors.grey.withOpacity(0.1),
-                  spreadRadius: 1,
-                  blurRadius: 4,
-                  offset: Offset(0, -2),
-                ),
-              ],
-            ),
-            child: Row(
-              children: [
-                Expanded(
-                  child: TextField(
-                    controller: _replyController,
-                    maxLines: null,
-                    decoration: InputDecoration(
-                      hintText: 'Write your reply...',
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(24),
-                        borderSide: BorderSide(color: Colors.grey[300]!),
-                      ),
-                      focusedBorder: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(24),
-                        borderSide: BorderSide(color: Color(0xFFA0C4FD)),
-                      ),
-                      contentPadding: EdgeInsets.symmetric(
-                        horizontal: 16,
-                        vertical: 12,
-                      ),
-                    ),
-                  ),
-                ),
-                SizedBox(width: 12),
-                CircleAvatar(
-                  radius: 24,
-                  backgroundColor: Color(0xFFA0C4FD),
-                  child: IconButton(
-                    icon: Icon(Icons.send, color: Color(0xFF2B3F99)),
-                    onPressed: () {
-                      if (_replyController.text.trim().isNotEmpty) {
-                        setState(() {
-                          replies.add({
-                            'id': replies.length + 1,
-                            'content': _replyController.text.trim(),
-                            'author': 'Current User', // This would be dynamic
-                            'authorType': 'Volunteer',
-                            'timeAgo': 'Just now',
-                            'likes': 0,
-                          });
-                        });
-                        _replyController.clear();
-                      }
-                    },
-                  ),
-                ),
-              ],
-            ),
-          ),
+          // Container(
+          //   padding: EdgeInsets.all(16),
+          //   decoration: BoxDecoration(
+          //     color: Colors.white,
+          //     boxShadow: [
+          //       BoxShadow(
+          //         color: Colors.grey.withOpacity(0.1),
+          //         spreadRadius: 1,
+          //         blurRadius: 4,
+          //         offset: Offset(0, -2),
+          //       ),
+          //     ],
+          //   ),
+          //   child: Row(
+          //     children: [
+          //       Expanded(
+          //         child: TextField(
+          //           controller: _replyController,
+          //           maxLines: null,
+          //           decoration: InputDecoration(
+          //             hintText: 'Write your reply...',
+          //             border: OutlineInputBorder(
+          //               borderRadius: BorderRadius.circular(24),
+          //               borderSide: BorderSide(color: Colors.grey[300]!),
+          //             ),
+          //             focusedBorder: OutlineInputBorder(
+          //               borderRadius: BorderRadius.circular(24),
+          //               borderSide: BorderSide(color: Color(0xFFA0C4FD)),
+          //             ),
+          //             contentPadding: EdgeInsets.symmetric(
+          //               horizontal: 16,
+          //               vertical: 12,
+          //             ),
+          //           ),
+          //         ),
+          //       ),
+          //       SizedBox(width: 12),
+          //       CircleAvatar(
+          //         radius: 24,
+          //         backgroundColor: Color(0xFFA0C4FD),
+          //         child: IconButton(
+          //           icon: Icon(Icons.send, color: Color(0xFF2B3F99)),
+          //           onPressed: () {
+          //             if (_replyController.text.trim().isNotEmpty) {
+          //               setState(() {
+          //                 replies.add({
+          //                   'id': replies.length + 1,
+          //                   'content': _replyController.text.trim(),
+          //                   'author': 'Current User', // This would be dynamic
+          //                   'authorType': 'Volunteer',
+          //                   'timeAgo': 'Just now',
+          //                   'likes': 0,
+          //                 });
+          //               });
+          //               _replyController.clear();
+          //             }
+          //           },
+          //         ),
+          //       ),
+          //     ],
+          //   ),
+          // ),
         ],
       ),
     );

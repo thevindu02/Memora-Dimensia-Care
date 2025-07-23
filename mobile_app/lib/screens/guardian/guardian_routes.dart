@@ -18,14 +18,15 @@ import 'guardian_dashboard_screen.dart';
 import 'guardian_profile_screen.dart';
 import 'guardian_orders_screen.dart';
 import 'guardian_signup_screen.dart';
+import 'guardian_add_reviews_screen.dart';
 
 class GuardianRoutes {
   static Route<dynamic> generateRoute(RouteSettings settings) {
     switch (settings.name) {
       case AppRoutes.guardianSignup:
         return MaterialPageRoute(
-            builder: (_) => GuardianSignupScreen(),
-            settings: settings,
+          builder: (_) => GuardianSignupScreen(),
+          settings: settings,
         );
       case AppRoutes.guardianDashboard:
         return MaterialPageRoute(
@@ -34,86 +35,91 @@ class GuardianRoutes {
         );
       case AppRoutes.guardianAddPatient:
         return MaterialPageRoute(
-            builder: (_) => GuardianAddPatientScreen(),
-            settings: settings,
+          builder: (_) => GuardianAddPatientScreen(),
+          settings: settings,
         );
       case AppRoutes.guardianPatientDetails:
         return MaterialPageRoute(
           builder: (context) => GuardianPatientDetailsScreen(),
-          settings: settings, // This is important - it passes the route settings including arguments
-      );
+          settings:
+              settings, // This is important - it passes the route settings including arguments
+        );
       case AppRoutes.guardianEditPatientDetails:
         return MaterialPageRoute(
-            builder: (_) => GuardianEditPatientDetailsScreen(),
-            settings: settings,
+          builder: (_) => GuardianEditPatientDetailsScreen(),
+          settings: settings,
         );
       case AppRoutes.guardianAddCaregiver:
         return MaterialPageRoute(
-            builder: (_) => GuardianAddCaregiverScreen(),
-            settings: settings,
+          builder: (_) => GuardianAddCaregiverScreen(),
+          settings: settings,
         );
       case AppRoutes.guardianAddUnknownCaregiver:
         return MaterialPageRoute(
-            builder: (_) => GuardianAddUnknownCaregiverScreen(),
-            settings: settings,
+          builder: (_) => GuardianAddUnknownCaregiverScreen(),
+          settings: settings,
         );
       case AppRoutes.guardianAddKnownCaregiver:
         return MaterialPageRoute(
-            builder: (_) => GuardianAddKnownCaregiverScreen(),
-            settings: settings,
+          builder: (_) => GuardianAddKnownCaregiverScreen(),
+          settings: settings,
         );
       case AppRoutes.guardianPatientsReports:
         return MaterialPageRoute(
-            builder: (_) => GuardianPatientsReportsScreen(),
-            settings: settings,
+          builder: (_) => GuardianPatientsReportsScreen(),
+          settings: settings,
         );
       case AppRoutes.guardianSelectedPatientReports:
         return MaterialPageRoute(
-            builder: (_) => GuardianSelectedPatientReportsScreen(),
-            settings: settings,
+          builder: (_) => GuardianSelectedPatientReportsScreen(),
+          settings: settings,
         );
       case AppRoutes.guardianSettings:
         return MaterialPageRoute(
-            builder: (_) => GuardianSettingsScreen(),
-            settings: settings,
+          builder: (_) => GuardianSettingsScreen(),
+          settings: settings,
         );
       case AppRoutes.guardianArticles:
         return MaterialPageRoute(
-            builder: (_) => GuardianArticlesScreen(),
-            settings: settings,
+          builder: (_) => GuardianArticlesScreen(),
+          settings: settings,
         );
       case AppRoutes.guardianArticleDetail:
         return MaterialPageRoute(
-            builder: (_) => GuardianSingleArticleScreen(),
-            settings: settings,
+          builder: (_) => GuardianSingleArticleScreen(),
+          settings: settings,
         );
       case AppRoutes.guardianQAForums:
         return MaterialPageRoute(
-            builder: (_) => GuardianQAForumsScreen(),
-            settings: settings,
+          builder: (_) => GuardianQAForumsScreen(),
+          settings: settings,
         );
       case AppRoutes.guardianProfile:
         return MaterialPageRoute(
-            builder: (_) => GuardianProfileScreen(),
-            settings: settings,
+          builder: (_) => GuardianProfileScreen(),
+          settings: settings,
         );
       case AppRoutes.guardianSettingsPrivacy:
         return MaterialPageRoute(
-            builder: (_) => GuardianSettingsPrivacyScreen(),
-            settings: settings,
+          builder: (_) => GuardianSettingsPrivacyScreen(),
+          settings: settings,
         );
       case AppRoutes.guardianSettingsHelpSupport:
         return MaterialPageRoute(
-            builder: (_) => GuardianSettingsHelpSupportScreen(),
-            settings: settings,
+          builder: (_) => GuardianSettingsHelpSupportScreen(),
+          settings: settings,
+        );
+      case AppRoutes.guardianAddReviews:
+        return MaterialPageRoute(
+          builder: (_) => GuardianAddReviewsScreen(),
+          settings: settings,
         );
       // case AppRoutes.guardianOrders:
       //   return MaterialPageRoute(builder: (_) => GuardianOrdersScreen());
       default:
         return MaterialPageRoute(
-          builder: (_) => Scaffold(
-            body: Center(child: Text('Guardian route not found')),
-          ),
+          builder: (_) =>
+              Scaffold(body: Center(child: Text('Guardian route not found'))),
         );
     }
   }

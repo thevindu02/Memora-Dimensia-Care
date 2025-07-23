@@ -18,29 +18,33 @@ class MScreen extends StatefulWidget {
 }
 
 class _MainScreenState extends State<MScreen> {
-  int _currentIndex = 2; // Set to Articles tab since this is the articles screen
+  int _currentIndex =
+      2; // Set to Articles tab since this is the articles screen
 
-  final List<Widget> _screens = [
-    const ArticlesScreen(),
-  ];
+  final List<Widget> _screens = [const ArticlesScreen()];
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: _screens[0], // Always show ArticlesScreen since this is the articles page
+      body:
+          _screens[0], // Always show ArticlesScreen since this is the articles page
       bottomNavigationBar: BottomNavigationBar(
         currentIndex: _currentIndex,
         onTap: (index) {
-          if (index == 0) { // Home tab
+          if (index == 0) {
+            // Home tab
             Navigator.pushNamed(context, AppRoutes.caregiverDashboard);
-          } else if (index == 1) { // Patients tab
+          } else if (index == 1) {
+            // Patients tab
             Navigator.pushNamed(context, AppRoutes.caregiverPatients);
-          } else if (index == 2) { // Articles tab - current screen
+          } else if (index == 2) {
+            // Articles tab - current screen
             // Already on articles screen, do nothing or refresh
             setState(() {
               _currentIndex = index;
             });
-          } else if (index == 3) { // Profile tab
+          } else if (index == 3) {
+            // Profile tab
             Navigator.pushNamed(context, AppRoutes.caregiverProfile);
           }
         },
@@ -48,10 +52,19 @@ class _MainScreenState extends State<MScreen> {
         selectedItemColor: Color(0xFF2B3F99),
         unselectedItemColor: Color(0xFF2B3F99),
         items: const [
-          BottomNavigationBarItem(icon: Icon(Icons.home_outlined), label: 'Home'),
-          BottomNavigationBarItem(icon: Icon(Icons.people_outline), label: 'Patients'),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.home_outlined),
+            label: 'Home',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.people_outline),
+            label: 'Patients',
+          ),
           BottomNavigationBarItem(icon: Icon(Icons.article), label: 'Articles'),
-          BottomNavigationBarItem(icon: Icon(Icons.person_outline), label: 'Profile'),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.person_outline),
+            label: 'Profile',
+          ),
         ],
       ),
     );
@@ -72,8 +85,10 @@ class _ArticlesScreenState extends State<ArticlesScreen> {
   final List<Article> articles = [
     Article(
       title: 'Compassionate Dementia Care',
-      description: 'Dementia is more than memory loss—it\'s a life-changing condition that affects how a person thinks...',
-      fullContent: '''Dementia is more than memory loss—it's a life-changing condition that affects how a person thinks, feels, and behaves. As caregivers, understanding the complexities of dementia is crucial for providing compassionate care that honors the dignity and individuality of each person.
+      description:
+          'Dementia is more than memory loss—it\'s a life-changing condition that affects how a person thinks...',
+      fullContent:
+          '''Dementia is more than memory loss—it's a life-changing condition that affects how a person thinks, feels, and behaves. As caregivers, understanding the complexities of dementia is crucial for providing compassionate care that honors the dignity and individuality of each person.
 
 [Full article content remains the same...]''',
       category: 'Elderly Care',
@@ -83,7 +98,8 @@ class _ArticlesScreenState extends State<ArticlesScreen> {
       comments: [
         Comment(
           author: 'Anonymous User',
-          content: 'This article really helped me understand my grandmother\'s condition better. Thank you for sharing.',
+          content:
+              'This article really helped me understand my grandmother\'s condition better. Thank you for sharing.',
           date: '2025-06-22',
           likes: 12,
         ),
@@ -92,8 +108,10 @@ class _ArticlesScreenState extends State<ArticlesScreen> {
     ),
     Article(
       title: 'Managing Chronic Pain in Seniors',
-      description: 'Chronic pain affects millions of older adults worldwide, impacting their quality of life...',
-      fullContent: '''Chronic pain affects millions of older adults worldwide, impacting their quality of life and daily functioning...
+      description:
+          'Chronic pain affects millions of older adults worldwide, impacting their quality of life...',
+      fullContent:
+          '''Chronic pain affects millions of older adults worldwide, impacting their quality of life and daily functioning...
 
 [Full article content remains the same...]''',
       category: 'Pain Management',
@@ -106,14 +124,17 @@ class _ArticlesScreenState extends State<ArticlesScreen> {
     ),
     Article(
       title: 'Nutrition Guidelines for Elderly',
-      description: 'Proper nutrition plays a crucial role in maintaining health and independence in older adults...',
-      fullContent: '''Proper nutrition plays a crucial role in maintaining health and independence in older adults...
+      description:
+          'Proper nutrition plays a crucial role in maintaining health and independence in older adults...',
+      fullContent:
+          '''Proper nutrition plays a crucial role in maintaining health and independence in older adults...
 
 [Full article content remains the same...]''',
       category: 'Nutrition',
       author: 'Emily',
       date: '2025-06-19',
-      imageUrl: 'https://images.unsplash.com/photo-1505576399279-565b52d4ac71?w=400', // Network image
+      imageUrl:
+          'https://images.unsplash.com/photo-1505576399279-565b52d4ac71?w=400', // Network image
       comments: [
         // Comments...
       ],
@@ -124,14 +145,23 @@ class _ArticlesScreenState extends State<ArticlesScreen> {
     List<Article> filtered = articles;
 
     if (selectedCategory != 'All Categories') {
-      filtered = filtered.where((article) => article.category == selectedCategory).toList();
+      filtered = filtered
+          .where((article) => article.category == selectedCategory)
+          .toList();
     }
 
     if (_searchController.text.isNotEmpty) {
-      filtered = filtered.where((article) =>
-      article.title.toLowerCase().contains(_searchController.text.toLowerCase()) ||
-          article.description.toLowerCase().contains(_searchController.text.toLowerCase())
-      ).toList();
+      filtered = filtered
+          .where(
+            (article) =>
+                article.title.toLowerCase().contains(
+                  _searchController.text.toLowerCase(),
+                ) ||
+                article.description.toLowerCase().contains(
+                  _searchController.text.toLowerCase(),
+                ),
+          )
+          .toList();
     }
 
     return filtered;
@@ -150,12 +180,12 @@ class _ArticlesScreenState extends State<ArticlesScreen> {
         title: const Text(
           'Articles',
           style: TextStyle(
-            color: Colors.black87,
-            fontSize: 18,
+            fontSize: 20,
             fontWeight: FontWeight.w600,
+            color: Colors.black87,
           ),
         ),
-        centerTitle: true,
+        centerTitle: false,
         actions: [
           IconButton(
             icon: const Icon(Icons.notifications_outlined, color: Colors.black),
@@ -188,7 +218,10 @@ class _ArticlesScreenState extends State<ArticlesScreen> {
                         hintText: 'Search articles...',
                         prefixIcon: Icon(Icons.search, color: Colors.grey),
                         border: InputBorder.none,
-                        contentPadding: EdgeInsets.symmetric(horizontal: 20, vertical: 15),
+                        contentPadding: EdgeInsets.symmetric(
+                          horizontal: 20,
+                          vertical: 15,
+                        ),
                       ),
                     ),
                   ),
@@ -198,7 +231,10 @@ class _ArticlesScreenState extends State<ArticlesScreen> {
                   Row(
                     children: [
                       Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 16,
+                          vertical: 8,
+                        ),
                         decoration: BoxDecoration(
                           color: Colors.grey[100],
                           borderRadius: BorderRadius.circular(20),
@@ -207,13 +243,18 @@ class _ArticlesScreenState extends State<ArticlesScreen> {
                           child: DropdownButton<String>(
                             value: selectedCategory,
                             icon: const Icon(Icons.keyboard_arrow_down),
-                            items: ['All Categories', 'Elderly Care', 'Pain Management', 'Nutrition']
-                                .map((String value) {
-                              return DropdownMenuItem<String>(
-                                value: value,
-                                child: Text(value),
-                              );
-                            }).toList(),
+                            items:
+                                [
+                                  'All Categories',
+                                  'Elderly Care',
+                                  'Pain Management',
+                                  'Nutrition',
+                                ].map((String value) {
+                                  return DropdownMenuItem<String>(
+                                    value: value,
+                                    child: Text(value),
+                                  );
+                                }).toList(),
                             onChanged: (String? newValue) {
                               setState(() {
                                 selectedCategory = newValue!;
@@ -232,16 +273,13 @@ class _ArticlesScreenState extends State<ArticlesScreen> {
 
           // Articles List
           SliverList(
-            delegate: SliverChildBuilderDelegate(
-                  (context, index) {
-                final article = filteredArticles[index];
-                return Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 16.0),
-                  child: ArticleCard(article: article),
-                );
-              },
-              childCount: filteredArticles.length,
-            ),
+            delegate: SliverChildBuilderDelegate((context, index) {
+              final article = filteredArticles[index];
+              return Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                child: ArticleCard(article: article),
+              );
+            }, childCount: filteredArticles.length),
           ),
         ],
       ),
@@ -305,46 +343,54 @@ class _ArticleCardState extends State<ArticleCard> {
             ),
             child: widget.article.imageUrl.startsWith('http')
                 ? Image.network(
-              widget.article.imageUrl,
-              height: 180,
-              width: double.infinity,
-              fit: BoxFit.cover,
-              loadingBuilder: (context, child, loadingProgress) {
-                if (loadingProgress == null) return child;
-                return Container(
-                  height: 180,
-                  color: Colors.grey[200],
-                  child: Center(
-                    child: CircularProgressIndicator(
-                      value: loadingProgress.expectedTotalBytes != null
-                          ? loadingProgress.cumulativeBytesLoaded /
-                          loadingProgress.expectedTotalBytes!
-                          : null,
-                    ),
-                  ),
-                );
-              },
-              errorBuilder: (context, error, stackTrace) {
-                return Container(
-                  height: 180,
-                  color: Colors.grey[200],
-                  child: const Icon(Icons.broken_image, size: 50, color: Colors.grey),
-                );
-              },
-            )
+                    widget.article.imageUrl,
+                    height: 180,
+                    width: double.infinity,
+                    fit: BoxFit.cover,
+                    loadingBuilder: (context, child, loadingProgress) {
+                      if (loadingProgress == null) return child;
+                      return Container(
+                        height: 180,
+                        color: Colors.grey[200],
+                        child: Center(
+                          child: CircularProgressIndicator(
+                            value: loadingProgress.expectedTotalBytes != null
+                                ? loadingProgress.cumulativeBytesLoaded /
+                                      loadingProgress.expectedTotalBytes!
+                                : null,
+                          ),
+                        ),
+                      );
+                    },
+                    errorBuilder: (context, error, stackTrace) {
+                      return Container(
+                        height: 180,
+                        color: Colors.grey[200],
+                        child: const Icon(
+                          Icons.broken_image,
+                          size: 50,
+                          color: Colors.grey,
+                        ),
+                      );
+                    },
+                  )
                 : Image.asset(
-              widget.article.imageUrl,
-              height: 180,
-              width: double.infinity,
-              fit: BoxFit.cover,
-              errorBuilder: (context, error, stackTrace) {
-                return Container(
-                  height: 180,
-                  color: Colors.grey[200],
-                  child: const Icon(Icons.image, size: 50, color: Colors.grey),
-                );
-              },
-            ),
+                    widget.article.imageUrl,
+                    height: 180,
+                    width: double.infinity,
+                    fit: BoxFit.cover,
+                    errorBuilder: (context, error, stackTrace) {
+                      return Container(
+                        height: 180,
+                        color: Colors.grey[200],
+                        child: const Icon(
+                          Icons.image,
+                          size: 50,
+                          color: Colors.grey,
+                        ),
+                      );
+                    },
+                  ),
           ),
 
           // Rest of the ArticleCard widget remains the same...
@@ -381,7 +427,10 @@ class _ArticleCardState extends State<ArticleCard> {
                 Row(
                   children: [
                     Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 12,
+                        vertical: 6,
+                      ),
                       decoration: BoxDecoration(
                         color: Colors.pink[50],
                         borderRadius: BorderRadius.circular(15),
@@ -401,7 +450,8 @@ class _ArticleCardState extends State<ArticleCard> {
                         Navigator.push(
                           context,
                           MaterialPageRoute(
-                            builder: (context) => ArticleDetailPage(article: widget.article),
+                            builder: (context) =>
+                                ArticleDetailPage(article: widget.article),
                           ),
                         );
                       },
@@ -411,7 +461,10 @@ class _ArticleCardState extends State<ArticleCard> {
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(20),
                         ),
-                        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 20,
+                          vertical: 8,
+                        ),
                       ),
                       child: const Text('View'),
                     ),
@@ -426,20 +479,18 @@ class _ArticleCardState extends State<ArticleCard> {
                     const SizedBox(width: 4),
                     Text(
                       widget.article.author,
-                      style: TextStyle(
-                        fontSize: 12,
-                        color: Colors.grey[500],
-                      ),
+                      style: TextStyle(fontSize: 12, color: Colors.grey[500]),
                     ),
                     const SizedBox(width: 16),
-                    Icon(Icons.calendar_today, size: 16, color: Colors.grey[500]),
+                    Icon(
+                      Icons.calendar_today,
+                      size: 16,
+                      color: Colors.grey[500],
+                    ),
                     const SizedBox(width: 4),
                     Text(
                       widget.article.date,
-                      style: TextStyle(
-                        fontSize: 12,
-                        color: Colors.grey[500],
-                      ),
+                      style: TextStyle(fontSize: 12, color: Colors.grey[500]),
                     ),
                   ],
                 ),
@@ -457,7 +508,9 @@ class _ArticleCardState extends State<ArticleCard> {
                       child: Row(
                         children: [
                           Icon(
-                            showComments ? Icons.keyboard_arrow_up : Icons.keyboard_arrow_down,
+                            showComments
+                                ? Icons.keyboard_arrow_up
+                                : Icons.keyboard_arrow_down,
                             color: Colors.blue,
                             size: 20,
                           ),
@@ -515,7 +568,9 @@ class _ArticleCardState extends State<ArticleCard> {
                   const SizedBox(height: 12),
 
                   // Comments List
-                  ...widget.article.comments.map((comment) => CommentWidget(comment: comment)),
+                  ...widget.article.comments.map(
+                    (comment) => CommentWidget(comment: comment),
+                  ),
                 ],
               ],
             ),
@@ -600,7 +655,9 @@ class _ArticleDetailPageState extends State<ArticleDetailPage> {
               // Share functionality
               ScaffoldMessenger.of(context).showSnackBar(
                 const SnackBar(
-                  content: Text('Share functionality would be implemented here'),
+                  content: Text(
+                    'Share functionality would be implemented here',
+                  ),
                   duration: Duration(seconds: 2),
                 ),
               );
@@ -616,46 +673,54 @@ class _ArticleDetailPageState extends State<ArticleDetailPage> {
             // Article Image - Updated to properly display images
             widget.article.imageUrl.startsWith('http')
                 ? Image.network(
-              widget.article.imageUrl,
-              height: 250,
-              width: double.infinity,
-              fit: BoxFit.cover,
-              loadingBuilder: (context, child, loadingProgress) {
-                if (loadingProgress == null) return child;
-                return Container(
-                  height: 250,
-                  color: Colors.grey[200],
-                  child: Center(
-                    child: CircularProgressIndicator(
-                      value: loadingProgress.expectedTotalBytes != null
-                          ? loadingProgress.cumulativeBytesLoaded /
-                          loadingProgress.expectedTotalBytes!
-                          : null,
-                    ),
-                  ),
-                );
-              },
-              errorBuilder: (context, error, stackTrace) {
-                return Container(
-                  height: 250,
-                  color: Colors.grey[200],
-                  child: const Icon(Icons.broken_image, size: 80, color: Colors.grey),
-                );
-              },
-            )
+                    widget.article.imageUrl,
+                    height: 250,
+                    width: double.infinity,
+                    fit: BoxFit.cover,
+                    loadingBuilder: (context, child, loadingProgress) {
+                      if (loadingProgress == null) return child;
+                      return Container(
+                        height: 250,
+                        color: Colors.grey[200],
+                        child: Center(
+                          child: CircularProgressIndicator(
+                            value: loadingProgress.expectedTotalBytes != null
+                                ? loadingProgress.cumulativeBytesLoaded /
+                                      loadingProgress.expectedTotalBytes!
+                                : null,
+                          ),
+                        ),
+                      );
+                    },
+                    errorBuilder: (context, error, stackTrace) {
+                      return Container(
+                        height: 250,
+                        color: Colors.grey[200],
+                        child: const Icon(
+                          Icons.broken_image,
+                          size: 80,
+                          color: Colors.grey,
+                        ),
+                      );
+                    },
+                  )
                 : Image.asset(
-              widget.article.imageUrl,
-              height: 250,
-              width: double.infinity,
-              fit: BoxFit.cover,
-              errorBuilder: (context, error, stackTrace) {
-                return Container(
-                  height: 250,
-                  color: Colors.grey[200],
-                  child: const Icon(Icons.image, size: 80, color: Colors.grey),
-                );
-              },
-            ),
+                    widget.article.imageUrl,
+                    height: 250,
+                    width: double.infinity,
+                    fit: BoxFit.cover,
+                    errorBuilder: (context, error, stackTrace) {
+                      return Container(
+                        height: 250,
+                        color: Colors.grey[200],
+                        child: const Icon(
+                          Icons.image,
+                          size: 80,
+                          color: Colors.grey,
+                        ),
+                      );
+                    },
+                  ),
 
             // Rest of the ArticleDetailPage remains the same...
             Padding(
@@ -665,7 +730,10 @@ class _ArticleDetailPageState extends State<ArticleDetailPage> {
                 children: [
                   // Category Tag
                   Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 12,
+                      vertical: 6,
+                    ),
                     decoration: BoxDecoration(
                       color: Colors.pink[50],
                       borderRadius: BorderRadius.circular(15),
@@ -745,10 +813,7 @@ class _ArticleDetailPageState extends State<ArticleDetailPage> {
                   // Comments Section
                   const Text(
                     'Comments',
-                    style: TextStyle(
-                      fontSize: 20,
-                      fontWeight: FontWeight.bold,
-                    ),
+                    style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
                   ),
                   const SizedBox(height: 16),
 
@@ -794,7 +859,9 @@ class _ArticleDetailPageState extends State<ArticleDetailPage> {
                   const SizedBox(height: 20),
 
                   // Comments List
-                  ...widget.article.comments.map((comment) => CommentWidget(comment: comment)),
+                  ...widget.article.comments.map(
+                    (comment) => CommentWidget(comment: comment),
+                  ),
                 ],
               ),
             ),
@@ -859,10 +926,7 @@ class _CommentWidgetState extends State<CommentWidget> {
                     ),
                     Text(
                       widget.comment.date,
-                      style: TextStyle(
-                        color: Colors.grey[500],
-                        fontSize: 11,
-                      ),
+                      style: TextStyle(color: Colors.grey[500], fontSize: 11),
                     ),
                   ],
                 ),
@@ -872,10 +936,7 @@ class _CommentWidgetState extends State<CommentWidget> {
           const SizedBox(height: 8),
           Text(
             widget.comment.content,
-            style: const TextStyle(
-              fontSize: 14,
-              height: 1.4,
-            ),
+            style: const TextStyle(fontSize: 14, height: 1.4),
           ),
           const SizedBox(height: 8),
           Row(
@@ -902,10 +963,7 @@ class _CommentWidgetState extends State<CommentWidget> {
                     const SizedBox(width: 4),
                     Text(
                       '${widget.comment.likes}',
-                      style: TextStyle(
-                        color: Colors.grey[600],
-                        fontSize: 12,
-                      ),
+                      style: TextStyle(color: Colors.grey[600], fontSize: 12),
                     ),
                   ],
                 ),
@@ -951,18 +1009,11 @@ class NotificationScreen extends StatelessWidget {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(
-              Icons.notifications_none,
-              size: 80,
-              color: Colors.grey,
-            ),
+            Icon(Icons.notifications_none, size: 80, color: Colors.grey),
             SizedBox(height: 16),
             Text(
               'No notifications yet',
-              style: TextStyle(
-                fontSize: 18,
-                color: Colors.grey,
-              ),
+              style: TextStyle(fontSize: 18, color: Colors.grey),
             ),
           ],
         ),

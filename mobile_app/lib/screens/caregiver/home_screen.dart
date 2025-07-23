@@ -44,9 +44,18 @@ class _MainScreenState extends State<MainScreen> {
         unselectedItemColor: Color(0xFF2B3F99),
         items: const [
           BottomNavigationBarItem(icon: Icon(Icons.home), label: 'Home'),
-          BottomNavigationBarItem(icon: Icon(Icons.people_outlined), label: 'Patients'),
-          BottomNavigationBarItem(icon: Icon(Icons.article_outlined), label: 'Articles'),
-          BottomNavigationBarItem(icon: Icon(Icons.person_outlined), label: 'Profile'),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.people_outlined),
+            label: 'Patients',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.article_outlined),
+            label: 'Articles',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.person_outlined),
+            label: 'Profile',
+          ),
         ],
       ),
     );
@@ -63,19 +72,19 @@ class HomeScreen extends StatelessWidget {
       appBar: AppBar(
         backgroundColor: Colors.white,
         elevation: 0,
-
-        title: const Text(
+        title: Text(
           'Dashboard',
           style: TextStyle(
-            color: Colors.black,
-            fontSize: 18,
-            fontWeight: FontWeight.w500,
+            fontSize: 24, // Increased to match guardian's screen
+            fontWeight: FontWeight.w600,
+            color: Colors.black87,
           ),
         ),
-        centerTitle: true,
+        centerTitle: false,
+        automaticallyImplyLeading: false,
         actions: [
           IconButton(
-            icon: Icon(Icons.notifications_outlined, color: Colors.grey[600]),
+            icon: Icon(Icons.notifications_outlined, color: Colors.black),
             onPressed: () {
               Navigator.pushNamed(context, AppRoutes.caregiverNotification);
             },
@@ -90,22 +99,23 @@ class HomeScreen extends StatelessWidget {
           children: [
             Text(
               'Today’s Summary',
-              style: Theme.of(
-                context,
-              ).textTheme.headlineSmall?.copyWith(fontWeight: FontWeight.bold),
+              style: TextStyle(
+                fontSize: 18,
+                fontWeight: FontWeight.w600,
+                color: Colors.black87,
+              ),
             ),
-            const SizedBox(height: 16),
+            const SizedBox(height: 8),
             _buildSummaryCard(context),
             const SizedBox(height: 20),
             _buildUrgentTasksSection(context),
             const SizedBox(height: 20),
             _buildGuardianRequestsSection(context),
             const SizedBox(height: 20),
-            _buildCaregiverTip(context),
-          
+
             _buildForumSection(context),
             const SizedBox(height: 20),
-           
+
             const SizedBox(height: 20),
             _buildEmergencyContacts(context),
           ],
@@ -116,35 +126,56 @@ class HomeScreen extends StatelessWidget {
 
   Widget _buildSummaryCard(BuildContext context) {
     return Card(
-      elevation: 4,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-      child: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          children: [
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                _buildStatItem('3', 'Patients', Colors.blue),
-                _buildStatItem('12', 'Tasks', Colors.green),
-                _buildStatItem('2', 'Urgent', Colors.orange),
-                _buildStatItem('1', 'Missed', Colors.red),
-              ],
-            ),
-            const SizedBox(height: 12),
-            LinearProgressIndicator(
-              value: 0.75,
-              backgroundColor: Colors.grey[200],
-              valueColor: const AlwaysStoppedAnimation<Color>(Colors.green),
-              minHeight: 10,
-              borderRadius: BorderRadius.circular(5),
-            ),
-            const SizedBox(height: 8),
-            const Text(
-              '75% of daily tasks completed',
-              style: TextStyle(fontSize: 12),
-            ),
-          ],
+      elevation: 2,
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+      child: Container(
+        decoration: BoxDecoration(
+          gradient: LinearGradient(
+            colors: [
+              Color(
+                0xFFA0C4FD,
+              ).withOpacity(0.08), // Light Sky Blue, more transparent
+              Color(0xFFA0C4FD).withOpacity(0.06),
+            ],
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+          ),
+          border: Border.all(
+            color: Color(0xFFA0C4FD).withOpacity(0.10),
+            width: 1,
+          ),
+          borderRadius: BorderRadius.circular(16),
+        ),
+        child: Padding(
+          padding: const EdgeInsets.all(16.0),
+          child: Column(
+            children: [
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  _buildStatItem('3', 'Patients', Color(0xFF2B3F99)),
+                  _buildStatItem('12', 'Tasks', Color(0xFF2B3F99)),
+                  _buildStatItem('2', 'Urgent', Color(0xFF2B3F99)),
+                  _buildStatItem('1', 'Missed', Color(0xFF2B3F99)),
+                ],
+              ),
+              const SizedBox(height: 12),
+              LinearProgressIndicator(
+                value: 0.75,
+                backgroundColor: Color(
+                  0xFFA0C4FD,
+                ).withOpacity(0.10), // Lighter accent
+                valueColor: AlwaysStoppedAnimation<Color>(Color(0xFF2B3F99)),
+                minHeight: 10,
+                borderRadius: BorderRadius.circular(5),
+              ),
+              const SizedBox(height: 8),
+              Text(
+                '75% of daily tasks completed',
+                style: TextStyle(fontSize: 12, color: Color(0xFF2B3F99)),
+              ),
+            ],
+          ),
         ),
       ),
     );
@@ -167,48 +198,80 @@ class HomeScreen extends StatelessWidget {
   }
 
   Widget _buildUrgentTasksSection(BuildContext context) {
+    // Example urgent tasks list (can be replaced with dynamic data)
+    final urgentTasks = [
+      {
+        'title': 'Medication Due Soon',
+        'subtitle': 'John - Morning pills in 15 minutes',
+        'icon': Icons.warning_amber,
+        'iconColor': Color(0xFF390797),
+      },
+      // Add more tasks here if needed
+    ];
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
           'Urgent Tasks',
-          style: Theme.of(
-            context,
-          ).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold),
+          style: TextStyle(
+            fontSize: 18,
+            fontWeight: FontWeight.w600,
+            color: Colors.black87,
+          ),
         ),
         const SizedBox(height: 8),
-        Card(
-          elevation: 3,
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(12),
-          ),
-          color: Colors.orange[50],
-          child: const Padding(
-            padding: EdgeInsets.all(12.0),
-            child: Row(
-              children: [
-                Icon(Icons.warning_amber, color: Colors.orange),
-                SizedBox(width: 10),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        'Medication Due Soon',
-                        style: TextStyle(
-                          fontWeight: FontWeight.bold,
-                          fontSize: 16,
-                        ),
-                      ),
-                      Text(
-                        'John - Morning pills in 15 minutes',
-                        style: TextStyle(fontSize: 14),
-                      ),
-                    ],
-                  ),
+        ...urgentTasks.map(
+          (task) => Container(
+            margin: EdgeInsets.only(bottom: 16),
+            decoration: BoxDecoration(
+              color: Color(
+                0xFFA0C4FD,
+              ).withOpacity(0.13), // Light Sky Blue background with low opacity
+              borderRadius: BorderRadius.circular(16),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.grey.withOpacity(0.10),
+                  spreadRadius: 1,
+                  blurRadius: 8,
+                  offset: Offset(0, 2),
                 ),
-                Icon(Icons.chevron_right),
               ],
+            ),
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 18),
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Icon(
+                    task['icon'] as IconData,
+                    color: task['iconColor'] as Color,
+                    size: 28,
+                  ),
+                  SizedBox(width: 16),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          task['title'] as String,
+                          style: TextStyle(
+                            fontWeight: FontWeight.bold,
+                            fontSize: 16,
+                            color: task['iconColor'] as Color,
+                          ),
+                        ),
+                        SizedBox(height: 4),
+                        Text(
+                          task['subtitle'] as String,
+                          style: TextStyle(fontSize: 14, color: Colors.black87),
+                          overflow: TextOverflow.ellipsis,
+                          maxLines: 1,
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
             ),
           ),
         ),
@@ -222,51 +285,83 @@ class HomeScreen extends StatelessWidget {
       children: [
         Text(
           'Guardian Requests',
-          style: Theme.of(
-            context,
-          ).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold),
+          style: TextStyle(
+            fontSize: 18,
+            fontWeight: FontWeight.w600,
+            color: Colors.black87,
+          ),
         ),
         const SizedBox(height: 8),
-        Card(
-          elevation: 3,
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(12),
-          ),
-          color: Colors.blue[50],
+        SizedBox(
+          height: 90, // Match height with other cards
           child: InkWell(
-            borderRadius: BorderRadius.circular(12),
+            borderRadius: BorderRadius.circular(16),
             onTap: () {
               Navigator.pushNamed(
                 context,
                 AppRoutes.caregiverConnectionRequests,
               );
             },
-            child: Padding(
-              padding: const EdgeInsets.all(16.0),
-              child: Row(
-                children: [
-                  const Icon(Icons.person, color: Colors.blue),
-                  const SizedBox(width: 10),
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: const [
-                        Text(
-                          'New Request from Guardian',
-                          style: TextStyle(
-                            fontWeight: FontWeight.bold,
-                            fontSize: 16,
-                          ),
-                        ),
-                        Text(
-                          'Request to connect with a patient',
-                          style: TextStyle(fontSize: 14),
-                        ),
-                      ],
-                    ),
+            child: Card(
+              elevation: 2,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(16),
+              ),
+              margin: EdgeInsets.zero,
+              child: Container(
+                decoration: BoxDecoration(
+                  gradient: LinearGradient(
+                    colors: [
+                      Color(0xFFA0C4FD).withOpacity(0.08),
+                      Color(0xFFA0C4FD).withOpacity(0.06),
+                    ],
+                    begin: Alignment.topLeft,
+                    end: Alignment.bottomRight,
                   ),
-                  const Icon(Icons.chevron_right),
-                ],
+                  border: Border.all(
+                    color: Color(0xFFA0C4FD).withOpacity(0.10),
+                    width: 1,
+                  ),
+                  borderRadius: BorderRadius.circular(16),
+                ),
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 20,
+                    vertical: 18,
+                  ),
+                  child: Row(
+                    children: [
+                      Icon(Icons.person, color: Color(0xFF2B3F99)),
+                      SizedBox(width: 16),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Text(
+                              'New Requests from Guardians',
+                              style: TextStyle(
+                                fontWeight: FontWeight.bold,
+                                fontSize: 16,
+                                color: Color(0xFF2B3F99),
+                              ),
+                            ),
+                            SizedBox(height: 4),
+                            Text(
+                              'Request to connect with a patient',
+                              style: TextStyle(
+                                fontSize: 14,
+                                color: Colors
+                                    .black87, // Use black for better contrast
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                      Icon(Icons.chevron_right),
+                    ],
+                  ),
+                ),
               ),
             ),
           ),
@@ -275,69 +370,101 @@ class HomeScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildCaregiverTip(BuildContext context) {
-    return Card(
-      elevation: 3,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-      color: Colors.yellow[50],
-      child: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Row(
-              children: [
-                const Icon(Icons.lightbulb_outline, color: Colors.amber),
-                const SizedBox(width: 8),
-                Text(
-                  'Caregiver Tip of the Day',
-                  style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-              ],
-            ),
-            const SizedBox(height: 12),
-            const Text(
-              'When communicating with someone with dementia, try to maintain eye contact and use simple, clear sentences.',
-              style: TextStyle(fontSize: 14),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
   Widget _buildForumSection(BuildContext context) {
-    return Card(
-      elevation: 3,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(12),
-      ),
-      color: Colors.deepPurple[50],
-      child: ListTile(
-        leading: const Icon(Icons.forum, color: Colors.deepPurple),
-        title: const Text('Caregiver Forum'),
-        subtitle: const Text('Join discussions, ask questions, and connect with other caregivers.'),
-        trailing: const Icon(Icons.chevron_right),
-        onTap: () {
-          Navigator.pushNamed(context, AppRoutes.discussionForum); // Use volunteerForum route for now
-        },
-      ),
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          'Caregiver Forum',
+          style: TextStyle(
+            fontSize: 18,
+            fontWeight: FontWeight.w600,
+            color: Colors.black87,
+          ),
+        ),
+        const SizedBox(height: 8),
+        SizedBox(
+          height: 90, // Match height with other cards
+          child: Card(
+            elevation: 2,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(16),
+            ),
+            margin: EdgeInsets.zero,
+            child: InkWell(
+              borderRadius: BorderRadius.circular(16),
+              onTap: () {
+                // Navigate to forum
+              },
+              child: Container(
+                decoration: BoxDecoration(
+                  gradient: LinearGradient(
+                    colors: [
+                      Color(0xFFC3B1E1).withOpacity(0.08),
+                      Color(0xFFC3B1E1).withOpacity(0.06),
+                    ],
+                    begin: Alignment.topLeft,
+                    end: Alignment.bottomRight,
+                  ),
+                  borderRadius: BorderRadius.circular(16),
+                ),
+                padding: EdgeInsets.symmetric(horizontal: 20, vertical: 18),
+                child: Row(
+                  children: [
+                    Icon(Icons.forum, color: Color(0xFF390797), size: 32),
+                    SizedBox(width: 16),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Text(
+                            'Caregiver Forum',
+                            style: TextStyle(
+                              fontWeight: FontWeight.bold,
+                              fontSize: 16,
+                              color: Color(0xFF390797),
+                            ),
+                          ),
+                          SizedBox(height: 4),
+                          Text(
+                            'Join discussions, ask questions, and connect with other caregivers.',
+                            style: TextStyle(
+                              fontSize: 14,
+                              color: Colors.black87,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                    Icon(Icons.chevron_right),
+                  ],
+                ),
+              ),
+            ),
+          ),
+        ),
+      ],
     );
   }
 
   Widget _buildForumTopic(BuildContext context) {
     return Card(
       elevation: 2,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(10),
-      ),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
       color: Colors.purple[100],
       child: ListTile(
-        leading: const Icon(Icons.local_fire_department, color: Colors.deepPurple),
-        title: const Text('Trending Topic: Managing Caregiver Stress', style: TextStyle(fontWeight: FontWeight.bold)),
-        subtitle: const Text('Share your tips and experiences for handling stress as a caregiver.'),
+        leading: const Icon(
+          Icons.local_fire_department,
+          color: Colors.deepPurple,
+        ),
+        title: const Text(
+          'Trending Topic: Managing Caregiver Stress',
+          style: TextStyle(fontWeight: FontWeight.bold),
+        ),
+        subtitle: const Text(
+          'Share your tips and experiences for handling stress as a caregiver.',
+        ),
         onTap: () {
           // Optionally, navigate to a specific topic or forum thread
           Navigator.pushNamed(context, AppRoutes.volunteerForum);
@@ -352,9 +479,11 @@ class HomeScreen extends StatelessWidget {
       children: [
         Text(
           'Emergency Contacts',
-          style: Theme.of(
-            context,
-          ).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold),
+          style: TextStyle(
+            fontSize: 18,
+            fontWeight: FontWeight.w600,
+            color: Colors.black87,
+          ),
         ),
         const SizedBox(height: 8),
         Wrap(
@@ -362,9 +491,12 @@ class HomeScreen extends StatelessWidget {
           runSpacing: 8,
           children: [
             _buildContactChip('Ambulance', Icons.local_hospital, Colors.red),
-            _buildContactChip('Doctor', Icons.medical_services, Colors.blue),
-            _buildContactChip('Family', Icons.family_restroom, Colors.green),
-            _buildContactChip('Support', Icons.support_agent, Colors.purple),
+            _buildContactChip(
+              'Doctor',
+              Icons.medical_services,
+              Color(0xFFA0C4FD).withOpacity(0.08),
+            ), // Light Sky Blue
+            // Removed Family and Support chips
           ],
         ),
       ],
@@ -372,13 +504,37 @@ class HomeScreen extends StatelessWidget {
   }
 
   Widget _buildContactChip(String label, IconData icon, Color color) {
+    Color bgColor = color;
+    Color textColor = Colors.white;
+    if (label == 'Ambulance') {
+      bgColor = Color(0xFFFF5252).withOpacity(0.08);
+      textColor = Color(0xFFFF5252);
+    } else if (label == 'Doctor') {
+      bgColor = Color(0xFFA0C4FD).withOpacity(0.08);
+      textColor = Color(0xFF2B3F99).withOpacity(0.7);
+    } else if (label == 'Family') {
+      bgColor = Color(0xFFC3B1E1).withOpacity(0.08);
+      textColor = Color(0xFF390797).withOpacity(0.7);
+    } else if (label == 'Support') {
+      bgColor = Color(0xFF390797).withOpacity(0.08);
+      textColor = Color(0xFF390797).withOpacity(0.7);
+    }
     return ActionChip(
-      avatar: Icon(icon, size: 20, color: color),
-      label: Text(label),
+      avatar: Icon(icon, size: 20, color: textColor),
+      label: Text(label, style: TextStyle(color: textColor)),
       onPressed: () {
         // Handle contact tap
       },
-      backgroundColor: color.withOpacity(0.1),
+      backgroundColor: bgColor,
+      shape: label == 'Ambulance'
+          ? RoundedRectangleBorder(
+              side: BorderSide(
+                color: Color(0xFFFF5252).withOpacity(0.18),
+                width: 1,
+              ),
+              borderRadius: BorderRadius.circular(10),
+            )
+          : null,
     );
   }
 }
