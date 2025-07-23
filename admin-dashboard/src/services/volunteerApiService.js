@@ -61,6 +61,28 @@ class VolunteerApiService {
       throw error;
     }
   }
+
+  async acceptVolunteerRequest(requestId, password) {
+    try {
+      const response = await fetch(`${API_BASE_URL}/volunteer-requests/${requestId}/accept`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ password: password }),
+      });
+      
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      
+      const data = await response.json();
+      return data;
+    } catch (error) {
+      console.error('Error accepting volunteer request:', error);
+      throw error;
+    }
+  }
 }
 
 const volunteerApiService = new VolunteerApiService();
