@@ -68,7 +68,6 @@ class AppRoutes {
   static const String caregiverDashboard = '/caregiver/dashboard';
   static const String caregiverPatients = '/caregiver/patients';
   static const String caregiverProfile = '/caregiver/profile';
-  static const String caregiverProfileEdit = '/caregiver/profileEdit';
   static const String patientRoutine = '/caregiver/routine';
   static const String selectType = '/caregiver/selectRoutine';
   static const String viewArticleList = '/caregiver/article';
@@ -80,6 +79,9 @@ class AppRoutes {
       '/caregiver-connection-requests';
   static const String discussionForum = '/caregiver/forum';
   static const String settings = '/caregiver/settings';
+  static const String caregiverSettingsPrivacy = '/caregiver/settings/privacy';
+  static const String caregiverSettingsHelpSupport =
+      '/caregiver/settings/help_support';
 
   // Volunteer routes
   static const String volunteerSignup = '/volunteer/signup';
