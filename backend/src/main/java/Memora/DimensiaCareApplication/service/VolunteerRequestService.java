@@ -8,9 +8,7 @@ import Memora.DimensiaCareApplication.repository.VolunteerRequestRepository;
 
 import Memora.DimensiaCareApplication.repository.UserRepository;
 import Memora.DimensiaCareApplication.repository.VolunteerRepository;
-
-
-import Memora.DimensiaCareApplication.service.UserService;
+import org.springframework.security.crypto.password.PasswordEncoder;
 
 import java.util.List;
 import java.util.Optional;
@@ -27,7 +25,6 @@ public class VolunteerRequestService {
 
     @Autowired
 
-
     private UserRepository userRepository;
 
     @Autowired
@@ -35,10 +32,6 @@ public class VolunteerRequestService {
 
     @Autowired
     private VolunteerRepository volunteerRepository;
-
-
-
-    private UserService userService;
 
     public VolunteerRequest createVolunteerRequest(VolunteerRequestCreateDTO dto) {
         VolunteerRequest volunteerRequest = new VolunteerRequest(
@@ -92,24 +85,14 @@ public class VolunteerRequestService {
             newUser.setGender(request.getGender());
             newUser.setRole(User.UserRole.VOLUNTEER);
             newUser.setStatus(User.UserStatus.ACTIVE);
-
             newUser.setPassword(passwordEncoder.encode(password)); // Encrypt password
-            
+
             // Save the user to users table
             User savedUser = userRepository.save(newUser);
-            
+
             // Create volunteer record with user_id and volunteer_id_image
             Volunteer volunteer = new Volunteer(savedUser.getId(), request.getVolunteerIdImage());
             volunteerRepository.save(volunteer);
-            
-
-            newUser.setPassword(password); // UserService will encrypt this
-
-            // Set the password - UserService will handle encryption
-            newUser.setPassword(password);
-
-            // Create the user using UserService (handles password encryption)
-            userService.createUser(newUser);
 
             // Update request status to accepted
             request.setRequestStatus(VolunteerRequest.RequestStatus.accepted);

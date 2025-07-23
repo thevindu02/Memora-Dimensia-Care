@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../../constants/color_constants.dart';
+import '../../routes/app_routes.dart';
 
 class PatientProfileScreen extends StatelessWidget {
   const PatientProfileScreen({Key? key}) : super(key: key);
@@ -24,6 +25,12 @@ class PatientProfileScreen extends StatelessWidget {
           IconButton(
             icon: const Icon(Icons.notifications_outlined, color: PatientColors.onSurface),
             onPressed: () {},
+          ),
+          IconButton(
+            icon: const Icon(Icons.settings, color: Colors.black),
+            onPressed: () {
+              Navigator.of(context).pushNamed(AppRoutes.patientSettings);
+            },
           ),
         ],
       ),
