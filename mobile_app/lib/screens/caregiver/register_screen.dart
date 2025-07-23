@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'dart:convert';
 import 'package:http/http.dart' as http;
+import '../../services/api_constants.dart';
 
 class CaregiverRegisterPage extends StatefulWidget {
   const CaregiverRegisterPage({Key? key}) : super(key: key);
@@ -830,7 +831,7 @@ class _CaregiverRegisterPageState extends State<CaregiverRegisterPage> {
   }
 
   Future<bool> registerCaregiver(Map<String, dynamic> data) async {
-    const String url = 'http://10.0.2.2:8080/api/caregivers/register'; // or your backend IP
+    final String url = '${ApiConstants.baseUrl}/api/caregivers/register';
 
     try {
       print('Sending POST to $url with data: $data');
@@ -843,11 +844,14 @@ class _CaregiverRegisterPageState extends State<CaregiverRegisterPage> {
           .timeout(const Duration(seconds: 10)); // Add timeout
 
       print('Status: ${response.statusCode}');
-      print('Body: ${response.body}');
+      print('Response Headers: ${response.headers}');
+      print('Response Body: ${response.body}');
 
       if (response.statusCode == 200 || response.statusCode == 201) {
         return true;
       } else {
+        print('Registration failed with status: ${response.statusCode}');
+        print('Error response: ${response.body}');
         return false;
       }
     } catch (e) {
@@ -875,24 +879,33 @@ class _CaregiverRegisterPageState extends State<CaregiverRegisterPage> {
       print('Starting registration request...');
       // Build the data map
       Map<String, dynamic> data = {
-        "fName": _firstNameController.text,
-        "lName": _lastNameController.text,
-        "email": _emailController.text,
+        "fName": _firstNameController.text.trim(),
+        "lName": _lastNameController.text.trim(),
+        "email": _emailController.text.trim(),
         "password": _passwordController.text,
-        "phoneNumber": _phoneController.text,
-        "street": _streetController.text,
-        "city": _selectedCity,
-        "state": _stateController.text,
+        "phoneNumber": _phoneController.text.trim(),
+        "street": _streetController.text.trim(),
+        "city": _selectedCity ?? "",
+        "state": _stateController.text.trim(),
         // Format birthdate as yyyy-MM-dd for backend compatibility
         "birthdate": _selectedDate != null
             ? "${_selectedDate!.year.toString().padLeft(4, '0')}-${_selectedDate!.month.toString().padLeft(2, '0')}-${_selectedDate!.day.toString().padLeft(2, '0')}"
-            : null,
-        "profilePic": null, // Handle image upload separately if needed
-        "gender": null, // Add gender if you have it
-        "experience": _selectedExperience,
-        "qualifications": _qualificationController.text,
-        "skills": _selectedSkills,
+            : "",
+        "profilePic": "", // Empty string instead of null
+        "gender": "Other", // Provide a default value instead of null
+        "experience": _selectedExperience ?? "",
+        "qualifications": _qualificationController.text.trim(),
+        "skills": _selectedSkills.isNotEmpty ? _selectedSkills : [],
       };
+
+      // Remove any null values
+      data.removeWhere((key, value) => value == null);
+
+      // Log the data being sent for debugging
+      print('Registration data being sent:');
+      data.forEach((key, value) {
+        print('  $key: $value');
+      });
 
       bool success = await registerCaregiver(data);
       print('Registration request completed. Success: $success');
