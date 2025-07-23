@@ -65,7 +65,7 @@ const Volunteer = () => {
   const transformedVolunteers = volunteers.map(transformVolunteerData);
 
   const totalVolunteers = transformedVolunteers.length;
-  const approvedVolunteers = transformedVolunteers.filter(volunteer => volunteer.status === 'approved').length;
+  const approvedVolunteers = transformedVolunteers.filter(volunteer => volunteer.status === 'accepted').length;
   const pendingVolunteers = transformedVolunteers.filter(volunteer => volunteer.status === 'pending').length;
   const rejectedVolunteers = transformedVolunteers.filter(volunteer => volunteer.status === 'rejected').length;
 
@@ -176,7 +176,7 @@ const Volunteer = () => {
                   >
                     <option value="">All Status</option>
                     <option value="pending">Pending</option>
-                    <option value="approved">Approved</option>
+                    <option value="accepted">Approved</option>
                     <option value="rejected">Rejected</option>
                   </select>
                   
@@ -400,7 +400,7 @@ const Volunteer = () => {
                           </button>
                         </>
                       )}
-                      {selectedVolunteer.status === 'approved' && (
+                      {selectedVolunteer.status === 'accepted' && (
                         <button 
                           className="um-btn um-btn-danger"
                           onClick={() => handleRejectVolunteer(selectedVolunteer.id)}

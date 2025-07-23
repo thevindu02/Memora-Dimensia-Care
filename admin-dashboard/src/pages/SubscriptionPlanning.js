@@ -14,9 +14,9 @@ const subscriptionPlansData = [
     title: 'Basic Care',
     description: 'Essential dementia care features including basic monitoring and simple reminders.',
     durations: {
-      '3months': 15000,
-      '6months': 25000,
-      'annual': 45000
+      '3months':499,
+      '6months': 899,
+      'annual': 1499
     },
     features: ['Basic Health Monitoring', 'Medication Reminders', 'Emergency Alerts', 'View upto 4 caregivers', '1 article or blog per day'],
     isActive: true,
@@ -28,9 +28,9 @@ const subscriptionPlansData = [
     title: 'Premium Care',
     description: 'Comprehensive dementia care with advanced monitoring, AI assistance, and caregiver support.',
     durations: {
-      '3months': 25000,
-      '6months': 45000,
-      'annual': 80000
+      '3months': 990,
+      '6months': 1899,
+      'annual': 2499
     },
     features: ['Advanced Health Monitoring', 'Smart Watch Integration', 'Video Consultations', 'Unlimited caregiver options', 'Unlimited articles and blog posts', '24/7 Support'],
     isActive: true,
