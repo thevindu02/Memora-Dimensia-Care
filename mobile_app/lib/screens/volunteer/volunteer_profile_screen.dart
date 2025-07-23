@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
 import 'volunteer_bottom_navigation_screen.dart';
+import '../../routes/app_routes.dart';
+import 'dart:io';
+import 'package:image_picker/image_picker.dart';
 
 class VolunteerProfileScreen extends StatefulWidget {
   const VolunteerProfileScreen({Key? key}) : super(key: key);
@@ -9,15 +12,23 @@ class VolunteerProfileScreen extends StatefulWidget {
 }
 
 class _VolunteerProfileScreenState extends State<VolunteerProfileScreen> {
-  bool receiveNotifications = true;
   bool isEditMode = false;
-  String selectedLanguage = 'English';
-  
+  File? _profileImage;
+  final ImagePicker _picker = ImagePicker();
+
   // Text editing controllers
-  final TextEditingController _fullNameController = TextEditingController(text: 'John Smith');
-  final TextEditingController _emailController = TextEditingController(text: 'john.smith@example.com');
-  final TextEditingController _phoneController = TextEditingController(text: '+1 (555) 123-4567');
-  final TextEditingController _genderController = TextEditingController(text: 'Male');
+  final TextEditingController _fullNameController = TextEditingController(
+    text: 'John Smith',
+  );
+  final TextEditingController _emailController = TextEditingController(
+    text: 'john.smith@example.com',
+  );
+  final TextEditingController _phoneController = TextEditingController(
+    text: '+1 (555) 123-4567',
+  );
+  final TextEditingController _genderController = TextEditingController(
+    text: 'Male',
+  );
 
   @override
   void dispose() {
@@ -28,6 +39,66 @@ class _VolunteerProfileScreenState extends State<VolunteerProfileScreen> {
     super.dispose();
   }
 
+  Future<void> _pickProfileImage() async {
+    showModalBottomSheet(
+      context: context,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
+      ),
+      builder: (context) {
+        return SafeArea(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              ListTile(
+                leading: Icon(Icons.camera_alt, color: Colors.black),
+                title: Text(
+                  'Take Photo',
+                  style: TextStyle(
+                    color: Colors.black,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+                onTap: () async {
+                  Navigator.pop(context);
+                  final XFile? image = await _picker.pickImage(
+                    source: ImageSource.camera,
+                  );
+                  if (image != null) {
+                    setState(() {
+                      _profileImage = File(image.path);
+                    });
+                  }
+                },
+              ),
+              ListTile(
+                leading: Icon(Icons.photo_library, color: Colors.black),
+                title: Text(
+                  'Choose from Gallery',
+                  style: TextStyle(
+                    color: Colors.black,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+                onTap: () async {
+                  Navigator.pop(context);
+                  final XFile? image = await _picker.pickImage(
+                    source: ImageSource.gallery,
+                  );
+                  if (image != null) {
+                    setState(() {
+                      _profileImage = File(image.path);
+                    });
+                  }
+                },
+              ),
+            ],
+          ),
+        );
+      },
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -36,8 +107,10 @@ class _VolunteerProfileScreenState extends State<VolunteerProfileScreen> {
         backgroundColor: Colors.white,
         elevation: 0,
         leading: IconButton(
-          icon: Icon(Icons.arrow_back, color: Colors.black),
-          onPressed: () => Navigator.pop(context),
+          icon: const Icon(Icons.arrow_back, color: Colors.black),
+          onPressed: () {
+            Navigator.pushNamed(context, AppRoutes.volunteerDashboard);
+          },
         ),
         title: Text(
           'Profile',
@@ -60,7 +133,7 @@ class _VolunteerProfileScreenState extends State<VolunteerProfileScreen> {
               style: TextStyle(
                 fontSize: 16,
                 fontWeight: FontWeight.w500,
-                color: Colors.blue,
+                color: Color(0xFF2B3F99),
               ),
             ),
           ),
@@ -74,10 +147,42 @@ class _VolunteerProfileScreenState extends State<VolunteerProfileScreen> {
             // Profile Section
             Row(
               children: [
-                CircleAvatar(
-                  radius: 30,
-                  backgroundColor: Colors.grey[300],
-                  backgroundImage: NetworkImage('https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150&h=150&fit=crop&crop=face'),
+                Stack(
+                  children: [
+                    CircleAvatar(
+                      radius: 30,
+                      backgroundColor: Colors.grey[300],
+                      backgroundImage: _profileImage != null
+                          ? FileImage(_profileImage!)
+                          : NetworkImage(
+                                  'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150&h=150&fit=crop&crop=face',
+                                )
+                                as ImageProvider,
+                    ),
+                    if (isEditMode)
+                      Positioned(
+                        bottom: 0,
+                        right: 0,
+                        child: GestureDetector(
+                          onTap: _pickProfileImage,
+                          child: Container(
+                            decoration: BoxDecoration(
+                              color: Colors.white,
+                              shape: BoxShape.circle,
+                              boxShadow: [
+                                BoxShadow(color: Colors.black26, blurRadius: 4),
+                              ],
+                            ),
+                            padding: EdgeInsets.all(4),
+                            child: Icon(
+                              Icons.camera_alt,
+                              color: Colors.black,
+                              size: 18,
+                            ),
+                          ),
+                        ),
+                      ),
+                  ],
                 ),
                 SizedBox(width: 16),
                 Column(
@@ -94,17 +199,14 @@ class _VolunteerProfileScreenState extends State<VolunteerProfileScreen> {
                     SizedBox(height: 4),
                     Text(
                       'Volunteer',
-                      style: TextStyle(
-                        fontSize: 14,
-                        color: Colors.grey[600],
-                      ),
+                      style: TextStyle(fontSize: 14, color: Colors.grey[600]),
                     ),
                   ],
                 ),
               ],
             ),
             SizedBox(height: 40),
-            
+
             // Personal Information Section
             Text(
               'Personal Information',
@@ -115,7 +217,7 @@ class _VolunteerProfileScreenState extends State<VolunteerProfileScreen> {
               ),
             ),
             SizedBox(height: 24),
-            
+
             // Full Name
             _buildInfoItem(
               Icons.person_outline,
@@ -123,15 +225,11 @@ class _VolunteerProfileScreenState extends State<VolunteerProfileScreen> {
               _fullNameController,
             ),
             SizedBox(height: 16),
-            
+
             // Email
-            _buildInfoItem(
-              Icons.email_outlined,
-              'Email',
-              _emailController,
-            ),
+            _buildInfoItem(Icons.email_outlined, 'Email', _emailController),
             SizedBox(height: 16),
-            
+
             // Phone Number
             _buildInfoItem(
               Icons.phone_outlined,
@@ -139,7 +237,7 @@ class _VolunteerProfileScreenState extends State<VolunteerProfileScreen> {
               _phoneController,
             ),
             SizedBox(height: 16),
-            
+
             // Gender
             _buildInfoItem(
               Icons.person_2_outlined,
@@ -147,81 +245,8 @@ class _VolunteerProfileScreenState extends State<VolunteerProfileScreen> {
               _genderController,
             ),
             SizedBox(height: 32),
-            
-            // Settings Section
-            Text(
-              'Settings',
-              style: TextStyle(
-                fontSize: 18,
-                fontWeight: FontWeight.w600,
-                color: Colors.black,
-              ),
-            ),
-            SizedBox(height: 16),
-            
-            // Receive Notifications with Toggle
-            _buildSettingsItem(
-              Icons.notifications_outlined,
-              'Receive notifications',
-              hasToggle: true,
-              isEnabled: receiveNotifications,
-              onToggle: (value) {
-                setState(() {
-                  receiveNotifications = value;
-                });
-              },
-            ),
-            SizedBox(height: 16),
-            
-            // Language Settings
-            _buildSettingsItem(
-              Icons.language_outlined,
-              'Language',
-              hasDropdown: true,
-              dropdownValue: selectedLanguage,
-              onDropdownChanged: (value) {
-                setState(() {
-                  selectedLanguage = value!;
-                });
-              },
-            ),
-            SizedBox(height: 16),
-            
-            // Help & Support
-            _buildSettingsItem(
-              Icons.help_outline,
-              'Help & Support',
-              hasArrow: true,
-              onTap: () {
-                // Navigate to help & support screen
-                print('Navigate to Help & Support');
-              },
-            ),
-            SizedBox(height: 16),
-            
-            // Terms of Service
-            _buildSettingsItem(
-              Icons.description_outlined,
-              'Terms of Service',
-              hasArrow: true,
-              onTap: () {
-                // Navigate to terms of service screen
-                print('Navigate to Terms of Service');
-              },
-            ),
-            SizedBox(height: 16),
-            
-            // Privacy Policy
-            _buildSettingsItem(
-              Icons.privacy_tip_outlined,
-              'Privacy Policy',
-              hasArrow: true,
-              onTap: () {
-                // Navigate to privacy policy screen
-                print('Navigate to Privacy Policy');
-              },
-            ),
-            
+
+            // Remove the line '// Settings Section' and any other stray comments related to settings
             SizedBox(height: 100), // Add some bottom padding
           ],
         ),
@@ -230,7 +255,11 @@ class _VolunteerProfileScreenState extends State<VolunteerProfileScreen> {
     );
   }
 
-  Widget _buildInfoItem(IconData icon, String label, TextEditingController controller) {
+  Widget _buildInfoItem(
+    IconData icon,
+    String label,
+    TextEditingController controller,
+  ) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -238,8 +267,8 @@ class _VolunteerProfileScreenState extends State<VolunteerProfileScreen> {
           label,
           style: TextStyle(
             fontSize: 14,
-            fontWeight: FontWeight.w500,
-            color: Colors.grey[600],
+            fontWeight: FontWeight.bold,
+            color: Colors.black,
           ),
         ),
         SizedBox(height: 8),
@@ -249,17 +278,13 @@ class _VolunteerProfileScreenState extends State<VolunteerProfileScreen> {
             color: Colors.grey[100],
             borderRadius: BorderRadius.circular(8),
             border: Border.all(
-              color: isEditMode ? Colors.blue.withOpacity(0.5) : Colors.grey[300]!,
+              color: isEditMode ? Color(0xFF2B3F99) : Colors.grey[300]!,
               width: isEditMode ? 2 : 1,
             ),
           ),
           child: Row(
             children: [
-              Icon(
-                icon,
-                color: Colors.grey[500],
-                size: 20,
-              ),
+              Icon(icon, color: Colors.grey[500], size: 20),
               SizedBox(width: 12),
               Expanded(
                 child: isEditMode
@@ -295,7 +320,7 @@ class _VolunteerProfileScreenState extends State<VolunteerProfileScreen> {
   Widget _buildSettingsItem(
     IconData icon,
     String title, {
-    bool hasToggle = false, 
+    bool hasToggle = false,
     bool hasDropdown = false,
     bool hasArrow = false,
     bool isEnabled = false,
@@ -312,18 +337,11 @@ class _VolunteerProfileScreenState extends State<VolunteerProfileScreen> {
         decoration: BoxDecoration(
           color: Colors.grey[50],
           borderRadius: BorderRadius.circular(8),
-          border: Border.all(
-            color: Colors.grey[200]!,
-            width: 1,
-          ),
+          border: Border.all(color: Colors.grey[200]!, width: 1),
         ),
         child: Row(
           children: [
-            Icon(
-              icon,
-              color: Colors.grey[500],
-              size: 20,
-            ),
+            Icon(icon, color: Colors.grey[500], size: 20),
             SizedBox(width: 12),
             Expanded(
               child: Text(
@@ -350,26 +368,26 @@ class _VolunteerProfileScreenState extends State<VolunteerProfileScreen> {
                 onChanged: onDropdownChanged,
                 underline: SizedBox(),
                 icon: Icon(Icons.keyboard_arrow_down, color: Colors.grey[500]),
-                items: ['English', 'Spanish', 'French', 'German', 'Chinese', 'Arabic']
-                    .map<DropdownMenuItem<String>>((String value) {
-                  return DropdownMenuItem<String>(
-                    value: value,
-                    child: Text(
-                      value,
-                      style: TextStyle(
-                        fontSize: 14,
-                        color: Colors.black,
-                      ),
-                    ),
-                  );
-                }).toList(),
+                items:
+                    [
+                      'English',
+                      'Spanish',
+                      'French',
+                      'German',
+                      'Chinese',
+                      'Arabic',
+                    ].map<DropdownMenuItem<String>>((String value) {
+                      return DropdownMenuItem<String>(
+                        value: value,
+                        child: Text(
+                          value,
+                          style: TextStyle(fontSize: 14, color: Colors.black),
+                        ),
+                      );
+                    }).toList(),
               ),
             if (hasArrow)
-              Icon(
-                Icons.chevron_right,
-                color: Colors.grey[400],
-                size: 20,
-              ),
+              Icon(Icons.chevron_right, color: Colors.grey[400], size: 20),
           ],
         ),
       ),

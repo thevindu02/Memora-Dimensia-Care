@@ -48,6 +48,8 @@ class AppRoutes {
   static const String guardianForums = '/guardian/forums';
   static const String guardianForumArticle = '/guardian/forum/article';
   static const String guardianProfile = '/guardian/profile';
+  static const String guardianArticles = '/guardian/articles';
+  static const String guardianQAForums = '/guardian/qa_forums';
   // static const String guardianOrders = '/guardian/orders';
 
   // Caregiver routes
@@ -81,5 +83,6 @@ class AppRoutes {
   static const String volunteerCreateContent = '/volunteer/createcontent';
   static const String volunteerForum = '/volunteer/forum';
   static const String volunteerScheduleSession = '/volunteer/schedule';
+  static const String volunteerSettings = '/volunteer/settings';
   static const String guardianForumArticles = '/guardianForumArticles';
 }

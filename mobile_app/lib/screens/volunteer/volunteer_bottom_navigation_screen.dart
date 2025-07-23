@@ -99,27 +99,30 @@ class VolunteerBottomNavigation extends StatelessWidget {
     bool isActive,
     VoidCallback onPressed,
   ) {
-    return GestureDetector(
-      onTap: onPressed,
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Icon(
-            icon,
-            color: isActive ? Color(0xFF2B3F99) : Colors.grey[500],
-            size: 24,
-          ),
-          SizedBox(height: 4),
-          Text(
-            title,
-            style: TextStyle(
-              fontSize: 12,
-              fontWeight: FontWeight.w500,
+    return MouseRegion(
+      cursor: SystemMouseCursors.click,
+      child: GestureDetector(
+        onTap: onPressed,
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(
+              icon,
               color: isActive ? Color(0xFF2B3F99) : Colors.grey[500],
+              size: 24,
             ),
-          ),
-        ],
+            SizedBox(height: 4),
+            Text(
+              title,
+              style: TextStyle(
+                fontSize: 12,
+                fontWeight: FontWeight.w500,
+                color: isActive ? Color(0xFF2B3F99) : Colors.grey[500],
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }

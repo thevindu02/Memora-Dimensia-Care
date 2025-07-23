@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'volunteer_articles_screen.dart';
 import 'volunteer_bottom_navigation_screen.dart';
+import '../../routes/app_routes.dart';
 
 class VolunteerCreateContentScreen extends StatelessWidget {
   const VolunteerCreateContentScreen({Key? key}) : super(key: key);
@@ -8,13 +9,15 @@ class VolunteerCreateContentScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.white,
+      backgroundColor: Color(0xFFF8F9FB),
       appBar: AppBar(
         backgroundColor: Colors.white,
         elevation: 0,
         leading: IconButton(
-          icon: Icon(Icons.arrow_back, color: Colors.black),
-          onPressed: () => Navigator.pop(context),
+          icon: const Icon(Icons.arrow_back, color: Colors.black),
+          onPressed: () {
+            Navigator.pushNamed(context, AppRoutes.volunteerDashboard);
+          },
         ),
         title: Text(
           'Create Content',
@@ -24,67 +27,146 @@ class VolunteerCreateContentScreen extends StatelessWidget {
             color: Colors.black,
           ),
         ),
-        centerTitle: true,
+        centerTitle: false,
       ),
-      body: Padding(
-        padding: const EdgeInsets.all(16.0),
+      body: SingleChildScrollView(
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            SizedBox(height: 16), // Reduced space since title is now in app bar
+            SizedBox(height: 32),
             Center(
-              child: Text(
-                'Content Type',
-                style: TextStyle(
-                  fontSize: 16,
-                  fontWeight: FontWeight.w600,
-                  color: Colors.black,
-                ),
+              child: Column(
+                children: [
+                  Text(
+                    'What would you like to create today?',
+                    style: TextStyle(
+                      fontSize: 20,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.black87,
+                    ),
+                  ),
+                  SizedBox(height: 24),
+                  MouseRegion(
+                    cursor: SystemMouseCursors.click,
+                    child: GestureDetector(
+                      onTap: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => VolunteerArticlesScreen(),
+                          ),
+                        );
+                      },
+                      child: Container(
+                        width: 160,
+                        height: 160,
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(24),
+                          color: Colors.white,
+                          boxShadow: [
+                            BoxShadow(
+                              color: Color(0xFF2B3F99).withOpacity(0.08),
+                              blurRadius: 16,
+                              offset: Offset(0, 8),
+                            ),
+                          ],
+                        ),
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Icon(
+                              Icons.article,
+                              size: 56,
+                              color: Color(0xFF2B3F99),
+                            ),
+                            SizedBox(height: 16),
+                            Text(
+                              'Article',
+                              style: TextStyle(
+                                fontSize: 18,
+                                fontWeight: FontWeight.bold,
+                                color: Color(0xFF2B3F99),
+                              ),
+                            ),
+                            SizedBox(height: 8),
+                            Text(
+                              'Share your knowledge with the community',
+                              textAlign: TextAlign.center,
+                              style: TextStyle(
+                                fontSize: 13,
+                                color: Color(0xFF2B3F99),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
               ),
-            ),
-            SizedBox(height: 24),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                _buildContentTypeCard(
-                  Icons.newspaper_rounded, 
-                  'Article',
-                  onTap: () => _navigateToArticleCreation(context),
-                ),
-                SizedBox(width: 24),
-                _buildContentTypeCard(
-                  Icons.edit_note_rounded, 
-                  'Blog',
-                  onTap: () => _navigateToBlogCreation(context),
-                ),
-              ],
             ),
             SizedBox(height: 40),
-            Text(
-              'Drafts',
-              style: TextStyle(
-                fontSize: 16,
-                fontWeight: FontWeight.w600,
-                color: Colors.black,
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 24.0),
+              child: Divider(thickness: 1, color: Colors.grey[300]),
+            ),
+            SizedBox(height: 24),
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 24.0),
+              child: Text(
+                'Drafts',
+                style: TextStyle(
+                  fontSize: 18,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.black87,
+                ),
               ),
             ),
-            SizedBox(height: 16),
-            _buildDraftItem(
-              'Draft 1', 
-              'assets/images/draft1.jpg',
-              onTap: () => _navigateToDraft(context, 'Draft 1'),
-            ),
             SizedBox(height: 12),
-            _buildDraftItem(
-              'Draft 2', 
-              'assets/images/draft2.jpg',
-              onTap: () => _navigateToDraft(context, 'Draft 2'),
+            ListView.builder(
+              shrinkWrap: true,
+              physics: NeverScrollableScrollPhysics(),
+              padding: EdgeInsets.symmetric(horizontal: 16, vertical: 0),
+              itemCount: 2, // Replace with your actual drafts count
+              itemBuilder: (context, index) {
+                return Container(
+                  margin: EdgeInsets.only(bottom: 16),
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(16),
+                    boxShadow: [
+                      BoxShadow(
+                        color: Color(0xFF2B3F99).withOpacity(0.05),
+                        blurRadius: 8,
+                        offset: Offset(0, 2),
+                      ),
+                    ],
+                  ),
+                  child: ListTile(
+                    leading: Icon(Icons.edit, color: Color(0xFF2B3F99)),
+                    title: Text(
+                      'Draft ${index + 1}',
+                      style: TextStyle(
+                        fontWeight: FontWeight.bold,
+                        color: Colors.black,
+                      ),
+                    ),
+                    trailing: Icon(
+                      Icons.arrow_forward_ios,
+                      color: Colors.grey[400],
+                    ),
+                    onTap: () {
+                      // TODO: Navigate to edit draft
+                    },
+                  ),
+                );
+              },
             ),
-            Spacer(),
+            SizedBox(height: 24),
           ],
         ),
       ),
-       bottomNavigationBar: VolunteerBottomNavigation(currentPage: 'content'),
+      bottomNavigationBar: VolunteerBottomNavigation(currentPage: 'content'),
     );
   }
 
@@ -92,9 +174,7 @@ class VolunteerCreateContentScreen extends StatelessWidget {
     // Navigate to Article Creation Screen
     Navigator.push(
       context,
-      MaterialPageRoute(
-        builder: (context) => VolunteerArticlesScreen(),
-      ),
+      MaterialPageRoute(builder: (context) => VolunteerArticlesScreen()),
     );
   }
 
@@ -102,9 +182,7 @@ class VolunteerCreateContentScreen extends StatelessWidget {
     // Navigate to Blog Creation Screen
     Navigator.push(
       context,
-      MaterialPageRoute(
-        builder: (context) => CreateBlogScreen(),
-      ),
+      MaterialPageRoute(builder: (context) => CreateBlogScreen()),
     );
   }
 
@@ -118,19 +196,22 @@ class VolunteerCreateContentScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildContentTypeCard(IconData icon, String title, {required VoidCallback onTap}) {
+  Widget _buildContentTypeCard(
+    IconData icon,
+    String title, {
+    required VoidCallback onTap,
+  }) {
     return GestureDetector(
       onTap: onTap,
       child: Container(
         width: 100,
         height: 100,
         decoration: BoxDecoration(
-          color: Colors.lightBlue[50],
+          color: Colors.white,
           borderRadius: BorderRadius.circular(16),
-          border: Border.all(color: Colors.lightBlue[100]!),
           boxShadow: [
             BoxShadow(
-              color: Colors.lightBlue.withOpacity(0.1),
+              color: Colors.black.withOpacity(0.04),
               blurRadius: 8,
               offset: Offset(0, 2),
             ),
@@ -140,15 +221,14 @@ class VolunteerCreateContentScreen extends StatelessWidget {
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             Container(
-              padding: EdgeInsets.all(8),
+              width: 48,
+              height: 48,
               decoration: BoxDecoration(
-                color: Colors.lightBlue[100],
-                borderRadius: BorderRadius.circular(12),
+                color: Color(0xFFEEF1F8),
+                shape: BoxShape.circle,
               ),
-              child: Icon(
-                icon, 
-                size: 28, 
-                color: Colors.lightBlue[700],
+              child: Center(
+                child: Icon(icon, size: 28, color: Color(0xFF2B3F99)),
               ),
             ),
             SizedBox(height: 8),
@@ -157,7 +237,7 @@ class VolunteerCreateContentScreen extends StatelessWidget {
               style: TextStyle(
                 fontSize: 12,
                 fontWeight: FontWeight.w600,
-                color: Colors.lightBlue[700],
+                color: Colors.black,
               ),
             ),
           ],
@@ -166,7 +246,11 @@ class VolunteerCreateContentScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildDraftItem(String title, String imagePath, {required VoidCallback onTap}) {
+  Widget _buildDraftItem(
+    String title,
+    String imagePath, {
+    required VoidCallback onTap,
+  }) {
     return GestureDetector(
       onTap: onTap,
       child: Container(
@@ -182,10 +266,12 @@ class VolunteerCreateContentScreen extends StatelessWidget {
               width: 40,
               height: 40,
               decoration: BoxDecoration(
-                color: Colors.grey[300],
-                borderRadius: BorderRadius.circular(8),
+                color: Color(0xFFEEF1F8),
+                shape: BoxShape.circle,
               ),
-              child: Icon(Icons.drafts, color: Colors.grey[600], size: 20),
+              child: Center(
+                child: Icon(Icons.drafts, color: Color(0xFF2B3F99), size: 20),
+              ),
             ),
             SizedBox(width: 12),
             Text(
@@ -197,7 +283,11 @@ class VolunteerCreateContentScreen extends StatelessWidget {
               ),
             ),
             Spacer(),
-            Icon(Icons.arrow_forward_ios_rounded, color: Colors.grey[400], size: 16),
+            Icon(
+              Icons.arrow_forward_ios_rounded,
+              color: Colors.grey[400],
+              size: 16,
+            ),
           ],
         ),
       ),
@@ -239,8 +329,8 @@ class CreateArticleScreen extends StatelessWidget {
                 borderRadius: BorderRadius.circular(20),
               ),
               child: Icon(
-                Icons.newspaper_rounded, 
-                size: 64, 
+                Icons.newspaper_rounded,
+                size: 64,
                 color: Colors.lightBlue[700],
               ),
             ),
@@ -256,10 +346,7 @@ class CreateArticleScreen extends StatelessWidget {
             SizedBox(height: 8),
             Text(
               'This screen will contain article creation features',
-              style: TextStyle(
-                fontSize: 14,
-                color: Colors.grey[600],
-              ),
+              style: TextStyle(fontSize: 14, color: Colors.grey[600]),
             ),
           ],
         ),
@@ -301,8 +388,8 @@ class CreateBlogScreen extends StatelessWidget {
                 borderRadius: BorderRadius.circular(20),
               ),
               child: Icon(
-                Icons.edit_note_rounded, 
-                size: 64, 
+                Icons.edit_note_rounded,
+                size: 64,
                 color: Colors.lightBlue[700],
               ),
             ),
@@ -318,10 +405,7 @@ class CreateBlogScreen extends StatelessWidget {
             SizedBox(height: 8),
             Text(
               'This screen will contain blog creation features',
-              style: TextStyle(
-                fontSize: 14,
-                color: Colors.grey[600],
-              ),
+              style: TextStyle(fontSize: 14, color: Colors.grey[600]),
             ),
           ],
         ),

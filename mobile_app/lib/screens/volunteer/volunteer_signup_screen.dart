@@ -278,7 +278,10 @@ class _VolunteerSignupScreenState extends State<VolunteerSignupScreen> {
                         vertical: 18,
                       ),
                       errorText: genderError ? 'Gender is required' : null,
-                      suffixIcon: Icon(Icons.keyboard_arrow_down, color: Color(0xFFA09CAB)),
+                      suffixIcon: Icon(
+                        Icons.keyboard_arrow_down,
+                        color: Color(0xFFA09CAB),
+                      ),
                     ),
                     child: Text(
                       selectedGender.isEmpty ? 'Gender' : selectedGender,
@@ -463,38 +466,24 @@ class _VolunteerSignupScreenState extends State<VolunteerSignupScreen> {
                                   imageUrl = fallbackResult.imageUrl!;
                                 }
 
-                                final result = await UserService.addUser(
-                                  FName: firstNameController.text.trim(),
-                                  LName: lastNameController.text.trim(),
-                                  email: emailController.text.trim(),
-                                  password:
-                                      'password123', // TODO: collect real password
-                                  role: 'VOLUNTEER',
-                                  status: 'INACTIVE',
-                                  phoneNumber: phoneController.text.trim(),
-                                  gender: selectedGender,
-                                );
-
-                                if (result.success) {
-                                  // Create volunteer request with the uploaded image
-                                  final volunteerRequestResult =
-                                      await VolunteerRequestService.createVolunteerRequest(
-                                        userId: result.userId!,
-                                        volunteerIdImage: imageUrl,
-                                      );
-
-                                  if (!volunteerRequestResult.success) {
-                                    throw Exception(
-                                      'Failed to create volunteer request: \\${volunteerRequestResult.message}',
+                                // Send volunteer request to backend
+                                final volunteerRequestResult =
+                                    await VolunteerRequestService.createVolunteerRequest(
+                                      volunteerName:
+                                          firstNameController.text.trim() +
+                                          ' ' +
+                                          lastNameController.text.trim(),
+                                      email: emailController.text.trim(),
+                                      phoneNumber: phoneController.text.trim(),
+                                      gender: selectedGender,
+                                      volunteerIdImage: imageUrl,
                                     );
-                                  }
-                                }
 
                                 setState(() {
                                   _isSubmitting = false;
                                 });
 
-                                if (result.success) {
+                                if (volunteerRequestResult.success) {
                                   // Show success message with volunteer request info
                                   ScaffoldMessenger.of(context).showSnackBar(
                                     SnackBar(
@@ -515,7 +504,11 @@ class _VolunteerSignupScreenState extends State<VolunteerSignupScreen> {
                                   );
                                 } else {
                                   ScaffoldMessenger.of(context).showSnackBar(
-                                    SnackBar(content: Text(result.message)),
+                                    SnackBar(
+                                      content: Text(
+                                        volunteerRequestResult.message,
+                                      ),
+                                    ),
                                   );
                                 }
                               } catch (e) {

@@ -5,6 +5,8 @@ import 'volunteer_schedule_session_screen.dart';
 import 'volunteer_profile_screen.dart';
 import 'volunteer_bottom_navigation_screen.dart';
 import '../../utils/system_ui_utils.dart';
+import 'volunteer_community_screen.dart';
+import 'volunteer_settings_screen.dart';
 
 class VolunteerDashboardScreen extends StatefulWidget {
   const VolunteerDashboardScreen({Key? key}) : super(key: key);
@@ -15,7 +17,7 @@ class VolunteerDashboardScreen extends StatefulWidget {
 }
 
 class _VolunteerDashboardScreenState extends State<VolunteerDashboardScreen> {
-  int _currentImageIndex = 0;
+  int _selectedIndex = 0;
 
   // List of network images for the carousel
   final List<String> _networkImages = [
@@ -35,7 +37,7 @@ class _VolunteerDashboardScreenState extends State<VolunteerDashboardScreen> {
     Future.delayed(Duration(seconds: 3), () {
       if (mounted) {
         setState(() {
-          _currentImageIndex = (_currentImageIndex + 1) % _networkImages.length;
+          _selectedIndex = (_selectedIndex + 1) % 4;
         });
         _startImageCarousel();
       }
@@ -49,12 +51,16 @@ class _VolunteerDashboardScreenState extends State<VolunteerDashboardScreen> {
       appBar: AppBar(
         backgroundColor: Colors.white,
         elevation: 0,
-        title: const Text(
-          'Dashboard',
-          style: TextStyle(
-            fontSize: 20,
-            fontWeight: FontWeight.bold,
-            color: Colors.black,
+        leading: SizedBox.shrink(),
+        title: const Padding(
+          padding: EdgeInsets.only(left: 8.0),
+          child: Text(
+            'Dashboard',
+            style: TextStyle(
+              fontSize: 20,
+              fontWeight: FontWeight.bold,
+              color: Colors.black,
+            ),
           ),
         ),
         centerTitle: false,
@@ -67,7 +73,6 @@ class _VolunteerDashboardScreenState extends State<VolunteerDashboardScreen> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               SizedBox(height: 16),
-              // Quick Actions Section (moved to top)
               Text(
                 'Quick Actions',
                 style: TextStyle(
@@ -80,33 +85,7 @@ class _VolunteerDashboardScreenState extends State<VolunteerDashboardScreen> {
               SingleChildScrollView(
                 scrollDirection: Axis.horizontal,
                 child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                   children: [
-                    _buildQuickActionButton(
-                      context,
-                      'Create\nContent',
-                      Icons.create,
-                      () => Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) =>
-                              const VolunteerCreateContentScreen(),
-                        ),
-                      ),
-                    ),
-                    SizedBox(width: 12),
-                    _buildQuickActionButton(
-                      context,
-                      'Reply to\nForum',
-                      Icons.forum,
-                      () => Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => VolunteerForumScreen(),
-                        ),
-                      ),
-                    ),
-                    SizedBox(width: 12),
                     _buildQuickActionButton(
                       context,
                       'Schedule\nSession',
@@ -122,22 +101,21 @@ class _VolunteerDashboardScreenState extends State<VolunteerDashboardScreen> {
                     SizedBox(width: 12),
                     _buildQuickActionButton(
                       context,
-                      'View\nProfile',
-                      Icons.person,
+                      'Settings',
+                      Icons.settings,
                       () => Navigator.push(
                         context,
                         MaterialPageRoute(
-                          builder: (context) => VolunteerProfileScreen(),
+                          builder: (context) => VolunteerSettingsScreen(),
                         ),
                       ),
                     ),
                   ],
                 ),
               ),
-              SizedBox(height: 28),
-              // Stats Section
+              SizedBox(height: 24),
               Text(
-                'Your Stats',
+                'Your Statistics',
                 style: TextStyle(
                   fontSize: 16,
                   fontWeight: FontWeight.w600,
@@ -145,24 +123,35 @@ class _VolunteerDashboardScreenState extends State<VolunteerDashboardScreen> {
                 ),
               ),
               SizedBox(height: 12),
-              SingleChildScrollView(
-                scrollDirection: Axis.horizontal,
-                child: Row(
-                  children: [
-                    _buildStatCard('Scheduled Sessions', '3', Icons.schedule),
-                    SizedBox(width: 12),
-                    _buildStatCard('Articles Contributed', '5', Icons.article),
-                    SizedBox(width: 12),
-                    _buildStatCard('Forum Replies', '12', Icons.forum),
-                    SizedBox(width: 12),
-                    _buildStatCard('Hours Volunteered', '8', Icons.access_time),
-                  ],
+              // Fixed statistics section with proper height constraint
+              Container(
+                height: 140,
+                child: SingleChildScrollView(
+                  scrollDirection: Axis.horizontal,
+                  child: Row(
+                    children: [
+                      _buildStatCard('Scheduled Sessions', '3', Icons.schedule),
+                      SizedBox(width: 12),
+                      _buildStatCard(
+                        'Articles Contributed',
+                        '5',
+                        Icons.article,
+                      ),
+                      SizedBox(width: 12),
+                      _buildStatCard('Forum Replies', '12', Icons.forum),
+                      SizedBox(width: 12),
+                      _buildStatCard(
+                        'Hours Volunteered',
+                        '8',
+                        Icons.access_time,
+                      ),
+                    ],
+                  ),
                 ),
               ),
-              SizedBox(height: 28),
-              // Upcoming Session Section
+              SizedBox(height: 24),
               Text(
-                'Upcoming',
+                'Upcoming Sessions',
                 style: TextStyle(
                   fontSize: 16,
                   fontWeight: FontWeight.w600,
@@ -171,8 +160,7 @@ class _VolunteerDashboardScreenState extends State<VolunteerDashboardScreen> {
               ),
               SizedBox(height: 12),
               _buildUpcomingSessionCard(),
-              SizedBox(height: 28),
-              // Recent Activities Section (optional, can be added later)
+              SizedBox(height: 24),
             ],
           ),
         ),
@@ -187,48 +175,51 @@ class _VolunteerDashboardScreenState extends State<VolunteerDashboardScreen> {
     IconData icon,
     VoidCallback onPressed,
   ) {
-    return GestureDetector(
-      onTap: onPressed,
-      child: Container(
-        width: 85,
-        padding: EdgeInsets.symmetric(vertical: 16, horizontal: 8),
-        decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.circular(16),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withOpacity(0.04),
-              blurRadius: 8,
-              offset: Offset(0, 2),
-            ),
-          ],
-        ),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Container(
-              width: 48,
-              height: 48,
-              decoration: BoxDecoration(
-                color: Color(0xFFEEF1F8),
-                shape: BoxShape.circle,
+    return MouseRegion(
+      cursor: SystemMouseCursors.click,
+      child: GestureDetector(
+        onTap: onPressed,
+        child: Container(
+          width: 85,
+          padding: EdgeInsets.symmetric(vertical: 16, horizontal: 8),
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(16),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withOpacity(0.04),
+                blurRadius: 8,
+                offset: Offset(0, 2),
               ),
-              child: Center(
-                child: Icon(icon, color: Color(0xFF2B3F99), size: 28),
+            ],
+          ),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Container(
+                width: 48,
+                height: 48,
+                decoration: BoxDecoration(
+                  color: Color(0xFFEEF1F8),
+                  shape: BoxShape.circle,
+                ),
+                child: Center(
+                  child: Icon(icon, color: Color(0xFF2B3F99), size: 28),
+                ),
               ),
-            ),
-            SizedBox(height: 8),
-            Text(
-              title,
-              textAlign: TextAlign.center,
-              style: TextStyle(
-                fontSize: 13,
-                fontWeight: FontWeight.w600,
-                color: Colors.black,
-                height: 1.2,
+              SizedBox(height: 8),
+              Text(
+                title,
+                textAlign: TextAlign.center,
+                style: TextStyle(
+                  fontSize: 13,
+                  fontWeight: FontWeight.w600,
+                  color: Colors.black,
+                  height: 1.2,
+                ),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );
@@ -236,7 +227,7 @@ class _VolunteerDashboardScreenState extends State<VolunteerDashboardScreen> {
 
   Widget _buildStatCard(String label, String value, IconData icon) {
     return Container(
-      width: 85,
+      width: 90,
       padding: EdgeInsets.symmetric(vertical: 16, horizontal: 8),
       decoration: BoxDecoration(
         color: Colors.white,
@@ -251,6 +242,7 @@ class _VolunteerDashboardScreenState extends State<VolunteerDashboardScreen> {
       ),
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
+        mainAxisSize: MainAxisSize.min,
         children: [
           Container(
             width: 40,
@@ -272,15 +264,18 @@ class _VolunteerDashboardScreenState extends State<VolunteerDashboardScreen> {
               color: Color(0xFF2B3F99),
             ),
           ),
-          SizedBox(height: 2),
+          SizedBox(height: 4),
           Text(
             label,
             textAlign: TextAlign.center,
             style: TextStyle(
-              fontSize: 12,
+              fontSize: 11,
               color: Colors.black,
               fontWeight: FontWeight.w600,
+              height: 1.1,
             ),
+            maxLines: 2,
+            overflow: TextOverflow.ellipsis,
           ),
         ],
       ),

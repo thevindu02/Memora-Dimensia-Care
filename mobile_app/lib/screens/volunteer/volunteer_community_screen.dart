@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
 import 'volunteer_article_displaying_screen.dart';
 import 'volunteer_q&a_forum_screen.dart';
-import '../guardian/guardian_forum_article_screen.dart' as guardian;
-import '../guardian/guardian_forums_screen.dart' as guardian;
+import 'volunteer_bottom_navigation_screen.dart';
+import '../../routes/app_routes.dart';
+import '../../widgets/volunteer_articles_tab_body.dart';
+import '../../widgets/volunteer_qa_tab_body.dart';
 
 class VolunteerCommunityScreen extends StatefulWidget {
   const VolunteerCommunityScreen({Key? key}) : super(key: key);
@@ -38,7 +40,7 @@ class _VolunteerCommunityScreenState extends State<VolunteerCommunityScreen>
         leading: IconButton(
           icon: const Icon(Icons.arrow_back, color: Colors.black),
           onPressed: () {
-            Navigator.pop(context);
+            Navigator.pushNamed(context, AppRoutes.volunteerDashboard);
           },
         ),
         title: const Text(
@@ -67,11 +69,9 @@ class _VolunteerCommunityScreenState extends State<VolunteerCommunityScreen>
       ),
       body: TabBarView(
         controller: _tabController,
-        children: [
-          guardian.GuardianForumArticleScreen(),
-          guardian.GuardianForumsScreen(),
-        ],
+        children: [VolunteerArticlesTabBody(), VolunteerQATabBody()],
       ),
+      bottomNavigationBar: VolunteerBottomNavigation(currentPage: 'community'),
     );
   }
 }

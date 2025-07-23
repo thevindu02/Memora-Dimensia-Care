@@ -2,6 +2,7 @@ package Memora.DimensiaCareApplication.controller;
 
 import Memora.DimensiaCareApplication.model.VolunteerRequest;
 import Memora.DimensiaCareApplication.dto.VolunteerRequestWithUserDTO;
+import Memora.DimensiaCareApplication.dto.VolunteerRequestCreateDTO;
 import Memora.DimensiaCareApplication.service.VolunteerRequestService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -18,23 +19,21 @@ public class VolunteerRequestController {
     private VolunteerRequestService volunteerRequestService;
 
     @PostMapping
-    public ResponseEntity<?> createVolunteerRequest(@RequestBody Map<String, Object> request) {
+    public ResponseEntity<?> createVolunteerRequest(@RequestBody VolunteerRequestCreateDTO request) {
         try {
-            Long userId = Long.parseLong(request.get("userId").toString());
-            String volunteerIdImage = request.get("volunteerIdImage").toString();
-            
-            VolunteerRequest volunteerRequest = volunteerRequestService.createVolunteerRequest(userId, volunteerIdImage);
+            // Validate required fields
+            if (request.getVolunteerName() == null || request.getVolunteerName().trim().isEmpty() ||
+                request.getEmail() == null || request.getEmail().trim().isEmpty() ||
+                request.getPhoneNumber() == null || request.getPhoneNumber().trim().isEmpty() ||
+                request.getGender() == null || request.getGender().trim().isEmpty() ||
+                request.getVolunteerIdImage() == null || request.getVolunteerIdImage().trim().isEmpty()) {
+                return ResponseEntity.badRequest().body("All fields are required.");
+            }
+            VolunteerRequest volunteerRequest = volunteerRequestService.createVolunteerRequest(request);
             return ResponseEntity.ok(volunteerRequest);
         } catch (Exception e) {
             return ResponseEntity.badRequest().body("Error creating volunteer request: " + e.getMessage());
         }
-    }
-
-    @GetMapping("/user/{userId}")
-    public ResponseEntity<?> getVolunteerRequestByUserId(@PathVariable Long userId) {
-        return volunteerRequestService.findByUserId(userId)
-                .map(ResponseEntity::ok)
-                .orElse(ResponseEntity.notFound().build());
     }
 
     @GetMapping("/status/{status}")
@@ -54,35 +53,14 @@ public class VolunteerRequestController {
         return ResponseEntity.ok(requests);
     }
 
-    // New endpoint to get volunteer requests with user data
-    @GetMapping("/with-user-data")
-    public ResponseEntity<List<VolunteerRequestWithUserDTO>> getAllVolunteerRequestsWithUserData() {
-        List<VolunteerRequestWithUserDTO> requests = volunteerRequestService.getAllVolunteerRequestsWithUserData();
-        return ResponseEntity.ok(requests);
-    }
-
-    // New endpoint to get volunteer requests with user data by status
-    @GetMapping("/with-user-data/status/{status}")
-    public ResponseEntity<List<VolunteerRequestWithUserDTO>> getVolunteerRequestsWithUserDataByStatus(@PathVariable String status) {
-        try {
-            VolunteerRequest.RequestStatus requestStatus = VolunteerRequest.RequestStatus.valueOf(status.toLowerCase());
-            List<VolunteerRequestWithUserDTO> requests = volunteerRequestService.getVolunteerRequestsWithUserDataByStatus(requestStatus);
-            return ResponseEntity.ok(requests);
-        } catch (IllegalArgumentException e) {
-            return ResponseEntity.badRequest().build();
-        }
-    }
-
     @PutMapping("/{requestId}/status")
     public ResponseEntity<?> updateRequestStatus(
             @PathVariable Integer requestId,
             @RequestBody Map<String, String> request) {
         try {
             String status = request.get("status");
-            
             VolunteerRequest.RequestStatus requestStatus = VolunteerRequest.RequestStatus.valueOf(status.toLowerCase());
             VolunteerRequest updatedRequest = volunteerRequestService.updateRequestStatus(requestId, requestStatus);
-            
             if (updatedRequest != null) {
                 return ResponseEntity.ok(updatedRequest);
             } else {
