@@ -1,5 +1,11 @@
 package Memora.DimensiaCareApplication.controller;
 
+
+import Memora.DimensiaCareApplication.model.VolunteerRequest;
+import Memora.DimensiaCareApplication.dto.VolunteerRequestWithUserDTO;
+import Memora.DimensiaCareApplication.dto.VolunteerRequestCreateDTO;
+import Memora.DimensiaCareApplication.service.VolunteerRequestService;
+
 import java.util.List;
 import java.util.Map;
 
@@ -24,21 +30,25 @@ public class VolunteerRequestController {
     private VolunteerRequestService volunteerRequestService;
 
     @PostMapping
-    public ResponseEntity<?> createVolunteerRequest(@RequestBody Map<String, Object> request) {
+    public ResponseEntity<?> createVolunteerRequest(@RequestBody VolunteerRequestCreateDTO request) {
         try {
-            String volunteerName = request.get("volunteerName").toString();
-            String email = request.get("email").toString();
-            String phoneNumber = request.get("phoneNumber").toString();
-            String gender = request.get("gender").toString();
-            String volunteerIdImage = request.get("volunteerIdImage").toString();
-            
-            VolunteerRequest volunteerRequest = volunteerRequestService.createVolunteerRequest(
-                volunteerName, email, phoneNumber, gender, volunteerIdImage);
+
+            // Validate required fields
+            if (request.getVolunteerName() == null || request.getVolunteerName().trim().isEmpty() ||
+                request.getEmail() == null || request.getEmail().trim().isEmpty() ||
+                request.getPhoneNumber() == null || request.getPhoneNumber().trim().isEmpty() ||
+                request.getGender() == null || request.getGender().trim().isEmpty() ||
+                request.getVolunteerIdImage() == null || request.getVolunteerIdImage().trim().isEmpty()) {
+                return ResponseEntity.badRequest().body("All fields are required.");
+            }
+            VolunteerRequest volunteerRequest = volunteerRequestService.createVolunteerRequest(request);
+
             return ResponseEntity.ok(volunteerRequest);
         } catch (Exception e) {
             return ResponseEntity.badRequest().body("Error creating volunteer request: " + e.getMessage());
         }
     }
+
 
     @GetMapping("/email/{email}")
     public ResponseEntity<?> getVolunteerRequestByEmail(@PathVariable String email) {
@@ -46,6 +56,7 @@ public class VolunteerRequestController {
                 .map(ResponseEntity::ok)
                 .orElse(ResponseEntity.notFound().build());
     }
+
 
     @GetMapping("/status/{status}")
     public ResponseEntity<List<VolunteerRequest>> getVolunteerRequestsByStatus(@PathVariable String status) {
@@ -63,6 +74,7 @@ public class VolunteerRequestController {
         List<VolunteerRequest> requests = volunteerRequestService.getAllVolunteerRequests();
         return ResponseEntity.ok(requests);
     }
+
 
     // Simple endpoint to get all volunteer requests (same as above, for compatibility)
     @GetMapping("/with-user-data")
@@ -89,10 +101,8 @@ public class VolunteerRequestController {
             @RequestBody Map<String, String> request) {
         try {
             String status = request.get("status");
-            
             VolunteerRequest.RequestStatus requestStatus = VolunteerRequest.RequestStatus.valueOf(status.toLowerCase());
             VolunteerRequest updatedRequest = volunteerRequestService.updateRequestStatus(requestId, requestStatus);
-            
             if (updatedRequest != null) {
                 return ResponseEntity.ok(updatedRequest);
             } else {

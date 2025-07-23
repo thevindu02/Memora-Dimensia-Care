@@ -1,27 +1,27 @@
 import 'package:flutter/material.dart';
-import '../../routes/app_routes.dart';
-import 'guardian_bottom_nav_bar.dart';
+import '../screens/volunteer/volunteer_single_article_screen.dart';
 
-class GuardianArticlesScreen extends StatefulWidget {
+class VolunteerArticlesTabBody extends StatefulWidget {
+  const VolunteerArticlesTabBody({Key? key}) : super(key: key);
+
   @override
-  _GuardianForumsScreenState createState() => _GuardianForumsScreenState();
+  State<VolunteerArticlesTabBody> createState() =>
+      _VolunteerArticlesTabBodyState();
 }
 
-class _GuardianForumsScreenState extends State<GuardianArticlesScreen> {
-  int _selectedIndex =
-      1; // Articles tab is selected (index 1 based on your new nav structure)
+class _VolunteerArticlesTabBodyState extends State<VolunteerArticlesTabBody> {
   TextEditingController _searchController = TextEditingController();
   String _searchQuery = '';
 
-  // Mock data for forum discussions
+  // Mock data for forum discussions (can be replaced with real data)
   List<Map<String, dynamic>> allDiscussions = [
     {
       'id': 1,
       'title': 'Understanding Dementia',
       'description': 'Discussion on symptoms and care',
       'category': 'Caregiver Tips',
-      'author': 'Anonymous Guardian', // Changed to anonymous
-      'authorType': 'Guardian',
+      'author': 'Anonymous Volunteer',
+      'authorType': 'Volunteer',
       'imageUrl':
           'https://images.unsplash.com/photo-1559757148-5c350d0d3c56?w=300&h=200&fit=crop',
       'comments': 15,
@@ -35,8 +35,8 @@ class _GuardianForumsScreenState extends State<GuardianArticlesScreen> {
       'title': 'Caregiver Support',
       'description': 'Share your experiences',
       'category': 'Caregiver Tips',
-      'author': 'Anonymous Guardian', // Changed to anonymous
-      'authorType': 'Guardian',
+      'author': 'Anonymous Volunteer',
+      'authorType': 'Volunteer',
       'imageUrl':
           'https://images.unsplash.com/photo-1582750433449-648ed127bb54?w=300&h=200&fit=crop',
       'comments': 8,
@@ -50,8 +50,8 @@ class _GuardianForumsScreenState extends State<GuardianArticlesScreen> {
       'title': 'Technology in Care',
       'description': 'Using apps to assist care',
       'category': 'Technology',
-      'author': 'Anonymous Guardian', // Changed to anonymous
-      'authorType': 'Guardian',
+      'author': 'Anonymous Volunteer',
+      'authorType': 'Volunteer',
       'imageUrl': 'https://picsum.photos/300/200?random=3',
       'comments': 12,
       'likes': 31,
@@ -64,8 +64,8 @@ class _GuardianForumsScreenState extends State<GuardianArticlesScreen> {
       'title': 'Medication Management',
       'description': 'How to organize medications',
       'category': 'Medication',
-      'author': 'Anonymous Guardian', // Changed to anonymous
-      'authorType': 'Guardian',
+      'author': 'Anonymous Volunteer',
+      'authorType': 'Volunteer',
       'imageUrl':
           'https://images.unsplash.com/photo-1471864190281-a93a3070b6de?w=300&h=200&fit=crop',
       'comments': 22,
@@ -79,8 +79,8 @@ class _GuardianForumsScreenState extends State<GuardianArticlesScreen> {
       'title': 'Daily Activities for Dementia Patients',
       'description': 'Engaging activities and routines',
       'category': 'Activities',
-      'author': 'Anonymous Guardian', // Changed to anonymous
-      'authorType': 'Guardian',
+      'author': 'Anonymous Volunteer',
+      'authorType': 'Volunteer',
       'imageUrl':
           'https://images.unsplash.com/photo-1511632765486-a01980e01a18?w=300&h=200&fit=crop',
       'comments': 18,
@@ -100,8 +100,8 @@ class _GuardianForumsScreenState extends State<GuardianArticlesScreen> {
       'title': 'Nutrition and Dementia',
       'description': 'Dietary considerations and tips',
       'category': 'Health',
-      'author': 'Anonymous Guardian', // Changed to anonymous
-      'authorType': 'Guardian',
+      'author': 'Anonymous Volunteer',
+      'authorType': 'Volunteer',
       'imageUrl':
           'https://images.unsplash.com/photo-1490645935967-10de6ba17061?w=300&h=200&fit=crop',
       'comments': 14,
@@ -140,22 +140,11 @@ class _GuardianForumsScreenState extends State<GuardianArticlesScreen> {
     ];
   }
 
-  // Method to clear search and return to main forums view
   void _clearSearch() {
     setState(() {
       _searchQuery = '';
       _searchController.clear();
     });
-  }
-
-  // Method to navigate back to dashboard
-  void _navigateBackToDashboard() {
-    Navigator.pushNamedAndRemoveUntil(
-      context,
-      AppRoutes.guardianDashboard,
-      (route) => false,
-      arguments: {'selectedIndex': 0}, // Pass the home index
-    );
   }
 
   Widget _buildSearchBar() {
@@ -226,7 +215,7 @@ class _GuardianForumsScreenState extends State<GuardianArticlesScreen> {
 
   Widget _buildTopicCard(String topic, Map<String, dynamic> discussion) {
     return MouseRegion(
-      cursor: SystemMouseCursors.click, // Add proper cursor
+      cursor: SystemMouseCursors.click,
       child: GestureDetector(
         onTap: () {
           setState(() {
@@ -284,16 +273,21 @@ class _GuardianForumsScreenState extends State<GuardianArticlesScreen> {
     );
   }
 
-  Widget _buildDiscussionCard(Map<String, dynamic> discussion) {
+  Widget _buildDiscussionCard(Map<String, dynamic> discussion, int index) {
     return MouseRegion(
-      cursor: SystemMouseCursors.click, // Add proper cursor
+      cursor: SystemMouseCursors.click,
       child: GestureDetector(
         onTap: () {
-          // Navigator.pushNamed(
-          //   context,
-          //   AppRoutes.guardianArticleDetail,
-          //   arguments: discussion,
-          // );
+          if (index == 0) {
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => VolunteerSingleArticleScreen(),
+              ),
+            );
+          } else {
+            // TODO: Implement navigation to article detail if needed
+          }
         },
         child: Container(
           margin: EdgeInsets.symmetric(horizontal: 20, vertical: 8),
@@ -371,18 +365,18 @@ class _GuardianForumsScreenState extends State<GuardianArticlesScreen> {
                                 vertical: 2,
                               ),
                               decoration: BoxDecoration(
-                                color: discussion['authorType'] == 'Guardian'
-                                    ? Colors.blue[100]
-                                    : Colors.green[100],
+                                color: discussion['authorType'] == 'Volunteer'
+                                    ? Colors.green[100]
+                                    : Colors.blue[100],
                                 borderRadius: BorderRadius.circular(10),
                               ),
                               child: Text(
                                 discussion['authorType'],
                                 style: TextStyle(
                                   fontSize: 10,
-                                  color: discussion['authorType'] == 'Guardian'
-                                      ? Colors.blue[700]
-                                      : Colors.green[700],
+                                  color: discussion['authorType'] == 'Volunteer'
+                                      ? Colors.green[700]
+                                      : Colors.blue[700],
                                   fontWeight: FontWeight.w500,
                                 ),
                               ),
@@ -427,16 +421,6 @@ class _GuardianForumsScreenState extends State<GuardianArticlesScreen> {
     );
   }
 
-  void _onBottomNavTap(int index) {
-    // Update the selected index for visual feedback
-    setState(() {
-      _selectedIndex = index;
-    });
-
-    // Handle navigation using the helper class
-    BottomNavHelper.handleNavigation(context, index);
-  }
-
   @override
   void dispose() {
     _searchController.dispose();
@@ -445,118 +429,67 @@ class _GuardianForumsScreenState extends State<GuardianArticlesScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return WillPopScope(
-      onWillPop: () async {
-        // If we're in search mode, clear search instead of popping
-        if (_searchQuery.isNotEmpty) {
-          _clearSearch();
-          return false; // Don't pop the route
-        }
-        // Navigate back to dashboard
-        _navigateBackToDashboard();
-        return false; // We're handling the navigation ourselves
-      },
-      child: Scaffold(
-        backgroundColor: Colors.grey[50],
-        appBar: AppBar(
-          backgroundColor: Colors.white,
-          elevation: 0,
-          leading: _searchQuery.isNotEmpty
-              ? IconButton(
-                  icon: Icon(Icons.arrow_back, color: Colors.black),
-                  onPressed: _clearSearch,
-                )
-              : IconButton(
-                  icon: Icon(Icons.arrow_back, color: Colors.black),
-                  onPressed: _navigateBackToDashboard,
+    return Column(
+      children: [
+        _buildSearchBar(),
+        if (_searchQuery.isEmpty) ...[
+          _buildPopularTopics(),
+          SizedBox(height: 24),
+        ],
+        Padding(
+          padding: EdgeInsets.symmetric(horizontal: 20),
+          child: Row(
+            children: [
+              Text(
+                _searchQuery.isEmpty ? 'Recent Discussions' : 'Search Results',
+                style: TextStyle(
+                  fontSize: 18,
+                  fontWeight: FontWeight.w600,
+                  color: Colors.black87,
                 ),
-          title: Text(
-            _searchQuery.isNotEmpty ? 'Search: $_searchQuery' : 'Articles',
-            style: TextStyle(
-              fontSize: 20,
-              fontWeight: FontWeight.w600,
-              color: Colors.black87,
-            ),
-          ),
-          centerTitle: false,
-        ),
-        body: Column(
-          children: [
-            _buildSearchBar(),
-            if (_searchQuery.isEmpty) ...[
-              _buildPopularTopics(),
-              SizedBox(height: 24),
-            ],
-            Padding(
-              padding: EdgeInsets.symmetric(horizontal: 20),
-              child: Row(
-                children: [
-                  Text(
-                    _searchQuery.isEmpty
-                        ? 'Recent Discussions'
-                        : 'Search Results',
-                    style: TextStyle(
-                      fontSize: 18,
-                      fontWeight: FontWeight.w600,
-                      color: Colors.black87,
-                    ),
-                  ),
-                  if (_searchQuery.isNotEmpty) ...[
-                    Spacer(),
-                    Text(
-                      '${filteredDiscussions.length} results',
-                      style: TextStyle(fontSize: 14, color: Colors.grey[600]),
-                    ),
-                  ],
-                ],
               ),
-            ),
-            SizedBox(height: 16),
-            Expanded(
-              child: filteredDiscussions.isEmpty
-                  ? Center(
-                      child: Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          Icon(
-                            Icons.search_off,
-                            size: 64,
-                            color: Colors.grey[400],
-                          ),
-                          SizedBox(height: 16),
-                          Text(
-                            'No discussions found',
-                            style: TextStyle(
-                              fontSize: 16,
-                              color: Colors.grey[600],
-                            ),
-                          ),
-                          SizedBox(height: 8),
-                          Text(
-                            'Try different keywords',
-                            style: TextStyle(
-                              fontSize: 14,
-                              color: Colors.grey[500],
-                            ),
-                          ),
-                        ],
+              if (_searchQuery.isNotEmpty) ...[
+                Spacer(),
+                Text(
+                  '${filteredDiscussions.length} results',
+                  style: TextStyle(fontSize: 14, color: Colors.grey[600]),
+                ),
+              ],
+            ],
+          ),
+        ),
+        SizedBox(height: 16),
+        Expanded(
+          child: filteredDiscussions.isEmpty
+              ? Center(
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Icon(Icons.search_off, size: 64, color: Colors.grey[400]),
+                      SizedBox(height: 16),
+                      Text(
+                        'No discussions found',
+                        style: TextStyle(fontSize: 16, color: Colors.grey[600]),
                       ),
-                    )
-                  : ListView.builder(
-                      itemCount: filteredDiscussions.length,
-                      itemBuilder: (context, index) {
-                        return _buildDiscussionCard(filteredDiscussions[index]);
-                      },
-                    ),
-            ),
-          ],
+                      SizedBox(height: 8),
+                      Text(
+                        'Try different keywords',
+                        style: TextStyle(fontSize: 14, color: Colors.grey[500]),
+                      ),
+                    ],
+                  ),
+                )
+              : ListView.builder(
+                  itemCount: filteredDiscussions.length,
+                  itemBuilder: (context, index) {
+                    return _buildDiscussionCard(
+                      filteredDiscussions[index],
+                      index,
+                    );
+                  },
+                ),
         ),
-        // Replace the old BottomNavigationBar with your CustomBottomNavigationBar
-        bottomNavigationBar: CustomBottomNavigationBar(
-          currentIndex: _selectedIndex,
-          onTap: _onBottomNavTap,
-        ),
-      ),
+      ],
     );
   }
 }

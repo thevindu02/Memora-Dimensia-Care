@@ -1,7 +1,13 @@
 package Memora.DimensiaCareApplication.service;
 
+import Memora.DimensiaCareApplication.model.VolunteerRequest;
+import Memora.DimensiaCareApplication.dto.VolunteerRequestWithUserDTO;
+import Memora.DimensiaCareApplication.dto.VolunteerRequestCreateDTO;
+import Memora.DimensiaCareApplication.repository.VolunteerRequestRepository;
+
 import java.util.List;
 import java.util.Optional;
+
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -17,17 +23,24 @@ public class VolunteerRequestService {
     @Autowired
     private VolunteerRequestRepository volunteerRequestRepository;
 
-    @Autowired
-    private UserService userService;
 
-    public VolunteerRequest createVolunteerRequest(String volunteerName, String email, String phoneNumber, String gender, String volunteerIdImage) {
-        VolunteerRequest volunteerRequest = new VolunteerRequest(volunteerName, email, phoneNumber, gender, volunteerIdImage);
+    public VolunteerRequest createVolunteerRequest(VolunteerRequestCreateDTO dto) {
+        VolunteerRequest volunteerRequest = new VolunteerRequest(
+            dto.getVolunteerName(),
+            dto.getEmail(),
+            dto.getPhoneNumber(),
+            dto.getGender(),
+            dto.getVolunteerIdImage()
+        );
         return volunteerRequestRepository.save(volunteerRequest);
     }
 
+
+ 
     public Optional<VolunteerRequest> findByEmail(String email) {
         return volunteerRequestRepository.findByEmail(email);
     }
+
 
     public List<VolunteerRequest> findByStatus(VolunteerRequest.RequestStatus status) {
         return volunteerRequestRepository.findByRequestStatus(status);
@@ -82,4 +95,5 @@ public class VolunteerRequestService {
     public boolean existsByEmail(String email) {
         return volunteerRequestRepository.existsByEmail(email);
     }
+
 }

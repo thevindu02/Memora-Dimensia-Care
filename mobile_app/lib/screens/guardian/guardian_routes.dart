@@ -85,6 +85,8 @@ class GuardianRoutes {
         return MaterialPageRoute(
           builder: (_) => GuardianArticlesScreen(),
           settings: settings,
+
+
         );
       case AppRoutes.guardianArticleDetail:
         return MaterialPageRoute(
@@ -110,6 +112,7 @@ class GuardianRoutes {
         return MaterialPageRoute(
           builder: (_) => GuardianSettingsHelpSupportScreen(),
           settings: settings,
+
         );
       case AppRoutes.guardianAddReviews:
         return MaterialPageRoute(
@@ -146,6 +149,7 @@ class GuardianRoutes {
               errorMessage: arguments?['errorMessage'] ?? 'Payment failed',
             ),
             settings: settings,
+
         );
       // case AppRoutes.guardianOrders:
       //   return MaterialPageRoute(builder: (_) => GuardianOrdersScreen());

@@ -109,14 +109,14 @@ class _VolunteerSignupScreenState extends State<VolunteerSignupScreen> {
                       fontSize: 16,
                     ),
                     filled: true,
-                    fillColor: Color(0xFFEBEBEB),
+                    fillColor: Color(0xFFF5F5F5),
                     border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(23),
+                      borderRadius: BorderRadius.circular(16),
                       borderSide: BorderSide.none,
                     ),
                     contentPadding: const EdgeInsets.symmetric(
-                      horizontal: 16,
-                      vertical: 16,
+                      horizontal: 20,
+                      vertical: 18,
                     ),
                   ),
                   validator: (value) {
@@ -137,14 +137,14 @@ class _VolunteerSignupScreenState extends State<VolunteerSignupScreen> {
                       fontSize: 16,
                     ),
                     filled: true,
-                    fillColor: Color(0xFFEBEBEB),
+                    fillColor: Color(0xFFF5F5F5),
                     border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(23),
+                      borderRadius: BorderRadius.circular(16),
                       borderSide: BorderSide.none,
                     ),
                     contentPadding: const EdgeInsets.symmetric(
-                      horizontal: 16,
-                      vertical: 16,
+                      horizontal: 20,
+                      vertical: 18,
                     ),
                   ),
                   validator: (value) {
@@ -155,6 +155,16 @@ class _VolunteerSignupScreenState extends State<VolunteerSignupScreen> {
                   },
                 ),
                 const SizedBox(height: 16),
+                // Add instruction above email field
+                const Text(
+                  'Please enter the email address given by your organization',
+                  style: TextStyle(
+                    color: Colors.black,
+                    fontSize: 14,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+                const SizedBox(height: 8),
                 // Email Address Field
                 TextFormField(
                   controller: emailController,
@@ -166,18 +176,16 @@ class _VolunteerSignupScreenState extends State<VolunteerSignupScreen> {
                       fontSize: 16,
                     ),
                     filled: true,
-                    fillColor: Color(0xFFEBEBEB),
+                    fillColor: Color(0xFFF5F5F5),
                     border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(23),
+                      borderRadius: BorderRadius.circular(16),
                       borderSide: BorderSide.none,
                     ),
                     contentPadding: const EdgeInsets.symmetric(
-                      horizontal: 16,
-                      vertical: 16,
+                      horizontal: 20,
+                      vertical: 18,
                     ),
                   ),
-                  // Email must be in the format: local@domain.tld (e.g., user@example.com)
-                  // Regex: ^[^@\s]+@[^@\s]+\.[^@\s]+
                   validator: (value) {
                     if (value == null || value.trim().isEmpty) {
                       return 'Email is required';
@@ -197,8 +205,8 @@ class _VolunteerSignupScreenState extends State<VolunteerSignupScreen> {
                       width: 60,
                       height: 50,
                       decoration: BoxDecoration(
-                        color: Color(0xFFEBEBEB),
-                        borderRadius: BorderRadius.circular(23),
+                        color: Color(0xFFF5F5F5),
+                        borderRadius: BorderRadius.circular(16),
                       ),
                       child: const Center(
                         child: Text(
@@ -213,24 +221,22 @@ class _VolunteerSignupScreenState extends State<VolunteerSignupScreen> {
                         controller: phoneController,
                         keyboardType: TextInputType.phone,
                         decoration: InputDecoration(
-                          hintText: '(000) 111-0000',
+                          hintText: 'Phone Number',
                           hintStyle: TextStyle(
                             color: Color(0xFFA09CAB),
                             fontSize: 16,
                           ),
                           filled: true,
-                          fillColor: Color(0xFFEBEBEB),
+                          fillColor: Color(0xFFF5F5F5),
                           border: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(23),
+                            borderRadius: BorderRadius.circular(16),
                             borderSide: BorderSide.none,
                           ),
                           contentPadding: const EdgeInsets.symmetric(
-                            horizontal: 16,
-                            vertical: 16,
+                            horizontal: 20,
+                            vertical: 18,
                           ),
                         ),
-                        // Sri Lankan phone number: 10 digits, starts with 0
-                        // Regex: ^0[0-9]{9}$
                         validator: (value) {
                           if (value == null || value.trim().isEmpty) {
                             return 'Phone number is required';
@@ -258,29 +264,27 @@ class _VolunteerSignupScreenState extends State<VolunteerSignupScreen> {
                     decoration: InputDecoration(
                       hintText: 'Gender',
                       hintStyle: TextStyle(
-                        color: selectedGender.isEmpty
-                            ? Color(0xFFA09CAB)
-                            : Colors.black,
+                        color: Color(0xFFA09CAB),
                         fontSize: 16,
                       ),
                       filled: true,
-                      fillColor: Color(0xFFEBEBEB),
+                      fillColor: Color(0xFFF5F5F5),
                       border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(23),
+                        borderRadius: BorderRadius.circular(16),
                         borderSide: BorderSide.none,
                       ),
                       contentPadding: const EdgeInsets.symmetric(
-                        horizontal: 16,
-                        vertical: 16,
+                        horizontal: 20,
+                        vertical: 18,
                       ),
                       errorText: genderError ? 'Gender is required' : null,
                       suffixIcon: Icon(
                         Icons.keyboard_arrow_down,
-                        color: Colors.grey.shade500,
+                        color: Color(0xFFA09CAB),
                       ),
                     ),
                     child: Text(
-                      selectedGender.isEmpty ? '' : selectedGender,
+                      selectedGender.isEmpty ? 'Gender' : selectedGender,
                       style: TextStyle(
                         color: selectedGender.isEmpty
                             ? Color(0xFFA09CAB)
@@ -290,7 +294,7 @@ class _VolunteerSignupScreenState extends State<VolunteerSignupScreen> {
                     ),
                   ),
                 ),
-                const SizedBox(height: 24),
+                const SizedBox(height: 16),
                 // Volunteer ID Image Upload Section
                 const Text(
                   'Volunteer ID Image',
@@ -301,13 +305,12 @@ class _VolunteerSignupScreenState extends State<VolunteerSignupScreen> {
                   ),
                 ),
                 const SizedBox(height: 12),
-                // Image container
                 Container(
                   width: double.infinity,
                   height: 200,
                   decoration: BoxDecoration(
-                    color: Color(0xFFEBEBEB),
-                    borderRadius: BorderRadius.circular(12),
+                    color: Color(0xFFF5F5F5),
+                    borderRadius: BorderRadius.circular(16),
                     border: imageError
                         ? Border.all(color: Colors.red, width: 2)
                         : _selectedImage != null
@@ -318,7 +321,7 @@ class _VolunteerSignupScreenState extends State<VolunteerSignupScreen> {
                     children: [
                       _selectedImage != null
                           ? ClipRRect(
-                              borderRadius: BorderRadius.circular(12),
+                              borderRadius: BorderRadius.circular(16),
                               child: Image.file(
                                 _selectedImage!,
                                 fit: BoxFit.cover,
@@ -377,12 +380,11 @@ class _VolunteerSignupScreenState extends State<VolunteerSignupScreen> {
                     ),
                   ),
                 const SizedBox(height: 16),
-                // Show selected image name
                 if (_selectedImage != null)
                   Padding(
                     padding: const EdgeInsets.only(bottom: 8.0),
                     child: Text(
-                      'Selected: ${_selectedImage!.path.split('/').last}',
+                      'Selected: \\${_selectedImage!.path.split('/').last}',
                       style: TextStyle(
                         color: Color(0xFF2B3F99),
                         fontSize: 12,
@@ -390,7 +392,17 @@ class _VolunteerSignupScreenState extends State<VolunteerSignupScreen> {
                       ),
                     ),
                   ),
-                // Choose Image button
+                const Padding(
+                  padding: EdgeInsets.only(bottom: 8.0),
+                  child: Text(
+                    'Please upload a clear image of your volunteer id',
+                    style: TextStyle(
+                      color: Colors.black,
+                      fontSize: 14,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ),
                 SizedBox(
                   width: double.infinity,
                   height: 50,
@@ -399,8 +411,9 @@ class _VolunteerSignupScreenState extends State<VolunteerSignupScreen> {
                     style: ElevatedButton.styleFrom(
                       backgroundColor: Color(0xFFA0C4FD),
                       shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(23),
+                        borderRadius: BorderRadius.circular(16),
                       ),
+                      elevation: 0,
                     ),
                     child: Text(
                       _selectedImage != null ? 'Change Image' : 'Choose Image',
@@ -412,21 +425,7 @@ class _VolunteerSignupScreenState extends State<VolunteerSignupScreen> {
                     ),
                   ),
                 ),
-                const SizedBox(height: 24),
-                // Status
-                Text(
-                  _isSubmitting
-                      ? 'Status: Uploading image and submitting registration...'
-                      : 'Status: Pending',
-                  style: TextStyle(
-                    fontSize: 14,
-                    color: _isSubmitting
-                        ? Color(0xFF2B3F99)
-                        : Color(0xFF0A0A0A),
-                  ),
-                ),
-                const SizedBox(height: 24),
-                // Submit Registration Button
+                const SizedBox(height: 32),
                 SizedBox(
                   width: double.infinity,
                   height: 50,
@@ -467,38 +466,24 @@ class _VolunteerSignupScreenState extends State<VolunteerSignupScreen> {
                                   imageUrl = fallbackResult.imageUrl!;
                                 }
 
-                                final result = await UserService.addUser(
-                                  FName: firstNameController.text.trim(),
-                                  LName: lastNameController.text.trim(),
-                                  email: emailController.text.trim(),
-                                  password:
-                                      'password123', // TODO: collect real password
-                                  role: 'VOLUNTEER',
-                                  status: 'INACTIVE',
-                                  phoneNumber: phoneController.text.trim(),
-                                  gender: selectedGender,
-                                );
-
-                                if (result.success) {
-                                  // Create volunteer request with the uploaded image
-                                  final volunteerRequestResult =
-                                      await VolunteerRequestService.createVolunteerRequest(
-                                        userId: result.userId!,
-                                        volunteerIdImage: imageUrl,
-                                      );
-
-                                  if (!volunteerRequestResult.success) {
-                                    throw Exception(
-                                      'Failed to create volunteer request: ${volunteerRequestResult.message}',
+                                // Send volunteer request to backend
+                                final volunteerRequestResult =
+                                    await VolunteerRequestService.createVolunteerRequest(
+                                      volunteerName:
+                                          firstNameController.text.trim() +
+                                          ' ' +
+                                          lastNameController.text.trim(),
+                                      email: emailController.text.trim(),
+                                      phoneNumber: phoneController.text.trim(),
+                                      gender: selectedGender,
+                                      volunteerIdImage: imageUrl,
                                     );
-                                  }
-                                }
 
                                 setState(() {
                                   _isSubmitting = false;
                                 });
 
-                                if (result.success) {
+                                if (volunteerRequestResult.success) {
                                   // Show success message with volunteer request info
                                   ScaffoldMessenger.of(context).showSnackBar(
                                     SnackBar(
@@ -519,7 +504,11 @@ class _VolunteerSignupScreenState extends State<VolunteerSignupScreen> {
                                   );
                                 } else {
                                   ScaffoldMessenger.of(context).showSnackBar(
-                                    SnackBar(content: Text(result.message)),
+                                    SnackBar(
+                                      content: Text(
+                                        volunteerRequestResult.message,
+                                      ),
+                                    ),
                                   );
                                 }
                               } catch (e) {
@@ -528,7 +517,7 @@ class _VolunteerSignupScreenState extends State<VolunteerSignupScreen> {
                                 });
                                 ScaffoldMessenger.of(context).showSnackBar(
                                   SnackBar(
-                                    content: Text('Error: ${e.toString()}'),
+                                    content: Text('Error: \\${e.toString()}'),
                                   ),
                                 );
                               }
@@ -537,8 +526,9 @@ class _VolunteerSignupScreenState extends State<VolunteerSignupScreen> {
                     style: ElevatedButton.styleFrom(
                       backgroundColor: Color(0xFFA0C4FD),
                       shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(23),
+                        borderRadius: BorderRadius.circular(16),
                       ),
+                      elevation: 0,
                     ),
                     child: _isSubmitting
                         ? const SizedBox(

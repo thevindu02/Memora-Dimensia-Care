@@ -5,17 +5,20 @@ import 'volunteer_schedule_session_screen.dart';
 import 'volunteer_profile_screen.dart';
 import 'volunteer_bottom_navigation_screen.dart';
 import '../../utils/system_ui_utils.dart';
+import 'volunteer_community_screen.dart';
+import 'volunteer_settings_screen.dart';
 
 class VolunteerDashboardScreen extends StatefulWidget {
   const VolunteerDashboardScreen({Key? key}) : super(key: key);
 
   @override
-  State<VolunteerDashboardScreen> createState() => _VolunteerDashboardScreenState();
+  State<VolunteerDashboardScreen> createState() =>
+      _VolunteerDashboardScreenState();
 }
 
 class _VolunteerDashboardScreenState extends State<VolunteerDashboardScreen> {
-  int _currentImageIndex = 0;
-  
+  int _selectedIndex = 0;
+
   // List of network images for the carousel
   final List<String> _networkImages = [
     'https://images.unsplash.com/photo-1559027615-cd4628902d4a?w=400&h=300&fit=crop',
@@ -34,7 +37,7 @@ class _VolunteerDashboardScreenState extends State<VolunteerDashboardScreen> {
     Future.delayed(Duration(seconds: 3), () {
       if (mounted) {
         setState(() {
-          _currentImageIndex = (_currentImageIndex + 1) % _networkImages.length;
+          _selectedIndex = (_selectedIndex + 1) % 4;
         });
         _startImageCarousel();
       }
@@ -44,268 +47,121 @@ class _VolunteerDashboardScreenState extends State<VolunteerDashboardScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.white,
+      backgroundColor: Color(0xFFF8F9FB),
       appBar: AppBar(
         backgroundColor: Colors.white,
         elevation: 0,
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back, color: Colors.black),
-          onPressed: () => Navigator.pop(context),
-        ),
-        title: Text(
-          'Welcome Volunteer!',
-          style: TextStyle(
-            fontSize: 20,
-            fontWeight: FontWeight.bold,
-            color: Colors.black,
+        leading: SizedBox.shrink(),
+        title: const Padding(
+          padding: EdgeInsets.only(left: 8.0),
+          child: Text(
+            'Dashboard',
+            style: TextStyle(
+              fontSize: 20,
+              fontWeight: FontWeight.bold,
+              color: Colors.black,
+            ),
           ),
         ),
-        centerTitle: true,
+        centerTitle: false,
       ),
       body: SingleChildScrollView(
-        child: SingleChildScrollView(
-          scrollDirection: Axis.horizontal,
-          child: Container(
-            width: MediaQuery.of(context).size.width,
-            padding: const EdgeInsets.all(16.0),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                SizedBox(height: 16), // Reduced space since title is now in app bar
-                SingleChildScrollView(
+        child: Container(
+          width: MediaQuery.of(context).size.width,
+          padding: const EdgeInsets.all(16.0),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              SizedBox(height: 16),
+              Text(
+                'Quick Actions',
+                style: TextStyle(
+                  fontSize: 16,
+                  fontWeight: FontWeight.w600,
+                  color: Colors.black,
+                ),
+              ),
+              SizedBox(height: 12),
+              SingleChildScrollView(
+                scrollDirection: Axis.horizontal,
+                child: Row(
+                  children: [
+                    _buildQuickActionButton(
+                      context,
+                      'Schedule\nSession',
+                      Icons.schedule,
+                      () => Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) =>
+                              VolunteerScheduleSessionScreen(),
+                        ),
+                      ),
+                    ),
+                    SizedBox(width: 12),
+                    _buildQuickActionButton(
+                      context,
+                      'Settings',
+                      Icons.settings,
+                      () => Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => VolunteerSettingsScreen(),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              SizedBox(height: 24),
+              Text(
+                'Your Statistics',
+                style: TextStyle(
+                  fontSize: 16,
+                  fontWeight: FontWeight.w600,
+                  color: Colors.black,
+                ),
+              ),
+              SizedBox(height: 12),
+              // Fixed statistics section with proper height constraint
+              Container(
+                height: 140,
+                child: SingleChildScrollView(
                   scrollDirection: Axis.horizontal,
                   child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                     children: [
-                      _buildQuickActionButton(
-                        context,
-                        'Create\nContent',
-                        Icons.create,
-                        () => Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (context) =>
-                                const VolunteerCreateContentScreen(),
-                          ),
-                        ),
+                      _buildStatCard('Scheduled Sessions', '3', Icons.schedule),
+                      SizedBox(width: 12),
+                      _buildStatCard(
+                        'Articles Contributed',
+                        '5',
+                        Icons.article,
                       ),
                       SizedBox(width: 12),
-                      _buildQuickActionButton(
-                        context,
-                        'Reply to\nForum',
-                        Icons.forum,
-                        () => Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (context) => VolunteerForumScreen(),
-                          ),
-                        ),
-                      ),
+                      _buildStatCard('Forum Replies', '12', Icons.forum),
                       SizedBox(width: 12),
-                      _buildQuickActionButton(
-                        context,
-                        'Schedule\nSession',
-                        Icons.schedule,
-                        () => Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (context) =>
-                                VolunteerScheduleSessionScreen(),
-                          ),
-                        ),
-                      ),
-                      SizedBox(width: 12),
-                      _buildQuickActionButton(
-                        context,
-                        'View\nProfile',
-                        Icons.person,
-                        () => Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (context) => VolunteerProfileScreen(),
-                          ),
-                        ),
+                      _buildStatCard(
+                        'Hours Volunteered',
+                        '8',
+                        Icons.access_time,
                       ),
                     ],
                   ),
                 ),
-                SizedBox(height: 38), // Reduced space
-                Text(
-                  'Recent Activities',
-                  style: TextStyle(
-                    fontSize: 18,
-                    fontWeight: FontWeight.w600,
-                    color: Colors.black,
-                  ),
+              ),
+              SizedBox(height: 24),
+              Text(
+                'Upcoming Sessions',
+                style: TextStyle(
+                  fontSize: 16,
+                  fontWeight: FontWeight.w600,
+                  color: Colors.black,
                 ),
-                SizedBox(height: 32),
-                // New Posts section with image carousel
-                Container(
-                  height: 200,
-                  width: double.infinity,
-                  decoration: BoxDecoration(
-                    color: Colors.black,
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                  child: Stack(
-                    children: [
-                      // Background image carousel
-                      ClipRRect(
-                        borderRadius: BorderRadius.circular(12),
-                        child: Container(
-                          width: double.infinity,
-                          height: double.infinity,
-                          child: AnimatedSwitcher(
-                            duration: Duration(milliseconds: 500),
-                            child: Image.network(
-                              _networkImages[_currentImageIndex],
-                              key: ValueKey(_currentImageIndex),
-                              fit: BoxFit.cover,
-                              width: double.infinity,
-                              height: double.infinity,
-                              errorBuilder: (context, error, stackTrace) {
-                                return Container(
-                                  color: Colors.grey[300],
-                                  child: Icon(
-                                    Icons.image_not_supported,
-                                    color: Colors.grey[600],
-                                    size: 40,
-                                  ),
-                                );
-                              },
-                            ),
-                          ),
-                        ),
-                      ),
-                      // Dark overlay for better text readability
-                      Container(
-                        decoration: BoxDecoration(
-                          borderRadius: BorderRadius.circular(12),
-                          gradient: LinearGradient(
-                            begin: Alignment.topCenter,
-                            end: Alignment.bottomCenter,
-                            colors: [
-                              Colors.transparent,
-                              Colors.black.withOpacity(0.7),
-                            ],
-                          ),
-                        ),
-                      ),
-                      // Content
-                      Positioned(
-                        top: 16,
-                        right: 16,
-                        child: Icon(
-                          Icons.article,
-                          color: Colors.white24,
-                          size: 40,
-                        ),
-                      ),
-                      Positioned(
-                        bottom: 16,
-                        left: 16,
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              'NEW POSTS',
-                              style: TextStyle(
-                                color: Colors.white,
-                                fontSize: 12,
-                                fontWeight: FontWeight.w500,
-                              ),
-                            ),
-                            Text(
-                              'Lorem text by community',
-                              style: TextStyle(
-                                color: Colors.white70,
-                                fontSize: 10,
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-                SizedBox(height: 38),
-                // Meeting section with appealing background
-                Container(
-                  height: 200,
-                  width: double.infinity,
-                  decoration: BoxDecoration(
-                    gradient: LinearGradient(
-                      begin: Alignment.topLeft,
-                      end: Alignment.bottomRight,
-                      colors: [
-                        Color(0xFF667eea),
-                        Color(0xFF764ba2),
-                      ],
-                    ),
-                    borderRadius: BorderRadius.circular(12),
-                    boxShadow: [
-                      BoxShadow(
-                        color: Color(0xFF667eea).withOpacity(0.3),
-                        blurRadius: 8,
-                        offset: Offset(0, 4),
-                      ),
-                    ],
-                  ),
-                  child: Stack(
-                    children: [
-                      // Background pattern
-                      Positioned(
-                        top: 16,
-                        right: 16,
-                        child: Icon(
-                          Icons.videocam,
-                          color: Colors.white.withOpacity(0.3),
-                          size: 40,
-                        ),
-                      ),
-                      // Additional decorative elements
-                      Positioned(
-                        top: 20,
-                        left: 20,
-                        child: Container(
-                          width: 60,
-                          height: 60,
-                          decoration: BoxDecoration(
-                            color: Colors.white.withOpacity(0.1),
-                            borderRadius: BorderRadius.circular(30),
-                          ),
-                        ),
-                      ),
-                      Positioned(
-                        bottom: 16,
-                        left: 16,
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              'MEETING',
-                              style: TextStyle(
-                                color: Colors.white,
-                                fontSize: 12,
-                                fontWeight: FontWeight.w500,
-                              ),
-                            ),
-                            Text(
-                              'Schedule',
-                              style: TextStyle(
-                                color: Colors.white.withOpacity(0.8),
-                                fontSize: 10,
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-                SizedBox(height: 20),
-              ],
-            ),
+              ),
+              SizedBox(height: 12),
+              _buildUpcomingSessionCard(),
+              SizedBox(height: 24),
+            ],
           ),
         ),
       ),
@@ -319,36 +175,169 @@ class _VolunteerDashboardScreenState extends State<VolunteerDashboardScreen> {
     IconData icon,
     VoidCallback onPressed,
   ) {
-    return GestureDetector(
-      onTap: onPressed,
-      child: Container(
-        width: 85,
-        padding: EdgeInsets.symmetric(
-          vertical: 16,
-          horizontal: 8,
-        ),
-        decoration: BoxDecoration(
-          color: Colors.blue[50],
-          borderRadius: BorderRadius.circular(12),
-          border: Border.all(color: Colors.blue[100]!),
-        ),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Icon(icon, color: Colors.blue[700], size: 24),
-            SizedBox(height: 8),
-            Text(
-              title,
-              textAlign: TextAlign.center,
-              style: TextStyle(
-                fontSize: 11,
-                fontWeight: FontWeight.w600,
-                color: Colors.blue[700],
-                height: 1.2,
+    return MouseRegion(
+      cursor: SystemMouseCursors.click,
+      child: GestureDetector(
+        onTap: onPressed,
+        child: Container(
+          width: 85,
+          padding: EdgeInsets.symmetric(vertical: 16, horizontal: 8),
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(16),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withOpacity(0.04),
+                blurRadius: 8,
+                offset: Offset(0, 2),
               ),
-            ),
-          ],
+            ],
+          ),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Container(
+                width: 48,
+                height: 48,
+                decoration: BoxDecoration(
+                  color: Color(0xFFEEF1F8),
+                  shape: BoxShape.circle,
+                ),
+                child: Center(
+                  child: Icon(icon, color: Color(0xFF2B3F99), size: 28),
+                ),
+              ),
+              SizedBox(height: 8),
+              Text(
+                title,
+                textAlign: TextAlign.center,
+                style: TextStyle(
+                  fontSize: 13,
+                  fontWeight: FontWeight.w600,
+                  color: Colors.black,
+                  height: 1.2,
+                ),
+              ),
+            ],
+          ),
         ),
+      ),
+    );
+  }
+
+  Widget _buildStatCard(String label, String value, IconData icon) {
+    return Container(
+      width: 90,
+      padding: EdgeInsets.symmetric(vertical: 16, horizontal: 8),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(16),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.04),
+            blurRadius: 8,
+            offset: Offset(0, 2),
+          ),
+        ],
+      ),
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Container(
+            width: 40,
+            height: 40,
+            decoration: BoxDecoration(
+              color: Color(0xFFEEF1F8),
+              shape: BoxShape.circle,
+            ),
+            child: Center(
+              child: Icon(icon, color: Color(0xFF2B3F99), size: 22),
+            ),
+          ),
+          SizedBox(height: 8),
+          Text(
+            value,
+            style: TextStyle(
+              fontSize: 16,
+              fontWeight: FontWeight.bold,
+              color: Color(0xFF2B3F99),
+            ),
+          ),
+          SizedBox(height: 4),
+          Text(
+            label,
+            textAlign: TextAlign.center,
+            style: TextStyle(
+              fontSize: 11,
+              color: Colors.black,
+              fontWeight: FontWeight.w600,
+              height: 1.1,
+            ),
+            maxLines: 2,
+            overflow: TextOverflow.ellipsis,
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildUpcomingSessionCard() {
+    // Placeholder for demo; in real app, pull from data
+    return Container(
+      width: double.infinity,
+      padding: EdgeInsets.all(18),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(16),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.04),
+            blurRadius: 8,
+            offset: Offset(0, 2),
+          ),
+        ],
+      ),
+      child: Row(
+        children: [
+          Container(
+            width: 44,
+            height: 44,
+            decoration: BoxDecoration(
+              color: Color(0xFFEEF1F8),
+              shape: BoxShape.circle,
+            ),
+            child: Center(
+              child: Icon(Icons.schedule, color: Color(0xFF2B3F99), size: 24),
+            ),
+          ),
+          SizedBox(width: 16),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  'Next Session',
+                  style: TextStyle(
+                    fontSize: 14,
+                    fontWeight: FontWeight.w600,
+                    color: Colors.black,
+                  ),
+                ),
+                SizedBox(height: 4),
+                Text(
+                  'With: Jane Doe',
+                  style: TextStyle(fontSize: 13, color: Colors.grey[700]),
+                ),
+                Text(
+                  'Today at 3:00 PM',
+                  style: TextStyle(fontSize: 13, color: Colors.grey[700]),
+                ),
+              ],
+            ),
+          ),
+          Icon(Icons.arrow_forward_ios, color: Color(0xFF2B3F99), size: 18),
+        ],
       ),
     );
   }

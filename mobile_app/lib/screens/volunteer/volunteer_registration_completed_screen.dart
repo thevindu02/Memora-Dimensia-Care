@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'volunteer_dashboard_screen.dart';
 
-
 class VolunteerRegistrationCompletedScreen extends StatelessWidget {
   const VolunteerRegistrationCompletedScreen({Key? key}) : super(key: key);
 
@@ -54,10 +53,7 @@ class VolunteerRegistrationCompletedScreen extends StatelessWidget {
             // Description text
             const Text(
               'Thank you for registering as a volunteer. Your ID image has been successfully uploaded.',
-              style: TextStyle(
-                fontSize: 14,
-                color: Color(0xFF0A0A0A),
-              ),
+              style: TextStyle(fontSize: 14, color: Color(0xFF0A0A0A)),
             ),
             const SizedBox(height: 32),
             // Go to Dashboard button
@@ -67,12 +63,11 @@ class VolunteerRegistrationCompletedScreen extends StatelessWidget {
               child: ElevatedButton(
                 onPressed: () {
                   // Navigate to dashboard or home screen
-                  Navigator.push(
+                  Navigator.pushReplacement(
                     context,
                     MaterialPageRoute(
                       builder: (context) => const VolunteerDashboardScreen(),
                     ),
-          
                   );
                 },
                 style: ElevatedButton.styleFrom(
