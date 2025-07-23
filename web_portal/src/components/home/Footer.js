@@ -105,6 +105,9 @@ function Footer() {
               <Link href="/for_volunteers" underline="hover" color="inherit" sx={{ cursor: 'pointer' }}>
                 For Volunteers
               </Link>
+              <Link href="/community" underline="hover" color="inherit" sx={{ cursor: 'pointer' }}>
+                Community
+              </Link>
               <Link   component={RouterLink} to="/terms" underline="hover" color="inherit" sx={{ cursor: 'pointer' }}>
                 Terms & Conditions
               </Link>
