@@ -13,8 +13,8 @@ public class Volunteer {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "id")
-    private Long id;
+    @Column(name = "volunteer_id")
+    private Long volunteerId;
 
     @Column(name = "user_id", nullable = false)
     private Long userId;
@@ -32,12 +32,12 @@ public class Volunteer {
     }
 
     // Getters and Setters
-    public Long getId() {
-        return id;
+    public Long getVolunteerId() {
+        return volunteerId;
     }
 
-    public void setId(Long id) {
-        this.id = id;
+    public void setVolunteerId(Long volunteerId) {
+        this.volunteerId = volunteerId;
     }
 
     public Long getUserId() {
