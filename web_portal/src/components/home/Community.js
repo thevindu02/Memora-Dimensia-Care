@@ -13,10 +13,16 @@ import {
 } from '@mui/material';
 import Navbar from '../home/Navbar';
 import Footer from '../home/Footer';
-import ArticleIcon from '@mui/icons-material/Article';
+// import ArticleIcon from '@mui/icons-material/Article';
 import PersonIcon from '@mui/icons-material/Person';
 
-// Sample blog data - replace with real data or API
+// Import your images correctly
+import blogImage1 from '../../assets/blog1.png';
+import blogImage2 from '../../assets/blog2.jpg';
+import blogImage3 from '../../assets/blog3.jpg';
+ import bgSoftLavender from '../../assets/lavender.jpg'; 
+import bgLightSkyBlue from '../../assets/sky.jpg';  
+
 const blogPosts = [
   {
     id: 1,
@@ -25,7 +31,7 @@ const blogPosts = [
     date: 'July 12, 2025',
     excerpt:
       'Discover how our volunteers create meaningful connections that improve lives through compassionate dementia support.',
-    image: '/assets/blog1.jpg', // replace with your actual image path
+    image: blogImage1,
     readMoreLink: '#',
   },
   {
@@ -35,7 +41,7 @@ const blogPosts = [
     date: 'July 8, 2025',
     excerpt:
       'Insights into how smartwatch technologies empower caregivers and volunteers in monitoring patients efficiently.',
-    image: '/assets/blog2.jpg',
+    image: blogImage2,
     readMoreLink: '#',
   },
   {
@@ -45,7 +51,7 @@ const blogPosts = [
     date: 'June 29, 2025',
     excerpt:
       'Read about Sophia’s journey volunteering with Memora and how small acts have a large impact on dementia care.',
-    image: '/assets/blog3.jpg',
+    image: blogImage3,
     readMoreLink: '#',
   },
 ];
@@ -74,7 +80,44 @@ export default function Community() {
           overflow: 'hidden',
         }}
       >
-        {/* Decorative Background Elements */}
+        {/* Optional: Use imported background images with img component for decorative elements */}
+        {/* If you want to use image backgrounds instead of colored blurred circles */}
+         <Box
+          component="img"
+          src={bgSoftLavender}
+          alt=""
+          aria-hidden="true"
+          sx={{
+            position: 'absolute',
+            top: -60,
+            left: -60,
+            width: 220,
+            opacity: 0.8,
+            filter: 'blur(90px)',
+            zIndex: 0,
+            pointerEvents: 'none',
+            userSelect: 'none',
+          }}
+        />
+        <Box
+          component="img"
+          src={bgLightSkyBlue}
+          alt=""
+          aria-hidden="true"
+          sx={{
+            position: 'absolute',
+            bottom: -80,
+            right: -80,
+            width: 280,
+            opacity: 1,
+            filter: 'blur(100px)',
+            zIndex: 0,
+            pointerEvents: 'none',
+            userSelect: 'none',
+          }}
+        /> 
+
+        {/* Or keep your existing colored blurred circles for background */}
         <Box
           sx={{
             position: 'absolute',
@@ -108,16 +151,17 @@ export default function Community() {
 
         <Container sx={{ position: 'relative', zIndex: 1, maxWidth: 'lg' }}>
           <Stack alignItems="center" spacing={2} mb={6}>
-            <ArticleIcon sx={{ fontSize: 48, color: colors.deepPurple }} />
+            {/* <ArticleIcon sx={{ fontSize: 48, color: colors.deepPurple }} /> */}
             <Typography
               variant="h3"
               component="h1"
               sx={{
-                fontFamily: 'Poppins, Lato, Nunito, Arial, sans-serif',
+                fontFamily: 'Poppins Bold',
                 fontWeight: 900,
                 color: colors.deepPurple,
                 textAlign: 'center',
                 letterSpacing: 1,
+                fontSize: 70,
               }}
             >
               Volunteer Blogs & Articles
@@ -127,10 +171,10 @@ export default function Community() {
               sx={{
                 maxWidth: 600,
                 textAlign: 'center',
-                fontFamily: 'Nunito, Arial, sans-serif',
+                fontFamily: 'Poppins Regular',
                 fontWeight: 500,
                 color: colors.calmNavy,
-                fontSize: { xs: 16, md: 18 },
+                fontSize: { xs: 16, md: 22 },
                 lineHeight: 1.6,
               }}
             >
@@ -174,7 +218,7 @@ export default function Community() {
                       gutterBottom
                       sx={{
                         color: colors.deepPurple,
-                        fontFamily: 'Poppins, Lato, Nunito, Arial, sans-serif',
+                        fontFamily: 'Poppins Medium',
                         fontWeight: 700,
                         lineHeight: 1.2,
                       }}
@@ -190,8 +234,9 @@ export default function Community() {
                         color: colors.calmNavy,
                         fontWeight: 600,
                         mb: 1,
-                        fontFamily: 'Nunito, Arial, sans-serif',
+                        fontFamily: 'Poppins Medium',
                         gap: 1,
+                        fontSize: 15,
                       }}
                     >
                       <PersonIcon fontSize="small" sx={{ color: colors.lightSkyBlue }} />
@@ -200,19 +245,21 @@ export default function Community() {
                     <Typography
                       variant="body2"
                       color={colors.deepPurple}
-                      sx={{ fontFamily: 'Nunito, Arial, sans-serif', lineHeight: 1.5 }}
+                      sx={{ fontFamily: 'Poppins Regular', lineHeight: 1.5, fontSize: 16 }}
                     >
                       {excerpt}
                     </Typography>
                   </CardContent>
                   <Box sx={{ p: 2, pt: 0 }}>
                     <Button
-                      size="small"
+                    variant="contained"
+                     size="medium"
                       color="primary"
                       href={readMoreLink}
                       sx={{
                         fontWeight: 600,
-                        fontFamily: 'Poppins, Lato, Nunito, Arial, sans-serif',
+                        fontFamily: 'Roboto', 
+                        fontSize: 15,
                         textTransform: 'none',
                       }}
                     >
@@ -226,8 +273,8 @@ export default function Community() {
         </Container>
       </Box>
 
-      
       <Footer />
     </>
   );
 }
+
