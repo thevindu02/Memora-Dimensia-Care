@@ -40,19 +40,27 @@ const Volunteer = () => {
   };
 
   // Transform backend data to match frontend expectations
-  const transformVolunteerData = (volunteer) => ({
-    id: volunteer.requestId,
-    name: volunteer.volunteerName,
-    email: volunteer.email,
-    phone: volunteer.phoneNumber,
-    gender: volunteer.gender,
-    status: volunteer.requestStatus,
-    createdAt: volunteer.createdAt,
-    volunteerIdImage: volunteer.volunteerIdImage,
-    city: 'N/A', // Not available in current structure
-    birthdate: 'N/A', // Not available in current structure
-    profilePic: null // Not available in current structure
-  });
+  const transformVolunteerData = (volunteer) => {
+    // Extract filename from full path for volunteer ID image
+    let volunteerIdImageFilename = volunteer.volunteerIdImage;
+    if (volunteerIdImageFilename && volunteerIdImageFilename.includes('/')) {
+      volunteerIdImageFilename = volunteerIdImageFilename.split('/').pop();
+    }
+    
+    return {
+      id: volunteer.requestId,
+      name: volunteer.volunteerName,
+      email: volunteer.email,
+      phone: volunteer.phoneNumber,
+      gender: volunteer.gender,
+      status: volunteer.requestStatus,
+      createdAt: volunteer.createdAt,
+      volunteerIdImage: volunteerIdImageFilename,
+      city: 'N/A', // Not available in current structure
+      birthdate: 'N/A', // Not available in current structure
+      profilePic: null // Not available in current structure
+    };
+  };
 
   const transformedVolunteers = volunteers.map(transformVolunteerData);
 
@@ -180,15 +188,6 @@ const Volunteer = () => {
                     <option value="meals">Meal Assistance</option>
                     <option value="technology">Technology Support</option>
                   </select>
-                  
-                  <select className="um-filter-select">
-                    <option value="">Availability</option>
-                    <option value="weekdays">Weekdays</option>
-                    <option value="weekends">Weekends</option>
-                    <option value="flexible">Flexible</option>
-                    <option value="mornings">Mornings</option>
-                    <option value="afternoons">Afternoons</option>
-                  </select>
                 </div>
               </div>
             </div>
@@ -302,25 +301,24 @@ const Volunteer = () => {
                   
                   <div className="um-modal-body">
                     <div className="um-details-grid">
-                      {/* Profile Picture Section */}
+                      {/* Volunteer ID Image Section */}
                       <div className="um-detail-section" style={{gridColumn: '1 / -1', textAlign: 'center', marginBottom: '2rem'}}>
                         <img 
-                          src={selectedVolunteer.profilePic || 'https://via.placeholder.com/120/4A90E2/FFFFFF?text=V'} 
-                          alt={selectedVolunteer.name}
+                          src={selectedVolunteer.volunteerIdImage ? `http://localhost:8080/uploads/${selectedVolunteer.volunteerIdImage}` : 'https://via.placeholder.com/200x150/4A90E2/FFFFFF?text=ID+Not+Available'} 
+                          alt="Volunteer ID"
                           style={{
-                            width: '120px',
-                            height: '120px',
-                            borderRadius: '50%',
+                            width: '200px',
+                            height: '150px',
+                            borderRadius: '8px',
                             objectFit: 'cover',
-                            border: '4px solid var(--um-primary)',
+                            border: '2px solid var(--um-primary)',
                             marginBottom: '1rem',
                             display: 'block',
-                            margin: '0 auto 1rem auto',
-                            aspectRatio: '1 / 1'
+                            margin: '0 auto 1rem auto'
                           }}
                         />
                         <h3 style={{margin: '0', color: 'var(--um-gray-800)'}}>{selectedVolunteer.name}</h3>
-                        <p style={{margin: '0.5rem 0 0 0', color: 'var(--um-gray-600)'}}>Volunteer Request</p>
+                        <p style={{margin: '0.5rem 0 0 0', color: 'var(--um-gray-600)'}}>Volunteer ID Document</p>
                       </div>
 
                       {/* Volunteer Information */}
@@ -344,14 +342,6 @@ const Volunteer = () => {
                         <div className="um-detail-row">
                           <span className="um-detail-label">Gender</span>
                           <span className="um-detail-value">{selectedVolunteer.gender || 'N/A'}</span>
-                        </div>
-                        <div className="um-detail-row">
-                          <span className="um-detail-label">City</span>
-                          <span className="um-detail-value">{selectedVolunteer.city || 'N/A'}</span>
-                        </div>
-                        <div className="um-detail-row">
-                          <span className="um-detail-label">State</span>
-                          <span className="um-detail-value">{selectedVolunteer.state || 'N/A'}</span>
                         </div>
                         <div className="um-detail-row">
                           <span className="um-detail-label">Status</span>

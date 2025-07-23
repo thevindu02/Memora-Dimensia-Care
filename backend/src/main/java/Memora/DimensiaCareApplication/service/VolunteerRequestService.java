@@ -2,9 +2,11 @@ package Memora.DimensiaCareApplication.service;
 
 import Memora.DimensiaCareApplication.model.VolunteerRequest;
 import Memora.DimensiaCareApplication.model.User;
+import Memora.DimensiaCareApplication.model.Volunteer;
 import Memora.DimensiaCareApplication.dto.VolunteerRequestCreateDTO;
 import Memora.DimensiaCareApplication.repository.VolunteerRequestRepository;
 import Memora.DimensiaCareApplication.repository.UserRepository;
+import Memora.DimensiaCareApplication.repository.VolunteerRepository;
 
 import java.util.List;
 import java.util.Optional;
@@ -25,6 +27,9 @@ public class VolunteerRequestService {
 
     @Autowired
     private PasswordEncoder passwordEncoder;
+
+    @Autowired
+    private VolunteerRepository volunteerRepository;
 
 
     public VolunteerRequest createVolunteerRequest(VolunteerRequestCreateDTO dto) {
@@ -86,7 +91,11 @@ public class VolunteerRequestService {
             newUser.setPassword(passwordEncoder.encode(password)); // Encrypt password
             
             // Save the user to users table
-            userRepository.save(newUser);
+            User savedUser = userRepository.save(newUser);
+            
+            // Create volunteer record with user_id and volunteer_id_image
+            Volunteer volunteer = new Volunteer(savedUser.getId(), request.getVolunteerIdImage());
+            volunteerRepository.save(volunteer);
             
             // Update request status to accepted
             request.setRequestStatus(VolunteerRequest.RequestStatus.accepted);
