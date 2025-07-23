@@ -1,7 +1,7 @@
 /* Subscription Analytics Page Styles */
 .subscription-analytics-page {
   padding: 2rem;
-  background: #f8f9fa;
+  background: white;
   min-height: 100vh;
 }
 
@@ -19,7 +19,7 @@
 
 .period-selector {
   display: flex;
-  background: #f1f3f4;
+  background: #C3B1E1;
   border-radius: 8px;
   padding: 4px;
 }
@@ -32,13 +32,13 @@
   cursor: pointer;
   font-size: 0.9rem;
   font-weight: 500;
-  color: #5f6368;
+  color: #390797;
   transition: all 0.2s ease;
 }
 
 .period-selector button.active {
   background: white;
-  color: #1a73e8;
+  color: #2B3F99;
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
 }
 
@@ -50,40 +50,40 @@
 
 .plan-filter {
   padding: 0.5rem 1rem;
-  border: 1px solid #dadce0;
+  border: 1px solid #A0C4FD;
   background: white;
   border-radius: 6px;
   cursor: pointer;
   font-size: 0.9rem;
-  color: #5f6368;
+  color: #390797;
 }
 
 .refresh-btn, .export-btn {
   padding: 0.5rem 1rem;
-  border: 1px solid #dadce0;
+  border: 1px solid #A0C4FD;
   background: white;
   border-radius: 6px;
   cursor: pointer;
   font-size: 0.9rem;
   font-weight: 500;
-  color: #5f6368;
+  color: #390797;
   transition: all 0.2s ease;
 }
 
 .refresh-btn:hover, .export-btn:hover {
-  background: #f8f9fa;
-  border-color: #1a73e8;
-  color: #1a73e8;
+  background: white;
+  border-color: #2B3F99;
+  color: #2B3F99;
 }
 
 .export-btn {
-  background: #1a73e8;
+  background: #2B3F99;
   color: white;
-  border-color: #1a73e8;
+  border-color: #2B3F99;
 }
 
 .export-btn:hover {
-  background: #1557b0;
+  background: #2B3F99;
   color: white;
 }
 
@@ -112,7 +112,7 @@
 }
 
 .summary-card.primary {
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: #2B3F99;
   color: white;
 }
 
@@ -125,7 +125,7 @@
   width: 60px;
   height: 60px;
   border-radius: 12px;
-  background: #f1f3f4;
+  background: #C3B1E1;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -140,7 +140,7 @@
 .summary-number {
   font-size: 1.8rem;
   font-weight: 700;
-  color: #1a202c;
+  color: #390797;
   line-height: 1.2;
   margin-bottom: 0.25rem;
 }
@@ -152,7 +152,7 @@
 .summary-label {
   font-size: 0.9rem;
   font-weight: 500;
-  color: #718096;
+  color: #390797;
   margin-bottom: 0.25rem;
 }
 
@@ -166,7 +166,7 @@
 }
 
 .summary-change.positive {
-  color: #38a169;
+  color: #2B3F99;
 }
 
 .summary-card.primary .summary-change.positive {
@@ -175,7 +175,7 @@
 
 .summary-note {
   font-size: 0.8rem;
-  color: #718096;
+  color: #390797;
 }
 
 .summary-card.primary .summary-note {
@@ -196,19 +196,19 @@
 
 .breakdown-header {
   padding: 1.5rem 2rem;
-  border-bottom: 1px solid #e2e8f0;
+  border-bottom: 1px solid #A0C4FD;
 }
 
 .breakdown-header h3 {
   font-size: 1.25rem;
   font-weight: 600;
-  color: #1a202c;
+  color: #390797;
   margin: 0 0 0.5rem 0;
 }
 
 .breakdown-header p {
   font-size: 0.9rem;
-  color: #718096;
+  color: #390797;
   margin: 0;
 }
 
@@ -220,7 +220,7 @@
 
 .plan-breakdown-card {
   padding: 1.5rem 2rem;
-  border-right: 1px solid #e2e8f0;
+  border-right: 1px solid #A0C4FD;
   position: relative;
 }
 
@@ -244,7 +244,7 @@
 .plan-card-header h4 {
   font-size: 1.1rem;
   font-weight: 600;
-  color: #1a202c;
+  color: #390797;
   margin: 0;
   flex: 1;
 }
@@ -257,13 +257,13 @@
 }
 
 .growth-badge.positive {
-  background: #c6f6d5;
-  color: #276749;
+  background: #C3B1E1;
+  color: #390797;
 }
 
 .growth-badge.negative {
-  background: #fed7d7;
-  color: #c53030;
+  background: #C3B1E1;
+  color: #390797;
 }
 
 .plan-metrics {
@@ -282,44 +282,44 @@
 .metric-item.primary .metric-value {
   font-size: 1.1rem;
   font-weight: 700;
-  color: #1a202c;
+  color: #390797;
 }
 
 .metric-label {
   font-size: 0.85rem;
-  color: #718096;
+  color: #390797;
   font-weight: 500;
 }
 
 .metric-value {
   font-size: 0.9rem;
   font-weight: 600;
-  color: #2d3748;
+  color: #390797;
 }
 
 .metric-value.warning {
-  color: #d69e2e;
+  color: #A0C4FD;
 }
 
 .metric-value.good {
-  color: #38a169;
+  color: #2B3F99;
 }
 
 .plan-share {
   padding-top: 1rem;
-  border-top: 1px solid #e2e8f0;
+  border-top: 1px solid #A0C4FD;
 }
 
 .share-label {
   font-size: 0.85rem;
-  color: #718096;
+  color: #390797;
   margin-bottom: 0.5rem;
 }
 
 .share-bar {
   width: 100%;
   height: 6px;
-  background: #edf2f7;
+  background: #C3B1E1;
   border-radius: 3px;
   overflow: hidden;
   margin-bottom: 0.5rem;
@@ -334,7 +334,7 @@
 .share-percentage {
   font-size: 0.85rem;
   font-weight: 600;
-  color: #2d3748;
+  color: #390797;
   text-align: right;
 }
 
@@ -352,19 +352,19 @@
 
 .chart-header {
   padding: 1.5rem 2rem;
-  border-bottom: 1px solid #e2e8f0;
+  border-bottom: 1px solid #A0C4FD;
 }
 
 .chart-header h3 {
   font-size: 1.25rem;
   font-weight: 600;
-  color: #1a202c;
+  color: #390797;
   margin: 0 0 0.5rem 0;
 }
 
 .chart-header p {
   font-size: 0.9rem;
-  color: #718096;
+  color: #390797;
   margin: 0;
 }
 
@@ -379,7 +379,7 @@
   height: 200px;
   margin-bottom: 1rem;
   padding: 0 1rem;
-  border-bottom: 2px solid #e2e8f0;
+  border-bottom: 2px solid #A0C4FD;
 }
 
 .month-subscription-item {
@@ -406,15 +406,15 @@
 }
 
 .subscription-bar.basic-care {
-  background: #3b82f6;
+  background: #2B3F99;
 }
 
 .subscription-bar.premium-care {
-  background: #f59e0b;
+  background: #A0C4FD;
 }
 
 .subscription-bar.free-trial {
-  background: #10b981;
+  background: #2B3F99;
 }
 
 .subscription-bar:hover {
@@ -424,14 +424,14 @@
 .month-label {
   font-size: 0.75rem;
   font-weight: 500;
-  color: #718096;
+  color: #390797;
   margin-bottom: 0.25rem;
 }
 
 .month-total {
   font-size: 0.8rem;
   font-weight: 600;
-  color: #1a202c;
+  color: #390797;
 }
 
 .chart-legend {
@@ -446,7 +446,7 @@
   align-items: center;
   gap: 0.5rem;
   font-size: 0.85rem;
-  color: #718096;
+  color: #390797;
 }
 
 .legend-color {
@@ -456,15 +456,15 @@
 }
 
 .legend-color.basic-care {
-  background: #3b82f6;
+  background: #2B3F99;
 }
 
 .legend-color.premium-care {
-  background: #f59e0b;
+  background: #A0C4FD;
 }
 
 .legend-color.free-trial {
-  background: #10b981;
+  background: #2B3F99;
 }
 
 /* Subscribers by Plan */
@@ -481,19 +481,19 @@
 
 .subscribers-header {
   padding: 1.5rem 2rem;
-  border-bottom: 1px solid #e2e8f0;
+  border-bottom: 1px solid #A0C4FD;
 }
 
 .subscribers-header h3 {
   font-size: 1.25rem;
   font-weight: 600;
-  color: #1a202c;
+  color: #390797;
   margin: 0 0 0.5rem 0;
 }
 
 .subscribers-header p {
   font-size: 0.9rem;
-  color: #718096;
+  color: #390797;
   margin: 0;
 }
 
@@ -515,27 +515,27 @@
   align-items: center;
   margin-bottom: 1rem;
   padding-bottom: 0.75rem;
-  border-bottom: 2px solid #e2e8f0;
+  border-bottom: 2px solid #A0C4FD;
 }
 
 .plan-section-header h4 {
   font-size: 1.1rem;
   font-weight: 600;
-  color: #1a202c;
+  color: #390797;
   margin: 0;
 }
 
 .subscriber-count {
   font-size: 0.85rem;
-  color: #718096;
-  background: #f7fafc;
+  color: #390797;
+  background: #C3B1E1;
   padding: 0.25rem 0.75rem;
   border-radius: 12px;
   font-weight: 500;
 }
 
 .subscribers-table {
-  background: #f9fafb;
+  background: white;
   border-radius: 8px;
   overflow: hidden;
 }
@@ -545,13 +545,14 @@
   grid-template-columns: 2fr 1fr 1fr 1fr 1.5fr;
   gap: 1rem;
   padding: 1rem 1.5rem;
-  background: #edf2f7;
-  border-bottom: 1px solid #e2e8f0;
+  background: white;
+  border-bottom: 1px solid #A0C4FD;
   font-size: 0.8rem;
   font-weight: 600;
-  color: #4a5568;
+  color: #390797;
   text-transform: uppercase;
   letter-spacing: 0.5px;
+  text-align: center;
 }
 
 .table-body {
@@ -564,12 +565,12 @@
   grid-template-columns: 2fr 1fr 1fr 1fr 1.5fr;
   gap: 1rem;
   padding: 1rem 1.5rem;
-  border-bottom: 1px solid #e2e8f0;
+  border-bottom: 1px solid #A0C4FD;
   transition: background-color 0.2s ease;
 }
 
 .table-row:hover {
-  background: #f1f5f9;
+  background: #f8f9fa;
 }
 
 .table-row:last-child {
@@ -584,29 +585,29 @@
 .user-name {
   font-size: 0.9rem;
   font-weight: 600;
-  color: #1a202c;
+  color: #390797;
   margin-bottom: 0.2rem;
 }
 
 .user-email {
   font-size: 0.8rem;
-  color: #718096;
+  color: #390797;
 }
 
 .duration-badge {
   display: inline-block;
   padding: 0.25rem 0.75rem;
-  background: #e2e8f0;
+  background: #A0C4FD;
   border-radius: 16px;
   font-size: 0.8rem;
   font-weight: 500;
-  color: #4a5568;
+  color: #390797;
 }
 
 .amount {
   font-size: 0.9rem;
   font-weight: 600;
-  color: #1a202c;
+  color: #390797;
 }
 
 .status-badge {
@@ -619,38 +620,38 @@
 }
 
 .status-badge.active {
-  background: #c6f6d5;
-  color: #276749;
+  background: #C3B1E1;
+  color: #390797;
 }
 
 .status-badge.trial {
-  background: #bee3f8;
-  color: #2c5282;
+  background: #C3B1E1;
+  color: #390797;
 }
 
 .status-badge.pending {
-  background: #fef5e7;
-  color: #c05621;
+  background: #C3B1E1;
+  color: #390797;
 }
 
 .billing-date {
   font-size: 0.85rem;
-  color: #4a5568;
+  color: #390797;
 }
 
 .view-more {
   padding: 1rem 1.5rem;
   text-align: center;
-  border-top: 1px solid #e2e8f0;
-  background: #f7fafc;
+  border-top: 1px solid #A0C4FD;
+  background: #C3B1E1;
 }
 
 .view-more-btn {
   padding: 0.5rem 1rem;
   background: transparent;
-  border: 1px solid #d2d6dc;
+  border: 1px solid #A0C4FD;
   border-radius: 6px;
-  color: #4a5568;
+  color: #390797;
   font-size: 0.85rem;
   font-weight: 500;
   cursor: pointer;
@@ -658,8 +659,8 @@
 }
 
 .view-more-btn:hover {
-  background: #edf2f7;
-  border-color: #a0aec0;
+  background: #C3B1E1;
+  border-color: #A0C4FD;
 }
 
 /* Responsive Design */
@@ -694,7 +695,7 @@
 
   .plan-breakdown-card {
     border-right: none;
-    border-bottom: 1px solid #e2e8f0;
+    border-bottom: 1px solid #A0C4FD;
   }
 
   .plan-breakdown-card:last-child {
@@ -739,7 +740,7 @@
   .table-row {
     padding: 1rem;
     display: block;
-    border: 1px solid #e2e8f0;
+    border: 1px solid #A0C4FD;
     border-radius: 8px;
     margin-bottom: 0.75rem;
     background: white;
@@ -758,7 +759,7 @@
     justify-content: space-between;
     align-items: center;
     padding: 0.25rem 0;
-    border-bottom: 1px solid #f7fafc;
+    border-bottom: 1px solid #C3B1E1;
   }
 
   .col-user:last-child,
@@ -772,35 +773,35 @@
   .col-user::before {
     content: "User:";
     font-weight: 600;
-    color: #4a5568;
+    color: #390797;
     font-size: 0.8rem;
   }
 
   .col-duration::before {
     content: "Duration:";
     font-weight: 600;
-    color: #4a5568;
+    color: #390797;
     font-size: 0.8rem;
   }
 
   .col-amount::before {
     content: "Amount:";
     font-weight: 600;
-    color: #4a5568;
+    color: #390797;
     font-size: 0.8rem;
   }
 
   .col-status::before {
     content: "Status:";
     font-weight: 600;
-    color: #4a5568;
+    color: #390797;
     font-size: 0.8rem;
   }
 
   .col-billing::before {
     content: "Next Billing:";
     font-weight: 600;
-    color: #4a5568;
+    color: #390797;
     font-size: 0.8rem;
   }
 

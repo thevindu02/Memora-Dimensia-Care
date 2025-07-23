@@ -1,7 +1,7 @@
 /* Volunteer Engagement Page Styles */
 .volunteer-engagement-page {
   padding: 2rem;
-  background: #f8f9fa;
+  background: white;
   min-height: 100vh;
 }
 
@@ -19,7 +19,7 @@
 
 .period-selector {
   display: flex;
-  background: #f1f3f4;
+  background: #C3B1E1;
   border-radius: 8px;
   padding: 4px;
 }
@@ -32,13 +32,13 @@
   cursor: pointer;
   font-size: 0.9rem;
   font-weight: 500;
-  color: #5f6368;
+  color: #390797;
   transition: all 0.2s ease;
 }
 
 .period-selector button.active {
   background: white;
-  color: #1a73e8;
+  color: #2B3F99;
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
 }
 
@@ -49,11 +49,11 @@
 
 .month-select {
   padding: 0.5rem 1rem;
-  border: 1px solid #dadce0;
+  border: 1px solid #A0C4FD;
   border-radius: 6px;
   background: white;
   font-size: 0.9rem;
-  color: #5f6368;
+  color: #390797;
   cursor: pointer;
 }
 
@@ -82,7 +82,7 @@
 }
 
 .overview-card.primary {
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: #2B3F99;
   color: white;
 }
 
@@ -113,11 +113,11 @@
 }
 
 .card-trend.positive {
-  color: #10b981;
+  color: #2B3F99;
 }
 
 .overview-card.primary .card-trend.positive {
-  color: #a7f3d0;
+  color: #A0C4FD;
 }
 
 .card-note {
@@ -139,14 +139,14 @@
 }
 
 .category-header h3 {
-  color: #1a202c;
+  color: #390797;
   font-size: 1.25rem;
   font-weight: 600;
   margin-bottom: 0.5rem;
 }
 
 .category-header p {
-  color: #64748b;
+  color: #390797;
   font-size: 0.9rem;
   margin: 0;
 }
@@ -175,11 +175,11 @@
   justify-content: space-between;
   margin-bottom: 1.5rem;
   padding-bottom: 1rem;
-  border-bottom: 1px solid #f1f5f9;
+  border-bottom: 1px solid #C3B1E1;
 }
 
 .category-card-header h4 {
-  color: #1a202c;
+  color: #390797;
   font-size: 1.1rem;
   font-weight: 600;
   margin: 0;
@@ -202,8 +202,8 @@
 }
 
 .growth-badge.positive {
-  background: #dcfce7;
-  color: #166534;
+  background: #C3B1E1;
+  color: #2B3F99;
 }
 
 .category-stats {
@@ -215,7 +215,7 @@
   justify-content: space-between;
   align-items: center;
   padding: 0.5rem 0;
-  border-bottom: 1px solid #f8fafc;
+  border-bottom: 1px solid #C3B1E1;
 }
 
 .stat-row:last-child {
@@ -223,7 +223,7 @@
 }
 
 .stat-row.primary {
-  background: #f8fafc;
+  background: #C3B1E1;
   padding: 0.75rem;
   border-radius: 6px;
   margin-bottom: 0.5rem;
@@ -231,26 +231,26 @@
 
 .stat-label {
   font-size: 0.9rem;
-  color: #64748b;
+  color: #390797;
 }
 
 .stat-value {
   font-weight: 600;
-  color: #1a202c;
+  color: #390797;
 }
 
 .stat-value.preference {
-  color: #059669;
+  color: #2B3F99;
 }
 
 .popular-items {
-  background: #f8fafc;
+  background: #C3B1E1;
   padding: 1rem;
   border-radius: 8px;
 }
 
 .popular-items h5 {
-  color: #374151;
+  color: #390797;
   font-size: 0.9rem;
   font-weight: 600;
   margin-bottom: 0.75rem;
@@ -264,7 +264,7 @@
 
 .popular-items li {
   padding: 0.25rem 0;
-  color: #64748b;
+  color: #390797;
   font-size: 0.85rem;
   position: relative;
   padding-left: 1rem;
@@ -272,7 +272,7 @@
 
 .popular-items li:before {
   content: '•';
-  color: #3b82f6;
+  color: #2B3F99;
   position: absolute;
   left: 0;
 }
@@ -291,18 +291,18 @@
 
 .chart-header {
   padding: 1.5rem 2rem;
-  border-bottom: 1px solid #e2e8f0;
+  border-bottom: 1px solid #A0C4FD;
 }
 
 .chart-header h3 {
-  color: #1a202c;
+  color: #390797;
   font-size: 1.25rem;
   font-weight: 600;
   margin-bottom: 0.5rem;
 }
 
 .chart-header p {
-  color: #64748b;
+  color: #390797;
   font-size: 0.9rem;
   margin: 0;
 }
@@ -348,27 +348,27 @@
 }
 
 .engagement-bar.articles {
-  background: #3b82f6;
+  background: #2B3F99;
 }
 
 .engagement-bar.blog-posts {
-  background: #10b981;
+  background: #2B3F99;
 }
 
 .engagement-bar.video-lessons {
-  background: #f59e0b;
+  background: #A0C4FD;
 }
 
 .month-label {
   font-size: 0.85rem;
-  color: #64748b;
+  color: #390797;
   margin-bottom: 0.25rem;
 }
 
 .month-total {
   font-size: 0.8rem;
   font-weight: 600;
-  color: #1a202c;
+  color: #390797;
 }
 
 .chart-legend {
@@ -376,7 +376,7 @@
   justify-content: center;
   gap: 2rem;
   padding-top: 1rem;
-  border-top: 1px solid #f1f5f9;
+  border-top: 1px solid #C3B1E1;
 }
 
 .legend-item {
@@ -392,20 +392,20 @@
 }
 
 .legend-color.articles {
-  background: #3b82f6;
+  background: #2B3F99;
 }
 
 .legend-color.blog-posts {
-  background: #10b981;
+  background: #2B3F99;
 }
 
 .legend-color.video-lessons {
-  background: #f59e0b;
+  background: #A0C4FD;
 }
 
 .legend-item span {
   font-size: 0.85rem;
-  color: #64748b;
+  color: #390797;
 }
 
 /* Top Volunteers Container */
@@ -422,14 +422,14 @@
 }
 
 .top-volunteers-header h3 {
-  color: #1a202c;
+  color: #390797;
   font-size: 1.25rem;
   font-weight: 600;
   margin-bottom: 0.5rem;
 }
 
 .top-volunteers-header p {
-  color: #64748b;
+  color: #390797;
   font-size: 0.9rem;
   margin: 0;
 }
@@ -448,13 +448,13 @@
 }
 
 .volunteers-category-header {
-  background: #f8fafc;
+  background: #C3B1E1;
   padding: 1rem 1.5rem;
-  border-bottom: 1px solid #e2e8f0;
+  border-bottom: 1px solid #A0C4FD;
 }
 
 .volunteers-category-header h4 {
-  color: #1a202c;
+  color: #390797;
   font-size: 1rem;
   font-weight: 600;
   margin: 0;
@@ -469,7 +469,7 @@
   align-items: center;
   gap: 1rem;
   padding: 1rem 0;
-  border-bottom: 1px solid #f1f5f9;
+  border-bottom: 1px solid #C3B1E1;
 }
 
 .volunteer-item:last-child {
@@ -477,7 +477,7 @@
 }
 
 .volunteer-rank {
-  background: #3b82f6;
+  background: #2B3F99;
   color: white;
   width: 24px;
   height: 24px;
@@ -495,13 +495,13 @@
 
 .volunteer-name {
   font-weight: 600;
-  color: #1a202c;
+  color: #390797;
   margin-bottom: 0.25rem;
 }
 
 .volunteer-specialty {
   font-size: 0.8rem;
-  color: #64748b;
+  color: #390797;
 }
 
 .volunteer-stats {
@@ -510,14 +510,14 @@
 
 .volunteer-engagements {
   font-weight: 600;
-  color: #059669;
+  color: #2B3F99;
   font-size: 0.9rem;
   margin-bottom: 0.25rem;
 }
 
 .volunteer-time {
   font-size: 0.8rem;
-  color: #64748b;
+  color: #390797;
 }
 
 /* Patient Preferences Container */
@@ -537,14 +537,14 @@
 }
 
 .preferences-header h3 {
-  color: #1a202c;
+  color: #390797;
   font-size: 1.25rem;
   font-weight: 600;
   margin-bottom: 0.5rem;
 }
 
 .preferences-header p {
-  color: #64748b;
+  color: #390797;
   font-size: 0.9rem;
   margin: 0;
 }
@@ -560,9 +560,9 @@
   align-items: center;
   justify-content: space-between;
   padding: 1.5rem;
-  background: #f8fafc;
+  background: #C3B1E1;
   border-radius: 12px;
-  border-left: 4px solid #3b82f6;
+  border-left: 4px solid #2B3F99;
 }
 
 .preference-info {
@@ -571,14 +571,14 @@
 
 .preference-category {
   font-weight: 600;
-  color: #1a202c;
+  color: #390797;
   font-size: 1rem;
   margin-bottom: 0.25rem;
 }
 
 .preference-reason {
   font-size: 0.85rem;
-  color: #64748b;
+  color: #390797;
 }
 
 .preference-stats {
@@ -591,7 +591,7 @@
 .preference-percentage {
   font-size: 1.5rem;
   font-weight: 700;
-  color: #059669;
+  color: #2B3F99;
   min-width: 60px;
   text-align: right;
 }
@@ -599,14 +599,14 @@
 .preference-bar {
   flex: 1;
   height: 8px;
-  background: #e2e8f0;
+  background: #A0C4FD;
   border-radius: 4px;
   overflow: hidden;
 }
 
 .preference-fill {
   height: 100%;
-  background: linear-gradient(90deg, #3b82f6, #10b981);
+  background: #2B3F99;
   transition: width 0.3s ease;
 }
 

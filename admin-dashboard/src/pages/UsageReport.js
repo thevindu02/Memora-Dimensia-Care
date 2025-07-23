@@ -39,7 +39,7 @@ const UsageReport = () => {
       avgSessionTime: 32.5,
       topFeatures: ['Health Monitoring', 'Medication Reminders', 'Caregiver Communication'],
       engagementRate: 94.8,
-      color: '#3b82f6'
+      color: '#2B3F99'
     },
     {
       userType: 'Customers (Family/Guardians)',
@@ -48,7 +48,7 @@ const UsageReport = () => {
       avgSessionTime: 18.7,
       topFeatures: ['Patient Monitoring', 'Reports & Analytics', 'Communication'],
       engagementRate: 96.5,
-      color: '#10b981'
+      color: '#2B3F99'
     },
     {
       userType: 'Volunteers',
@@ -57,7 +57,7 @@ const UsageReport = () => {
       avgSessionTime: 45.2,
       topFeatures: ['Patient Support', 'Training Materials', 'Schedule Management'],
       engagementRate: 92.3,
-      color: '#f59e0b'
+      color: '#A0C4FD'
     }
   ];
 

@@ -50,7 +50,7 @@ const RevenueAnalytics = () => {
       subscribers: 245, 
       percentage: 0,
       monthlyPrice: 0,
-      color: '#10b981'
+      color: '#2B3F99'
     },
     { 
       plan: 'Basic Health Plan', 
@@ -58,7 +58,7 @@ const RevenueAnalytics = () => {
       subscribers: 720, 
       percentage: 52.4,
       monthlyPrice: 15,
-      color: '#3b82f6'
+      color: '#2B3F99'
     },
     { 
       plan: 'Premium Health Plan', 
@@ -66,7 +66,7 @@ const RevenueAnalytics = () => {
       subscribers: 280, 
       percentage: 47.6,
       monthlyPrice: 35,
-      color: '#f59e0b'
+      color: '#A0C4FD'
     }
   ];
 

@@ -13,10 +13,10 @@ const Charts = () => {
   ];
 
   const appUsage = [
-    { type: 'Patients', count: 387, color: '#4F46E5', percentage: 61 },
-    { type: 'Caregivers', count: 142, color: '#059669', percentage: 22 },
-    { type: 'Guardians', count: 89, color: '#DC2626', percentage: 14 },
-    { type: 'Volunteers', count: 18, color: '#7C3AED', percentage: 3 }
+    { type: 'Patients', count: 387, color: '#390797', percentage: 61 },
+    { type: 'Caregivers', count: 142, color: '#2B3F99', percentage: 22 },
+    { type: 'Guardians', count: 89, color: '#C3B1E1', percentage: 14 },
+    { type: 'Volunteers', count: 18, color: '#A0C4FD', percentage: 3 }
   ];
 
   const emergencyAlerts = [
@@ -61,7 +61,9 @@ const Charts = () => {
                   className="revenue-bar"
                   style={{ 
                     height: `${(item.amount / yAxisMax) * 180}px`,
-                    backgroundColor: index % 2 === 0 ? '#4F46E5' : '#059669'
+                    backgroundColor: index % 4 === 0 ? '#390797' : 
+                                   index % 4 === 1 ? '#2B3F99' : 
+                                   index % 4 === 2 ? '#A0C4FD' : '#C3B1E1'
                   }}
                 >
                   <div className="bar-value">${(item.amount / 1000).toFixed(1)}K</div>

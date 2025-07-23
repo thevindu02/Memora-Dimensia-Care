@@ -20,7 +20,7 @@ const SubscriptionReport = () => {
         '6months': 25000,
         'annual': 45000
       },
-      color: '#3b82f6',
+      color: '#2B3F99',
       description: 'Essential dementia care features'
     },
     {
@@ -31,7 +31,7 @@ const SubscriptionReport = () => {
         '6months': 45000,
         'annual': 80000
       },
-      color: '#f59e0b',
+      color: '#A0C4FD',
       description: 'Comprehensive dementia care with advanced features'
     },
     {
@@ -42,7 +42,7 @@ const SubscriptionReport = () => {
         '6months': 0,
         'annual': 0
       },
-      color: '#10b981',
+      color: '#2B3F99',
       description: '30-day trial with basic features'
     }
   ];
@@ -57,7 +57,7 @@ const SubscriptionReport = () => {
       avgRevenuePerUser: 2194,
       monthlyGrowth: 12.8,
       churnRate: 5.2,
-      color: '#3b82f6'
+      color: '#2B3F99'
     },
     {
       planId: 2,
@@ -67,7 +67,7 @@ const SubscriptionReport = () => {
       avgRevenuePerUser: 4619,
       monthlyGrowth: 18.5,
       churnRate: 3.1,
-      color: '#f59e0b'
+      color: '#A0C4FD'
     },
     {
       planId: 3,
@@ -77,7 +77,7 @@ const SubscriptionReport = () => {
       avgRevenuePerUser: 0,
       monthlyGrowth: 25.4,
       churnRate: 45.8,
-      color: '#10b981'
+      color: '#2B3F99'
     }
   ];
 

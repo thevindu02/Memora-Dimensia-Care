@@ -1,7 +1,7 @@
 /* Usage Report Page Styles */
 .usage-report-page {
   padding: 2rem;
-  background: #f8f9fa;
+  background: white;
   min-height: 100vh;
 }
 
@@ -19,7 +19,7 @@
 
 .period-selector {
   display: flex;
-  background: #f1f3f4;
+  background: #C3B1E1;
   border-radius: 8px;
   padding: 4px;
 }
@@ -32,29 +32,29 @@
   cursor: pointer;
   font-size: 0.9rem;
   font-weight: 500;
-  color: #5f6368;
+  color: #390797;
   transition: all 0.2s ease;
 }
 
 .period-selector button.active {
   background: white;
-  color: #1a73e8;
+  color: #2B3F99;
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
 }
 
 .year-selector .year-select {
   padding: 0.5rem 1rem;
-  border: 1px solid #dadce0;
+  border: 1px solid #A0C4FD;
   border-radius: 6px;
   background: white;
   font-size: 0.9rem;
-  color: #5f6368;
+  color: #390797;
   cursor: pointer;
 }
 
 .year-select:focus {
   outline: none;
-  border-color: #1a73e8;
+  border-color: #2B3F99;
   box-shadow: 0 0 0 3px rgba(26, 115, 232, 0.1);
 }
 
@@ -83,7 +83,7 @@
 }
 
 .overview-card.primary {
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: #2B3F99;
   color: white;
 }
 
@@ -114,11 +114,11 @@
 }
 
 .card-trend.positive {
-  color: #10b981;
+  color: #2B3F99;
 }
 
 .overview-card.primary .card-trend.positive {
-  color: #a7f3d0;
+  color: #A0C4FD;
 }
 
 .card-note {
@@ -140,18 +140,18 @@
 
 .chart-header {
   padding: 1.5rem 2rem;
-  border-bottom: 1px solid #e2e8f0;
+  border-bottom: 1px solid #A0C4FD;
 }
 
 .chart-header h3 {
-  color: #1a202c;
+  color: #390797;
   font-size: 1.25rem;
   font-weight: 600;
   margin-bottom: 0.5rem;
 }
 
 .chart-header p {
-  color: #64748b;
+  color: #390797;
   font-size: 0.9rem;
   margin: 0;
 }
@@ -192,15 +192,15 @@
 }
 
 .usage-bar.patients {
-  background: #3b82f6;
+  background: #2B3F99;
 }
 
 .usage-bar.customers {
-  background: #10b981;
+  background: #2B3F99;
 }
 
 .usage-bar.volunteers {
-  background: #f59e0b;
+  background: #A0C4FD;
 }
 
 .usage-bar:hover {
@@ -210,14 +210,14 @@
 
 .month-label {
   font-size: 0.8rem;
-  color: #64748b;
+  color: #390797;
   margin-bottom: 0.25rem;
   font-weight: 500;
 }
 
 .month-total {
   font-size: 0.75rem;
-  color: #1a202c;
+  color: #390797;
   font-weight: 600;
 }
 
@@ -226,7 +226,7 @@
   justify-content: center;
   gap: 2rem;
   padding-top: 1rem;
-  border-top: 1px solid #e2e8f0;
+  border-top: 1px solid #A0C4FD;
 }
 
 .legend-item {
@@ -234,7 +234,7 @@
   align-items: center;
   gap: 0.5rem;
   font-size: 0.9rem;
-  color: #64748b;
+  color: #390797;
 }
 
 .legend-color {
@@ -244,15 +244,15 @@
 }
 
 .legend-color.patients {
-  background: #3b82f6;
+  background: #2B3F99;
 }
 
 .legend-color.customers {
-  background: #10b981;
+  background: #2B3F99;
 }
 
 .legend-color.volunteers {
-  background: #f59e0b;
+  background: #A0C4FD;
 }
 
 /* User Type Usage */
@@ -266,14 +266,14 @@
 }
 
 .user-type-header h3 {
-  color: #1a202c;
+  color: #390797;
   font-size: 1.5rem;
   font-weight: 600;
   margin-bottom: 0.5rem;
 }
 
 .user-type-header p {
-  color: #64748b;
+  color: #390797;
   font-size: 1rem;
   margin: 0;
 }
@@ -310,7 +310,7 @@
 }
 
 .user-type-header-card h4 {
-  color: #1a202c;
+  color: #390797;
   font-size: 1.1rem;
   font-weight: 600;
   margin: 0;
@@ -325,7 +325,7 @@
   justify-content: space-between;
   align-items: center;
   padding: 0.5rem 0;
-  border-bottom: 1px solid #f1f5f9;
+  border-bottom: 1px solid #C3B1E1;
 }
 
 .stat-row:last-child {
@@ -333,22 +333,22 @@
 }
 
 .stat-label {
-  color: #64748b;
+  color: #390797;
   font-size: 0.9rem;
 }
 
 .stat-value {
-  color: #1a202c;
+  color: #390797;
   font-weight: 600;
   font-size: 0.9rem;
 }
 
 .stat-value.engagement {
-  color: #059669;
+  color: #2B3F99;
 }
 
 .user-type-features h5 {
-  color: #1a202c;
+  color: #390797;
   font-size: 0.9rem;
   font-weight: 600;
   margin-bottom: 0.5rem;
@@ -361,7 +361,7 @@
 }
 
 .user-type-features li {
-  color: #64748b;
+  color: #390797;
   font-size: 0.8rem;
   padding: 0.25rem 0;
   position: relative;
@@ -370,7 +370,7 @@
 
 .user-type-features li:before {
   content: "•";
-  color: #3b82f6;
+  color: #2B3F99;
   position: absolute;
   left: 0;
 }
@@ -386,14 +386,14 @@
 }
 
 .trends-header h3 {
-  color: #1a202c;
+  color: #390797;
   font-size: 1.5rem;
   font-weight: 600;
   margin-bottom: 0.5rem;
 }
 
 .trends-header p {
-  color: #64748b;
+  color: #390797;
   font-size: 1rem;
   margin: 0;
 }
@@ -418,7 +418,7 @@
 }
 
 .trend-metric {
-  color: #64748b;
+  color: #390797;
   font-size: 0.8rem;
   font-weight: 500;
   margin-bottom: 0.5rem;
@@ -427,7 +427,7 @@
 }
 
 .trend-value {
-  color: #1a202c;
+  color: #390797;
   font-size: 1.2rem;
   font-weight: 700;
   margin-bottom: 0.5rem;
@@ -442,13 +442,13 @@
 }
 
 .trend-change.positive {
-  color: #065f46;
-  background: #d1fae5;
+  color: #2B3F99;
+  background: #C3B1E1;
 }
 
 .trend-change.negative {
-  color: #991b1b;
-  background: #fee2e2;
+  color: #390797;
+  background: #C3B1E1;
 }
 
 /* Usage Insights */
@@ -464,7 +464,7 @@
 }
 
 .insights-header {
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: #2B3F99;
   color: white;
   padding: 1.5rem 2rem;
 }
@@ -496,13 +496,13 @@
 }
 
 .insight-text {
-  color: #374151;
+  color: #390797;
   font-size: 0.95rem;
   line-height: 1.5;
 }
 
 .insight-text strong {
-  color: #1f2937;
+  color: #390797;
   font-weight: 600;
 }
 

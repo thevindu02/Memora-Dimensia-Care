@@ -20,7 +20,7 @@ const VolunteerEngagement = () => {
       popularItems: ['Dementia Care Tips', 'Family Support Guide', 'Memory Enhancement'],
       monthlyGrowth: 15.3,
       patientPreference: 78.4,
-      color: '#3b82f6'
+      color: '#2B3F99'
     },
     {
       category: 'Blog Posts',
@@ -30,7 +30,7 @@ const VolunteerEngagement = () => {
       popularItems: ['Daily Care Routine', 'Nutrition for Seniors', 'Exercise Activities'],
       monthlyGrowth: 12.8,
       patientPreference: 65.2,
-      color: '#10b981'
+      color: '#2B3F99'
     },
     {
       category: 'Video Lessons',
@@ -40,7 +40,7 @@ const VolunteerEngagement = () => {
       popularItems: ['Patient Communication', 'Emergency Response', 'Medication Management'],
       monthlyGrowth: 22.1,
       patientPreference: 89.7,
-      color: '#f59e0b'
+      color: '#A0C4FD'
     }
   ];
 

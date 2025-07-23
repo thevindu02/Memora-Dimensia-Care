@@ -118,9 +118,9 @@ const Volunteer = () => {
             
             {error && (
               <div style={{
-                backgroundColor: '#f8d7da',
-                border: '1px solid #f5c6cb',
-                color: '#721c24',
+                backgroundColor: '#C3B1E1',
+                border: '1px solid #A0C4FD',
+                color: '#390797',
                 padding: '0.75rem 1.25rem',
                 marginBottom: '1rem',
                 borderRadius: '0.25rem'
