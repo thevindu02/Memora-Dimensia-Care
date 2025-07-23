@@ -287,7 +287,7 @@ const Volunteer = () => {
             {/* Volunteer Details Modal */}
             {selectedVolunteer && (
               <div className="um-modal-overlay" onClick={handleCloseModal}>
-                <div className="um-modal-content" onClick={(e) => e.stopPropagation()}>
+                <div className="um-modal-content" onClick={(e) => e.stopPropagation()} style={{maxWidth: '1300px', width: '90vw'}}>
                   <div className="um-modal-header">
                     <div className="um-modal-title">
                       <div className="um-modal-icon">🤝</div>
@@ -304,17 +304,19 @@ const Volunteer = () => {
                       {/* Volunteer ID Image Section */}
                       <div className="um-detail-section" style={{gridColumn: '1 / -1', textAlign: 'center', marginBottom: '2rem'}}>
                         <img 
-                          src={selectedVolunteer.volunteerIdImage ? `http://localhost:8080/uploads/${selectedVolunteer.volunteerIdImage}` : 'https://via.placeholder.com/200x150/4A90E2/FFFFFF?text=ID+Not+Available'} 
+                          src={selectedVolunteer.volunteerIdImage ? `http://localhost:8080/uploads/${selectedVolunteer.volunteerIdImage}` : 'https://via.placeholder.com/1000x400/4A90E2/FFFFFF?text=ID+Not+Available'} 
                           alt="Volunteer ID"
                           style={{
-                            width: '200px',
-                            height: '150px',
+                            width: '100%',
+                            maxWidth: '1000px',
+                            height: '400px',
                             borderRadius: '8px',
                             objectFit: 'cover',
                             border: '2px solid var(--um-primary)',
                             marginBottom: '1rem',
                             display: 'block',
-                            margin: '0 auto 1rem auto'
+                            margin: '0 auto 1rem auto',
+                            boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)'
                           }}
                         />
                         <h3 style={{margin: '0', color: 'var(--um-gray-800)'}}>{selectedVolunteer.name}</h3>
@@ -322,7 +324,7 @@ const Volunteer = () => {
                       </div>
 
                       {/* Volunteer Information */}
-                      <div className="um-detail-section" style={{gridColumn: '1 / -1'}}>
+                      <div className="um-detail-section" style={{gridColumn: '1 / -1', maxWidth: '1100px', margin: '0 auto'}}>
                         <div className="um-section-header">
                           <div className="um-section-icon">👤</div>
                           <h3 className="um-section-title">Volunteer Information</h3>
