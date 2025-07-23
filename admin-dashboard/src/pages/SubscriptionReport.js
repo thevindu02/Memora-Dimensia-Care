@@ -16,9 +16,9 @@ const SubscriptionReport = () => {
       id: 1,
       name: 'Basic Care',
       pricing: {
-        '3months': 15000,
-        '6months': 25000,
-        'annual': 45000
+        '3months': 499,
+        '6months': 899,
+        'annual': 1499
       },
       color: '#2B3F99',
       description: 'Essential dementia care features'
@@ -27,24 +27,13 @@ const SubscriptionReport = () => {
       id: 2,
       name: 'Premium Care',
       pricing: {
-        '3months': 25000,
-        '6months': 45000,
-        'annual': 80000
+        '3months': 999,
+        '6months': 1899,
+        'annual': 2499
       },
       color: '#A0C4FD',
       description: 'Comprehensive dementia care with advanced features'
     },
-    {
-      id: 3,
-      name: 'Free Trial',
-      pricing: {
-        '3months': 0,
-        '6months': 0,
-        'annual': 0
-      },
-      color: '#2B3F99',
-      description: '30-day trial with basic features'
-    }
   ];
 
   // Revenue data by plan
@@ -52,9 +41,9 @@ const SubscriptionReport = () => {
     {
       planId: 1,
       planName: 'Basic Care',
-      totalRevenue: 1580000, // LKR
-      subscribers: 720,
-      avgRevenuePerUser: 2194,
+      totalRevenue: 10498, // LKR
+      subscribers: 11,
+      avgRevenuePerUser: 980,
       monthlyGrowth: 12.8,
       churnRate: 5.2,
       color: '#2B3F99'
@@ -62,23 +51,13 @@ const SubscriptionReport = () => {
     {
       planId: 2,
       planName: 'Premium Care',
-      totalRevenue: 2240000, // LKR
-      subscribers: 485,
-      avgRevenuePerUser: 4619,
+      totalRevenue: 21987, // LKR
+      subscribers: 13,
+      avgRevenuePerUser: 1691,
       monthlyGrowth: 18.5,
       churnRate: 3.1,
       color: '#A0C4FD'
     },
-    {
-      planId: 3,
-      planName: 'Free Trial',
-      totalRevenue: 0,
-      subscribers: 245,
-      avgRevenuePerUser: 0,
-      monthlyGrowth: 25.4,
-      churnRate: 45.8,
-      color: '#2B3F99'
-    }
   ];
 
   // Monthly subscription trends
@@ -97,9 +76,9 @@ const SubscriptionReport = () => {
     mostUsedPlan: 'Basic Care',
     mostRevenueGenerating: 'Premium Care',
     fastestGrowing: 'Free Trial',
-    totalSubscribers: 1450,
-    totalRevenue: 3820000,
-    avgSubscriptionValue: 2634
+    totalSubscribers: 24,
+    totalRevenue: 32485,
+    avgSubscriptionValue: 1353
   };
 
   // Subscribers by plan
@@ -110,7 +89,7 @@ const SubscriptionReport = () => {
         name: 'John Anderson', 
         email: 'john.anderson@email.com',
         duration: '6 months', 
-        amount: 25000, 
+        amount: 899, 
         joinDate: '2025-02-15',
         status: 'Active',
         nextBilling: '2025-08-15'
@@ -120,7 +99,7 @@ const SubscriptionReport = () => {
         name: 'Mary Johnson', 
         email: 'mary.johnson@email.com',
         duration: 'Annual', 
-        amount: 45000, 
+        amount: 1499, 
         joinDate: '2025-01-10',
         status: 'Active',
         nextBilling: '2026-01-10'
@@ -130,7 +109,7 @@ const SubscriptionReport = () => {
         name: 'Robert Chen', 
         email: 'robert.chen@email.com',
         duration: '3 months', 
-        amount: 15000, 
+        amount: 499, 
         joinDate: '2025-05-20',
         status: 'Active',
         nextBilling: '2025-08-20'
@@ -140,7 +119,7 @@ const SubscriptionReport = () => {
         name: 'Lisa Thompson', 
         email: 'lisa.thompson@email.com',
         duration: '6 months', 
-        amount: 25000, 
+        amount: 899, 
         joinDate: '2025-03-08',
         status: 'Active',
         nextBilling: '2025-09-08'
@@ -150,7 +129,7 @@ const SubscriptionReport = () => {
         name: 'Michael Davis', 
         email: 'michael.davis@email.com',
         duration: 'Annual', 
-        amount: 45000, 
+        amount: 1499, 
         joinDate: '2024-12-05',
         status: 'Active',
         nextBilling: '2025-12-05'
@@ -162,7 +141,7 @@ const SubscriptionReport = () => {
         name: 'Sarah Williams', 
         email: 'sarah.williams@email.com',
         duration: 'Annual', 
-        amount: 80000, 
+        amount: 2499, 
         joinDate: '2025-01-20',
         status: 'Active',
         nextBilling: '2026-01-20'
@@ -172,7 +151,7 @@ const SubscriptionReport = () => {
         name: 'David Kim', 
         email: 'david.kim@email.com',
         duration: '6 months', 
-        amount: 45000, 
+        amount: 1899, 
         joinDate: '2025-04-12',
         status: 'Active',
         nextBilling: '2025-10-12'
@@ -182,7 +161,7 @@ const SubscriptionReport = () => {
         name: 'Emily Rodriguez', 
         email: 'emily.rodriguez@email.com',
         duration: '3 months', 
-        amount: 25000, 
+        amount: 999, 
         joinDate: '2025-06-01',
         status: 'Active',
         nextBilling: '2025-09-01'
@@ -192,7 +171,7 @@ const SubscriptionReport = () => {
         name: 'James Wilson', 
         email: 'james.wilson@email.com',
         duration: 'Annual', 
-        amount: 80000, 
+        amount: 2499, 
         joinDate: '2024-11-15',
         status: 'Active',
         nextBilling: '2025-11-15'
@@ -202,64 +181,13 @@ const SubscriptionReport = () => {
         name: 'Anna Martinez', 
         email: 'anna.martinez@email.com',
         duration: '6 months', 
-        amount: 45000, 
+        amount: 1899, 
         joinDate: '2025-02-28',
         status: 'Active',
         nextBilling: '2025-08-28'
       }
     ],
-    'Free Trial': [
-      { 
-        id: 'U011', 
-        name: 'Emma Wilson', 
-        email: 'emma.wilson@email.com',
-        duration: '30 days', 
-        amount: 0, 
-        joinDate: '2025-07-01',
-        status: 'Trial',
-        nextBilling: 'Trial Expires: 2025-07-31'
-      },
-      { 
-        id: 'U012', 
-        name: 'Carlos Garcia', 
-        email: 'carlos.garcia@email.com',
-        duration: '30 days', 
-        amount: 0, 
-        joinDate: '2025-07-05',
-        status: 'Trial',
-        nextBilling: 'Trial Expires: 2025-08-04'
-      },
-      { 
-        id: 'U013', 
-        name: 'Sophie Brown', 
-        email: 'sophie.brown@email.com',
-        duration: '30 days', 
-        amount: 0, 
-        joinDate: '2025-07-10',
-        status: 'Trial',
-        nextBilling: 'Trial Expires: 2025-08-09'
-      },
-      { 
-        id: 'U014', 
-        name: 'Alex Turner', 
-        email: 'alex.turner@email.com',
-        duration: '30 days', 
-        amount: 0, 
-        joinDate: '2025-07-15',
-        status: 'Trial',
-        nextBilling: 'Trial Expires: 2025-08-14'
-      },
-      { 
-        id: 'U015', 
-        name: 'Rachel Green', 
-        email: 'rachel.green@email.com',
-        duration: '30 days', 
-        amount: 0, 
-        joinDate: '2025-07-18',
-        status: 'Trial',
-        nextBilling: 'Trial Expires: 2025-08-17'
-      }
-    ]
+
   };
 
   const formatCurrency = (amount) => {
@@ -321,7 +249,6 @@ const SubscriptionReport = () => {
                   <option value="all">All Plans</option>
                   <option value="basic">Basic Care</option>
                   <option value="premium">Premium Care</option>
-                  <option value="trial">Free Trial</option>
                 </select>
                 <button className="refresh-btn">🔄 Refresh</button>
               </div>
@@ -469,10 +396,7 @@ const SubscriptionReport = () => {
                       <div className="legend-color premium-care"></div>
                       <span>Premium Care</span>
                     </div>
-                    <div className="legend-item">
-                      <div className="legend-color free-trial"></div>
-                      <span>Free Trial</span>
-                    </div>
+
                   </div>
                 </div>
               </div>
