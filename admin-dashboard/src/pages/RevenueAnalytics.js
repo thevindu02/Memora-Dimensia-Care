@@ -25,21 +25,21 @@ const RevenueAnalytics = () => {
 
   // All transactions in the system
   const allTransactions = [
-    { id: 1, user: 'Sarah Johnson', patientId: 'P-1001', plan: 'Premium Health Plan', amount: 35, date: '2025-07-22', status: 'Completed' },
-    { id: 2, user: 'Michael Chen', patientId: 'P-1002', plan: 'Basic Health Plan', amount: 15, date: '2025-07-22', status: 'Completed' },
-    { id: 3, user: 'Emily Rodriguez', patientId: 'P-1003', plan: 'Premium Health Plan', amount: 35, date: '2025-07-21', status: 'Completed' },
-    { id: 4, user: 'David Kim', patientId: 'P-1004', plan: 'Basic Health Plan', amount: 15, date: '2025-07-21', status: 'Pending' },
-    { id: 5, user: 'Lisa Thompson', patientId: 'P-1005', plan: 'Free Trial', amount: 0, date: '2025-07-20', status: 'Active' },
-    { id: 6, user: 'Robert Wilson', patientId: 'P-2842', plan: 'Premium Health Plan', amount: 35, date: '2025-07-20', status: 'Completed' },
-    { id: 7, user: 'Maria Garcia', patientId: 'P-1007', plan: 'Premium Health Plan', amount: 35, date: '2025-07-19', status: 'Completed' },
-    { id: 8, user: 'James Brown', patientId: 'P-1011', plan: 'Premium Health Plan', amount: 35, date: '2025-07-19', status: 'Completed' },
-    { id: 9, user: 'Jennifer Lopez', patientId: 'P-1008', plan: 'Basic Health Plan', amount: 15, date: '2025-07-18', status: 'Completed' },
-    { id: 10, user: 'Mark Thompson', patientId: 'P-1012', plan: 'Basic Health Plan', amount: 15, date: '2025-07-18', status: 'Completed' },
-    { id: 11, user: 'Anna Wilson', patientId: 'P-1015', plan: 'Basic Health Plan', amount: 15, date: '2025-07-17', status: 'Completed' },
-    { id: 12, user: 'John Smith', patientId: 'P-1009', plan: 'Free Trial', amount: 0, date: '2025-07-17', status: 'Active' },
-    { id: 13, user: 'Rachel Green', patientId: 'P-1013', plan: 'Free Trial', amount: 0, date: '2025-07-16', status: 'Active' },
-    { id: 14, user: 'Carlos Martinez', patientId: 'P-1016', plan: 'Basic Health Plan', amount: 15, date: '2025-07-15', status: 'Completed' },
-    { id: 15, user: 'Emma Davis', patientId: 'P-1017', plan: 'Premium Health Plan', amount: 35, date: '2025-07-15', status: 'Completed' }
+    { id: 1, user: 'Saman Perera', patientId: 'P-1001', plan: 'Premium Health Plan', amount: 8500, date: '2025-07-22', status: 'Completed' },
+    { id: 2, user: 'Nimal Fernando', patientId: 'P-1002', plan: 'Basic Health Plan', amount: 3500, date: '2025-07-22', status: 'Completed' },
+    { id: 3, user: 'Kamala Wijesinghe', patientId: 'P-1003', plan: 'Premium Health Plan', amount: 8500, date: '2025-07-21', status: 'Completed' },
+    { id: 4, user: 'Pradeep Silva', patientId: 'P-1004', plan: 'Basic Health Plan', amount: 3500, date: '2025-07-21', status: 'Pending' },
+    { id: 5, user: 'Malini Rajapaksa', patientId: 'P-1005', plan: 'Free Trial', amount: 0, date: '2025-07-20', status: 'Active' },
+    { id: 6, user: 'Chandra Jayawardena', patientId: 'P-2842', plan: 'Premium Health Plan', amount: 8500, date: '2025-07-20', status: 'Completed' },
+    { id: 7, user: 'Indira Gunasekara', patientId: 'P-1007', plan: 'Premium Health Plan', amount: 8500, date: '2025-07-19', status: 'Completed' },
+    { id: 8, user: 'Ajith Mendis', patientId: 'P-1011', plan: 'Premium Health Plan', amount: 8500, date: '2025-07-19', status: 'Completed' },
+    { id: 9, user: 'Sunitha Wickrama', patientId: 'P-1008', plan: 'Basic Health Plan', amount: 3500, date: '2025-07-18', status: 'Completed' },
+    { id: 10, user: 'Roshan Bandara', patientId: 'P-1012', plan: 'Basic Health Plan', amount: 3500, date: '2025-07-18', status: 'Completed' },
+    { id: 11, user: 'Nirma Dissanayake', patientId: 'P-1015', plan: 'Basic Health Plan', amount: 3500, date: '2025-07-17', status: 'Completed' },
+    { id: 12, user: 'Lakshman Peiris', patientId: 'P-1009', plan: 'Free Trial', amount: 0, date: '2025-07-17', status: 'Active' },
+    { id: 13, user: 'Deepika Ranasinghe', patientId: 'P-1013', plan: 'Free Trial', amount: 0, date: '2025-07-16', status: 'Active' },
+    { id: 14, user: 'Gayan Abeysekara', patientId: 'P-1016', plan: 'Basic Health Plan', amount: 3500, date: '2025-07-15', status: 'Completed' },
+    { id: 15, user: 'Sanduni Senanayake', patientId: 'P-1017', plan: 'Premium Health Plan', amount: 8500, date: '2025-07-15', status: 'Completed' }
   ];
 
   // Revenue by subscription plan type
@@ -54,24 +54,24 @@ const RevenueAnalytics = () => {
     },
     { 
       plan: 'Basic Health Plan', 
-      revenue: 10800, 
+      revenue: 2520000, 
       subscribers: 720, 
       percentage: 52.4,
-      monthlyPrice: 15,
+      monthlyPrice: 3500,
       color: '#2B3F99'
     },
     { 
       plan: 'Premium Health Plan', 
-      revenue: 9800, 
+      revenue: 2380000, 
       subscribers: 280, 
       percentage: 47.6,
-      monthlyPrice: 35,
+      monthlyPrice: 8500,
       color: '#A0C4FD'
     }
   ];
 
   const formatCurrency = (amount) => {
-    return `$${amount.toLocaleString()}`;
+    return `LKR ${amount.toLocaleString()}`;
   };
 
   const handleGenerateReport = () => {

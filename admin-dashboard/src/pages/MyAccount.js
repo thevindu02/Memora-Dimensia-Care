@@ -8,15 +8,15 @@ import {
 } from '../components';
 
 // Admin account data
-const adminData = {
-  fullName: 'Dr. Amara Perera',
-  email: 'admin@memoradimensia.lk',
+const initialAdminData = {
+  fullName: 'Dr. Priyantha Wickramasinghe',
+  email: 'admin@memoracare.lk',
   password: '••••••••••',
-  phoneNumber: '+94 77 123 4567',
-  birthday: '1985-06-15',
-  profilePicture: 'https://via.placeholder.com/150/2563eb/FFFFFF?text=AP',
-  address: '123 Hospital Road, Colombo 07, Sri Lanka',
-  gender: 'Female',
+  phoneNumber: '+94 77 234 5678',
+  birthday: '1980-03-15',
+  profilePicture: 'https://via.placeholder.com/150/2563eb/FFFFFF?text=PW',
+  address: '45/1 Galle Road, Bambalapitiya, Colombo 04, Sri Lanka',
+  gender: 'Male',
   role: 'System Administrator',
   lastLogin: new Date().toLocaleDateString(),
   status: 'Active'
@@ -24,13 +24,27 @@ const adminData = {
 
 const MyAccount = () => {
   const [isEditing, setIsEditing] = useState(false);
+  const [adminData, setAdminData] = useState(initialAdminData);
+  const [formData, setFormData] = useState(initialAdminData);
 
   const handleEditToggle = () => {
+    if (isEditing) {
+      // Reset form data if canceling
+      setFormData(adminData);
+    }
     setIsEditing(!isEditing);
   };
 
+  const handleInputChange = (field, value) => {
+    setFormData(prev => ({
+      ...prev,
+      [field]: value
+    }));
+  };
+
   const handleSave = () => {
-    // UI only - no backend function needed
+    // Update the admin data with form data
+    setAdminData(formData);
     alert('Profile updated successfully');
     setIsEditing(false);
   };
@@ -89,7 +103,8 @@ const MyAccount = () => {
                       {isEditing ? (
                         <input 
                           type="text" 
-                          defaultValue={adminData.fullName}
+                          value={formData.fullName}
+                          onChange={(e) => handleInputChange('fullName', e.target.value)}
                           className="um-input"
                           style={{maxWidth: '250px'}}
                         />
@@ -102,7 +117,8 @@ const MyAccount = () => {
                       {isEditing ? (
                         <input 
                           type="email" 
-                          defaultValue={adminData.email}
+                          value={formData.email}
+                          onChange={(e) => handleInputChange('email', e.target.value)}
                           className="um-input"
                           style={{maxWidth: '250px'}}
                         />
@@ -115,7 +131,9 @@ const MyAccount = () => {
                       {isEditing ? (
                         <input 
                           type="password" 
-                          defaultValue="currentpassword"
+                          value={formData.password === '••••••••••' ? '' : formData.password}
+                          onChange={(e) => handleInputChange('password', e.target.value)}
+                          placeholder="Enter new password"
                           className="um-input"
                           style={{maxWidth: '250px'}}
                         />
@@ -128,7 +146,8 @@ const MyAccount = () => {
                       {isEditing ? (
                         <input 
                           type="tel" 
-                          defaultValue={adminData.phoneNumber}
+                          value={formData.phoneNumber}
+                          onChange={(e) => handleInputChange('phoneNumber', e.target.value)}
                           className="um-input"
                           style={{maxWidth: '250px'}}
                         />
@@ -141,7 +160,8 @@ const MyAccount = () => {
                       {isEditing ? (
                         <input 
                           type="date" 
-                          defaultValue={adminData.birthday}
+                          value={formData.birthday}
+                          onChange={(e) => handleInputChange('birthday', e.target.value)}
                           className="um-input"
                           style={{maxWidth: '250px'}}
                         />
@@ -153,7 +173,8 @@ const MyAccount = () => {
                       <span className="um-detail-label">Gender</span>
                       {isEditing ? (
                         <select 
-                          defaultValue={adminData.gender}
+                          value={formData.gender}
+                          onChange={(e) => handleInputChange('gender', e.target.value)}
                           className="um-input"
                           style={{maxWidth: '250px'}}
                         >
@@ -169,7 +190,8 @@ const MyAccount = () => {
                       <span className="um-detail-label">Address</span>
                       {isEditing ? (
                         <textarea 
-                          defaultValue={adminData.address}
+                          value={formData.address}
+                          onChange={(e) => handleInputChange('address', e.target.value)}
                           className="um-input"
                           style={{maxWidth: '250px', minHeight: '60px'}}
                         />
