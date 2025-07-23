@@ -22,7 +22,6 @@ public class VolunteerRequestService {
     @Autowired
     private UserService userService;
 
-
     public VolunteerRequest createVolunteerRequest(VolunteerRequestCreateDTO dto) {
         VolunteerRequest volunteerRequest = new VolunteerRequest(
                 dto.getVolunteerName(),
@@ -81,7 +80,6 @@ public class VolunteerRequestService {
 
             // Create the user using UserService (handles password encryption)
             userService.createUser(newUser);
-
 
             // Update request status to accepted
             request.setRequestStatus(VolunteerRequest.RequestStatus.accepted);
