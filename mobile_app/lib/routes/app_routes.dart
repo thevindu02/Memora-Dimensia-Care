@@ -50,6 +50,7 @@ class AppRoutes {
   static const String guardianProfile = '/guardian/profile';
 
   static const String guardianArticles = '/guardian/articles';
+  static const String guardianArticleDetail = '/guardian/article/detail';
   static const String guardianQAForums = '/guardian/qa_forums';
 
   static const String guardianNotifications = '/guardian-notifications';
