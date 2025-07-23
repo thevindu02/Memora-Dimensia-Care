@@ -60,6 +60,8 @@ public class GuardianController {
             resp.setEmail(user.getEmail());
             resp.setPhone(user.getPhoneNumber());
             resp.setCity(user.getCity());
+            resp.setStreet(user.getStreet());
+            resp.setState(user.getState());
             return ResponseEntity.ok(resp);
         } else {
             return ResponseEntity.notFound().build();

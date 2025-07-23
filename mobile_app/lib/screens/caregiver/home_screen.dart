@@ -89,6 +89,12 @@ class HomeScreen extends StatelessWidget {
               Navigator.pushNamed(context, AppRoutes.caregiverNotification);
             },
           ),
+          IconButton(
+            icon: Icon(Icons.settings, color: Colors.black),
+            onPressed: () {
+              Navigator.pushNamed(context, AppRoutes.settings);
+            },
+          ),
         ],
       ),
 
@@ -108,16 +114,14 @@ class HomeScreen extends StatelessWidget {
             const SizedBox(height: 8),
             _buildSummaryCard(context),
             const SizedBox(height: 20),
+            _buildEmergencyContacts(context),
+            const SizedBox(height: 20),
             _buildUrgentTasksSection(context),
             const SizedBox(height: 20),
             _buildGuardianRequestsSection(context),
             const SizedBox(height: 20),
 
-            _buildForumSection(context),
             const SizedBox(height: 20),
-
-            const SizedBox(height: 20),
-            _buildEmergencyContacts(context),
           ],
         ),
       ),
@@ -490,12 +494,30 @@ class HomeScreen extends StatelessWidget {
           spacing: 8,
           runSpacing: 8,
           children: [
-            _buildContactChip('Ambulance', Icons.local_hospital, Colors.red),
             _buildContactChip(
-              'Doctor',
-              Icons.medical_services,
-              Color(0xFFA0C4FD).withOpacity(0.08),
-            ), // Light Sky Blue
+              context,
+              'Ambulance',
+              Icons.local_hospital,
+              Colors.red,
+            ),
+            _buildContactChip(
+              context,
+              'Hospital Hotline',
+              Icons.local_hospital,
+              Color(0xFFA0C4FD),
+            ),
+            _buildContactChip(
+              context,
+              'Mental Health Crisis',
+              Icons.psychology,
+              Color(0xFF390797),
+            ),
+            _buildContactChip(
+              context,
+              'Fire & Rescue',
+              Icons.local_fire_department,
+              Colors.deepOrange,
+            ),
             // Removed Family and Support chips
           ],
         ),
@@ -503,7 +525,12 @@ class HomeScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildContactChip(String label, IconData icon, Color color) {
+  Widget _buildContactChip(
+    BuildContext context,
+    String label,
+    IconData icon,
+    Color color,
+  ) {
     Color bgColor = color;
     Color textColor = Colors.white;
     if (label == 'Ambulance') {
@@ -523,7 +550,65 @@ class HomeScreen extends StatelessWidget {
       avatar: Icon(icon, size: 20, color: textColor),
       label: Text(label, style: TextStyle(color: textColor)),
       onPressed: () {
-        // Handle contact tap
+        if (label == 'Ambulance') {
+          showDialog(
+            context: context,
+            builder: (context) => AlertDialog(
+              title: Text('Emergency Call'),
+              content: Text('This will ring 1990 for Ambulance service.'),
+              actions: [
+                TextButton(
+                  onPressed: () => Navigator.pop(context),
+                  child: Text('OK', style: TextStyle(color: Color(0xFF2B3F99))),
+                ),
+              ],
+            ),
+          );
+        } else if (label == 'Fire & Rescue') {
+          showDialog(
+            context: context,
+            builder: (context) => AlertDialog(
+              title: Text('Emergency Call'),
+              content: Text('This will ring 110 for Fire & Rescue service.'),
+              actions: [
+                TextButton(
+                  onPressed: () => Navigator.pop(context),
+                  child: Text('OK', style: TextStyle(color: Color(0xFF2B3F99))),
+                ),
+              ],
+            ),
+          );
+        } else if (label == 'Mental Health Crisis') {
+          showDialog(
+            context: context,
+            builder: (context) => AlertDialog(
+              title: Text('Emergency Call'),
+              content: Text(
+                'This will ring 1926 for Mental Health Crisis support.',
+              ),
+              actions: [
+                TextButton(
+                  onPressed: () => Navigator.pop(context),
+                  child: Text('OK', style: TextStyle(color: Color(0xFF2B3F99))),
+                ),
+              ],
+            ),
+          );
+        } else if (label == 'Hospital Hotline') {
+          showDialog(
+            context: context,
+            builder: (context) => AlertDialog(
+              title: Text('Emergency Call'),
+              content: Text('This will ring 1919 for Hospital Hotline.'),
+              actions: [
+                TextButton(
+                  onPressed: () => Navigator.pop(context),
+                  child: Text('OK', style: TextStyle(color: Color(0xFF2B3F99))),
+                ),
+              ],
+            ),
+          );
+        }
       },
       backgroundColor: bgColor,
       shape: label == 'Ambulance'
