@@ -7,6 +7,8 @@ class GuardianSettingsHelpSupportScreen extends StatefulWidget {
 
 class _HelpSupportScreenState extends State<GuardianSettingsHelpSupportScreen> {
   final TextEditingController _feedbackController = TextEditingController();
+  bool _userGuideExpanded = false;
+  bool _termsExpanded = false;
 
   @override
   void dispose() {
@@ -24,12 +26,14 @@ class _HelpSupportScreenState extends State<GuardianSettingsHelpSupportScreen> {
       color: Colors.white,
       child: ListTile(
         leading: Container(
-          padding: EdgeInsets.all(8),
+          width: 40,
+          height: 40,
           decoration: BoxDecoration(
-            color: Colors.blue[50],
-            borderRadius: BorderRadius.circular(8),
+            color: Color(0xFFA0C4FD).withOpacity(0.35),
+            shape: BoxShape.circle,
           ),
-          child: Icon(icon, color: Colors.blue[700], size: 24),
+          alignment: Alignment.center,
+          child: Icon(icon, color: Color(0xFF2B3F99), size: 22),
         ),
         title: Text(
           title,
@@ -41,10 +45,7 @@ class _HelpSupportScreenState extends State<GuardianSettingsHelpSupportScreen> {
         ),
         subtitle: Text(
           subtitle,
-          style: TextStyle(
-            fontSize: 14,
-            color: Colors.grey[600],
-          ),
+          style: TextStyle(fontSize: 14, color: Colors.grey[600]),
         ),
         trailing: Icon(Icons.chevron_right, color: Colors.grey[600]),
         onTap: onTap,
@@ -53,10 +54,7 @@ class _HelpSupportScreenState extends State<GuardianSettingsHelpSupportScreen> {
     );
   }
 
-  Widget _buildFAQItem({
-    required String question,
-    required String answer,
-  }) {
+  Widget _buildFAQItem({required String question, required String answer}) {
     return Container(
       color: Colors.white,
       child: ExpansionTile(
@@ -71,12 +69,16 @@ class _HelpSupportScreenState extends State<GuardianSettingsHelpSupportScreen> {
         children: [
           Padding(
             padding: EdgeInsets.fromLTRB(20, 0, 20, 16),
-            child: Text(
-              answer,
-              style: TextStyle(
-                fontSize: 14,
-                color: Colors.grey[700],
-                height: 1.5,
+            child: Align(
+              alignment: Alignment.centerLeft,
+              child: Text(
+                answer,
+                style: TextStyle(
+                  fontSize: 14,
+                  color: Colors.grey[700],
+                  height: 1.5,
+                ),
+                textAlign: TextAlign.left,
               ),
             ),
           ),
@@ -110,36 +112,56 @@ class _HelpSupportScreenState extends State<GuardianSettingsHelpSupportScreen> {
             mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text('Choose how you\'d like to contact us:'),
+              Text("Choose how you'd like to contact us:"),
               SizedBox(height: 16),
-              ListTile(
-                leading: Icon(Icons.email, color: Colors.blue),
-                title: Text('Email'),
-                subtitle: Text('support@guardianapp.com'),
-                onTap: () {
-                  Navigator.pop(context);
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(content: Text('Opening email client...')),
-                  );
-                },
+              Row(
+                children: [
+                  Icon(Icons.email, color: Colors.blue),
+                  SizedBox(width: 12),
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        'Email',
+                        style: TextStyle(
+                          fontWeight: FontWeight.w600,
+                          fontSize: 16,
+                        ),
+                      ),
+                      Text(
+                        'support@memora.com',
+                        style: TextStyle(fontSize: 15),
+                      ),
+                    ],
+                  ),
+                ],
               ),
-              ListTile(
-                leading: Icon(Icons.phone, color: Colors.green),
-                title: Text('Phone'),
-                subtitle: Text('+1-800-GUARDIAN'),
-                onTap: () {
-                  Navigator.pop(context);
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(content: Text('Dialing support number...')),
-                  );
-                },
+              SizedBox(height: 16),
+              Row(
+                children: [
+                  Icon(Icons.phone, color: Colors.green),
+                  SizedBox(width: 12),
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        'Phone',
+                        style: TextStyle(
+                          fontWeight: FontWeight.w600,
+                          fontSize: 16,
+                        ),
+                      ),
+                      Text('+94 011 1234567', style: TextStyle(fontSize: 15)),
+                    ],
+                  ),
+                ],
               ),
             ],
           ),
           actions: [
             TextButton(
               onPressed: () => Navigator.pop(context),
-              child: Text('Cancel'),
+              child: Text('Cancel', style: TextStyle(color: Colors.deepPurple)),
             ),
           ],
         );
@@ -156,7 +178,9 @@ class _HelpSupportScreenState extends State<GuardianSettingsHelpSupportScreen> {
           content: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              Text('We\'d love to hear from you! Please share your thoughts about the app.'),
+              Text(
+                'We\'d love to hear from you! Please share your thoughts about the app.',
+              ),
               SizedBox(height: 16),
               TextField(
                 controller: _feedbackController,
@@ -222,17 +246,6 @@ class _HelpSupportScreenState extends State<GuardianSettingsHelpSupportScreen> {
             // Quick Help Section
             _buildSectionHeader('Quick Help'),
             _buildHelpItem(
-              icon: Icons.chat,
-              title: 'Live Chat',
-              subtitle: 'Chat with our support team in real-time',
-              onTap: () {
-                ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(content: Text('Live chat feature coming soon!')),
-                );
-              },
-            ),
-            Divider(height: 1, thickness: 1, color: Colors.grey[200]),
-            _buildHelpItem(
               icon: Icons.contact_support,
               title: 'Contact Support',
               subtitle: 'Email or call our support team',
@@ -246,77 +259,153 @@ class _HelpSupportScreenState extends State<GuardianSettingsHelpSupportScreen> {
               onTap: _showFeedbackDialog,
             ),
             Divider(height: 1, thickness: 1, color: Colors.grey[200]),
-            _buildHelpItem(
-              icon: Icons.bug_report,
-              title: 'Report a Bug',
-              subtitle: 'Let us know about any issues you encounter',
-              onTap: () {
-                ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(content: Text('Bug report form would open here')),
-                );
-              },
-            ),
 
             // Resources Section
             _buildSectionHeader('Resources'),
-            _buildHelpItem(
-              icon: Icons.book,
-              title: 'User Guide',
-              subtitle: 'Learn how to use the app effectively',
-              onTap: () {
-                ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(content: Text('User guide would open here')),
-                );
-              },
+            Container(
+              color: Colors.white,
+              child: ExpansionTile(
+                leading: Container(
+                  width: 40,
+                  height: 40,
+                  decoration: BoxDecoration(
+                    color: Color(0xFFA0C4FD).withOpacity(0.35),
+                    shape: BoxShape.circle,
+                  ),
+                  alignment: Alignment.center,
+                  child: Icon(Icons.book, color: Color(0xFF2B3F99), size: 22),
+                ),
+                title: Text(
+                  'User Guide',
+                  style: TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.w500,
+                    color: Colors.black87,
+                  ),
+                ),
+                subtitle: Text(
+                  'Learn how to use the app effectively',
+                  style: TextStyle(fontSize: 14, color: Colors.grey[600]),
+                ),
+                initiallyExpanded: _userGuideExpanded,
+                onExpansionChanged: (expanded) {
+                  setState(() {
+                    _userGuideExpanded = expanded;
+                  });
+                },
+                children: [
+                  Padding(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 20,
+                      vertical: 8,
+                    ),
+                    child: Text(
+                      'Welcome to the Guardian App!\n\n'
+                      '• To add a patient, go to the Dashboard and tap "Add Patient".\n'
+                      '• To connect with caregivers, use the "Add Caregiver" option.\n'
+                      '• View reports and alerts from the Dashboard.\n'
+                      '• Manage your account and privacy settings from the Settings menu.\n\n'
+                      'For more help, contact our support team.',
+                      style: TextStyle(
+                        fontSize: 15,
+                        color: Colors.black87,
+                        height: 1.5,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
             ),
             Divider(height: 1, thickness: 1, color: Colors.grey[200]),
-            _buildHelpItem(
-              icon: Icons.play_circle,
-              title: 'Video Tutorials',
-              subtitle: 'Watch step-by-step tutorials',
-              onTap: () {
-                ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(content: Text('Video tutorials would open here')),
-                );
-              },
+            Container(
+              color: Colors.white,
+              child: ExpansionTile(
+                leading: Container(
+                  width: 40,
+                  height: 40,
+                  decoration: BoxDecoration(
+                    color: Color(0xFFA0C4FD).withOpacity(0.35),
+                    shape: BoxShape.circle,
+                  ),
+                  alignment: Alignment.center,
+                  child: Icon(
+                    Icons.article,
+                    color: Color(0xFF2B3F99),
+                    size: 22,
+                  ),
+                ),
+                title: Text(
+                  'Terms of Service',
+                  style: TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.w500,
+                    color: Colors.black87,
+                  ),
+                ),
+                subtitle: Text(
+                  'Read our terms and conditions',
+                  style: TextStyle(fontSize: 14, color: Colors.grey[600]),
+                ),
+                initiallyExpanded: _termsExpanded,
+                onExpansionChanged: (expanded) {
+                  setState(() {
+                    _termsExpanded = expanded;
+                  });
+                },
+                children: [
+                  Padding(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 20,
+                      vertical: 8,
+                    ),
+                    child: Text(
+                      'By using the Guardian App, you agree to our terms and conditions.\n\n'
+                      '• Use the app responsibly and only for its intended purpose.\n'
+                      '• Do not share your login credentials with others.\n'
+                      '• We are not liable for any misuse of the app or data breaches caused by user negligence.\n'
+                      '• For full terms, please contact our support team.',
+                      style: TextStyle(
+                        fontSize: 15,
+                        color: Colors.black87,
+                        height: 1.5,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
             ),
             Divider(height: 1, thickness: 1, color: Colors.grey[200]),
-            _buildHelpItem(
-              icon: Icons.article,
-              title: 'Terms of Service',
-              subtitle: 'Read our terms and conditions',
-              onTap: () {
-                ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(content: Text('Terms of service would open here')),
-                );
-              },
-            ),
 
             // FAQ Section
             _buildSectionHeader('Frequently Asked Questions'),
             _buildFAQItem(
               question: 'How do I reset my password?',
-              answer: 'Go to the login screen and tap "Forgot Password". Enter your email address and we\'ll send you a link to reset your password.',
+              answer:
+                  'Go to the login screen and tap "Forgot Password". Enter your email address and we\'ll send you a link to reset your password.',
             ),
             Divider(height: 1, thickness: 1, color: Colors.grey[200]),
             _buildFAQItem(
               question: 'How do I update my notification preferences?',
-              answer: 'Go to your Profile screen and scroll down to the Notifications section. You can toggle notifications on or off according to your preferences.',
+              answer:
+                  'Go to your Settings screen and use the Receive notifications toggle.',
             ),
             Divider(height: 1, thickness: 1, color: Colors.grey[200]),
             _buildFAQItem(
               question: 'Is my data secure?',
-              answer: 'Yes, we take data security seriously. All your personal information is encrypted and stored securely. You can learn more in our Privacy Policy.',
+              answer:
+                  'Yes, we take data security seriously. All your personal information is encrypted and stored securely. You can learn more in our Privacy Policy.',
             ),
             Divider(height: 1, thickness: 1, color: Colors.grey[200]),
             _buildFAQItem(
               question: 'How do I delete my account?',
-              answer: 'Go to Profile > Privacy Settings and scroll down to find the "Delete Account" option. Please note that this action is permanent and cannot be undone.',
+              answer:
+                  'Go to Settings > Privacy Settings and scroll down to find the "Delete Account" option. Please note that this action is permanent and cannot be undone.',
             ),
             Divider(height: 1, thickness: 1, color: Colors.grey[200]),
             _buildFAQItem(
               question: 'Can I use the app offline?',
-              answer: 'Some features work offline, but most functionality requires an internet connection. We recommend staying connected for the best experience.',
+              answer:
+                  'Some features work offline, but most functionality requires an internet connection. We recommend staying connected for the best experience.',
             ),
 
             // App Info Section
@@ -333,10 +422,7 @@ class _HelpSupportScreenState extends State<GuardianSettingsHelpSupportScreen> {
                       SizedBox(width: 12),
                       Text(
                         'Version 1.0.0',
-                        style: TextStyle(
-                          fontSize: 16,
-                          color: Colors.black87,
-                        ),
+                        style: TextStyle(fontSize: 16, color: Colors.black87),
                       ),
                     ],
                   ),
@@ -347,10 +433,7 @@ class _HelpSupportScreenState extends State<GuardianSettingsHelpSupportScreen> {
                       SizedBox(width: 12),
                       Text(
                         'Last updated: January 2025',
-                        style: TextStyle(
-                          fontSize: 16,
-                          color: Colors.black87,
-                        ),
+                        style: TextStyle(fontSize: 16, color: Colors.black87),
                       ),
                     ],
                   ),

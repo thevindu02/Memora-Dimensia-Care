@@ -35,6 +35,10 @@ public class PatientDetailsResponse {
     // Relationship
     private String relationship;
 
+    private String patientName;
+    private Integer patientAge;
+    private String acceptedDate;
+
     public static PatientDetailsResponse fromPatient(Patient patient) {
         User user = patient.getUser();
         PatientDetailsResponse resp = new PatientDetailsResponse();
@@ -56,6 +60,15 @@ public class PatientDetailsResponse {
             resp.street = user.getStreet();
             resp.city = user.getCity();
             resp.state = user.getState();
+            // Set patientName
+            resp.patientName = (user.getFName() != null ? user.getFName() : "") +
+                               (user.getLName() != null ? (" " + user.getLName()) : "");
+            // Set patientAge
+            if (user.getBirthdate() != null) {
+                java.time.LocalDate birth = user.getBirthdate();
+                java.time.LocalDate now = java.time.LocalDate.now();
+                resp.patientAge = java.time.Period.between(birth, now).getYears();
+            }
         }
         
         // Add guardian information
@@ -232,4 +245,11 @@ public class PatientDetailsResponse {
     public void setRelationship(String relationship) {
         this.relationship = relationship;
     }
+
+    public String getPatientName() { return patientName; }
+    public void setPatientName(String patientName) { this.patientName = patientName; }
+    public Integer getPatientAge() { return patientAge; }
+    public void setPatientAge(Integer patientAge) { this.patientAge = patientAge; }
+    public String getAcceptedDate() { return acceptedDate; }
+    public void setAcceptedDate(String acceptedDate) { this.acceptedDate = acceptedDate; }
 }

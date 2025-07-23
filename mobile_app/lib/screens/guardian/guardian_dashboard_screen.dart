@@ -3,6 +3,7 @@ import 'package:flutter/services.dart';
 import '../../routes/app_routes.dart';
 import '../../services/patient_service.dart';
 import '../../services/auth_service.dart';
+import '../../services/guardian_service.dart'; // Added import for GuardianService
 import 'guardian_bottom_nav_bar.dart';
 
 class GuardianDashboardScreen extends StatefulWidget {
@@ -17,28 +18,170 @@ class _GuardianDashboardScreenState extends State<GuardianDashboardScreen> {
   List<dynamic> _patients = [];
   bool _isLoadingPatients = true;
 
-  // Mock data for notifications grouped by patient and type
-  Map<String, List<Map<String, dynamic>>> notifications = {
+  // Mock data for alerts grouped by patient and type
+  Map<String, List<Map<String, dynamic>>> alerts = {
     'John Doe': [
       {
-        'type': 'Medication Reminder',
-        'message': 'Take at 8:00 AM',
-        'time': '8:00 AM',
+        'type': 'Wandering Alert',
+        'message':
+            'John Doe exited the safe zone at 10:15 AM near Main Street.',
+        'time': '10:15 AM',
       },
       {
-        'type': 'Appointment',
-        'message': 'Doctor visit at 3:00 PM',
-        'time': '3:00 PM',
+        'type': 'Task Skipped',
+        'message': 'Medication was skipped for 3 consecutive days.',
+        'time': '8:00 AM',
       },
     ],
     'Jane Smith': [
       {
-        'type': 'Medication Reminder',
-        'message': 'Take at 9:00 AM',
-        'time': '9:00 AM',
+        'type': 'Biometric Anomaly',
+        'message': 'Abnormal heart rate detected: 130 bpm at 9:50 AM.',
+        'time': '9:50 AM',
+      },
+      {
+        'type': 'Wandering Alert',
+        'message': 'Jane Smith left the designated area at 7:30 AM.',
+        'time': '7:30 AM',
+      },
+    ],
+    'Michael Lee': [
+      {
+        'type': 'Task Skipped',
+        'message': 'Exercise routine missed for 2 days in a row.',
+        'time': '6:45 AM',
+      },
+      {
+        'type': 'Biometric Anomaly',
+        'message': 'Low blood oxygen detected: 88% at 8:20 AM.',
+        'time': '8:20 AM',
       },
     ],
   };
+
+  // Color palette
+  static const Color softLavender = Color(0xFFC3B1E1);
+  static const Color deepPurple = Color(0xFF390797);
+  static const Color lightSkyBlue = Color(0xFFA0C4FD);
+  static const Color calmNavy = Color(0xFF2B3F99);
+
+  IconData _getAlertIcon(String type) {
+    switch (type) {
+      case 'Wandering Alert':
+        return Icons.location_off;
+      case 'Task Skipped':
+        return Icons.assignment_late;
+      case 'Biometric Anomaly':
+        return Icons.favorite;
+      default:
+        return Icons.warning;
+    }
+  }
+
+  Color _getAlertColor(String type) {
+    switch (type) {
+      case 'Wandering Alert':
+        return Colors.redAccent; // High contrast for wandering alerts
+      case 'Task Skipped':
+        return softLavender;
+      case 'Biometric Anomaly':
+        return deepPurple;
+      default:
+        return lightSkyBlue;
+    }
+  }
+
+  Widget _buildAlertCard(String patientName, Map<String, dynamic> alert) {
+    return Container(
+      margin: EdgeInsets.only(bottom: 16),
+      padding: EdgeInsets.all(20),
+      decoration: BoxDecoration(
+        gradient: LinearGradient(
+          colors: [
+            _getAlertColor(alert['type']).withOpacity(0.10),
+            _getAlertColor(alert['type']).withOpacity(0.18),
+          ],
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+        ),
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(
+          color: _getAlertColor(alert['type']).withOpacity(0.3),
+          width: 1,
+        ),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Container(
+                padding: EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                decoration: BoxDecoration(
+                  color: _getAlertColor(alert['type']).withOpacity(0.1),
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: Text(
+                  patientName,
+                  style: TextStyle(
+                    fontSize: 13,
+                    fontWeight: FontWeight.w700,
+                    color: _getAlertColor(alert['type']),
+                  ),
+                ),
+              ),
+              Spacer(),
+              Container(
+                padding: EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                decoration: BoxDecoration(
+                  color: Colors.white.withOpacity(0.7),
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                child: Text(
+                  alert['time'],
+                  style: TextStyle(
+                    fontSize: 12,
+                    color: Colors.grey[700],
+                    fontWeight: FontWeight.w500,
+                  ),
+                ),
+              ),
+            ],
+          ),
+          SizedBox(height: 12),
+          Row(
+            children: [
+              Icon(
+                _getAlertIcon(alert['type']),
+                color: _getAlertColor(alert['type']),
+                size: 22,
+              ),
+              SizedBox(width: 8),
+              Text(
+                alert['type'],
+                style: TextStyle(
+                  fontSize: 16,
+                  fontWeight: FontWeight.w700,
+                  color: Colors.black87,
+                  letterSpacing: -0.3,
+                ),
+              ),
+            ],
+          ),
+          SizedBox(height: 6),
+          Text(
+            alert['message'],
+            style: TextStyle(
+              fontSize: 14,
+              color: Colors.grey[700],
+              fontWeight: FontWeight.w500,
+              height: 1.4,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
 
   Widget _buildPatientCard(Map<String, dynamic> patient) {
     print(patient); // Add this line for debugging
@@ -197,88 +340,6 @@ class _GuardianDashboardScreenState extends State<GuardianDashboardScreen> {
     );
   }
 
-  Widget _buildNotificationCard(
-    String patientName,
-    Map<String, dynamic> notification,
-  ) {
-    return Container(
-      margin: EdgeInsets.only(bottom: 16),
-      padding: EdgeInsets.all(20),
-      decoration: BoxDecoration(
-        gradient: LinearGradient(
-          colors: [
-            Color(0xFFA0C4FD).withOpacity(0.15),
-            Color(0xFFA0C4FD).withOpacity(0.25),
-          ],
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-        ),
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: Color(0xFFA0C4FD).withOpacity(0.3), width: 1),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            children: [
-              Container(
-                padding: EdgeInsets.symmetric(horizontal: 10, vertical: 6),
-                decoration: BoxDecoration(
-                  color: Color(0xFF2B3F99).withOpacity(0.1),
-                  borderRadius: BorderRadius.circular(12),
-                ),
-                child: Text(
-                  patientName,
-                  style: TextStyle(
-                    fontSize: 13,
-                    fontWeight: FontWeight.w700,
-                    color: Color(0xFF2B3F99),
-                  ),
-                ),
-              ),
-              Spacer(),
-              Container(
-                padding: EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                decoration: BoxDecoration(
-                  color: Colors.white.withOpacity(0.7),
-                  borderRadius: BorderRadius.circular(8),
-                ),
-                child: Text(
-                  notification['time'],
-                  style: TextStyle(
-                    fontSize: 12,
-                    color: Colors.grey[700],
-                    fontWeight: FontWeight.w500,
-                  ),
-                ),
-              ),
-            ],
-          ),
-          SizedBox(height: 12),
-          Text(
-            notification['type'],
-            style: TextStyle(
-              fontSize: 16,
-              fontWeight: FontWeight.w700,
-              color: Colors.black87,
-              letterSpacing: -0.3,
-            ),
-          ),
-          SizedBox(height: 6),
-          Text(
-            notification['message'],
-            style: TextStyle(
-              fontSize: 14,
-              color: Colors.grey[700],
-              fontWeight: FontWeight.w500,
-              height: 1.4,
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
   @override
   void initState() {
     super.initState();
@@ -296,7 +357,11 @@ class _GuardianDashboardScreenState extends State<GuardianDashboardScreen> {
   }
 
   Future<void> _fetchPatients() async {
-    final int? guardianId = await AuthService.getCurrentUserId();
+    final int? userId = await AuthService.getCurrentUserId();
+    int? guardianId;
+    if (userId != null) {
+      guardianId = await GuardianService.getGuardianIdByUserId(userId);
+    }
     if (guardianId != null) {
       final patients = await PatientService.getPatientsByGuardian(guardianId);
       setState(() {
@@ -343,7 +408,21 @@ class _GuardianDashboardScreenState extends State<GuardianDashboardScreen> {
           ),
         ),
         centerTitle: false,
+        automaticallyImplyLeading: false,
         systemOverlayStyle: SystemUiOverlayStyle.dark,
+        actions: [
+          IconButton(
+            icon: Icon(
+              Icons.notifications_none_outlined,
+              color: Colors.black,
+              size: 28,
+            ),
+            onPressed: () {
+              Navigator.pushNamed(context, AppRoutes.guardianNotifications);
+            },
+            tooltip: 'Notifications',
+          ),
+        ],
       ),
       body: SingleChildScrollView(
         padding: EdgeInsets.all(24),
@@ -463,6 +542,13 @@ class _GuardianDashboardScreenState extends State<GuardianDashboardScreen> {
                   },
                 ),
                 _buildQuickAccessButton(
+                  icon: Icons.reviews_outlined,
+                  label: 'Add Reviews',
+                  onTap: () {
+                    Navigator.pushNamed(context, AppRoutes.guardianAddReviews);
+                  },
+                ),
+                _buildQuickAccessButton(
                   icon: Icons.settings_outlined,
                   label: 'Settings',
                   onTap: () {
@@ -473,11 +559,11 @@ class _GuardianDashboardScreenState extends State<GuardianDashboardScreen> {
             ),
             SizedBox(height: 40),
 
-            // Notifications section
+            // Alerts section
             Row(
               children: [
                 Text(
-                  'Notifications',
+                  'Alerts',
                   style: TextStyle(
                     fontSize: 22,
                     fontWeight: FontWeight.w800,
@@ -493,7 +579,7 @@ class _GuardianDashboardScreenState extends State<GuardianDashboardScreen> {
                     borderRadius: BorderRadius.circular(12),
                   ),
                   child: Text(
-                    '${notifications.values.fold(0, (sum, list) => sum + list.length)}',
+                    '${alerts.values.fold(0, (sum, list) => sum + list.length)}',
                     style: TextStyle(
                       fontSize: 12,
                       fontWeight: FontWeight.w700,
@@ -505,8 +591,8 @@ class _GuardianDashboardScreenState extends State<GuardianDashboardScreen> {
             ),
             SizedBox(height: 20),
 
-            // Display notifications grouped by patient
-            if (notifications.isEmpty)
+            // Display alerts grouped by patient
+            if (alerts.isEmpty)
               Container(
                 width: double.infinity,
                 padding: EdgeInsets.all(32),
@@ -531,7 +617,7 @@ class _GuardianDashboardScreenState extends State<GuardianDashboardScreen> {
                     ),
                     SizedBox(height: 16),
                     Text(
-                      'No notifications',
+                      'No alerts',
                       style: TextStyle(
                         fontSize: 16,
                         fontWeight: FontWeight.w600,
@@ -540,16 +626,16 @@ class _GuardianDashboardScreenState extends State<GuardianDashboardScreen> {
                     ),
                     SizedBox(height: 8),
                     Text(
-                      'All caught up!',
+                      'All clear! No alerts at the moment.',
                       style: TextStyle(fontSize: 14, color: Colors.grey[500]),
                     ),
                   ],
                 ),
               )
             else
-              for (var patientName in notifications.keys) ...[
-                for (var notification in notifications[patientName]!)
-                  _buildNotificationCard(patientName, notification),
+              for (var patientName in alerts.keys) ...[
+                for (var alert in alerts[patientName]!)
+                  _buildAlertCard(patientName, alert),
               ],
           ],
         ),

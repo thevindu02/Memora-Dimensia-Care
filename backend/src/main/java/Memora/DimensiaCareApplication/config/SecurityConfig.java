@@ -65,6 +65,7 @@ public class SecurityConfig {
                 .authorizeHttpRequests(authz -> authz
                         .requestMatchers("/api/auth/**").permitAll()
                         .requestMatchers("/api/public/**").permitAll()
+                        .requestMatchers("/api/guardians/send-caregiver-request").permitAll()
                         .requestMatchers("/h2-console/**").permitAll()
                         .anyRequest().permitAll()
                 );

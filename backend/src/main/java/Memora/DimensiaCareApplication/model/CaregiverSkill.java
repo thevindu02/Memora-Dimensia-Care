@@ -9,36 +9,17 @@ public class CaregiverSkill {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
 
-    @ManyToOne
-    @JoinColumn(name = "caregiver_id")
-    private Caregiver caregiver;
+    @Column(name = "caregiver_id", nullable = false)
+    private Integer caregiverId;
 
-    @ManyToOne
-    @JoinColumn(name = "skill_id")
-    private Skill skill;
+    @Column(name = "skill_id", nullable = false)
+    private Integer skillId;
 
-    // getters and setters
-    public Integer getId() {
-        return id;
-    }
-
-    public void setId(Integer id) {
-        this.id = id;
-    }
-
-    public Caregiver getCaregiver() {
-        return caregiver;
-    }
-
-    public void setCaregiver(Caregiver caregiver) {
-        this.caregiver = caregiver;
-    }
-
-    public Skill getSkill() {
-        return skill;
-    }
-
-    public void setSkill(Skill skill) {
-        this.skill = skill;
-    }
-}
+    // Getters and setters
+    public Integer getId() { return id; }
+    public void setId(Integer id) { this.id = id; }
+    public Integer getCaregiverId() { return caregiverId; }
+    public void setCaregiverId(Integer caregiverId) { this.caregiverId = caregiverId; }
+    public Integer getSkillId() { return skillId; }
+    public void setSkillId(Integer skillId) { this.skillId = skillId; }
+} 

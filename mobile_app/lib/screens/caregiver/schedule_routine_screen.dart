@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'dart:ui';
 import '../../routes/app_routes.dart';
+import '../../services/patient_service.dart';
 
 // Remove the nested MaterialApp - this was causing the routing issue
 class ScheduleRoutine extends StatelessWidget {
@@ -33,7 +34,6 @@ class ScheduleTask {
 class ScheduleRoutineScreen extends StatefulWidget {
   @override
   _ScheduleRoutineScreenState createState() => _ScheduleRoutineScreenState();
-
 }
 
 class _ScheduleRoutineScreenState extends State<ScheduleRoutineScreen> {
@@ -70,6 +70,52 @@ class _ScheduleRoutineScreenState extends State<ScheduleRoutineScreen> {
   ];
 
   String selectedTaskTitle = '';
+  String? _patientName;
+  bool _isPatientLoading = true;
+  String? _patientError;
+  int? _patientId;
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    final args = ModalRoute.of(context)?.settings.arguments;
+    int? patientId;
+    if (args is int) {
+      patientId = args;
+    } else if (args is Map && args['patientId'] != null) {
+      patientId = args['patientId'] as int;
+    }
+    if (patientId != null) {
+      _patientId = patientId;
+      _fetchPatientName(patientId);
+    } else {
+      setState(() {
+        _isPatientLoading = false;
+        _patientError = 'No patient selected.';
+      });
+    }
+  }
+
+  Future<void> _fetchPatientName(int patientId) async {
+    setState(() {
+      _isPatientLoading = true;
+      _patientError = null;
+    });
+    final result = await PatientService.getPatient(patientId);
+    if (result.success && result.data != null) {
+      final data = result.data;
+      setState(() {
+        _patientName = ((data['fName'] ?? '') + ' ' + (data['lName'] ?? ''))
+            .trim();
+        _isPatientLoading = false;
+      });
+    } else {
+      setState(() {
+        _patientError = 'Failed to load patient info';
+        _isPatientLoading = false;
+      });
+    }
+  }
 
   void _selectTask(ScheduleTask task) {
     setState(() {
@@ -108,9 +154,7 @@ class _ScheduleRoutineScreenState extends State<ScheduleRoutineScreen> {
                 color: Colors.black.withOpacity(0.3),
                 child: BackdropFilter(
                   filter: ImageFilter.blur(sigmaX: 5.0, sigmaY: 5.0),
-                  child: Container(
-                    color: Colors.black.withOpacity(0.1),
-                  ),
+                  child: Container(color: Colors.black.withOpacity(0.1)),
                 ),
               ),
             ),
@@ -151,10 +195,7 @@ class _ScheduleRoutineScreenState extends State<ScheduleRoutineScreen> {
                     SizedBox(height: 16),
                     Text(
                       'You are about to skip: $selectedTaskTitle',
-                      style: TextStyle(
-                        fontSize: 16,
-                        color: Colors.black54,
-                      ),
+                      style: TextStyle(fontSize: 16, color: Colors.black54),
                     ),
                     SizedBox(height: 20),
                     Text(
@@ -214,7 +255,9 @@ class _ScheduleRoutineScreenState extends State<ScheduleRoutineScreen> {
                               // Show confirmation
                               ScaffoldMessenger.of(context).showSnackBar(
                                 SnackBar(
-                                  content: Text('Task "$selectedTaskTitle" skipped'),
+                                  content: Text(
+                                    'Task "$selectedTaskTitle" skipped',
+                                  ),
                                   backgroundColor: Colors.orange,
                                 ),
                               );
@@ -222,7 +265,9 @@ class _ScheduleRoutineScreenState extends State<ScheduleRoutineScreen> {
                               // Show error if no reason provided
                               ScaffoldMessenger.of(context).showSnackBar(
                                 SnackBar(
-                                  content: Text('Please provide a reason for skipping'),
+                                  content: Text(
+                                    'Please provide a reason for skipping',
+                                  ),
                                   backgroundColor: Colors.red,
                                 ),
                               );
@@ -271,29 +316,13 @@ class _ScheduleRoutineScreenState extends State<ScheduleRoutineScreen> {
             fontWeight: FontWeight.w600,
           ),
         ),
-        centerTitle: true,
+        centerTitle: false, // Left align
         actions: [
-          Stack(
-            children: [
-              IconButton(
-                icon: Icon(Icons.notifications_outlined, color: Colors.black),
-                onPressed: () {
-                  Navigator.pushNamed(context, AppRoutes.caregiverNotification);
-                },
-              ),
-              Positioned(
-                right: 12,
-                top: 12,
-                child: Container(
-                  width: 8,
-                  height: 8,
-                  decoration: BoxDecoration(
-                    color: Colors.red,
-                    shape: BoxShape.circle,
-                  ),
-                ),
-              ),
-            ],
+          IconButton(
+            icon: Icon(Icons.notifications_outlined, color: Colors.black),
+            onPressed: () {
+              Navigator.pushNamed(context, AppRoutes.caregiverNotification);
+            },
           ),
         ],
       ),
@@ -301,52 +330,97 @@ class _ScheduleRoutineScreenState extends State<ScheduleRoutineScreen> {
         child: Column(
           children: [
             // Patient Info
-            Container(
-              margin: EdgeInsets.all(16),
-              padding: EdgeInsets.all(16),
-              decoration: BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.circular(12),
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.grey.withOpacity(0.1),
-                    spreadRadius: 1,
-                    blurRadius: 4,
-                    offset: Offset(0, 2),
-                  ),
-                ],
-              ),
-              child: InkWell(
+            MouseRegion(
+              cursor: SystemMouseCursors.click,
+              child: GestureDetector(
                 onTap: () {
-                  Navigator.pushNamed(context, AppRoutes.careDetails);
+                  if (_patientId != null) {
+                    Navigator.pushNamed(
+                      context,
+                      AppRoutes.careDetails,
+                      arguments: _patientId,
+                    );
+                  }
                 },
-                child: Row(
-                  children: [
-                    CircleAvatar(
-                      radius: 25,
-                      backgroundImage: AssetImage('assets/images/patient1.jpg'),
-                    ),
-                    SizedBox(width: 12),
-                    Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          'Sarah Johnson',
-                          style: TextStyle(
-                            fontWeight: FontWeight.w600,
-                            fontSize: 16,
-                          ),
+                child: Container(
+                  margin: EdgeInsets.all(16),
+                  padding: EdgeInsets.all(16),
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(12),
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.grey.withOpacity(0.08),
+                        spreadRadius: 0,
+                        blurRadius: 20,
+                        offset: Offset(0, 4),
+                      ),
+                    ],
+                  ),
+                  child: _isPatientLoading
+                      ? Row(
+                          children: [
+                            CircleAvatar(
+                              radius: 25,
+                              backgroundColor: Color(0xFFA0C4FD),
+                              child: Icon(
+                                Icons.person,
+                                color: Color(0xFF2B3F99),
+                                size: 30,
+                              ),
+                            ),
+                            SizedBox(width: 12),
+                            CircularProgressIndicator(),
+                          ],
+                        )
+                      : _patientError != null
+                      ? Row(
+                          children: [
+                            CircleAvatar(
+                              radius: 25,
+                              backgroundColor: Color(0xFFA0C4FD),
+                              child: Icon(
+                                Icons.person,
+                                color: Color(0xFF2B3F99),
+                                size: 30,
+                              ),
+                            ),
+                            SizedBox(width: 12),
+                            Text(
+                              _patientError!,
+                              style: TextStyle(fontSize: 16, color: Colors.red),
+                            ),
+                          ],
+                        )
+                      : Row(
+                          children: [
+                            CircleAvatar(
+                              radius: 25,
+                              backgroundColor: Color(0xFFA0C4FD),
+                              child: Icon(
+                                Icons.person,
+                                color: Color(0xFF2B3F99),
+                                size: 30,
+                              ),
+                            ),
+                            SizedBox(width: 12),
+                            Expanded(
+                              child: Text(
+                                (_patientName != null &&
+                                        _patientName!.trim().isNotEmpty &&
+                                        _patientName != 'Unknown')
+                                    ? _patientName!
+                                    : 'Unknown',
+                                style: TextStyle(
+                                  fontWeight: FontWeight.w600,
+                                  fontSize: 16,
+                                  color: Color(0xFF390797), // Deep Purple
+                                ),
+                                textAlign: TextAlign.left,
+                              ),
+                            ),
+                          ],
                         ),
-                        Text(
-                          'Patient ID: #12345',
-                          style: TextStyle(
-                            color: Colors.grey.shade600,
-                            fontSize: 14,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ],
                 ),
               ),
             ),
@@ -398,10 +472,14 @@ class _ScheduleRoutineScreenState extends State<ScheduleRoutineScreen> {
                       child: Container(
                         padding: EdgeInsets.all(16),
                         decoration: BoxDecoration(
-                          color: task.isSelected ? Colors.blue.shade50 : Colors.white,
+                          color: task.isSelected
+                              ? Colors.blue.shade50
+                              : Colors.white,
                           borderRadius: BorderRadius.circular(12),
                           border: Border.all(
-                            color: task.isSelected ? Colors.blue : Colors.grey.shade200,
+                            color: task.isSelected
+                                ? Colors.blue
+                                : Colors.grey.shade200,
                             width: task.isSelected ? 2 : 1,
                           ),
                           boxShadow: [
@@ -432,7 +510,8 @@ class _ScheduleRoutineScreenState extends State<ScheduleRoutineScreen> {
                                 SizedBox(width: 16),
                                 Expanded(
                                   child: Column(
-                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
                                     children: [
                                       Text(
                                         task.title,
@@ -469,21 +548,21 @@ class _ScheduleRoutineScreenState extends State<ScheduleRoutineScreen> {
                                       onTap: () => _toggleTaskCompletion(task),
                                       child: task.isCompleted
                                           ? Icon(
-                                        Icons.check_circle,
-                                        color: Colors.green,
-                                        size: 20,
-                                      )
+                                              Icons.check_circle,
+                                              color: Colors.green,
+                                              size: 20,
+                                            )
                                           : Container(
-                                        width: 20,
-                                        height: 20,
-                                        decoration: BoxDecoration(
-                                          shape: BoxShape.circle,
-                                          border: Border.all(
-                                            color: Colors.grey.shade400,
-                                            width: 2,
-                                          ),
-                                        ),
-                                      ),
+                                              width: 20,
+                                              height: 20,
+                                              decoration: BoxDecoration(
+                                                shape: BoxShape.circle,
+                                                border: Border.all(
+                                                  color: Colors.grey.shade400,
+                                                  width: 2,
+                                                ),
+                                              ),
+                                            ),
                                     ),
                                   ],
                                 ),
@@ -559,16 +638,15 @@ class _ScheduleRoutineScreenState extends State<ScheduleRoutineScreen> {
       bottomNavigationBar: BottomNavigationBar(
         currentIndex: _currentIndex,
         onTap: (index) {
-          if (index == 0) { // Patients tab
+          if (index == 0) {
+            // Patients tab
             // Navigate to detailed patients screen
             Navigator.pushNamed(context, AppRoutes.caregiverDashboard);
-          }else if(index==3){
+          } else if (index == 3) {
             Navigator.pushNamed(context, AppRoutes.caregiverProfile);
-          }
-          else if(index==2){
+          } else if (index == 2) {
             Navigator.pushNamed(context, AppRoutes.viewArticleList);
-          }
-          else {
+          } else {
             setState(() {
               _currentIndex = index;
             });
@@ -578,10 +656,19 @@ class _ScheduleRoutineScreenState extends State<ScheduleRoutineScreen> {
         selectedItemColor: Color(0xFF2B3F99),
         unselectedItemColor: Color(0xFF2B3F99),
         items: const [
-          BottomNavigationBarItem(icon: Icon(Icons.home_outlined), label: 'Home'),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.home_outlined),
+            label: 'Home',
+          ),
           BottomNavigationBarItem(icon: Icon(Icons.people), label: 'Patients'),
-          BottomNavigationBarItem(icon: Icon(Icons.article_outlined), label: 'Articles'),
-          BottomNavigationBarItem(icon: Icon(Icons.person_outline), label: 'Profile'),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.article_outlined),
+            label: 'Articles',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.person_outline),
+            label: 'Profile',
+          ),
         ],
       ),
     );
@@ -605,10 +692,7 @@ class SelectRoutinePage extends StatelessWidget {
           children: [
             Text(
               'Select Routine Type',
-              style: TextStyle(
-                fontSize: 24,
-                fontWeight: FontWeight.bold,
-              ),
+              style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
             ),
             SizedBox(height: 20),
             Text('This is your SelectRoutine page'),

@@ -9,6 +9,7 @@ public class PatientRequest {
     private LocalDate dateOfDiagnosis;
     private Patient.DementiaType dementiaType;
     private Long guardianId;
+    private String relationship;
 
     // Getters and setters
 
@@ -50,5 +51,13 @@ public class PatientRequest {
 
     public void setGuardianId(Long guardianId) {
         this.guardianId = guardianId;
+    }
+
+    public String getRelationship() {
+        return relationship;
+    }
+
+    public void setRelationship(String relationship) {
+        this.relationship = relationship;
     }
 }

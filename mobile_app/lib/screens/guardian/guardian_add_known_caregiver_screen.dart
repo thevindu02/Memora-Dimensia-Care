@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../../routes/app_routes.dart';
+import '../../services/guardian_service.dart';
 
 class GuardianAddKnownCaregiverScreen extends StatefulWidget {
   @override
@@ -13,6 +14,8 @@ class _GuardianAddKnownCaregiverScreenState
   TextEditingController emailController = TextEditingController();
   FocusNode emailFocusNode = FocusNode();
   bool isLoading = false;
+  bool isSubmitting = false;
+  String? resultMessage;
 
   // Mock caregiver emails for demo
   final List<String> validEmails = [
@@ -90,17 +93,18 @@ class _GuardianAddKnownCaregiverScreenState
                   textAlign: TextAlign.center,
                 ),
                 SizedBox(height: 12),
-                                  Text(
-                    isSuccess
-                        ? 'Great! $caregiverName has been successfully connected as a caregiver for ${selectedPatient?['name']}. They will now be able to access and manage care information.'
-                        : 'No caregiver found with this email address. Please check the email and try again. Make sure the caregiver is registered in our system.',
-                    style: TextStyle(
-                      fontSize: 14,
-                      color: Colors.grey[600],
-                      height: 1.4,
-                    ),
-                    textAlign: TextAlign.center,
+                Text(
+                  isSuccess
+                      ? 'Great! $caregiverName has been successfully connected as a caregiver for '
+                            '${(selectedPatient?['name'] ?? selectedPatient?['fName'] ?? selectedPatient?['FName'] ?? selectedPatient?['fname'] ?? '').toString().trim().isEmpty ? 'N/A' : (selectedPatient?['name'] ?? selectedPatient?['fName'] ?? selectedPatient?['FName'] ?? selectedPatient?['fname'] ?? '')}. They will now be able to access and manage care information.'
+                      : 'No caregiver found with this email address. Please check the email and try again. Make sure the caregiver is registered in our system.',
+                  style: TextStyle(
+                    fontSize: 14,
+                    color: Colors.grey[600],
+                    height: 1.4,
                   ),
+                  textAlign: TextAlign.center,
+                ),
                 SizedBox(height: 24),
                 SizedBox(
                   width: double.infinity,
@@ -208,6 +212,45 @@ class _GuardianAddKnownCaregiverScreenState
     });
   }
 
+  void _submitKnownCaregiver() async {
+    if (selectedPatient == null || emailController.text.trim().isEmpty) {
+      setState(() {
+        resultMessage = 'Please select a patient and enter caregiver email.';
+      });
+      return;
+    }
+    setState(() {
+      isSubmitting = true;
+      resultMessage = null;
+    });
+    final guardianId =
+        selectedPatient?['guardianId'] ?? selectedPatient?['guardian_id'];
+    final patientId =
+        selectedPatient?['patientId'] ?? selectedPatient?['patient_id'];
+    final caregiverEmail = emailController.text.trim();
+    if (guardianId == null || patientId == null) {
+      setState(() {
+        isSubmitting = false;
+        resultMessage = 'Missing guardian or patient ID.';
+      });
+      return;
+    }
+    final response = await GuardianService.addKnownCaregiver(
+      guardianId: guardianId,
+      patientId: patientId,
+      caregiverEmail: caregiverEmail,
+    );
+    setState(() {
+      isSubmitting = false;
+      resultMessage = response;
+    });
+    if (response.contains('successfully')) {
+      Future.delayed(Duration(seconds: 2), () {
+        Navigator.pop(context, true);
+      });
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -257,7 +300,20 @@ class _GuardianAddKnownCaregiverScreenState
                       style: TextStyle(fontSize: 14, color: Colors.grey[700]),
                     ),
                     Text(
-                      selectedPatient!['name'],
+                      (selectedPatient?['name'] ??
+                                  selectedPatient?['fName'] ??
+                                  selectedPatient?['FName'] ??
+                                  selectedPatient?['fname'] ??
+                                  '')
+                              .toString()
+                              .trim()
+                              .isEmpty
+                          ? 'N/A'
+                          : (selectedPatient?['name'] ??
+                                selectedPatient?['fName'] ??
+                                selectedPatient?['FName'] ??
+                                selectedPatient?['fname'] ??
+                                ''),
                       style: TextStyle(
                         fontSize: 14,
                         fontWeight: FontWeight.w600,
@@ -346,6 +402,24 @@ class _GuardianAddKnownCaregiverScreenState
                 ),
               ),
             ),
+            SizedBox(height: 32),
+
+            // Result message
+            if (resultMessage != null)
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                child: Text(
+                  resultMessage!,
+                  style: TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.w600,
+                    color: resultMessage!.contains('successfully')
+                        ? Colors.green
+                        : Colors.red,
+                  ),
+                  textAlign: TextAlign.center,
+                ),
+              ),
             SizedBox(height: 32),
           ],
         ),
