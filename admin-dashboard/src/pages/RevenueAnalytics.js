@@ -16,10 +16,10 @@ const RevenueAnalytics = () => {
 
   // Revenue data
   const revenueData = {
-    totalRevenue: 2750000, // LKR
-    currentMonthRevenue: 450000, // LKR (July 2025)
-    activeSubscriptions: 1245,
-    avgRevenuePerMonth: 395714, // Total revenue / 7 months
+    totalRevenue: 35000, // LKR
+    currentMonthRevenue: 24567, // LKR (July 2025)
+    activeSubscriptions: 24,
+    avgRevenuePerMonth: 5000, // Total revenue / 7 months
     revenueGrowth: 12.5
   };
 
@@ -44,28 +44,21 @@ const RevenueAnalytics = () => {
 
   // Revenue by subscription plan type
   const revenueByPlan = [
-    { 
-      plan: 'Free Trial', 
-      revenue: 0, 
-      subscribers: 245, 
-      percentage: 0,
-      monthlyPrice: 0,
-      color: '#2B3F99'
-    },
+    
     { 
       plan: 'Basic Health Plan', 
-      revenue: 2520000, 
-      subscribers: 720, 
+      revenue: 10498, 
+      subscribers: 11, 
       percentage: 52.4,
-      monthlyPrice: 3500,
+      monthlyPrice: 955,
       color: '#2B3F99'
     },
     { 
       plan: 'Premium Health Plan', 
-      revenue: 2380000, 
-      subscribers: 280, 
+      revenue: 21987, 
+      subscribers: 13, 
       percentage: 47.6,
-      monthlyPrice: 8500,
+      monthlyPrice: 1691,
       color: '#A0C4FD'
     }
   ];
