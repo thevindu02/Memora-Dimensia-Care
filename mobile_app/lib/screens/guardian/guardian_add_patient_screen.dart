@@ -23,7 +23,7 @@ class _GuardianAddPatientScreenState extends State<GuardianAddPatientScreen> {
   final _stateController = TextEditingController();
   final _diagnosisDateController = TextEditingController();
   final _emailController = TextEditingController();
-  final _passwordController = TextEditingController();
+  //final _passwordController = TextEditingController();
   final _relationshipController = TextEditingController();
 
   String? _selectedDementiaStage;
@@ -67,7 +67,7 @@ class _GuardianAddPatientScreenState extends State<GuardianAddPatientScreen> {
     _stateController.dispose();
     _diagnosisDateController.dispose();
     _emailController.dispose();
-    _passwordController.dispose();
+    //_passwordController.dispose();
     _relationshipController.dispose();
     super.dispose();
   }
@@ -322,7 +322,7 @@ class _GuardianAddPatientScreenState extends State<GuardianAddPatientScreen> {
           FName: _firstNameController.text,
           LName: _lastNameController.text,
           email: _emailController.text,
-          password: _passwordController.text,
+          //password: _passwordController.text,
           phoneNumber: _contactController.text,
           role: "PATIENT",
           status: "ACTIVE",
@@ -509,16 +509,43 @@ class _GuardianAddPatientScreenState extends State<GuardianAddPatientScreen> {
                 hintText: 'Email',
                 validator: _validateEmail,
               ),
-              _buildTextField(
-                controller: _passwordController,
-                hintText: 'Password',
-                validator: _validatePassword,
-              ),
+              // _buildTextField(
+              //   controller: _passwordController,
+              //   hintText: 'Password',
+              //   validator: _validatePassword,
+              // ),
 
-              _buildTextField(
-                controller: _relationshipController,
-                hintText: 'Relationship with Patient',
-                validator: _validateRelationship,
+              // Relationship field with clear instructions
+              Container(
+                margin: EdgeInsets.only(bottom: 16),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      'Relationship (Patient is my...)',
+                      style: TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.w500,
+                        color: Colors.black87,
+                      ),
+                    ),
+                    SizedBox(height: 4),
+                    Text(
+                      'e.g., Mother, Father, Spouse, Grandmother, etc.',
+                      style: TextStyle(
+                        fontSize: 12,
+                        color: Colors.grey[600],
+                        fontStyle: FontStyle.italic,
+                      ),
+                    ),
+                    SizedBox(height: 8),
+                    _buildTextField(
+                      controller: _relationshipController,
+                      hintText: 'e.g., Mother, Father, Spouse, etc.',
+                      validator: _validateRelationship,
+                    ),
+                  ],
+                ),
               ),
 
               // Address section
