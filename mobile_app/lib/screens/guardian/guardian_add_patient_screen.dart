@@ -499,7 +499,8 @@ class _GuardianAddPatientScreenState extends State<GuardianAddPatientScreen> {
                 validator: _validatePhone,
                 keyboardType: TextInputType.phone,
                 inputFormatters: [
-                  FilteringTextInputFormatter.allow(RegExp(r'[\d+\-\s]')),
+                  FilteringTextInputFormatter.digitsOnly,
+                  LengthLimitingTextInputFormatter(10),
                 ],
               ),
 

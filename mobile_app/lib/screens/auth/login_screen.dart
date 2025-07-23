@@ -85,6 +85,13 @@ class _LoginScreenState extends State<LoginScreen> {
     }
   }
 
+  void _handlePatientLogin() {
+    // Navigate directly to patient email verification
+    Navigator.of(context).pushNamed(
+      AppRoutes.patientEmailVerification,
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -104,29 +111,29 @@ class _LoginScreenState extends State<LoginScreen> {
               child: Form(
                 key: _formKey,
                 child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
+                  mainAxisAlignment: MainAxisAlignment.start,
                   children: [
-                    // Flexible spacing at the top
-                    const SizedBox(height: 20),
+                    // Minimal spacing at the top
+                    //const SizedBox(height: 2),
 
                     // Logo - make it responsive
                     Image.asset(
                       'assets/images/light_logo.png', // Replace with your actual logo path
-                      width: MediaQuery.of(context).size.width * 0.5, // Responsive width
-                      height: MediaQuery.of(context).size.width * 0.5, // Responsive height
+                      width: MediaQuery.of(context).size.width * 0.6, // Larger logo
+                      height: MediaQuery.of(context).size.width * 0.6, // Larger logo
                       fit: BoxFit.contain,
                     ),
-                    const SizedBox(height: 16),
+                    const SizedBox(height: 4),
 
                     // Welcome text
                     Text(
                       'Welcome Back',
                       style: TextStyle(
-                        fontSize: 32, // Slightly smaller for better fit
+                        fontSize: 28, // Slightly smaller font size
                         fontWeight: FontWeight.bold,
                       ),
                     ),
-                    const SizedBox(height: 32),
+                    const SizedBox(height: 16),
 
                     // Email field
                     TextFormField(
@@ -139,12 +146,32 @@ class _LoginScreenState extends State<LoginScreen> {
                         border: OutlineInputBorder(),
                       ),
                       validator: (value) {
-                        if (value == null || value.isEmpty) {
-                          return 'Please enter your email';
+                        if (value == null || value.trim().isEmpty) {
+                          return 'Email is required';
                         }
-                        if (!RegExp(r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$').hasMatch(value)) {
-                          return 'Please enter a valid email';
+                        
+                        String trimmedValue = value.trim();
+                        
+                        // Check for basic email format
+                        if (!RegExp(r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$').hasMatch(trimmedValue)) {
+                          return 'Please enter a valid email address';
                         }
+                        
+                        // Check email length
+                        if (trimmedValue.length > 254) {
+                          return 'Email address is too long';
+                        }
+                        
+                        // Check for consecutive dots
+                        if (trimmedValue.contains('..')) {
+                          return 'Email cannot contain consecutive dots';
+                        }
+                        
+                        // Check if it starts or ends with a dot
+                        if (trimmedValue.startsWith('.') || trimmedValue.endsWith('.')) {
+                          return 'Email cannot start or end with a dot';
+                        }
+                        
                         return null;
                       },
                     ),
@@ -170,11 +197,47 @@ class _LoginScreenState extends State<LoginScreen> {
                       ),
                       validator: (value) {
                         if (value == null || value.isEmpty) {
-                          return 'Please enter your password';
+                          return 'Password is required';
                         }
-                        if (value.length < 6) {
-                          return 'Password must be at least 6 characters';
+                        
+                        if (value.length < 8) {
+                          return 'Password must be at least 8 characters';
                         }
+                        
+                        if (value.length > 128) {
+                          return 'Password is too long (max 128 characters)';
+                        }
+                        
+                        // Check for at least one uppercase letter
+                        if (!RegExp(r'[A-Z]').hasMatch(value)) {
+                          return 'Password must contain at least one uppercase letter';
+                        }
+                        
+                        // Check for at least one lowercase letter
+                        if (!RegExp(r'[a-z]').hasMatch(value)) {
+                          return 'Password must contain at least one lowercase letter';
+                        }
+                        
+                        // Check for at least one digit
+                        if (!RegExp(r'\d').hasMatch(value)) {
+                          return 'Password must contain at least one number';
+                        }
+                        
+                        // Check for at least one special character
+                        if (!RegExp(r'[!@#$%^&*(),.?":{}|<>]').hasMatch(value)) {
+                          return 'Password must contain at least one special character';
+                        }
+                        
+                        // Check for common weak passwords
+                        List<String> commonPasswords = [
+                          'password', 'password123', '123456', '123456789', 
+                          'qwerty', 'abc123', 'password1', 'admin', 'letmein'
+                        ];
+                        
+                        if (commonPasswords.contains(value.toLowerCase())) {
+                          return 'Password is too common, please choose a stronger password';
+                        }
+                        
                         return null;
                       },
                     ),
@@ -193,6 +256,21 @@ class _LoginScreenState extends State<LoginScreen> {
                         child: _isLoading
                             ? const CircularProgressIndicator(color: Colors.white)
                             : const Text('Login'),
+                      ),
+                    ),
+                    const SizedBox(height: 16),
+
+                    // Login as Patient button
+                    SizedBox(
+                      width: double.infinity,
+                      height: 50,
+                      child: ElevatedButton(
+                        onPressed: _handlePatientLogin,
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: Color(0xFFA0C4FD),
+                          foregroundColor: Color(0xFF2B3F99),
+                        ),
+                        child: const Text('Login as a Patient'),
                       ),
                     ),
                     const SizedBox(height: 16),
