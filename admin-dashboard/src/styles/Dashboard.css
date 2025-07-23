@@ -544,7 +544,7 @@
   align-items: center;
   margin-bottom: 1rem;
   padding-bottom: 0.75rem;
-  border-bottom: 1px solid #A0C4FD;
+  border-bottom: 1px solid #e5e7eb;
 }
 
 .calendar-header button {
@@ -583,7 +583,7 @@
 .weekday {
   text-align: center;
   font-weight: 700;
-  color: #390797;
+  color: #667eea;
   padding: 0.4rem 0.2rem;
   font-size: 0.75rem;
 }
@@ -601,7 +601,7 @@
   border-radius: 4px;
   transition: background-color 0.2s ease;
   font-weight: 400;
-  color: #390797;
+  color: #374151;
   font-size: 0.8rem;
 }
 

@@ -232,9 +232,9 @@ class _PatientsScreenState extends State<PatientListScreen> {
               label: 'Patients',
             ),
             BottomNavigationBarItem(
-              icon: Icon(Icons.book_online),
-              activeIcon: Icon(Icons.book_online),
-              label: 'Routines',
+              icon: Icon(Icons.article_outlined),
+              activeIcon: Icon(Icons.article_outlined),
+              label: 'Articles',
             ),
             BottomNavigationBarItem(
               icon: Icon(Icons.person_outline),

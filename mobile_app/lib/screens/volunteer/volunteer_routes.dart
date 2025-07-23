@@ -11,24 +11,25 @@ import 'volunteer_dashboard_screen.dart';
 import 'volunteer_create_content_screen.dart';
 import 'volunteer_forum_screen.dart';
 import 'volunteer_schedule_session_screen.dart';
+import 'article_draft_screen.dart';
 
 class VolunteerRoutes {
   static Route<dynamic> generateRoute(RouteSettings settings) {
     switch (settings.name) {
       case AppRoutes.volunteerSignup:
         return MaterialPageRoute(
-            builder: (_) => VolunteerSignupScreen(),
-            settings: settings,
+          builder: (_) => VolunteerSignupScreen(),
+          settings: settings,
         );
       case AppRoutes.volunteerArticles:
         return MaterialPageRoute(
-            builder: (_) => VolunteerArticlesScreen(),
-            settings: settings,
+          builder: (_) => VolunteerArticlesScreen(),
+          settings: settings,
         );
       case AppRoutes.volunteerProfile:
         return MaterialPageRoute(
-            builder: (_) => VolunteerProfileScreen(),
-            settings: settings,
+          builder: (_) => VolunteerProfileScreen(),
+          settings: settings,
         );
       case AppRoutes.volunteerUploadImage:
         return MaterialPageRoute(
@@ -52,8 +53,8 @@ class VolunteerRoutes {
         );
       case AppRoutes.volunteerDashboard:
         return MaterialPageRoute(
-            builder: (_) => VolunteerDashboardScreen(),
-            settings: settings,
+          builder: (_) => VolunteerDashboardScreen(),
+          settings: settings,
         );
       case AppRoutes.volunteerCreateContent:
         return MaterialPageRoute(
@@ -62,12 +63,17 @@ class VolunteerRoutes {
         );
       case AppRoutes.volunteerForum:
         return MaterialPageRoute(
-            builder: (_) => VolunteerForumScreen(),
-            settings: settings,
+          builder: (_) => VolunteerForumScreen(),
+          settings: settings,
         );
       case AppRoutes.volunteerScheduleSession:
         return MaterialPageRoute(
           builder: (_) => VolunteerScheduleSessionScreen(),
+          settings: settings,
+        );
+      case AppRoutes.volunteerDraft:
+        return MaterialPageRoute(
+          builder: (_) => ArticleDraftScreen(),
           settings: settings,
         );
 
