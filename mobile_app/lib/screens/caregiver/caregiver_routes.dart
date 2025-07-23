@@ -7,6 +7,7 @@ import 'schedule_routine_screen.dart';
 import 'select_routine_screen.dart';
 import 'view_article_screen.dart';
 import 'profile_view_screen.dart';
+import 'profile_edit_screen.dart';
 import 'caregiver_notification.dart';
 import 'schedule_report_screen.dart';
 import 'complete_routine_screen.dart';
@@ -15,6 +16,8 @@ import 'register_screen.dart';
 import 'caregiver_connection_requests_screen.dart';
 import 'discussion_forum_screen.dart';
 import 'settings_screen.dart';
+import 'caregiver_settings_privacy_screen.dart';
+import 'caregiver_settings_help_support_screen.dart';
 
 class CaregiverRoutes {
   static Route<dynamic> generateRoute(RouteSettings settings) {
@@ -53,8 +56,9 @@ class CaregiverRoutes {
         );
       case AppRoutes.viewArticleList:
         return MaterialPageRoute(
-          builder: (_) => ArticleList(),
-          settings: settings,
+            builder: (_) => ViewArticleScreen(),
+            settings: settings,
+
         );
       case AppRoutes.caregiverNotification:
         return MaterialPageRoute(
@@ -67,22 +71,33 @@ class CaregiverRoutes {
           settings: settings,
         );
       case AppRoutes.completeRoutine:
+        final args = settings.arguments;
+        String patientName = '';
+        if (args is Map && args['patientName'] != null) {
+          patientName = args['patientName'];
+        }
         return MaterialPageRoute(
-          builder: (_) => ScheduleRoutineDialog(),
+          builder: (_) => ScheduleRoutineDialog(patientName: patientName),
           settings: settings,
         );
       case AppRoutes.careDetails:
         return MaterialPageRoute(
-            builder: (_) => CareDetailsScreen(),
-            settings: settings,
+          builder: (_) => CareDetailsScreen(),
+          settings: settings,
         );
       case AppRoutes.caregiverConnectionRequests:
         return MaterialPageRoute(
           builder: (_) => CaregiverConnectionRequestsScreen(),
           settings: settings,
         );
+      case AppRoutes.caregiverSettingsPrivacy:
         return MaterialPageRoute(
-          builder: (_) => CareDetailsScreen(),
+          builder: (_) => CaregiverSettingsPrivacyScreen(),
+          settings: settings,
+        );
+      case AppRoutes.caregiverSettingsHelpSupport:
+        return MaterialPageRoute(
+          builder: (_) => CaregiverSettingsHelpSupportScreen(),
           settings: settings,
         );
       case AppRoutes.discussionForum:

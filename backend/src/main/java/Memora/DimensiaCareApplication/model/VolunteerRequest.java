@@ -25,7 +25,6 @@ public class VolunteerRequest {
     @Column(name = "request_id")
     private Integer requestId;
 
-
     @Column(name = "volunteer_name", nullable = false, length = 100)
     private String volunteerName;
 
@@ -36,7 +35,6 @@ public class VolunteerRequest {
     private String phoneNumber;
 
     @Column(name = "gender", nullable = false, length = 10)
-
     private String gender;
 
     @Column(name = "volunteer_id_image", nullable = true)
@@ -54,7 +52,8 @@ public class VolunteerRequest {
     public VolunteerRequest() {
     }
 
-    public VolunteerRequest(String volunteerName, String email, String phoneNumber, String gender, String volunteerIdImage) {
+    public VolunteerRequest(String volunteerName, String email, String phoneNumber, String gender,
+            String volunteerIdImage) {
         this.volunteerName = volunteerName;
         this.email = email;
         this.phoneNumber = phoneNumber;

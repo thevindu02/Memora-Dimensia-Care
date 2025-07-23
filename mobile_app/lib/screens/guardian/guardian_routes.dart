@@ -85,13 +85,6 @@ class GuardianRoutes {
         return MaterialPageRoute(
           builder: (_) => GuardianArticlesScreen(),
           settings: settings,
-
-
-        );
-      case AppRoutes.guardianArticleDetail:
-        return MaterialPageRoute(
-          builder: (_) => GuardianSingleArticleScreen(),
-          settings: settings,
         );
       case AppRoutes.guardianQAForums:
         return MaterialPageRoute(
@@ -112,7 +105,6 @@ class GuardianRoutes {
         return MaterialPageRoute(
           builder: (_) => GuardianSettingsHelpSupportScreen(),
           settings: settings,
-
         );
       case AppRoutes.guardianAddReviews:
         return MaterialPageRoute(
@@ -121,7 +113,7 @@ class GuardianRoutes {
         );
       case AppRoutes.guardianSubscriptionPlans:
         return MaterialPageRoute(
-            builder: (_) => SubscriptionPlanScreen(),
+          builder: (_) => SubscriptionPlanScreen(),
           settings: settings,
         );
       // case AppRoutes.guardianPayment:
@@ -132,24 +124,23 @@ class GuardianRoutes {
       case AppRoutes.guardianPaymentSuccess:
         final arguments = settings.arguments as Map<String, dynamic>?;
         return MaterialPageRoute(
-            builder: (_) => PaymentSuccessScreen(
-              planType: arguments?['planType'] ?? 'Premium',
-              duration: arguments?['duration'] ?? 'Monthly',
-              price: arguments?['price'] ?? 19.99,
-            ),
-            settings: settings,
+          builder: (_) => PaymentSuccessScreen(
+            planType: arguments?['planType'] ?? 'Premium',
+            duration: arguments?['duration'] ?? 'Monthly',
+            price: arguments?['price'] ?? 19.99,
+          ),
+          settings: settings,
         );
       case AppRoutes.guardianPaymentFailed:
         final arguments = settings.arguments as Map<String, dynamic>?;
         return MaterialPageRoute(
-            builder: (_) => PaymentFailedScreen(
-              planType: arguments?['planType'] ?? 'Premium',
-              duration: arguments?['duration'] ?? 'Monthly',
-              price: arguments?['price'] ?? 19.99,
-              errorMessage: arguments?['errorMessage'] ?? 'Payment failed',
-            ),
-            settings: settings,
-
+          builder: (_) => PaymentFailedScreen(
+            planType: arguments?['planType'] ?? 'Premium',
+            duration: arguments?['duration'] ?? 'Monthly',
+            price: arguments?['price'] ?? 19.99,
+            errorMessage: arguments?['errorMessage'] ?? 'Payment failed',
+          ),
+          settings: settings,
         );
       // case AppRoutes.guardianOrders:
       //   return MaterialPageRoute(builder: (_) => GuardianOrdersScreen());

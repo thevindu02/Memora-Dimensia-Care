@@ -1,17 +1,13 @@
 package Memora.DimensiaCareApplication.service;
 
 import Memora.DimensiaCareApplication.dto.response.CaregiverDetailsResponse;
-import Memora.DimensiaCareApplication.model.User;
-import Memora.DimensiaCareApplication.model.Caregiver;
-import Memora.DimensiaCareApplication.model.Skill;
-import Memora.DimensiaCareApplication.model.GuardianPatientCaregiverConnection;
-import Memora.DimensiaCareApplication.repository.UserRepository;
-import Memora.DimensiaCareApplication.repository.CaregiverRepository;
-import Memora.DimensiaCareApplication.repository.SkillRepository;
-import Memora.DimensiaCareApplication.repository.CaregiverSkillRepository;
-import Memora.DimensiaCareApplication.repository.GuardianPatientCaregiverConnectionRepository;
+import Memora.DimensiaCareApplication.dto.response.CaregiverResponse;
+import Memora.DimensiaCareApplication.model.*;
+import Memora.DimensiaCareApplication.repository.*;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.scheduling.annotation.Scheduled;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -24,11 +20,11 @@ public class CaregiverService {
     @Autowired
     private UserRepository userRepository;
     @Autowired
-    private CaregiverSkillRepository caregiverSkillRepository;
-    @Autowired
     private SkillRepository skillRepository;
     @Autowired
     private GuardianPatientCaregiverConnectionRepository connectionRepository;
+    @Autowired
+    private PasswordEncoder passwordEncoder;
 
     public List<CaregiverDetailsResponse> getAllCaregivers() {
         List<Caregiver> caregivers = caregiverRepository.findAll();
@@ -46,13 +42,39 @@ public class CaregiverService {
             resp.setProfilePic(user.getProfilePic());
             resp.setExperience(caregiver.getExperience());
             resp.setQualifications(caregiver.getQualifications());
-            List<String> skills = caregiverSkillRepository.findByCaregiverId(caregiver.getCaregiverId())
-                .stream()
-                .map(cs -> skillRepository.findById(cs.getSkillId()).map(Skill::getSkillName).orElse(""))
-                .collect(Collectors.toList());
+
+            // Get skills using the new many-to-many relationship
+            List<String> skills = caregiver.getSkills().stream()
+                    .map(Skill::getSkillName)
+                    .collect(Collectors.toList());
             resp.setSkills(skills);
             return resp;
         }).collect(Collectors.toList());
+    }
+
+    @Transactional
+    public Caregiver registerCaregiver(User user, Caregiver caregiver, List<String> skillNames) {
+        // Hash the password before saving
+        user.setPassword(passwordEncoder.encode(user.getPassword()));
+        User savedUser = userRepository.save(user);
+        caregiver.setUser(savedUser);
+        Caregiver savedCaregiver = caregiverRepository.save(caregiver);
+
+        // TODO: Add skills association once caregiver_skills table is created
+        // For now, just validate that the skills exist
+        for (String skillName : skillNames) {
+            skillRepository.findBySkillName(skillName)
+                    .orElseThrow(() -> new RuntimeException("Skill not found: " + skillName));
+        }
+
+        return savedCaregiver;
+    }
+
+    public List<CaregiverResponse> getCaregiversByCity(String city) {
+        List<Caregiver> caregivers = caregiverRepository.findByUserCity(city);
+        return caregivers.stream()
+                .map(CaregiverResponse::new)
+                .collect(Collectors.toList());
     }
 
     // Scheduled job to expire pending requests older than 24 hours
@@ -60,10 +82,10 @@ public class CaregiverService {
     public void expireOldPendingRequests() {
         LocalDateTime cutoff = LocalDateTime.now().minusHours(24);
         List<GuardianPatientCaregiverConnection> expired = connectionRepository.findByStatusAndConnectedDateTimeBefore(
-            GuardianPatientCaregiverConnection.ConnectionStatus.PENDING, cutoff);
+                GuardianPatientCaregiverConnection.ConnectionStatus.PENDING, cutoff);
         for (GuardianPatientCaregiverConnection conn : expired) {
             conn.setStatus(GuardianPatientCaregiverConnection.ConnectionStatus.EXPIRED);
         }
         connectionRepository.saveAll(expired);
     }
-} 
+}

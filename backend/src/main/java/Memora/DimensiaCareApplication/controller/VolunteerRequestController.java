@@ -130,4 +130,18 @@ public class VolunteerRequestController {
             return ResponseEntity.badRequest().body("Error accepting volunteer request: " + e.getMessage());
         }
     }
+
+    @PutMapping("/{requestId}/reject")
+    public ResponseEntity<?> rejectVolunteerRequest(@PathVariable Integer requestId) {
+        try {
+            VolunteerRequest updatedRequest = volunteerRequestService.updateRequestStatus(requestId, VolunteerRequest.RequestStatus.rejected);
+            if (updatedRequest != null) {
+                return ResponseEntity.ok(updatedRequest);
+            } else {
+                return ResponseEntity.notFound().build();
+            }
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body("Error rejecting volunteer request: " + e.getMessage());
+        }
+    }
 }

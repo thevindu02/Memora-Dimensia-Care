@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'volunteer_bottom_navigation_screen.dart';
+import 'volunteer_help_support_screen.dart';
+import 'volunteer_privacy_screen.dart';
 
 class VolunteerSettingsScreen extends StatefulWidget {
   const VolunteerSettingsScreen({Key? key}) : super(key: key);
@@ -154,7 +156,12 @@ class _VolunteerSettingsScreenState extends State<VolunteerSettingsScreen> {
                     color: Colors.grey[500],
                   ),
                   onTap: () {
-                    // Navigate to privacy page
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => VolunteerPrivacyScreen(),
+                      ),
+                    );
                   },
                 ),
                 Divider(height: 1),
@@ -178,7 +185,12 @@ class _VolunteerSettingsScreenState extends State<VolunteerSettingsScreen> {
                     color: Colors.grey[500],
                   ),
                   onTap: () {
-                    // Navigate to help page
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => VolunteerHelpSupportScreen(),
+                      ),
+                    );
                   },
                 ),
                 Divider(height: 1),
