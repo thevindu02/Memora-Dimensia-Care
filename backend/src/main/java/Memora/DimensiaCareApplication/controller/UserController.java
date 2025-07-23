@@ -1,12 +1,10 @@
 package Memora.DimensiaCareApplication.controller;
 
 import Memora.DimensiaCareApplication.model.User;
-
-import Memora.DimensiaCareApplication.repository.UserRepository;
+import Memora.DimensiaCareApplication.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.security.crypto.password.PasswordEncoder;
 
 
 @RestController
