@@ -58,8 +58,6 @@ class _SplashScreenState extends State<SplashScreen> {
             //   },
             // ),
 
-            // Option 3: If you want to keep the Flutter logo as backup
-            // FlutterLogo(size: 100),
             SizedBox(height: 30),
             CircularProgressIndicator(),
             SizedBox(height: 20),

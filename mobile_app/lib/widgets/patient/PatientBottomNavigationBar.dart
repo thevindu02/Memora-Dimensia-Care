@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../../constants/color_constants.dart';
 
 class PatientBottomNavigationBar extends StatelessWidget {
   final int currentIndex;
@@ -19,31 +20,31 @@ class PatientBottomNavigationBar extends StatelessWidget {
       items: [
         BottomNavigationBarItem(
           icon: currentIndex == 0
-              ? Icon(Icons.dashboard, color: Theme.of(context).primaryColor)
+              ? Icon(Icons.dashboard, color: PatientColors.navigationActive)
               : Icon(Icons.dashboard_outlined),
           label: 'Dashboard',
         ),
         BottomNavigationBarItem(
           icon: currentIndex == 1
-              ? Icon(Icons.notifications, color: Theme.of(context).primaryColor)
+              ? Icon(Icons.notifications, color: PatientColors.navigationActive)
               : Icon(Icons.notifications_none),
           label: 'Notifications',
         ),
         BottomNavigationBarItem(
           icon: currentIndex == 2
-              ? Icon(Icons.videogame_asset, color: Theme.of(context).primaryColor)
+              ? Icon(Icons.videogame_asset, color: PatientColors.navigationActive)
               : Icon(Icons.videogame_asset_outlined),
           label: 'Games',
         ),
         BottomNavigationBarItem(
           icon: currentIndex == 3
-              ? Icon(Icons.person, color: Theme.of(context).primaryColor)
+              ? Icon(Icons.person, color: PatientColors.navigationActive)
               : Icon(Icons.person_outline),
           label: 'Profile',
         ),
       ],
-      selectedItemColor: Theme.of(context).primaryColor,
-      unselectedItemColor: Colors.grey,
+      selectedItemColor: PatientColors.navigationActive,
+      unselectedItemColor: PatientColors.navigationInactive,
       showUnselectedLabels: true,
     );
   }

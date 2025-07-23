@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import '../../widgets/patient/PatientBottomNavigationBar.dart';
 import '../../routes/app_routes.dart';
+import '../../constants/color_constants.dart';
 
 class PatientDashboardScreen extends StatefulWidget {
   const PatientDashboardScreen({Key? key}) : super(key: key);
@@ -19,7 +19,7 @@ class _PatientDashboardScreenState extends State<PatientDashboardScreen> {
       subtitle: 'Morning meal',
       time: '8:00 AM',
       isCompleted: true,
-      color: Colors.orange,
+      color: PatientColors.activityMeal,
     ),
     Activity(
       icon: Icons.dinner_dining,
@@ -27,7 +27,7 @@ class _PatientDashboardScreenState extends State<PatientDashboardScreen> {
       subtitle: 'Evening meal',
       time: '6:00 PM',
       isCompleted: false,
-      color: Colors.purple,
+      color: PatientColors.activityMeal,
     ),
     Activity(
       icon: Icons.bathtub,
@@ -35,7 +35,7 @@ class _PatientDashboardScreenState extends State<PatientDashboardScreen> {
       subtitle: 'Personal hygiene',
       time: '7:00 PM',
       isCompleted: false,
-      color: Colors.blue,
+      color: PatientColors.activityHygiene,
     ),
     Activity(
       icon: Icons.bed,
@@ -43,25 +43,37 @@ class _PatientDashboardScreenState extends State<PatientDashboardScreen> {
       subtitle: 'Night rest',
       time: '7:00 PM',
       isCompleted: false,
-      color: Colors.indigo,
+      color: PatientColors.activitySleep,
     ),
   ];
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.grey[50],
+      backgroundColor: PatientColors.backgroundGrey,
       appBar: AppBar(
-        backgroundColor: Colors.white,
+        backgroundColor: PatientColors.backgroundWhite,
         elevation: 0,
         centerTitle: true,
-        title: const Text(
-          'Schedule Routine',
-          style: TextStyle(
-            color: Colors.black,
-            fontWeight: FontWeight.w600,
-            fontSize: 18,
-          ),
+        title: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Image.asset(
+              'assets/images/light_logo.png',
+              height: 32,
+              width: 32,
+              fit: BoxFit.contain,
+            ),
+            const SizedBox(width: 8),
+            const Text(
+              'Memora',
+              style: TextStyle(
+                color: Colors.black,
+                fontWeight: FontWeight.w600,
+                fontSize: 18,
+              ),
+            ),
+          ],
         ),
         actions: [
           IconButton(

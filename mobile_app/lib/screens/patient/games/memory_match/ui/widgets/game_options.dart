@@ -33,7 +33,7 @@ class GameOptions extends StatelessWidget {
           child: GameButton(
             onPressed: () => Navigator.of(context).pushNamed(routeName),
             title: level['title'],
-            color: level['color']![700]!,
+            color: level['color'],
             width: 250,
           ),
         );

@@ -398,14 +398,25 @@ class _GuardianDashboardScreenState extends State<GuardianDashboardScreen> {
       appBar: AppBar(
         backgroundColor: Colors.white,
         elevation: 0,
-        title: Text(
-          'Dashboard',
-          style: TextStyle(
-            fontSize: 28,
-            fontWeight: FontWeight.w800,
-            color: Colors.black87,
-            letterSpacing: -0.5,
-          ),
+        title: Row(
+          children: [
+            Image.asset(
+              'assets/images/light_logo.png',
+              height: 32,
+              width: 32,
+              fit: BoxFit.contain,
+            ),
+            const SizedBox(width: 12),
+            Text(
+              'Memora Dashboard',
+              style: TextStyle(
+                fontSize: 24,
+                fontWeight: FontWeight.w800,
+                color: Colors.black87,
+                letterSpacing: -0.5,
+              ),
+            ),
+          ],
         ),
         centerTitle: false,
         automaticallyImplyLeading: false,
