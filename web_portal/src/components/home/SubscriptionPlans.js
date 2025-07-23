@@ -5,33 +5,68 @@ import AccessAlarmIcon from '@mui/icons-material/AccessAlarm';
 import EventAvailableIcon from '@mui/icons-material/EventAvailable';
 import StarIcon from '@mui/icons-material/Star';
 
-const plans = [
+// Use your subscription plans data
+const subscriptionPlansData = [
   {
-    title: '6 Months Subscription',
-    price: 'LKR 1500',
-    duration: '6 months',
+    id: 1,
+    title: 'Basic Care',
+    description: 'Essential dementia care features including basic monitoring and simple reminders.',
+    durations: {
+      '3months': 499,
+      '6months': 899,
+      annual: 1499,
+    },
     features: [
-      'All exclusive features included',
-      'Smartwatch monitoring & reminders',
-      '24/7 health reports',
-      'Caregiver & guardian coordination',
+      'Basic Health Monitoring',
+      'Medication Reminders',
+      'Emergency Alerts',
+      'View upto 4 caregivers',
+      '1 article or blog per day',
     ],
-    icon: <AccessAlarmIcon sx={{ fontSize: 48, color: '#390797' }} />,
+    isActive: true,
+    createdAt: '2024-01-15',
+    updatedAt: '2024-02-20',
   },
   {
-    title: '1 Year Subscription',
-    price: 'LKR 2500',
-    duration: '12 months',
+    id: 2,
+    title: 'Premium Care',
+    description: 'Comprehensive dementia care with advanced monitoring, AI assistance, and caregiver support.',
+    durations: {
+      '3months': 999,
+      '6months': 1899,
+      annual: 2499,
+    },
     features: [
-      'All exclusive features included',
-      'Smartwatch monitoring & reminders',
-      'Priority customer support',
-      'Caregiver & guardian coordination',
-      'Advanced analytics and reports',
+      'Advanced Health Monitoring',
+      'Smart Watch Integration',
+      'Video Consultations',
+      'Unlimited caregiver options',
+      'Unlimited articles and blog posts',
+      '24/7 Support',
     ],
-    icon: <EventAvailableIcon sx={{ fontSize: 48, color: '#2B3F99' }} />,
+    isActive: true,
+    createdAt: '2024-01-15',
+    updatedAt: '2024-03-10',
   },
 ];
+
+// Helper to pick icon based on title (or any logic)
+const getIconByTitle = (title) => {
+  if (title.toLowerCase().includes('basic')) {
+    return <AccessAlarmIcon sx={{ fontSize: 48, color: '#390797' }} />;
+  }
+  if (title.toLowerCase().includes('premium')) {
+    return <EventAvailableIcon sx={{ fontSize: 48, color: '#2B3F99' }} />;
+  }
+  return <StarIcon sx={{ fontSize: 48, color: '#A0C4FD' }} />;
+};
+
+// Format duration strings for display
+const durationLabels = {
+  '3months': '3 Months',
+  '6months': '6 Months',
+  annual: '1 Year',
+};
 
 function Subscription() {
   return (
@@ -98,8 +133,8 @@ function Subscription() {
         </Typography>
 
         <Grid container spacing={6} justifyContent="center">
-          {plans.map(({ title, price, duration, features, icon }) => (
-            <Grid item xs={12} sm={6} key={title} sx={{ display: 'flex' }}>
+          {subscriptionPlansData.map(({ id, title, features, durations }) => (
+            <Grid item xs={12} sm={6} key={id} sx={{ display: 'flex', flexDirection: 'column' }}>
               <Card
                 sx={{
                   width: '100%',
@@ -116,9 +151,10 @@ function Subscription() {
                   flexDirection: 'column',
                   alignItems: 'center',
                   bgcolor: '#F6F4FB',
+                  mb: 4,
                 }}
               >
-                <Box sx={{ mb: 2 }}>{icon}</Box>
+                <Box sx={{ mb: 2 }}>{getIconByTitle(title)}</Box>
                 <Typography
                   variant="h5"
                   sx={{
@@ -127,27 +163,43 @@ function Subscription() {
                     mb: 1,
                     fontFamily: 'Poppins Medium',
                     fontSize: 30,
+                    textAlign: 'center',
                   }}
                 >
                   {title}
                 </Typography>
-                <Typography
-                  variant="h4"
-                  sx={{
-                    fontWeight: 800,
-                    color: '#2B3F99',
-                    mb: 2,
-                    fontFamily: 'Poppins bold',
-                  }}
-                >
-                  {price}{' '}
-                  <Typography
-                    component="span"
-                    sx={{ fontSize: 20, color: '#390797', fontWeight: 500, fontFamily: 'Poppins Regular' }}
-                  >
-                    / {duration}
-                  </Typography>
-                </Typography>
+
+                {/* Durations & Prices */}
+                <Box sx={{ mb: 3, width: '100%', display: 'flex', justifyContent: 'center', gap: 3, flexWrap: 'wrap' }}>
+                  {Object.entries(durations).map(([durationKey, price]) => (
+                    <Box
+                      key={durationKey}
+                      sx={{
+                        bgcolor: '#fff',
+                        borderRadius: 3,
+                        px: 3,
+                        py: 1.5,
+                        boxShadow: '0 2px 12px 0 rgba(160,196,253,0.16)',
+                        minWidth: 110,
+                        textAlign: 'center',
+                        fontFamily: 'Poppins Regular',
+                        fontWeight: 600,
+                        color: '#390797',
+                        fontSize: 20,
+                        userSelect: 'none',
+                        cursor: 'default',
+                      }}
+                    >
+                      {`LKR ${price.toLocaleString()}`} <br />
+                      <Typography
+                        component="span"
+                        sx={{ fontSize: 16, color: '#2B3F99', fontWeight: 500, fontFamily: 'Poppins Regular' }}
+                      >
+                        / {durationLabels[durationKey]}
+                      </Typography>
+                    </Box>
+                  ))}
+                </Box>
 
                 <Box sx={{ mb: 3, width: '100%' }}>
                   {features.map((feature) => (
@@ -159,7 +211,7 @@ function Subscription() {
                       sx={{ mb: 1 }}
                     >
                       <StarIcon sx={{ color: '#A0C4FD', fontSize: 22 }} />
-                      <Typography sx={{ color: '#390797', fontWeight: 500, fontSize: 24, fontFamily: 'Poppins Regular' }}>
+                      <Typography sx={{ color: '#390797', fontWeight: 500, fontSize: 20, fontFamily: 'Poppins Regular' }}>
                         {feature}
                       </Typography>
                     </Stack>
@@ -171,7 +223,7 @@ function Subscription() {
                   color="primary"
                   fullWidth
                   size="large"
-                  sx={{ borderRadius: 8, fontWeight: 700,fontFamily: 'Roboto', fontSize: 18 }}
+                  sx={{ borderRadius: 8, fontWeight: 700, fontFamily: 'Roboto', fontSize: 18 }}
                 >
                   Start Free Trial
                 </Button>
@@ -180,9 +232,7 @@ function Subscription() {
           ))}
         </Grid>
       </Container>
-      
     </Box>
-    
   );
 }
 
