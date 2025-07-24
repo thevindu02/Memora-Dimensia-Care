@@ -4,12 +4,12 @@ import '../styles/Charts.css';
 const Charts = () => {
   // More realistic and human-like mock data in LKR
   const monthlyRevenue = [
-    { month: 'Jan', amount: 325000 },
-    { month: 'Feb', amount: 395000 },
-    { month: 'Mar', amount: 485000 },
-    { month: 'Apr', amount: 440000 },
-    { month: 'May', amount: 575000 },
-    { month: 'Jun', amount: 515000 }
+    { month: 'Jan', amount: 12500 },
+    { month: 'Feb', amount: 19500 },
+    { month: 'Mar', amount: 28500 },
+    { month: 'Apr', amount: 34000 },
+    { month: 'May', amount: 47500 },
+    { month: 'Jun', amount: 41500 }
   ];
 
   const appUsage = [
@@ -35,7 +35,7 @@ const Charts = () => {
   const totalUsage = appUsage.reduce((sum, item) => sum + item.count, 0);
   
   // Fixed scale to match Y-axis labels (650K LKR max)
-  const yAxisMax = 650000;
+  const yAxisMax = 65000;
 
   return (
     <div className="charts-section">
@@ -47,11 +47,11 @@ const Charts = () => {
         </div>
         <div className="revenue-chart">
           <div className="chart-y-axis">
-            <span>LKR 650K</span>
-            <span>LKR 520K</span>
-            <span>LKR 390K</span>
-            <span>LKR 260K</span>
-            <span>LKR 130K</span>
+            <span>LKR 50K</span>
+            <span>LKR 40K</span>
+            <span>LKR 30K</span>
+            <span>LKR 20K</span>
+            <span>LKR 10K</span>
             <span>LKR 0</span>
           </div>
           <div className="chart-bars">
