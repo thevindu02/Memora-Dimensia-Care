@@ -43,7 +43,7 @@ class _GuardianPatientDetailsScreenState
               style: TextStyle(
                 fontSize: 14,
                 fontWeight: FontWeight.w600,
-                color: Color(0xFF6B73FF),
+                color: Color(0xFF2B3F99),
               ),
             ),
           ),
@@ -159,8 +159,8 @@ class _GuardianPatientDetailsScreenState
                   begin: Alignment.topLeft,
                   end: Alignment.bottomRight,
                   colors: [
-                    Color(0xFFF8F9FF),
-                    Color(0xFFE8EFFF),
+                    Color(0xFFA0C4FD).withOpacity(0.1),
+                    Color(0xFFA0C4FD).withOpacity(0.2),
                   ],
                 ),
                 borderRadius: BorderRadius.circular(20),
@@ -187,7 +187,7 @@ class _GuardianPatientDetailsScreenState
                     ),
                     child: CircleAvatar(
                       radius: 35,
-                      backgroundColor: Color(0xFF6B73FF),
+                      backgroundColor: Color(0xFF2B3F99),
                       child: Icon(
                         Icons.person,
                         color: Colors.white,
@@ -215,14 +215,14 @@ class _GuardianPatientDetailsScreenState
                         Container(
                           padding: EdgeInsets.symmetric(horizontal: 8, vertical: 2),
                           decoration: BoxDecoration(
-                            color: Color(0xFF6B73FF).withOpacity(0.1),
+                            color: Color(0xFFA0C4FD).withOpacity(0.2),
                             borderRadius: BorderRadius.circular(12),
                           ),
                           child: Text(
                             patientData!['label'] ?? 'Patient',
                             style: TextStyle(
                               fontSize: 12,
-                              color: Color(0xFF6B73FF),
+                              color: Color(0xFF2B3F99),
                               fontWeight: FontWeight.w500,
                             ),
                           ),
@@ -279,12 +279,12 @@ class _GuardianPatientDetailsScreenState
                   ),
                 ),
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: Color(0xFF6B73FF),
+                  backgroundColor: Color(0xFF2B3F99),
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(12),
                   ),
                   elevation: 2,
-                  shadowColor: Color(0xFF6B73FF).withOpacity(0.3),
+                  shadowColor: Color(0xFF2B3F99).withOpacity(0.3),
                 ),
               ),
             ),

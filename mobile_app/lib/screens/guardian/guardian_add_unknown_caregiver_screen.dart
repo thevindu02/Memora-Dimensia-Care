@@ -644,8 +644,8 @@ class _GuardianAddUnknownCaregiverScreenState
           children: [
             CircleAvatar(
               radius: 30,
-              backgroundColor: Colors.grey[300],
-              child: Icon(Icons.person, size: 30, color: Colors.grey[600]),
+              backgroundColor: Color(0xFFA0C4FD).withOpacity(0.3),
+              child: Icon(Icons.person, size: 30, color: Color(0xFF2B3F99)),
             ),
             SizedBox(width: 16),
             Expanded(
@@ -771,11 +771,11 @@ class _GuardianAddUnknownCaregiverScreenState
           style: TextStyle(
             fontSize: 24,
             fontWeight: FontWeight.bold,
-            color: Colors.black87,
+            color: Color(0xFF2B3F99),
           ),
         ),
         backgroundColor: Colors.white,
-        iconTheme: IconThemeData(color: Colors.black87),
+        iconTheme: IconThemeData(color: Color(0xFF2B3F99)),
         elevation: 0,
         centerTitle: false,
       ),
@@ -845,7 +845,7 @@ class _GuardianAddUnknownCaregiverScreenState
               style: TextStyle(
                 fontSize: 16,
                 fontWeight: FontWeight.bold,
-                color: Colors.black87,
+                color: Color(0xFF2B3F99),
               ),
             ),
             SizedBox(height: 12),
@@ -878,12 +878,14 @@ class _GuardianAddUnknownCaregiverScreenState
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Text(
-                  'Available Caregivers',
-                  style: TextStyle(
-                    fontSize: 16,
-                    fontWeight: FontWeight.bold,
-                    color: Colors.black87,
+                Expanded(
+                  child: Text(
+                    'Available Caregivers',
+                    style: TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.bold,
+                      color: Color(0xFF2B3F99),
+                    ),
                   ),
                 ),
                 Text(
@@ -900,7 +902,16 @@ class _GuardianAddUnknownCaregiverScreenState
                     if (isLoading) {
                       return Center(child: CircularProgressIndicator());
                     } else if (errorMessage != null) {
-                      return Center(child: Text(errorMessage!));
+                      return Center(
+                        child: Padding(
+                          padding: EdgeInsets.all(16),
+                          child: Text(
+                            errorMessage!,
+                            textAlign: TextAlign.center,
+                            style: TextStyle(color: Colors.red[600]),
+                          ),
+                        ),
+                      );
                     } else if (filteredCaregivers.isEmpty) {
                       return Center(
                         child: Column(
@@ -918,6 +929,7 @@ class _GuardianAddUnknownCaregiverScreenState
                                 fontSize: 16,
                                 color: Colors.grey[600],
                               ),
+                              textAlign: TextAlign.center,
                             ),
                             SizedBox(height: 8),
                             Text(
@@ -926,6 +938,7 @@ class _GuardianAddUnknownCaregiverScreenState
                                 fontSize: 14,
                                 color: Colors.grey[500],
                               ),
+                              textAlign: TextAlign.center,
                             ),
                           ],
                         ),
@@ -939,15 +952,39 @@ class _GuardianAddUnknownCaregiverScreenState
                               filteredCaregivers[index],
                             );
                           } catch (e) {
-                            return ListTile(
-                              title: Text('Error displaying caregiver: $e'),
+                            return Padding(
+                              padding: EdgeInsets.all(8),
+                              child: Card(
+                                child: ListTile(
+                                  leading: Icon(Icons.error, color: Colors.red),
+                                  title: Text(
+                                    'Error displaying caregiver',
+                                    style: TextStyle(fontSize: 14),
+                                  ),
+                                  subtitle: Text(
+                                    e.toString(),
+                                    style: TextStyle(fontSize: 12),
+                                    maxLines: 2,
+                                    overflow: TextOverflow.ellipsis,
+                                  ),
+                                ),
+                              ),
                             );
                           }
                         },
                       );
                     }
                   } catch (e) {
-                    return Center(child: Text('Unexpected error: $e'));
+                    return Center(
+                      child: Padding(
+                        padding: EdgeInsets.all(16),
+                        child: Text(
+                          'Unexpected error: $e',
+                          textAlign: TextAlign.center,
+                          style: TextStyle(color: Colors.red[600]),
+                        ),
+                      ),
+                    );
                   }
                 },
               ),

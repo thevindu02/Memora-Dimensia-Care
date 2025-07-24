@@ -116,10 +116,10 @@ class _GuardianAddCaregiverScreenState
                 children: [
                   CircleAvatar(
                     radius: 25,
-                    backgroundColor: Colors.grey[300],
+                    backgroundColor: Color(0xFFA0C4FD).withOpacity(0.3),
                     child: Icon(
                       Icons.person,
-                      color: Colors.grey[600],
+                      color: Color(0xFF2B3F99),
                       size: 30,
                     ),
                   ),
@@ -133,7 +133,7 @@ class _GuardianAddCaregiverScreenState
                           style: TextStyle(
                             fontSize: 16,
                             fontWeight: FontWeight.w600,
-                            color: Colors.black87,
+                            color: Color(0xFF2B3F99),
                           ),
                         ),
                         SizedBox(height: 4),
@@ -233,7 +233,7 @@ class _GuardianAddCaregiverScreenState
                       style: TextStyle(
                         fontSize: 18,
                         fontWeight: FontWeight.w600,
-                        color: Colors.black87,
+                        color: Color(0xFF2B3F99),
                       ),
                     ),
                     SizedBox(height: 4),
@@ -271,12 +271,12 @@ class _GuardianAddCaregiverScreenState
           style: TextStyle(
             fontSize: 24,
             fontWeight: FontWeight.bold,
-            color: Colors.black87,
+            color: Color(0xFF2B3F99),
           ),
         ),
         centerTitle: false,
         leading: IconButton(
-          icon: Icon(Icons.arrow_back, color: Colors.black87),
+          icon: Icon(Icons.arrow_back, color: Color(0xFF2B3F99)),
           onPressed: () {
             if (selectedPatient != null) {
               setState(() {
@@ -290,7 +290,7 @@ class _GuardianAddCaregiverScreenState
         actions: [
           if (selectedPatient == null)
             IconButton(
-              icon: Icon(Icons.refresh, color: Colors.black87),
+              icon: Icon(Icons.refresh, color: Color(0xFF2B3F99)),
               onPressed: _fetchPatients,
             ),
         ],
@@ -309,7 +309,7 @@ class _GuardianAddCaregiverScreenState
                   style: TextStyle(
                     fontSize: 18,
                     fontWeight: FontWeight.w600,
-                    color: Colors.black87,
+                    color: Color(0xFF2B3F99),
                   ),
                 ),
                 SizedBox(height: 8),
@@ -426,40 +426,44 @@ class _GuardianAddCaregiverScreenState
                       ),
                     ],
                   ),
-                  child: Row(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Icon(
-                        Icons.info_outline,
-                        color: Color(0xFF2B3F99),
-                        size: 20,
-                      ),
-                      SizedBox(width: 8),
-                      Text(
-                        'Selected patient: ',
-                        style: TextStyle(fontSize: 14, color: Colors.grey[700]),
-                      ),
-                      Text(
-                        selectedPatient?['name'] ?? 'N/A',
-                        style: TextStyle(
-                          fontSize: 14,
-                          fontWeight: FontWeight.w600,
-                          color: Color(0xFF2B3F99),
-                        ),
-                      ),
-                      Spacer(),
-                      TextButton(
-                        onPressed: () {
-                          setState(() {
-                            selectedPatient = null;
-                          });
-                        },
-                        child: Text(
-                          'Change',
-                          style: TextStyle(
+                      Row(
+                        children: [
+                          Icon(
+                            Icons.info_outline,
                             color: Color(0xFF2B3F99),
-                            fontWeight: FontWeight.w500,
+                            size: 20,
                           ),
-                        ),
+                          SizedBox(width: 8),
+                          Expanded(
+                            child: Text(
+                              'Selected patient: ${selectedPatient?['name'] ?? 'N/A'}',
+                              style: TextStyle(
+                                fontSize: 14,
+                                color: Colors.grey[700],
+                                fontWeight: FontWeight.w500,
+                              ),
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                          ),
+                          TextButton(
+                            onPressed: () {
+                              setState(() {
+                                selectedPatient = null;
+                              });
+                            },
+                            child: Text(
+                              'Change',
+                              style: TextStyle(
+                                color: Color(0xFF2B3F99),
+                                fontWeight: FontWeight.w500,
+                                fontSize: 13,
+                              ),
+                            ),
+                          ),
+                        ],
                       ),
                     ],
                   ),
@@ -470,7 +474,7 @@ class _GuardianAddCaregiverScreenState
                   style: TextStyle(
                     fontSize: 18,
                     fontWeight: FontWeight.w600,
-                    color: Colors.black87,
+                    color: Color(0xFF2B3F99),
                   ),
                 ),
                 SizedBox(height: 8),
