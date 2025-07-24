@@ -50,7 +50,7 @@ class _MainScreenState extends State<MainScreen> {
           ),
           BottomNavigationBarItem(
             icon: Icon(Icons.article_outlined),
-            label: 'Articles',
+            label: 'Community',
           ),
           BottomNavigationBarItem(
             icon: Icon(Icons.person_outlined),
