@@ -26,8 +26,8 @@ const Sidebar = ({ currentPage = 'dashboard' }) => {
       navigate('/subscription-report');
     } else if (page === 'articles') {
       navigate('/articles');
-    } else if (page === 'video-lessons') {
-      navigate('/video-lessons');
+    // } else if (page === 'video-lessons') {
+    //   navigate('/video-lessons');
     } else if (page === 'subscription-planning') {
       navigate('/subscription-planning');
     }
@@ -103,13 +103,13 @@ const Sidebar = ({ currentPage = 'dashboard' }) => {
                 <span className="sidebar-icon">📄</span>
                 Articles
               </li>
-              <li 
+              {/* <li 
                 className={currentPage === 'video-lessons' ? 'active' : ''}
                 onClick={() => handleNavigation('video-lessons')}
               >
                 <span className="sidebar-icon">🎬</span>
                 Video Lessons
-              </li>
+              </li> */}
             </ul>
           </div>
 
@@ -165,9 +165,9 @@ const Sidebar = ({ currentPage = 'dashboard' }) => {
       {/* Static Footer - User Section */}
       <div className="sidebar-footer">
         <div className="sidebar-user">
-          <div className="user-avatar">JD</div>
+          <div className="user-avatar">PW</div>
           <div className="user-details">
-            <div className="user-name">John Doe</div>
+            <div className="user-name">Priyantha Wickramasinghe</div>
             <div className="user-role">Administrator</div>
           </div>
         </div>
