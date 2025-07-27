@@ -8,12 +8,8 @@ const StatsSection = () => {
     { number: 5, label: 'Volunteers', icon: '🤝' },
     { number: 6, label: 'Blog Posts', icon: '📝' },
     { number: 8, label: 'Articles', icon: '📄' },
-    { number: 8, label: 'Videos', icon: '🎬' },
-    { number: 6, label: 'Blog Posts', icon: '📝' },
-    { number: 8, label: 'Articles', icon: '📄' },
-    { number: 12, label: 'Reports', icon: '📊' }
+    { number: 8, label: 'Videos', icon: '🎬' }
   ];
-
   return (
     <div className="stats-section">
       {statsData.map((stat, index) => (

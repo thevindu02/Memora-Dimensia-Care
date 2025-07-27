@@ -9,6 +9,7 @@ import '../screens/caregiver/caregiver_routes.dart';
 import '../screens/volunteer/volunteer_routes.dart';
 import '../screens/signup_screen.dart';
 import '../screens/forgot_password_screen.dart';
+import '../screens/guardian/guardian_notifications_screen.dart';
 
 class RouteGenerator {
   static Route<dynamic> generateRoute(RouteSettings settings) {
@@ -17,21 +18,36 @@ class RouteGenerator {
 
     // Splash route
     if (routeName == AppRoutes.splash) {
-      return MaterialPageRoute(builder: (_) => SplashScreen());
+      return MaterialPageRoute(
+        builder: (_) => SplashScreen(),
+        settings: settings,
+      );
     }
     if (routeName == AppRoutes.forgotPassword) {
-      return MaterialPageRoute(builder: (_) => ForgotPasswordScreen());
+      return MaterialPageRoute(
+        builder: (_) => ForgotPasswordScreen(),
+        settings: settings,
+      );
     }
 
     // Auth routes
     if (routeName == AppRoutes.login) {
-      return MaterialPageRoute(builder: (_) => LoginScreen());
+      return MaterialPageRoute(
+        builder: (_) => LoginScreen(),
+        settings: settings,
+      );
     }
     if (routeName == AppRoutes.register) {
-      return MaterialPageRoute(builder: (_) => RegisterScreen());
+      return MaterialPageRoute(
+        builder: (_) => RegisterScreen(),
+        settings: settings,
+      );
     }
     if (routeName == AppRoutes.signup) {
-      return MaterialPageRoute(builder: (_) => SignupScreen());
+      return MaterialPageRoute(
+        builder: (_) => SignupScreen(),
+        settings: settings,
+      );
     }
 
     // Patient routes
@@ -44,6 +60,11 @@ class RouteGenerator {
       return GuardianRoutes.generateRoute(settings);
     }
 
+    // Caregiver connection requests (special case)
+    if (routeName == AppRoutes.caregiverConnectionRequests) {
+      return CaregiverRoutes.generateRoute(settings);
+    }
+
     // Caregiver routes
     if (routeName.startsWith('/caregiver/')) {
       return CaregiverRoutes.generateRoute(settings);
@@ -54,13 +75,17 @@ class RouteGenerator {
       return VolunteerRoutes.generateRoute(settings);
     }
 
+    // Guardian notifications
+    if (routeName == AppRoutes.guardianNotifications) {
+      return MaterialPageRoute(builder: (_) => GuardianNotificationsScreen());
+    }
+
     // Default route for unknown paths
     return MaterialPageRoute(
       builder: (_) => Scaffold(
-        body: Center(
-          child: Text('No route defined for ${settings.name}'),
-        ),
+        body: Center(child: Text('No route defined for ${settings.name}')),
       ),
+      settings: settings,
     );
   }
 }

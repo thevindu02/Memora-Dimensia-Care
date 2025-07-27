@@ -20,8 +20,8 @@ class _SplashScreenState extends State<SplashScreen> {
     // Simulate app initialization (loading user data, preferences, etc.)
     await Future.delayed(Duration(seconds: 2));
 
-    // Always navigate to login screen after splash
-    Navigator.pushReplacementNamed(context, '/login');
+    // Always navigate to login screen after splash (default)
+    Navigator.pushReplacementNamed(context, AppRoutes.login);
   }
 
   @override
@@ -57,9 +57,6 @@ class _SplashScreenState extends State<SplashScreen> {
             //     return Icon(Icons.error, size: 120);
             //   },
             // ),
-
-            // Option 3: If you want to keep the Flutter logo as backup
-            // FlutterLogo(size: 100),
 
             SizedBox(height: 30),
             CircularProgressIndicator(),

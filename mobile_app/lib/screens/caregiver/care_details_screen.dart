@@ -1,0 +1,308 @@
+import 'package:flutter/material.dart';
+import '../../routes/app_routes.dart';
+import '../../services/caregiver_service.dart';
+
+class CareDetailsScreen extends StatefulWidget {
+  @override
+  _CareDetailsScreenState createState() => _CareDetailsScreenState();
+}
+
+class _CareDetailsScreenState extends State<CareDetailsScreen> {
+  int _currentIndex = 0;
+  Map<String, dynamic>? patientData;
+  bool _isLoading = true;
+  String? _error;
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    final args = ModalRoute.of(context)?.settings.arguments;
+    int? patientId;
+    if (args is int) {
+      patientId = args;
+    } else if (args is Map && args['patientId'] != null) {
+      patientId = args['patientId'] as int;
+    }
+    if (patientId != null) {
+      _fetchPatientDetails(patientId);
+    } else {
+      setState(() {
+        _isLoading = false;
+        _error = 'No patient selected.';
+      });
+    }
+  }
+
+  Future<void> _fetchPatientDetails(int patientId) async {
+    setState(() {
+      _isLoading = true;
+      _error = null;
+    });
+    try {
+      final data = await CaregiverService.getPatientDetails(patientId);
+      setState(() {
+        patientData = data;
+        _isLoading = false;
+      });
+    } catch (e) {
+      setState(() {
+        _error = 'Failed to load patient details.';
+        _isLoading = false;
+      });
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      backgroundColor: Colors.grey[50],
+      appBar: AppBar(
+        backgroundColor: Colors.white,
+        elevation: 0,
+        leading: IconButton(
+          icon: Icon(Icons.arrow_back, color: Colors.black87),
+          onPressed: () => Navigator.pop(context),
+        ),
+        title: Text(
+          'Patient Details',
+          style: TextStyle(
+            color: Colors.black,
+            fontSize: 20,
+            fontWeight: FontWeight.bold,
+          ),
+          textAlign: TextAlign.left,
+        ),
+        centerTitle: false,
+        actions: [
+          IconButton(
+            icon: Icon(Icons.notifications_outlined, color: Colors.black),
+            onPressed: () {
+              Navigator.pushNamed(context, AppRoutes.caregiverNotification);
+            },
+          ),
+        ],
+      ),
+      body: _isLoading
+          ? Center(child: CircularProgressIndicator())
+          : _error != null
+          ? Center(child: Text(_error!))
+          : patientData == null
+          ? Center(child: Text('No data found.'))
+          : SingleChildScrollView(
+              padding: EdgeInsets.all(16),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  // Profile Section
+                  Container(
+                    padding: EdgeInsets.all(20),
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(12),
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.black.withOpacity(0.05),
+                          blurRadius: 10,
+                          offset: Offset(0, 2),
+                        ),
+                      ],
+                    ),
+                    child: Row(
+                      children: [
+                        CircleAvatar(
+                          radius: 25,
+                          backgroundColor: Color(0xFFA0C4FD),
+                          child: Icon(
+                            Icons.person,
+                            size: 30,
+                            color: Color(0xFF2B3F99),
+                          ),
+                        ),
+                        SizedBox(width: 16),
+                        Expanded(
+                          child: Text(
+                            patientData?['patientName'] ?? 'Unknown',
+                            style: TextStyle(
+                              fontSize: 20,
+                              fontWeight: FontWeight.w600,
+                              color: Colors.black87,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  SizedBox(height: 20),
+                  // Info Cards
+                  Row(
+                    children: [
+                      Expanded(
+                        child: _buildInfoCard(
+                          'Dementia Type',
+                          patientData?['dementiaType'] ?? 'N/A',
+                        ),
+                      ),
+                      SizedBox(width: 12),
+                      Expanded(
+                        child: _buildInfoCard(
+                          'Dementia Stage',
+                          patientData?['dementiaStage'] ?? 'N/A',
+                        ),
+                      ),
+                    ],
+                  ),
+                  SizedBox(height: 12),
+                  Row(
+                    children: [
+                      Expanded(
+                        child: _buildInfoCard(
+                          'Age',
+                          patientData?['patientAge']?.toString() ?? 'N/A',
+                        ),
+                      ),
+                      SizedBox(width: 12),
+                      Expanded(
+                        child: _buildInfoCard(
+                          'Relationship',
+                          patientData?['relationship'] ?? 'N/A',
+                        ),
+                      ),
+                    ],
+                  ),
+                  SizedBox(height: 20),
+                  // Guardian Contact Information
+                  Container(
+                    padding: EdgeInsets.all(20),
+                    decoration: BoxDecoration(
+                      color: Colors.blue[50],
+                      borderRadius: BorderRadius.circular(12),
+                      border: Border.all(color: Colors.blue[100]!),
+                    ),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          'Guardian Contact Information',
+                          style: TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.w600,
+                            color: Colors.black87,
+                          ),
+                        ),
+                        SizedBox(height: 16),
+                        _buildContactRow(
+                          Icons.person,
+                          patientData?['guardianName'] ?? 'N/A',
+                        ),
+                        SizedBox(height: 12),
+                        _buildContactRow(
+                          Icons.phone,
+                          patientData?['guardianPhone'] ?? 'N/A',
+                        ),
+                        SizedBox(height: 12),
+                        _buildContactRow(
+                          Icons.email,
+                          patientData?['guardianEmail'] ?? 'N/A',
+                        ),
+                        SizedBox(height: 12),
+                        _buildContactRow(
+                          Icons.calendar_today,
+                          'Accepted on ' +
+                              ((patientData?['acceptedDate'] != null &&
+                                      patientData?['acceptedDate'] != 'N/A')
+                                  ? patientData!['acceptedDate']
+                                        .toString()
+                                        .split('T')[0]
+                                  : 'N/A'),
+                        ),
+                      ],
+                    ),
+                  ),
+                  SizedBox(height: 20),
+                  // Additional Notes
+                  Text(
+                    'Additional Notes',
+                    style: TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.w600,
+                      color: Colors.black87,
+                    ),
+                  ),
+                  SizedBox(height: 12),
+                  Container(
+                    width: double.infinity,
+                    padding: EdgeInsets.all(16),
+                    decoration: BoxDecoration(
+                      color: Colors.grey[100],
+                      borderRadius: BorderRadius.circular(12),
+                      border: Border.all(color: Colors.grey[200]!),
+                    ),
+                    child: Text(
+                      patientData?['notes'] ?? 'No additional notes.',
+                      style: TextStyle(
+                        fontSize: 14,
+                        color: Colors.grey[700],
+                        height: 1.5,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+    );
+  }
+
+  Widget _buildInfoCard(String title, String value) {
+    return Container(
+      padding: EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(12),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.05),
+            blurRadius: 8,
+            offset: Offset(0, 2),
+          ),
+        ],
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            title,
+            style: TextStyle(
+              fontSize: 12,
+              color: Colors.grey[600],
+              fontWeight: FontWeight.w500,
+            ),
+          ),
+          SizedBox(height: 8),
+          Text(
+            value,
+            style: TextStyle(
+              fontSize: 16,
+              fontWeight: FontWeight.w600,
+              color: Colors.black87,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildContactRow(IconData icon, String text) {
+    return Row(
+      children: [
+        Icon(icon, size: 16, color: Colors.grey[600]),
+        SizedBox(width: 12),
+        Expanded(
+          child: Text(
+            text,
+            style: TextStyle(fontSize: 14, color: Colors.grey[700]),
+          ),
+        ),
+      ],
+    );
+  }
+}

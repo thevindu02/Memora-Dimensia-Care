@@ -2,13 +2,22 @@ import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
 import '../routes/app_routes.dart';
+import 'api_constants.dart';
+import '../services/caregiver_service.dart'; // Added import for CaregiverService
 
 class AuthService {
   static const String _userKey = 'current_user';
   static const String _roleKey = 'user_role';
   static const String _tokenKey = 'auth_token';
 
+
   static const String baseUrl = 'http://10.22.166.102:8080/api/auth';
+
+  static int? currentUserId; // Set this after login
+  static int? currentCaregiverId; // Store caregiverId for caregivers
+
+  static final String url = "${ApiConstants.baseUrl}/api/auth";
+
 
   static String? currentUserRole;
   static bool isLoggedIn = false;
@@ -46,20 +55,18 @@ class AuthService {
   }
 
   // Authenticate user with email and password
-  static Future<AuthResult> authenticateUser(String email, String password) async {
+  static Future<AuthResult> authenticateUser(
+    String email,
+    String password,
+  ) async {
     try {
       // Prepare request body
-      final requestBody = {
-        'email': email,
-        'password': password,
-      };
+      final requestBody = {'email': email, 'password': password};
 
       // Make HTTP request to backend
       final response = await http.post(
-        Uri.parse('$baseUrl/login'),
-        headers: {
-          'Content-Type': 'application/json',
-        },
+        Uri.parse('$url/login'),
+        headers: {'Content-Type': 'application/json'},
         body: jsonEncode(requestBody),
       );
 
@@ -74,8 +81,9 @@ class AuthService {
         // Extract user data from the actual backend response structure
         final String token = responseData['accessToken'];
         final String role = responseData['role'];
+        final int id = responseData['id'];
         final Map<String, dynamic> userData = {
-          'id': responseData['id'],
+          'id': id,
           'email': responseData['email'],
           'fName': responseData['fname'],
           'lName': responseData['lname'],
@@ -84,6 +92,17 @@ class AuthService {
 
         // Save session data
         await login(role, token: token, userData: userData);
+        currentUserId = id; // <-- Set currentUserId after login
+
+        // If caregiver, fetch and store caregiverId
+        if (role.toLowerCase() == 'caregiver') {
+          final caregiverId = await CaregiverService.getCaregiverIdByUserId(id);
+          if (caregiverId != null) {
+            currentCaregiverId = caregiverId;
+            SharedPreferences prefs = await SharedPreferences.getInstance();
+            await prefs.setInt('current_caregiver_id', caregiverId);
+          }
+        }
 
         return AuthResult(
           success: true,
@@ -108,16 +127,15 @@ class AuthService {
         );
       } else if (response.statusCode == 404) {
         // User not found
-        return AuthResult(
-          success: false,
-          message: 'User not found',
-        );
+        return AuthResult(success: false, message: 'User not found');
       } else {
         // Other errors
         final responseData = jsonDecode(response.body);
         return AuthResult(
           success: false,
-          message: responseData['message'] ?? 'Login failed (Status: ${response.statusCode})',
+          message:
+              responseData['message'] ??
+              'Login failed (Status: ${response.statusCode})',
         );
       }
     } catch (e) {
@@ -133,7 +151,7 @@ class AuthService {
   static Future<bool> _verifyToken(String token) async {
     try {
       final response = await http.get(
-        Uri.parse('$baseUrl/verify'),
+        Uri.parse('$url/verify'),
         headers: {
           'Authorization': 'Bearer $token',
           'Content-Type': 'application/json',
@@ -150,7 +168,7 @@ class AuthService {
   static String getDashboardRoute(String role) {
     switch (role.toLowerCase()) {
       case 'patient':
-        return AppRoutes.patientDashboard;
+        return AppRoutes.patientMain;
       case 'guardian':
         return AppRoutes.guardianDashboard;
       case 'caregiver':
@@ -163,13 +181,20 @@ class AuthService {
   }
 
   // Login user and save session
-  static Future<void> login(String role, {String? token, Map<String, dynamic>? userData}) async {
+  static Future<void> login(
+    String role, {
+    String? token,
+    Map<String, dynamic>? userData,
+  }) async {
     try {
       SharedPreferences prefs = await SharedPreferences.getInstance();
 
       // Save user session data
       await prefs.setString(_roleKey, role);
-      await prefs.setString(_tokenKey, token ?? 'dummy_token_${DateTime.now().millisecondsSinceEpoch}');
+      await prefs.setString(
+        _tokenKey,
+        token ?? 'dummy_token_${DateTime.now().millisecondsSinceEpoch}',
+      );
 
       if (userData != null) {
         await prefs.setString(_userKey, jsonEncode(userData));
@@ -193,7 +218,7 @@ class AuthService {
       if (token != null) {
         try {
           final response = await http.post(
-            Uri.parse('$baseUrl/logout'),
+            Uri.parse('$url/logout'),
             headers: {
               'Authorization': 'Bearer $token',
               'Content-Type': 'application/json',
@@ -202,7 +227,9 @@ class AuthService {
           // Logout endpoint called successfully (optional)
         } catch (e) {
           // Server logout failed or endpoint doesn't exist - continue with local logout
-          print('Server logout failed (this is normal if endpoint not implemented): $e');
+          print(
+            'Server logout failed (this is normal if endpoint not implemented): $e',
+          );
         }
       }
 
@@ -234,6 +261,19 @@ class AuthService {
     }
   }
 
+  // Get current user ID (guardian ID)
+  static Future<int?> getCurrentUserId() async {
+    if (currentUserId != null) return currentUserId;
+    final user = await getCurrentUser();
+    if (user != null && user['id'] != null) {
+      currentUserId = user['id'] is int
+          ? user['id']
+          : int.tryParse(user['id'].toString());
+      return currentUserId;
+    }
+    return null;
+  }
+
   // Check user permissions
   static bool isPatient() => currentUserRole?.toLowerCase() == 'patient';
   static bool isGuardian() => currentUserRole?.toLowerCase() == 'guardian';
@@ -249,7 +289,8 @@ class AuthService {
     } else if (route.startsWith('/guardian/')) {
       return isGuardian() || isPatient(); // Admin can access manager routes
     } else if (route.startsWith('/caregiver/')) {
-      return isCaregiver() || isPatient(); // Higher roles can access user routes
+      return isCaregiver() ||
+          isPatient(); // Higher roles can access user routes
     } else if (route.startsWith('/volunteer/')) {
       return isVolunteer();
     }
@@ -266,7 +307,7 @@ class AuthService {
       if (currentToken == null) return false;
 
       final response = await http.post(
-        Uri.parse('$baseUrl/refresh'),
+        Uri.parse('$url/refresh'),
         headers: {
           'Authorization': 'Bearer $currentToken',
           'Content-Type': 'application/json',
@@ -287,19 +328,18 @@ class AuthService {
       return false;
     }
   }
-  static Future<ForgotPasswordResult> sendPasswordResetEmail(String email) async {
+
+  static Future<ForgotPasswordResult> sendPasswordResetEmail(
+    String email,
+  ) async {
     try {
       // Prepare request body
-      final requestBody = {
-        'email': email,
-      };
+      final requestBody = {'email': email};
 
       // Make HTTP request to backend
       final response = await http.post(
-        Uri.parse('$baseUrl/forgot-password'),
-        headers: {
-          'Content-Type': 'application/json',
-        },
+        Uri.parse('$url/forgot-password'),
+        headers: {'Content-Type': 'application/json'},
         body: jsonEncode(requestBody),
       );
 
@@ -309,14 +349,18 @@ class AuthService {
         final responseData = jsonDecode(response.body);
         return ForgotPasswordResult(
           success: true,
-          message: responseData['message'] ?? 'Password reset link sent to your email',
+          message:
+              responseData['message'] ??
+              'Password reset link sent to your email',
         );
       } else if (response.statusCode == 400) {
         // Bad request (user not found or other validation errors)
         final responseData = jsonDecode(response.body);
         return ForgotPasswordResult(
           success: false,
-          message: responseData['message'] ?? 'No account found with this email address',
+          message:
+              responseData['message'] ??
+              'No account found with this email address',
         );
       } else {
         // Other server errors
@@ -353,6 +397,26 @@ class AuthService {
       );
     }
   }
+
+  static Future<int?> getCurrentCaregiverId() async {
+    if (currentCaregiverId != null) return currentCaregiverId;
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    if (prefs.containsKey('current_caregiver_id')) {
+      currentCaregiverId = prefs.getInt('current_caregiver_id');
+      return currentCaregiverId;
+    }
+    // If not found, try to fetch by userId
+    final userId = await getCurrentUserId();
+    if (userId != null) {
+      final caregiverId = await CaregiverService.getCaregiverIdByUserId(userId);
+      if (caregiverId != null) {
+        currentCaregiverId = caregiverId;
+        await prefs.setInt('current_caregiver_id', caregiverId);
+        return caregiverId;
+      }
+    }
+    return null;
+  }
 }
 
 // Authentication result class
@@ -376,8 +440,5 @@ class ForgotPasswordResult {
   final bool success;
   final String message;
 
-  ForgotPasswordResult({
-    required this.success,
-    required this.message,
-  });
+  ForgotPasswordResult({required this.success, required this.message});
 }

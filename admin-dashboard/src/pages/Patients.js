@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import '../styles/Patients.css';
+import '../styles/UserManagement.css';
 import {
   Header,
   Sidebar,
@@ -10,65 +11,68 @@ import {
 const patientsData = [
   { 
     id: 1, 
-    name: 'John Smith', 
+    name: 'W.A. Sunil Perera', 
     dementiaType: 'Alzheimer\'s', 
     dementiaStage: 'Early', 
-    phone: '(555) 123-4567', 
+    phone: '+94 77 345 6789', 
     status: 'Active',
-    address: '123 Oak Street, Springfield, IL 62701',
+    address: '12/3 Kandy Road, Kadawatha, Gampaha',
     gender: 'Male',
     age: 72,
+    profilePicture: 'https://via.placeholder.com/150/4A90E2/FFFFFF?text=SP',
     guardian: {
-      name: 'Mary Smith',
-      address: '123 Oak Street, Springfield, IL 62701',
-      phone: '(555) 123-4568'
+      name: 'Kamala Perera',
+      address: '12/3 Kandy Road, Kadawatha, Gampaha',
+      phone: '+94 77 345 6790'
     },
     caregiver: {
-      name: 'Sarah Johnson',
-      address: '456 Pine Avenue, Springfield, IL 62702',
-      phone: '(555) 987-6543'
+      name: 'Nirmala Fernando',
+      address: '25 Temple Road, Nugegoda, Colombo',
+      phone: '+94 71 234 5678'
     }
   },
   { 
     id: 2, 
-    name: 'Mary Johnson', 
+    name: 'H.M. Chandrika Silva', 
     dementiaType: 'Vascular', 
     dementiaStage: 'Moderate', 
-    phone: '(555) 234-5678', 
+    phone: '+94 76 456 7890', 
     status: 'Active',
-    address: '456 Elm Street, Chicago, IL 60601',
+    address: '78 Galle Road, Mount Lavinia, Colombo',
     gender: 'Female',
     age: 68,
+    profilePicture: 'https://via.placeholder.com/150/FF6B6B/FFFFFF?text=CS',
     guardian: {
-      name: 'Robert Johnson',
-      address: '456 Elm Street, Chicago, IL 60601',
-      phone: '(555) 234-5679'
+      name: 'Ajith Silva',
+      address: '78 Galle Road, Mount Lavinia, Colombo',
+      phone: '+94 76 456 7891'
     },
     caregiver: {
-      name: 'Lisa Brown',
-      address: '789 Maple Drive, Chicago, IL 60602',
-      phone: '(555) 876-5432'
+      name: 'Malini Rajapaksa',
+      address: '56 High Level Road, Nugegoda, Colombo',
+      phone: '+94 75 567 8901'
     }
   },
   { 
     id: 3, 
-    name: 'Robert Brown', 
+    name: 'K.D. Lal Wickramasinghe', 
     dementiaType: 'Lewy Body', 
     dementiaStage: 'Advanced', 
-    phone: '(555) 345-6789', 
+    phone: '+94 78 567 8901', 
     status: 'Disabled',
-    address: '789 Birch Lane, Peoria, IL 61601',
+    address: '45 Matara Road, Galle, Southern Province',
     gender: 'Male',
     age: 75,
+    profilePicture: 'https://via.placeholder.com/150/50C878/FFFFFF?text=LW',
     guardian: {
-      name: 'Susan Brown',
-      address: '789 Birch Lane, Peoria, IL 61601',
-      phone: '(555) 345-6790'
+      name: 'Sriyani Wickramasinghe',
+      address: '45 Matara Road, Galle, Southern Province',
+      phone: '+94 78 567 8902'
     },
     caregiver: {
-      name: 'Mike Davis',
-      address: '321 Cedar Road, Peoria, IL 61602',
-      phone: '(555) 765-4321'
+      name: 'Pradeep Gunasekara',
+      address: '89 Wakwella Road, Galle',
+      phone: '+94 70 678 9012'
     }
   }
 ];
@@ -105,72 +109,74 @@ const Patients = () => {
         <Header pageTitle="Patients" />
         
         <div className="content">
-          <div className="patients-page">
+          <div className="user-management-container">
             {/* Search and Filters Section */}
-            <div className="search-filters-section">
-              <div className="search-box">
-                <input 
-                  type="text" 
-                  placeholder="Search patients..." 
-                  className="search-input"
-                />
-                <span className="search-icon">🔍</span>
-              </div>
-              
-              <div className="filters-section">
-                <select className="filter-dropdown">
-                  <option value="">Status</option>
-                  <option value="active">Active</option>
-                  <option value="disabled">Disabled</option>
-                </select>
+            <div className="um-search-filters">
+              <div className="um-search-row">
+                <div className="um-search-box">
+                  <input 
+                    type="text" 
+                    placeholder="Search patients..." 
+                    className="um-search-input"
+                  />
+                  <span className="um-search-icon">🔍</span>
+                </div>
                 
-                <select className="filter-dropdown">
-                  <option value="">Dementia Type</option>
-                  <option value="alzheimers">Alzheimer's</option>
-                  <option value="vascular">Vascular</option>
-                  <option value="lewy">Lewy Body</option>
-                  <option value="frontotemporal">Frontotemporal</option>
-                </select>
-                
-                <select className="filter-dropdown">
-                  <option value="">Dementia Stage</option>
-                  <option value="early">Early</option>
-                  <option value="moderate">Moderate</option>
-                  <option value="advanced">Advanced</option>
-                </select>
+                <div className="um-filters">
+                  <select className="um-filter-select">
+                    <option value="">All Status</option>
+                    <option value="active">Active</option>
+                    <option value="disabled">Disabled</option>
+                  </select>
+                  
+                  <select className="um-filter-select">
+                    <option value="">Dementia Type</option>
+                    <option value="alzheimers">Alzheimer's</option>
+                    <option value="vascular">Vascular</option>
+                    <option value="lewy">Lewy Body</option>
+                    <option value="frontotemporal">Frontotemporal</option>
+                  </select>
+                  
+                  <select className="um-filter-select">
+                    <option value="">Dementia Stage</option>
+                    <option value="early">Early</option>
+                    <option value="moderate">Moderate</option>
+                    <option value="advanced">Advanced</option>
+                  </select>
+                </div>
               </div>
             </div>
 
-            {/* Stats Cards Section */}
-            <div className="stats-cards">
-              <div className="stat-card">
-                <div className="stat-icon">👥</div>
-                <div className="stat-content">
-                  <div className="stat-number">{totalPatients}</div>
-                  <div className="stat-label">Total Patients</div>
+            {/* Stats Cards */}
+            <div className="um-stats-grid">
+              <div className="um-stat-card">
+                <div className="um-stat-icon">👥</div>
+                <div className="um-stat-content">
+                  <h3>{totalPatients}</h3>
+                  <p>Total Patients</p>
                 </div>
               </div>
               
-              <div className="stat-card">
-                <div className="stat-icon">✅</div>
-                <div className="stat-content">
-                  <div className="stat-number">{activePatients}</div>
-                  <div className="stat-label">Active Patients</div>
+              <div className="um-stat-card">
+                <div className="um-stat-icon">✅</div>
+                <div className="um-stat-content">
+                  <h3>{activePatients}</h3>
+                  <p>Active Patients</p>
                 </div>
               </div>
               
-              <div className="stat-card">
-                <div className="stat-icon">❌</div>
-                <div className="stat-content">
-                  <div className="stat-number">{disabledPatients}</div>
-                  <div className="stat-label">Disabled Patients</div>
+              <div className="um-stat-card">
+                <div className="um-stat-icon">❌</div>
+                <div className="um-stat-content">
+                  <h3>{disabledPatients}</h3>
+                  <p>Disabled Patients</p>
                 </div>
               </div>
             </div>
 
             {/* Patients Table */}
-            <div className="table-container">
-              <table className="patients-table">
+            <div className="um-table-container">
+              <table className="um-table">
                 <thead>
                   <tr>
                     <th>Patient Name</th>
@@ -184,18 +190,18 @@ const Patients = () => {
                 <tbody>
                   {patientsData.map(patient => (
                     <tr key={patient.id}>
-                      <td>{patient.name}</td>
+                      <td className="um-name-cell">{patient.name}</td>
                       <td>{patient.dementiaType}</td>
                       <td>{patient.dementiaStage}</td>
                       <td>{patient.phone}</td>
                       <td>
-                        <span className={`status-badge ${patient.status.toLowerCase()}`}>
+                        <span className={`um-status-badge ${patient.status.toLowerCase()}`}>
                           {patient.status}
                         </span>
                       </td>
                       <td>
                         <button 
-                          className="view-details-btn"
+                          className="um-btn um-btn-primary"
                           onClick={() => handlePatientClick(patient)}
                         >
                           View Details
@@ -209,106 +215,145 @@ const Patients = () => {
 
             {/* Patient Details Modal */}
             {showModal && selectedPatient && (
-              <div className="modal-overlay" onClick={handleCloseModal}>
-                <div className="modal-content" onClick={(e) => e.stopPropagation()}>
-                  <div className="modal-header">
-                    <h2>Patient Details</h2>
-                    <button className="close-btn" onClick={handleCloseModal}>×</button>
-                  </div>
-                  
-                  <div className="modal-body">
-                    {/* Patient Basic Information */}
-                    <div className="details-section">
-                      <h3>Basic Information</h3>
-                      <div className="details-grid">
-                        <div className="detail-item">
-                          <label>Full Name:</label>
-                          <span>{selectedPatient.name}</span>
-                        </div>
-                        <div className="detail-item">
-                          <label>Age:</label>
-                          <span>{selectedPatient.age}</span>
-                        </div>
-                        <div className="detail-item">
-                          <label>Gender:</label>
-                          <span>{selectedPatient.gender}</span>
-                        </div>
-                        <div className="detail-item">
-                          <label>Phone:</label>
-                          <span>{selectedPatient.phone}</span>
-                        </div>
-                        <div className="detail-item full-width">
-                          <label>Address:</label>
-                          <span>{selectedPatient.address}</span>
-                        </div>
+              <div className="um-modal-overlay" onClick={handleCloseModal}>
+                <div className="um-modal-content" onClick={(e) => e.stopPropagation()}>
+                  <div className="um-modal-header">
+                    <div className="um-modal-title">
+                      <div className="um-modal-icon">👤</div>
+                      <div>
+                        <h2>Patient Details</h2>
+                        <div className="um-modal-subtitle">ID: #{selectedPatient.id}</div>
                       </div>
                     </div>
+                    <button className="um-modal-close" onClick={handleCloseModal}>×</button>
+                  </div>
+                  
+                  <div className="um-modal-body">
+                    <div className="um-details-grid">
+                      {/* Profile Picture Section */}
+                      <div className="um-detail-section" style={{gridColumn: '1 / -1', textAlign: 'center', marginBottom: '2rem'}}>
+                        <img 
+                          src={selectedPatient.profilePicture} 
+                          alt={selectedPatient.name}
+                          style={{
+                            width: '120px',
+                            height: '120px',
+                            borderRadius: '50%',
+                            objectFit: 'cover',
+                            border: '4px solid var(--um-primary)',
+                            marginBottom: '1rem',
+                            display: 'block',
+                            margin: '0 auto 1rem auto',
+                            aspectRatio: '1 / 1'
+                          }}
+                        />
+                        <h3 style={{margin: '0', color: 'var(--um-gray-800)'}}>{selectedPatient.name}</h3>
+                        <p style={{margin: '0.5rem 0 0 0', color: 'var(--um-gray-600)'}}>{selectedPatient.dementiaType} - {selectedPatient.dementiaStage} Stage</p>
+                      </div>
 
-                    {/* Medical Information */}
-                    <div className="details-section">
-                      <h3>Medical Information</h3>
-                      <div className="details-grid">
-                        <div className="detail-item">
-                          <label>Dementia Type:</label>
-                          <span>{selectedPatient.dementiaType}</span>
+                      {/* Basic Information */}
+                      <div className="um-detail-section">
+                        <div className="um-section-header">
+                          <div className="um-section-icon">📋</div>
+                          <h3 className="um-section-title">Basic Information</h3>
                         </div>
-                        <div className="detail-item">
-                          <label>Dementia Stage:</label>
-                          <span>{selectedPatient.dementiaStage}</span>
+                        <div className="um-detail-row">
+                          <span className="um-detail-label">Full Name</span>
+                          <span className="um-detail-value">{selectedPatient.name}</span>
                         </div>
-                        <div className="detail-item">
-                          <label>Status:</label>
-                          <span className={`status-badge ${selectedPatient.status.toLowerCase()}`}>
+                        <div className="um-detail-row">
+                          <span className="um-detail-label">Age</span>
+                          <span className="um-detail-value">{selectedPatient.age}</span>
+                        </div>
+                        <div className="um-detail-row">
+                          <span className="um-detail-label">Gender</span>
+                          <span className="um-detail-value">{selectedPatient.gender}</span>
+                        </div>
+                        <div className="um-detail-row">
+                          <span className="um-detail-label">Phone</span>
+                          <span className="um-detail-value">{selectedPatient.phone}</span>
+                        </div>
+                        <div className="um-detail-row">
+                          <span className="um-detail-label">Status</span>
+                          <span className={`um-status-badge ${selectedPatient.status.toLowerCase()}`}>
                             {selectedPatient.status}
                           </span>
                         </div>
+                        <div className="um-detail-row">
+                          <span className="um-detail-label">Address</span>
+                          <span className="um-detail-value">{selectedPatient.address}</span>
+                        </div>
                       </div>
-                    </div>
 
-                    {/* Guardian Information */}
-                    <div className="details-section">
-                      <h3>Guardian Information</h3>
-                      <div className="details-grid">
-                        <div className="detail-item">
-                          <label>Guardian Name:</label>
-                          <span>{selectedPatient.guardian.name}</span>
+                      {/* Medical Information */}
+                      <div className="um-detail-section">
+                        <div className="um-section-header">
+                          <div className="um-section-icon">🏥</div>
+                          <h3 className="um-section-title">Medical Information</h3>
                         </div>
-                        <div className="detail-item">
-                          <label>Guardian Phone:</label>
-                          <span>{selectedPatient.guardian.phone}</span>
+                        <div className="um-detail-row">
+                          <span className="um-detail-label">Dementia Type</span>
+                          <span className="um-detail-value">{selectedPatient.dementiaType}</span>
                         </div>
-                        <div className="detail-item full-width">
-                          <label>Guardian Address:</label>
-                          <span>{selectedPatient.guardian.address}</span>
+                        <div className="um-detail-row">
+                          <span className="um-detail-label">Dementia Stage</span>
+                          <span className="um-detail-value">{selectedPatient.dementiaStage}</span>
                         </div>
                       </div>
-                    </div>
 
-                    {/* Caregiver Information */}
-                    <div className="details-section">
-                      <h3>Caregiver Information</h3>
-                      <div className="details-grid">
-                        <div className="detail-item">
-                          <label>Caregiver Name:</label>
-                          <span>{selectedPatient.caregiver.name}</span>
+                      {/* Guardian Information */}
+                      {selectedPatient.guardian && (
+                        <div className="um-detail-section">
+                          <div className="um-section-header">
+                            <div className="um-section-icon">👨‍👩‍👧‍👦</div>
+                            <h3 className="um-section-title">Guardian Information</h3>
+                          </div>
+                          <div className="um-detail-row">
+                            <span className="um-detail-label">Name</span>
+                            <span className="um-detail-value">{selectedPatient.guardian.name}</span>
+                          </div>
+                          <div className="um-detail-row">
+                            <span className="um-detail-label">Phone</span>
+                            <span className="um-detail-value">{selectedPatient.guardian.phone}</span>
+                          </div>
+                          <div className="um-detail-row">
+                            <span className="um-detail-label">Address</span>
+                            <span className="um-detail-value">{selectedPatient.guardian.address}</span>
+                          </div>
                         </div>
-                        <div className="detail-item">
-                          <label>Caregiver Phone:</label>
-                          <span>{selectedPatient.caregiver.phone}</span>
+                      )}
+
+                      {/* Caregiver Information */}
+                      {selectedPatient.caregiver && (
+                        <div className="um-detail-section">
+                          <div className="um-section-header">
+                            <div className="um-section-icon">👩‍⚕️</div>
+                            <h3 className="um-section-title">Assigned Caregiver</h3>
+                          </div>
+                          <div className="um-detail-row">
+                            <span className="um-detail-label">Name</span>
+                            <span className="um-detail-value">{selectedPatient.caregiver.name}</span>
+                          </div>
+                          <div className="um-detail-row">
+                            <span className="um-detail-label">Phone</span>
+                            <span className="um-detail-value">{selectedPatient.caregiver.phone}</span>
+                          </div>
+                          <div className="um-detail-row">
+                            <span className="um-detail-label">Address</span>
+                            <span className="um-detail-value">{selectedPatient.caregiver.address}</span>
+                          </div>
                         </div>
-                        <div className="detail-item full-width">
-                          <label>Caregiver Address:</label>
-                          <span>{selectedPatient.caregiver.address}</span>
-                        </div>
-                      </div>
+                      )}
                     </div>
                   </div>
-
-                  <div className="modal-footer">
-                    <button className="disable-btn" onClick={handleDisablePatient}>
-                      Disable Patient
-                    </button>
-                    <button className="close-modal-btn" onClick={handleCloseModal}>
+                  
+                  <div className="um-modal-footer">
+                    <div className="um-modal-actions">
+                      <button className="um-btn um-btn-danger" onClick={handleDisablePatient}>
+                        Set as Inactive
+                      </button>
+                    </div>
+                    <button className="um-btn um-btn-secondary" onClick={handleCloseModal}>
                       Close
                     </button>
                   </div>

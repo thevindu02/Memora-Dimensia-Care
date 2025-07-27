@@ -85,106 +85,181 @@ class _LoginScreenState extends State<LoginScreen> {
     }
   }
 
+  void _handlePatientLogin() {
+    // Navigate directly to patient guardian request
+    Navigator.of(context).pushNamed(
+      AppRoutes.patientGuardianRequest,
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Login'),
       ),
-      body: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Form(
-          key: _formKey,
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              // Email field
-              TextFormField(
-                controller: _emailController,
-                keyboardType: TextInputType.emailAddress,
-                decoration: const InputDecoration(
-                  labelText: 'Email',
-                  hintText: 'Enter your email',
-                  prefixIcon: Icon(Icons.email),
-                  border: OutlineInputBorder(),
+      body: SafeArea(
+        child: SingleChildScrollView(
+          padding: const EdgeInsets.fromLTRB(16, 16, 16, 16),
+          child: ConstrainedBox(
+            constraints: BoxConstraints(
+              minHeight: MediaQuery.of(context).size.height -
+                  MediaQuery.of(context).padding.top -
+                  kToolbarHeight - 32, // Account for AppBar and padding
+            ),
+            child: IntrinsicHeight(
+              child: Form(
+                key: _formKey,
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.start,
+                  children: [
+                    // Minimal spacing at the top
+                    //const SizedBox(height: 2),
+
+                    // Logo - make it responsive
+                    Image.asset(
+                      'assets/images/light_logo.png', // Replace with your actual logo path
+                      width: MediaQuery.of(context).size.width * 0.6, // Larger logo
+                      height: MediaQuery.of(context).size.width * 0.6, // Larger logo
+                      fit: BoxFit.contain,
+                    ),
+                    const SizedBox(height: 4),
+
+                    // Welcome text
+                    Text(
+                      'Welcome Back',
+                      style: TextStyle(
+                        fontSize: 28, // Slightly smaller font size
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                    const SizedBox(height: 16),
+
+                    // Email field
+                    TextFormField(
+                      controller: _emailController,
+                      keyboardType: TextInputType.emailAddress,
+                      decoration: const InputDecoration(
+                        labelText: 'Email',
+                        hintText: 'Enter your email',
+                        prefixIcon: Icon(Icons.email),
+                        border: OutlineInputBorder(),
+                      ),
+                      validator: (value) {
+                        if (value == null || value.trim().isEmpty) {
+                          return 'Email is required';
+                        }
+                        
+                        String trimmedValue = value.trim();
+                        
+                        // Check for basic email format
+                        if (!RegExp(r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$').hasMatch(trimmedValue)) {
+                          return 'Please enter a valid email address';
+                        }
+                        
+                        // Check email length
+                        if (trimmedValue.length > 254) {
+                          return 'Email address is too long';
+                        }
+                        
+                        // Check for consecutive dots
+                        if (trimmedValue.contains('..')) {
+                          return 'Email cannot contain consecutive dots';
+                        }
+                        
+                        // Check if it starts or ends with a dot
+                        if (trimmedValue.startsWith('.') || trimmedValue.endsWith('.')) {
+                          return 'Email cannot start or end with a dot';
+                        }
+                        
+                        return null;
+                      },
+                    ),
+                    const SizedBox(height: 20),
+
+                    // Password field
+                    TextFormField(
+                      controller: _passwordController,
+                      obscureText: _obscurePassword,
+                      decoration: InputDecoration(
+                        labelText: 'Password',
+                        hintText: 'Enter your password',
+                        prefixIcon: const Icon(Icons.lock),
+                        suffixIcon: IconButton(
+                          icon: Icon(_obscurePassword ? Icons.visibility : Icons.visibility_off),
+                          onPressed: () {
+                            setState(() {
+                              _obscurePassword = !_obscurePassword;
+                            });
+                          },
+                        ),
+                        border: const OutlineInputBorder(),
+                      ),
+                      validator: (value) {
+                        if (value == null || value.isEmpty) {
+                          return 'Password is required';
+                        }
+                        return null;
+                      },
+                    ),
+                    const SizedBox(height: 24),
+
+                    // Login button
+                    SizedBox(
+                      width: double.infinity,
+                      height: 50,
+                      child: ElevatedButton(
+                        onPressed: _isLoading ? null : _handleLogin,
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: Color(0xFFA0C4FD),
+                          foregroundColor: Color(0xFF2B3F99),
+                        ),
+                        child: _isLoading
+                            ? const CircularProgressIndicator(color: Colors.white)
+                            : const Text('Login'),
+                      ),
+                    ),
+                    const SizedBox(height: 16),
+
+                    // Login as Patient button
+                    SizedBox(
+                      width: double.infinity,
+                      height: 50,
+                      child: ElevatedButton(
+                        onPressed: _handlePatientLogin,
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: Color(0xFFA0C4FD),
+                          foregroundColor: Color(0xFF2B3F99),
+                        ),
+                        child: const Text('Login as a Patient'),
+                      ),
+                    ),
+                    const SizedBox(height: 16),
+
+                    // Forgot password link
+                    TextButton(
+                      onPressed: () {
+                        // Navigate to forgot password screen
+                        Navigator.of(context).pushNamed(AppRoutes.forgotPassword);
+                      },
+                      child: const Text('Forgot Password?'),
+                    ),
+
+                    // Register link
+                    TextButton(
+                      onPressed: () {
+                        // Navigate to registration screen
+                        Navigator.of(context).pushNamed(AppRoutes.signup);
+                      },
+                      child: const Text('Don\'t have an account? Register'),
+                    ),
+
+                    // Bottom spacing
+                    const SizedBox(height: 20),
+                  ],
                 ),
-                validator: (value) {
-                  if (value == null || value.isEmpty) {
-                    return 'Please enter your email';
-                  }
-                  if (!RegExp(r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$').hasMatch(value)) {
-                    return 'Please enter a valid email';
-                  }
-                  return null;
-                },
               ),
-              const SizedBox(height: 16),
-
-              // Password field
-              TextFormField(
-                controller: _passwordController,
-                obscureText: _obscurePassword,
-                decoration: InputDecoration(
-                  labelText: 'Password',
-                  hintText: 'Enter your password',
-                  prefixIcon: const Icon(Icons.lock),
-                  suffixIcon: IconButton(
-                    icon: Icon(_obscurePassword ? Icons.visibility : Icons.visibility_off),
-                    onPressed: () {
-                      setState(() {
-                        _obscurePassword = !_obscurePassword;
-                      });
-                    },
-                  ),
-                  border: const OutlineInputBorder(),
-                ),
-                validator: (value) {
-                  if (value == null || value.isEmpty) {
-                    return 'Please enter your password';
-                  }
-                  if (value.length < 6) {
-                    return 'Password must be at least 6 characters';
-                  }
-                  return null;
-                },
-              ),
-              const SizedBox(height: 24),
-
-              // Login button
-              SizedBox(
-                width: double.infinity,
-                height: 50,
-                child: ElevatedButton(
-                  onPressed: _isLoading ? null : _handleLogin,
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.blueAccent,
-                    foregroundColor: Colors.white,// Use backgroundColor here
-                  ),
-                  child: _isLoading
-                      ? const CircularProgressIndicator(color: Colors.white)
-                      : const Text('Login'),
-                ),
-              ),
-              const SizedBox(height: 16),
-
-              // Forgot password link
-              TextButton(
-                onPressed: () {
-                  // Navigate to forgot password screen
-                  Navigator.of(context).pushNamed(AppRoutes.forgotPassword);
-                },
-                child: const Text('Forgot Password?'),
-              ),
-
-              // Register link
-              TextButton(
-                onPressed: () {
-                  // Navigate to registration screen
-                  Navigator.of(context).pushNamed(AppRoutes.signup);
-                },
-                child: const Text('Don\'t have an account? Register'),
-              ),
-            ],
+            ),
           ),
         ),
       ),

@@ -1,0 +1,663 @@
+/* Volunteer Engagement Page Styles */
+.volunteer-engagement-page {
+  padding: 2rem;
+  background: white;
+  min-height: 100vh;
+}
+
+/* Header Controls */
+.engagement-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: white;
+  padding: 1.5rem 2rem;
+  border-radius: 12px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+  margin-bottom: 2rem;
+}
+
+.period-selector {
+  display: flex;
+  background: #C3B1E1;
+  border-radius: 8px;
+  padding: 4px;
+}
+
+.period-selector button {
+  padding: 0.5rem 1rem;
+  border: none;
+  background: transparent;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 0.9rem;
+  font-weight: 500;
+  color: #390797;
+  transition: all 0.2s ease;
+}
+
+.period-selector button.active {
+  background: white;
+  color: #2B3F99;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.month-selector {
+  display: flex;
+  align-items: center;
+}
+
+.month-select {
+  padding: 0.5rem 1rem;
+  border: 1px solid #A0C4FD;
+  border-radius: 6px;
+  background: white;
+  font-size: 0.9rem;
+  color: #390797;
+  cursor: pointer;
+}
+
+/* Engagement Overview Cards */
+.engagement-overview {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 1.5rem;
+  margin-bottom: 2rem;
+}
+
+.overview-card {
+  background: white;
+  border-radius: 12px;
+  padding: 1.5rem;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.overview-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+}
+
+.overview-card.primary {
+  background: #2B3F99;
+  color: white;
+}
+
+.card-icon {
+  font-size: 2.5rem;
+  opacity: 0.9;
+}
+
+.card-content {
+  flex: 1;
+}
+
+.card-number {
+  font-size: 1.8rem;
+  font-weight: 700;
+  margin-bottom: 0.25rem;
+}
+
+.card-label {
+  font-size: 0.9rem;
+  opacity: 0.8;
+  margin-bottom: 0.25rem;
+}
+
+.card-trend {
+  font-size: 0.8rem;
+  font-weight: 500;
+}
+
+.card-trend.positive {
+  color: #2B3F99;
+}
+
+.overview-card.primary .card-trend.positive {
+  color: #A0C4FD;
+}
+
+.card-note {
+  font-size: 0.8rem;
+  opacity: 0.7;
+}
+
+/* Category Engagement Container */
+.category-engagement-container {
+  margin-bottom: 2rem;
+}
+
+.category-header {
+  background: white;
+  padding: 1.5rem 2rem;
+  border-radius: 12px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+  margin-bottom: 1.5rem;
+}
+
+.category-header h3 {
+  color: #390797;
+  font-size: 1.25rem;
+  font-weight: 600;
+  margin-bottom: 0.5rem;
+}
+
+.category-header p {
+  color: #390797;
+  font-size: 0.9rem;
+  margin: 0;
+}
+
+.category-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+  gap: 1.5rem;
+}
+
+.category-card {
+  background: white;
+  border-radius: 12px;
+  padding: 1.5rem;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+  transition: transform 0.2s ease;
+}
+
+.category-card:hover {
+  transform: translateY(-2px);
+}
+
+.category-card-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 1.5rem;
+  padding-bottom: 1rem;
+  border-bottom: 1px solid #C3B1E1;
+}
+
+.category-card-header h4 {
+  color: #390797;
+  font-size: 1.1rem;
+  font-weight: 600;
+  margin: 0;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.category-indicator {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+}
+
+.growth-badge {
+  padding: 0.25rem 0.75rem;
+  border-radius: 6px;
+  font-size: 0.8rem;
+  font-weight: 500;
+}
+
+.growth-badge.positive {
+  background: #C3B1E1;
+  color: #2B3F99;
+}
+
+.category-stats {
+  margin-bottom: 1.5rem;
+}
+
+.stat-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.5rem 0;
+  border-bottom: 1px solid #C3B1E1;
+}
+
+.stat-row:last-child {
+  border-bottom: none;
+}
+
+.stat-row.primary {
+  background: #C3B1E1;
+  padding: 0.75rem;
+  border-radius: 6px;
+  margin-bottom: 0.5rem;
+}
+
+.stat-label {
+  font-size: 0.9rem;
+  color: #390797;
+}
+
+.stat-value {
+  font-weight: 600;
+  color: #390797;
+}
+
+.stat-value.preference {
+  color: #2B3F99;
+}
+
+.popular-items {
+  background: #C3B1E1;
+  padding: 1rem;
+  border-radius: 8px;
+}
+
+.popular-items h5 {
+  color: #390797;
+  font-size: 0.9rem;
+  font-weight: 600;
+  margin-bottom: 0.75rem;
+}
+
+.popular-items ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.popular-items li {
+  padding: 0.25rem 0;
+  color: #390797;
+  font-size: 0.85rem;
+  position: relative;
+  padding-left: 1rem;
+}
+
+.popular-items li:before {
+  content: '•';
+  color: #2B3F99;
+  position: absolute;
+  left: 0;
+}
+
+/* Monthly Chart Container */
+.monthly-chart-container {
+  margin-bottom: 2rem;
+}
+
+.chart-card {
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+  overflow: hidden;
+}
+
+.chart-header {
+  padding: 1.5rem 2rem;
+  border-bottom: 1px solid #A0C4FD;
+}
+
+.chart-header h3 {
+  color: #390797;
+  font-size: 1.25rem;
+  font-weight: 600;
+  margin-bottom: 0.5rem;
+}
+
+.chart-header p {
+  color: #390797;
+  font-size: 0.9rem;
+  margin: 0;
+}
+
+.chart-content {
+  padding: 2rem;
+}
+
+.engagement-chart {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  height: 250px;
+  margin-bottom: 2rem;
+  gap: 1rem;
+}
+
+.month-engagement-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  flex: 1;
+}
+
+.month-bars {
+  display: flex;
+  align-items: flex-end;
+  gap: 2px;
+  margin-bottom: 0.5rem;
+  height: 200px;
+}
+
+.engagement-bar {
+  width: 12px;
+  border-radius: 2px 2px 0 0;
+  transition: all 0.3s ease;
+  cursor: pointer;
+}
+
+.engagement-bar:hover {
+  opacity: 0.8;
+  transform: scaleY(1.05);
+}
+
+.engagement-bar.articles {
+  background: #2B3F99;
+}
+
+.engagement-bar.blog-posts {
+  background: #2B3F99;
+}
+
+.engagement-bar.video-lessons {
+  background: #A0C4FD;
+}
+
+.month-label {
+  font-size: 0.85rem;
+  color: #390797;
+  margin-bottom: 0.25rem;
+}
+
+.month-total {
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: #390797;
+}
+
+.chart-legend {
+  display: flex;
+  justify-content: center;
+  gap: 2rem;
+  padding-top: 1rem;
+  border-top: 1px solid #C3B1E1;
+}
+
+.legend-item {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.legend-color {
+  width: 12px;
+  height: 12px;
+  border-radius: 2px;
+}
+
+.legend-color.articles {
+  background: #2B3F99;
+}
+
+.legend-color.blog-posts {
+  background: #2B3F99;
+}
+
+.legend-color.video-lessons {
+  background: #A0C4FD;
+}
+
+.legend-item span {
+  font-size: 0.85rem;
+  color: #390797;
+}
+
+/* Top Volunteers Container */
+.top-volunteers-container {
+  margin-bottom: 2rem;
+}
+
+.top-volunteers-header {
+  background: white;
+  padding: 1.5rem 2rem;
+  border-radius: 12px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+  margin-bottom: 1.5rem;
+}
+
+.top-volunteers-header h3 {
+  color: #390797;
+  font-size: 1.25rem;
+  font-weight: 600;
+  margin-bottom: 0.5rem;
+}
+
+.top-volunteers-header p {
+  color: #390797;
+  font-size: 0.9rem;
+  margin: 0;
+}
+
+.volunteers-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+  gap: 1.5rem;
+}
+
+.volunteers-category-card {
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+  overflow: hidden;
+}
+
+.volunteers-category-header {
+  background: #C3B1E1;
+  padding: 1rem 1.5rem;
+  border-bottom: 1px solid #A0C4FD;
+}
+
+.volunteers-category-header h4 {
+  color: #390797;
+  font-size: 1rem;
+  font-weight: 600;
+  margin: 0;
+}
+
+.volunteers-list {
+  padding: 1.5rem;
+}
+
+.volunteer-item {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 1rem 0;
+  border-bottom: 1px solid #C3B1E1;
+}
+
+.volunteer-item:last-child {
+  border-bottom: none;
+}
+
+.volunteer-rank {
+  background: #2B3F99;
+  color: white;
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.8rem;
+  font-weight: 600;
+}
+
+.volunteer-info {
+  flex: 1;
+}
+
+.volunteer-name {
+  font-weight: 600;
+  color: #390797;
+  margin-bottom: 0.25rem;
+}
+
+.volunteer-specialty {
+  font-size: 0.8rem;
+  color: #390797;
+}
+
+.volunteer-stats {
+  text-align: right;
+}
+
+.volunteer-engagements {
+  font-weight: 600;
+  color: #2B3F99;
+  font-size: 0.9rem;
+  margin-bottom: 0.25rem;
+}
+
+.volunteer-time {
+  font-size: 0.8rem;
+  color: #390797;
+}
+
+/* Patient Preferences Container */
+.patient-preferences-container {
+  margin-bottom: 2rem;
+}
+
+.preferences-card {
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+  padding: 1.5rem 2rem;
+}
+
+.preferences-header {
+  margin-bottom: 2rem;
+}
+
+.preferences-header h3 {
+  color: #390797;
+  font-size: 1.25rem;
+  font-weight: 600;
+  margin-bottom: 0.5rem;
+}
+
+.preferences-header p {
+  color: #390797;
+  font-size: 0.9rem;
+  margin: 0;
+}
+
+.preferences-list {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.preference-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 1.5rem;
+  background: #C3B1E1;
+  border-radius: 12px;
+  border-left: 4px solid #2B3F99;
+}
+
+.preference-info {
+  flex: 1;
+}
+
+.preference-category {
+  font-weight: 600;
+  color: #390797;
+  font-size: 1rem;
+  margin-bottom: 0.25rem;
+}
+
+.preference-reason {
+  font-size: 0.85rem;
+  color: #390797;
+}
+
+.preference-stats {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  min-width: 200px;
+}
+
+.preference-percentage {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: #2B3F99;
+  min-width: 60px;
+  text-align: right;
+}
+
+.preference-bar {
+  flex: 1;
+  height: 8px;
+  background: #A0C4FD;
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+.preference-fill {
+  height: 100%;
+  background: #2B3F99;
+  transition: width 0.3s ease;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .volunteer-engagement-page {
+    padding: 1rem;
+  }
+
+  .engagement-header {
+    flex-direction: column;
+    gap: 1rem;
+    align-items: stretch;
+  }
+
+  .engagement-overview {
+    grid-template-columns: 1fr;
+  }
+
+  .overview-card {
+    flex-direction: column;
+    align-items: flex-start;
+    text-align: left;
+  }
+
+  .category-grid,
+  .volunteers-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .engagement-chart {
+    height: 200px;
+  }
+
+  .month-bars {
+    height: 150px;
+  }
+
+  .chart-legend {
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+
+  .preference-item {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 1rem;
+  }
+
+  .preference-stats {
+    width: 100%;
+    justify-content: space-between;
+  }
+}

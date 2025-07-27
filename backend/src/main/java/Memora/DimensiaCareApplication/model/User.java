@@ -1,5 +1,6 @@
 package Memora.DimensiaCareApplication.model;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
@@ -9,6 +10,7 @@ import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import java.time.LocalDateTime;
+import java.time.LocalDate;
 
 @Entity
 @Table(name = "users")
@@ -19,25 +21,27 @@ public class User {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @NotBlank
+    // @NotBlank
     @Size(max = 100)
     @Column(name = "f_name", nullable = false)
+    @JsonProperty("FName")
     private String FName;
 
-    @NotBlank
+    // @NotBlank
     @Size(max = 100)
     @Column(name = "l_name", nullable = false)
+    @JsonProperty("LName")
     private String LName;
 
-    @NotBlank
+    // @NotBlank
     @Email
     @Size(max = 100)
     @Column(name = "email", nullable = false, unique = true)
     private String email;
 
-    @NotBlank
+    // @NotBlank
     @Size(max = 120)
-    @Column(name = "password", nullable = false)
+    @Column(name = "password", nullable = true)
     private String password;
 
     @Size(max = 15)
@@ -51,6 +55,24 @@ public class User {
     @Enumerated(EnumType.STRING)
     @Column(name = "status", nullable = false)
     private UserStatus status = UserStatus.ACTIVE;
+
+    @Column(name = "birthdate")
+    private LocalDate birthdate;
+
+    @Column(name = "profile_pic")
+    private String profilePic;
+
+    @Column(name = "street")
+    private String street;
+
+    @Column(name = "city")
+    private String city;
+
+    @Column(name = "state")
+    private String state;
+
+    @Column(name = "gender")
+    private String gender;
 
     @CreatedDate
     @Column(name = "created_at", nullable = false, updatable = false)
@@ -135,6 +157,54 @@ public class User {
 
     public void setStatus(UserStatus status) {
         this.status = status;
+    }
+
+    public LocalDate getBirthdate() {
+        return birthdate;
+    }
+
+    public void setBirthdate(LocalDate birthdate) {
+        this.birthdate = birthdate;
+    }
+
+    public String getProfilePic() {
+        return profilePic;
+    }
+
+    public void setProfilePic(String profilePic) {
+        this.profilePic = profilePic;
+    }
+
+    public String getStreet() {
+        return street;
+    }
+
+    public void setStreet(String street) {
+        this.street = street;
+    }
+
+    public String getCity() {
+        return city;
+    }
+
+    public void setCity(String city) {
+        this.city = city;
+    }
+
+    public String getState() {
+        return state;
+    }
+
+    public void setState(String state) {
+        this.state = state;
+    }
+
+    public String getGender() {
+        return gender;
+    }
+
+    public void setGender(String gender) {
+        this.gender = gender;
     }
 
     public LocalDateTime getCreatedAt() {

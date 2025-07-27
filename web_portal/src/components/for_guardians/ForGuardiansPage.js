@@ -6,6 +6,8 @@ import ForGuardiansHero from './ForGuardiansHero';
 import ForGuardiansBenefits from './ForGuardiansBenefits';
 import ForGuardiansFeatures from './ForGuardiansFeatures';
 import ForGuardiansReassurance from './ForGuardiansReassurance';
+import AppPromo from '../home/AppPromo';
+import Subscription from '../home/SubscriptionPlans';
 import { Box } from '@mui/material';
 
 function ForGuardiansPage() {
@@ -15,8 +17,10 @@ function ForGuardiansPage() {
       <Box component="main" sx={{ bgcolor: '#fff', minHeight: '100vh' }}>
         <ForGuardiansHero />
         <ForGuardiansBenefits />
-        <ForGuardiansFeatures />
         <ForGuardiansReassurance />
+        <ForGuardiansFeatures />
+        <Subscription />
+        <AppPromo />
       </Box>
       <Footer />
     </>

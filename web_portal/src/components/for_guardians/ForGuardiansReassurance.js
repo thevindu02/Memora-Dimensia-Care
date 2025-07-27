@@ -5,7 +5,7 @@ import guardianSupport from '../../assets/guardian-support.png'; // Use your own
 
 function ForGuardiansReassurance() {
   return (
-    <Box sx={{ py: 8, bgcolor: '#A0C4FD' }}>
+    <Box sx={{ py: 8, bgcolor: '#bdd2f5ff' }}>
       <Container>
         <Stack direction={{ xs: 'column', md: 'row' }} spacing={6} alignItems="center">
           <Box flex={1} sx={{ textAlign: 'center' }}>
@@ -31,17 +31,17 @@ function ForGuardiansReassurance() {
                 color: '#390797',
                 fontWeight: 700,
                 mb: 2,
-                fontSize: { xs: 22, md: 28 },
-                fontFamily: 'Poppins, Lato, Nunito, Arial, sans-serif',
+                fontSize: { xs: 22, md: 36 },
+                fontFamily: 'Poppins Bold',
               }}
             >
               Your role matters. Memora gives you the tools and peace of mind to care from anywhere.
             </Typography>
             <Stack direction={{ xs: 'column', sm: 'row' }} spacing={2} mt={3}>
-              <Button variant="contained" color="primary" sx={{ borderRadius: 8 }}>
+              <Button variant="contained" color="primary" sx={{ borderRadius: 8,fontFamily: 'Roboto', fontSize: 18 }}>
                 View Patient Reports
               </Button>
-              <Button variant="outlined" color="primary" sx={{ borderRadius: 8 }}>
+              <Button variant="outlined" color="primary" sx={{ borderRadius: 8,fontFamily: 'Roboto', fontSize: 18 }}>
                 Browse Caregivers
               </Button>
             </Stack>

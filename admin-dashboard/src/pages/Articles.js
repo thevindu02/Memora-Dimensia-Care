@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import '../styles/Articles.css';
+import '../styles/UserManagement.css';
 import {
   Header,
   Sidebar,
@@ -16,12 +17,13 @@ const articlesData = [
     status: 'Published',
     publishDate: '2024-12-15',
     readTime: '8 min read',
-    views: 2456,
-    likes: 189,
+    views: 66,
+    likes: 34,
     content: 'Comprehensive guide about dementia care in Sri Lankan context...',
     tags: ['dementia', 'family care', 'sri lanka', 'medical'],
     featured: true,
-    language: 'English'
+    language: 'English',
+    authorPicture: 'https://via.placeholder.com/150/4A90E2/FFFFFF?text=PJ'
   },
   {
     id: 2,
@@ -36,7 +38,8 @@ const articlesData = [
     content: 'Exploring traditional Ayurvedic methods for memory enhancement...',
     tags: ['ayurveda', 'memory', 'traditional', 'herbal'],
     featured: false,
-    language: 'Sinhala'
+    language: 'Sinhala',
+    authorPicture: 'https://via.placeholder.com/150/50C878/FFFFFF?text=SR'
   },
   {
     id: 3,
@@ -46,12 +49,13 @@ const articlesData = [
     status: 'Published',
     publishDate: '2024-12-10',
     readTime: '6 min read',
-    views: 1823,
-    likes: 142,
+    views: 98,
+    likes: 35,
     content: 'Local superfoods that support brain health and memory...',
     tags: ['nutrition', 'brain health', 'superfoods', 'diet'],
     featured: true,
-    language: 'English'
+    language: 'English',
+    authorPicture: 'https://via.placeholder.com/150/FF6B6B/FFFFFF?text=KS'
   },
   {
     id: 4,
@@ -61,12 +65,13 @@ const articlesData = [
     status: 'Published',
     publishDate: '2024-12-05',
     readTime: '10 min read',
-    views: 1567,
-    likes: 98,
+    views: 158,
+    likes: 80,
     content: 'Practical tips for modifying homes for dementia care...',
     tags: ['home safety', 'environment', 'modifications', 'care'],
     featured: false,
-    language: 'English'
+    language: 'English',
+    authorPicture: 'https://via.placeholder.com/150/9B59B6/FFFFFF?text=NP'
   },
   {
     id: 5,
@@ -81,7 +86,8 @@ const articlesData = [
     content: 'Building community networks for dementia care support...',
     tags: ['community', 'rural', 'support', 'networks'],
     featured: false,
-    language: 'Sinhala'
+    language: 'Sinhala',
+    authorPicture: 'https://via.placeholder.com/150/F39C12/FFFFFF?text=SF'
   },
   {
     id: 6,
@@ -91,12 +97,13 @@ const articlesData = [
     status: 'Published',
     publishDate: '2024-11-28',
     readTime: '9 min read',
-    views: 2103,
-    likes: 156,
+    views: 130,
+    likes: 76,
     content: 'Modern technology tools for dementia care management...',
     tags: ['technology', 'apps', 'devices', 'digital'],
     featured: true,
-    language: 'English'
+    language: 'English',
+    authorPicture: 'https://via.placeholder.com/150/E74C3C/FFFFFF?text=RB'
   },
   {
     id: 7,
@@ -111,7 +118,8 @@ const articlesData = [
     content: 'Understanding and managing behavioral symptoms...',
     tags: ['behavior', 'psychology', 'management', 'symptoms'],
     featured: false,
-    language: 'English'
+    language: 'English',
+    authorPicture: 'https://via.placeholder.com/150/3498DB/FFFFFF?text=AW'
   },
   {
     id: 8,
@@ -121,8 +129,8 @@ const articlesData = [
     status: 'Published',
     publishDate: '2024-11-20',
     readTime: '8 min read',
-    views: 1789,
-    likes: 134,
+    views: 76,
+    likes: 15,
     content: 'Physical activities that support cognitive function...',
     tags: ['exercise', 'physical', 'memory', 'health'],
     featured: false,
@@ -186,16 +194,6 @@ const Articles = () => {
     }
     return new Date(b.publishDate) - new Date(a.publishDate);
   });
-
-  const getStatusColor = (status) => {
-    switch(status) {
-      case 'Published': return '#10b981';
-      case 'Pending': return '#f59e0b';
-      case 'Draft': return '#6b7280';
-      case 'Rejected': return '#ef4444';
-      default: return '#6b7280';
-    }
-  };
 
   return (
     <div className="dashboard">
@@ -283,24 +281,22 @@ const Articles = () => {
             </div>
 
             {/* Articles Table */}
-            <div className="articles-table-container">
-              <table className="articles-table">
+            <div className="um-table-container">
+              <table className="um-table">
                 <thead>
                   <tr>
                     <th>Title</th>
                     <th>Author</th>
                     <th>Category</th>
-                    <th>Status</th>
                     <th>Date</th>
-                    <th>Views</th>
-                    <th>Read Time</th>
+                    <th>Status</th>
                     <th>Actions</th>
                   </tr>
                 </thead>
                 <tbody>
                   {sortedArticles.map(article => (
-                    <tr key={article.id} onClick={() => handleArticleClick(article)}>
-                      <td>
+                    <tr key={article.id}>
+                      <td className="um-name-cell">
                         <div className="article-title">
                           {article.featured && <span className="featured-badge">⭐</span>}
                           {article.title}
@@ -308,28 +304,20 @@ const Articles = () => {
                       </td>
                       <td>{article.author}</td>
                       <td>
-                        <span className="category-badge">{article.category}</span>
+                        <span className="um-status-badge category">{article.category}</span>
                       </td>
+                      <td>{new Date(article.publishDate).toLocaleDateString()}</td>
                       <td>
-                        <span 
-                          className="status-badge"
-                          style={{ backgroundColor: getStatusColor(article.status) }}
-                        >
+                        <span className={`um-status-badge ${article.status.toLowerCase()}`}>
                           {article.status}
                         </span>
                       </td>
-                      <td>{new Date(article.publishDate).toLocaleDateString()}</td>
-                      <td>{article.views.toLocaleString()}</td>
-                      <td>{article.readTime}</td>
                       <td>
                         <button 
-                          className="action-button view-button"
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            handleArticleClick(article);
-                          }}
+                          className="um-btn um-btn-primary um-btn-sm"
+                          onClick={() => handleArticleClick(article)}
                         >
-                          View
+                          View Details
                         </button>
                       </td>
                     </tr>
@@ -340,88 +328,121 @@ const Articles = () => {
 
             {/* Article Details Modal */}
             {selectedArticle && (
-              <div className="modal-overlay" onClick={handleCloseModal}>
-                <div className="modal-content" onClick={(e) => e.stopPropagation()}>
-                  <div className="modal-header">
-                    <h2>Article Details</h2>
-                    <button className="close-button" onClick={handleCloseModal}>×</button>
+              <div className="um-modal-overlay" onClick={handleCloseModal}>
+                <div className="um-modal-content" onClick={(e) => e.stopPropagation()}>
+                  <div className="um-modal-header">
+                    <div className="um-modal-title">
+                      <div className="um-modal-icon">📄</div>
+                      <div>
+                        <h2>Article Details</h2>
+                        <div className="um-modal-subtitle">ID: #{selectedArticle.id}</div>
+                      </div>
+                    </div>
+                    <button className="um-modal-close" onClick={handleCloseModal}>×</button>
                   </div>
                   
-                  <div className="modal-body">
-                    <div className="article-details">
-                      <div className="article-header">
-                        <h3>{selectedArticle.title}</h3>
-                        {selectedArticle.featured && <span className="featured-badge">⭐ Featured</span>}
+                  <div className="um-modal-body">
+                    <div className="um-details-grid">
+                      {/* Profile Picture Section */}
+                      <div className="um-detail-section" style={{gridColumn: '1 / -1', textAlign: 'center', marginBottom: '2rem'}}>
+                        <img 
+                          src={selectedArticle.authorPicture} 
+                          alt={selectedArticle.author}
+                          style={{
+                            width: '120px',
+                            height: '120px',
+                            borderRadius: '50%',
+                            objectFit: 'cover',
+                            border: '4px solid var(--um-primary)',
+                            marginBottom: '1rem',
+                            display: 'block',
+                            margin: '0 auto 1rem auto',
+                            aspectRatio: '1 / 1'
+                          }}
+                        />
+                        <h3 style={{margin: '0', color: 'var(--um-gray-800)'}}>{selectedArticle.title}</h3>
+                        <p style={{margin: '0.5rem 0 0 0', color: 'var(--um-gray-600)'}}>by {selectedArticle.author}</p>
                       </div>
-                      
-                      <div className="article-meta">
-                        <div className="meta-item">
-                          <span className="meta-label">Author:</span>
-                          <span className="meta-value">{selectedArticle.author}</span>
+
+                      {/* Article Information */}
+                      <div className="um-detail-section">
+                        <div className="um-section-header">
+                          <div className="um-section-icon">📋</div>
+                          <h3 className="um-section-title">Article Information</h3>
                         </div>
-                        <div className="meta-item">
-                          <span className="meta-label">Category:</span>
-                          <span className="meta-value">{selectedArticle.category}</span>
+                        <div className="um-detail-row">
+                          <span className="um-detail-label">Title</span>
+                          <span className="um-detail-value">{selectedArticle.title}</span>
                         </div>
-                        <div className="meta-item">
-                          <span className="meta-label">Status:</span>
-                          <span 
-                            className="status-badge"
-                            style={{ backgroundColor: getStatusColor(selectedArticle.status) }}
-                          >
+                        <div className="um-detail-row">
+                          <span className="um-detail-label">Author</span>
+                          <span className="um-detail-value">{selectedArticle.author}</span>
+                        </div>
+                        <div className="um-detail-row">
+                          <span className="um-detail-label">Category</span>
+                          <span className="um-detail-value">{selectedArticle.category}</span>
+                        </div>
+                        <div className="um-detail-row">
+                          <span className="um-detail-label">Status</span>
+                          <span className={`um-status-badge ${selectedArticle.status.toLowerCase()}`}>
                             {selectedArticle.status}
                           </span>
                         </div>
-                        <div className="meta-item">
-                          <span className="meta-label">Publish Date:</span>
-                          <span className="meta-value">{new Date(selectedArticle.publishDate).toLocaleDateString()}</span>
+                        <div className="um-detail-row">
+                          <span className="um-detail-label">Publish Date</span>
+                          <span className="um-detail-value">{new Date(selectedArticle.publishDate).toLocaleDateString()}</span>
                         </div>
-                        <div className="meta-item">
-                          <span className="meta-label">Read Time:</span>
-                          <span className="meta-value">{selectedArticle.readTime}</span>
+                        <div className="um-detail-row">
+                          <span className="um-detail-label">Read Time</span>
+                          <span className="um-detail-value">{selectedArticle.readTime}</span>
                         </div>
-                        <div className="meta-item">
-                          <span className="meta-label">Language:</span>
-                          <span className="meta-value">{selectedArticle.language}</span>
-                        </div>
-                      </div>
-                      
-                      <div className="article-stats">
-                        <div className="stat-item">
-                          <span className="stat-number">{selectedArticle.views.toLocaleString()}</span>
-                          <span className="stat-label">Views</span>
-                        </div>
-                        <div className="stat-item">
-                          <span className="stat-number">{selectedArticle.likes}</span>
-                          <span className="stat-label">Likes</span>
+                        <div className="um-detail-row">
+                          <span className="um-detail-label">Language</span>
+                          <span className="um-detail-value">{selectedArticle.language}</span>
                         </div>
                       </div>
-                      
-                      <div className="article-tags">
-                        <span className="tags-label">Tags:</span>
-                        {selectedArticle.tags.map(tag => (
-                          <span key={tag} className="tag">{tag}</span>
-                        ))}
-                      </div>
-                      
-                      <div className="article-content">
-                        <h4>Content Preview</h4>
-                        <p>{selectedArticle.content}</p>
+
+                      {/* Statistics & Content */}
+                      <div className="um-detail-section">
+                        <div className="um-section-header">
+                          <div className="um-section-icon">📊</div>
+                          <h3 className="um-section-title">Statistics & Content</h3>
+                        </div>
+                        <div className="um-detail-row">
+                          <span className="um-detail-label">Views</span>
+                          <span className="um-detail-value">{selectedArticle.views.toLocaleString()}</span>
+                        </div>
+                        <div className="um-detail-row">
+                          <span className="um-detail-label">Likes</span>
+                          <span className="um-detail-value">{selectedArticle.likes}</span>
+                        </div>
+                        <div className="um-detail-row">
+                          <span className="um-detail-label">Featured</span>
+                          <span className="um-detail-value">{selectedArticle.featured ? '⭐ Yes' : 'No'}</span>
+                        </div>
+                        <div className="um-detail-row">
+                          <span className="um-detail-label">Tags</span>
+                          <span className="um-detail-value">{selectedArticle.tags.join(', ')}</span>
+                        </div>
+                        <div className="um-detail-row">
+                          <span className="um-detail-label">Content Preview</span>
+                          <span className="um-detail-value">{selectedArticle.content}</span>
+                        </div>
                       </div>
                     </div>
                   </div>
                   
-                  <div className="modal-actions">
+                  <div className="um-modal-footer">
                     {selectedArticle.status === 'Pending' && (
                       <>
                         <button 
-                          className="publish-button"
+                          className="um-btn um-btn-success"
                           onClick={() => handlePublishArticle(selectedArticle.id)}
                         >
                           Publish Article
                         </button>
                         <button 
-                          className="reject-button"
+                          className="um-btn um-btn-danger"
                           onClick={() => handleRejectArticle(selectedArticle.id)}
                         >
                           Reject Article
@@ -430,13 +451,13 @@ const Articles = () => {
                     )}
                     {(selectedArticle.status === 'Published' || selectedArticle.status === 'Draft') && (
                       <button 
-                        className="edit-button"
+                        className="um-btn um-btn-primary"
                         onClick={() => handleEditArticle(selectedArticle.id)}
                       >
                         Edit Article
                       </button>
                     )}
-                    <button className="close-modal-button" onClick={handleCloseModal}>
+                    <button className="um-btn um-btn-secondary" onClick={handleCloseModal}>
                       Close
                     </button>
                   </div>
