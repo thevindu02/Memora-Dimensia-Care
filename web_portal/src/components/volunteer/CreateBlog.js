@@ -31,6 +31,8 @@ import PreviewIcon from "@mui/icons-material/Preview";
 import ClearAllIcon from "@mui/icons-material/ClearAll";
 import SendIcon from "@mui/icons-material/Send";
 import SaveIcon from "@mui/icons-material/Save";
+import DeleteIcon from "@mui/icons-material/Delete";
+import MenuIcon from "@mui/icons-material/Menu";
 
 // Memora color palette constants
 const colors = {

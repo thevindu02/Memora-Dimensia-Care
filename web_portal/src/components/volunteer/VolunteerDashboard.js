@@ -1,5 +1,5 @@
 // src/components/volunteers/VolunteerDashboard.js
-import React, { useState } from 'react';
+import React, { useState, onNavigate } from 'react';
 import {
   Box,
   Typography,
@@ -251,7 +251,7 @@ const StatCard = ({ label, value, icon: IconComp, bgColor, iconColor }) => (
   </Paper>
 );
 
-export default function VolunteerDashboard() {
+export default function VolunteerDashboard({ volunteerName, volunteerProfileImage, onNavigate }) {
   // Profile dropdown menu state
   const [anchorEl, setAnchorEl] = useState(null);
   const openProfileMenu = Boolean(anchorEl);
@@ -270,7 +270,11 @@ export default function VolunteerDashboard() {
 
   return (
     <>
-    <SideBar/>
+          <SideBar
+        volunteerName={volunteerName}
+        profileImage={volunteerProfileImage}
+        onNavigate={onNavigate}
+      />
       <VolunteerNav />
       <Box
         sx={{
