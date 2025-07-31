@@ -10,10 +10,14 @@ class AuthService {
   static const String _roleKey = 'user_role';
   static const String _tokenKey = 'auth_token';
 
+
+  static const String baseUrl = 'http://10.22.166.102:8080/api/auth';
+
   static int? currentUserId; // Set this after login
   static int? currentCaregiverId; // Store caregiverId for caregivers
 
   static final String url = "${ApiConstants.baseUrl}/api/auth";
+
 
   static String? currentUserRole;
   static bool isLoggedIn = false;

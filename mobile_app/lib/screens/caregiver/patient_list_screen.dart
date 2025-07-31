@@ -234,7 +234,7 @@ class _PatientsScreenState extends State<PatientListScreen> {
             BottomNavigationBarItem(
               icon: Icon(Icons.article_outlined),
               activeIcon: Icon(Icons.article_outlined),
-              label: 'Articles',
+              label: 'Community',
             ),
             BottomNavigationBarItem(
               icon: Icon(Icons.person_outline),

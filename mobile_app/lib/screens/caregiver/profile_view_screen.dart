@@ -926,7 +926,7 @@ class _CaregiverProfileScreenState extends State<CaregiverProfileScreen> {
             ),
             BottomNavigationBarItem(
               icon: Icon(Icons.article_outlined),
-              label: 'Articles',
+              label: 'Community',
             ),
             BottomNavigationBarItem(icon: Icon(Icons.person), label: 'Profile'),
           ],
