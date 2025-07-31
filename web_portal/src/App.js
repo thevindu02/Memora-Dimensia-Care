@@ -12,6 +12,7 @@ import ContactUsPage from './components/contact_us/ContactUsPage';
 import Terms from './components/home/Terms'; 
 import PrivacyPolicy from './components/home/PrivacyPolicy';
 import Community from './components/home/Community';
+import VolunteerDashboard from './components/volunteer/VolunteerDashboard';
 function App() {
      console.log('App component rendered'); 
   return (
@@ -29,7 +30,7 @@ function App() {
           <Route path="/terms" element={<Terms />} />
           <Route path="/privacy_policy" element={<PrivacyPolicy />} />
           <Route path="/community" element={<Community />} />
-
+          <Route path= "/volunteer" element= {<VolunteerDashboard/>}/>
 
           {/* Add other routes as needed */}
         </Routes>
