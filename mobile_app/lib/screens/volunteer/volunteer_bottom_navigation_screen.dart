@@ -5,6 +5,7 @@ import 'volunteer_create_content_screen.dart';
 import 'volunteer_forum_screen.dart';
 import 'volunteer_profile_screen.dart';
 import 'volunteer_community_screen.dart';
+import '../../constants/color_constants.dart';
 
 class VolunteerBottomNavigation extends StatelessWidget {
   final String currentPage;
@@ -17,8 +18,8 @@ class VolunteerBottomNavigation extends StatelessWidget {
     return Container(
       height: 80,
       decoration: BoxDecoration(
-        color: Colors.white,
-        border: Border(top: BorderSide(color: Colors.grey[200]!, width: 1)),
+        color: AppColors.surface,
+        border: Border(top: BorderSide(color: AppColors.outline, width: 1)),
       ),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceEvenly,
@@ -109,7 +110,7 @@ class VolunteerBottomNavigation extends StatelessWidget {
           children: [
             Icon(
               icon,
-              color: isActive ? Color(0xFF2B3F99) : Colors.grey[500],
+              color: isActive ? AppColors.info : AppColors.onSurfaceVariant,
               size: 24,
             ),
             SizedBox(height: 4),
@@ -118,7 +119,7 @@ class VolunteerBottomNavigation extends StatelessWidget {
               style: TextStyle(
                 fontSize: 12,
                 fontWeight: FontWeight.w500,
-                color: isActive ? Color(0xFF2B3F99) : Colors.grey[500],
+                color: isActive ? AppColors.info : AppColors.onSurfaceVariant,
               ),
             ),
           ],
