@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import '../../routes/app_routes.dart';
 import '../../services/caregiver_service.dart';
 import '../../services/guardian_service.dart';
+import '../../constants/color_constants.dart';
 
 class GuardianAddUnknownCaregiverScreen extends StatefulWidget {
   @override
@@ -272,7 +273,7 @@ class _GuardianAddUnknownCaregiverScreenState
                     style: TextStyle(
                       fontSize: 16,
                       fontWeight: FontWeight.w600,
-                      color: Color(0xFF2B3F99),
+                      color: AppColors.info,
                     ),
                   ),
                   SizedBox(height: 8),
@@ -302,7 +303,7 @@ class _GuardianAddUnknownCaregiverScreenState
                     style: TextStyle(
                       fontSize: 16,
                       fontWeight: FontWeight.w600,
-                      color: Color(0xFF2B3F99),
+                      color: AppColors.info,
                     ),
                   ),
                   SizedBox(height: 8),
@@ -328,7 +329,7 @@ class _GuardianAddUnknownCaregiverScreenState
                     style: TextStyle(
                       fontSize: 16,
                       fontWeight: FontWeight.w600,
-                      color: Color(0xFF2B3F99),
+                      color: AppColors.info,
                     ),
                   ),
                   SizedBox(height: 8),
@@ -354,7 +355,7 @@ class _GuardianAddUnknownCaregiverScreenState
                         child: Text(
                           'Cancel',
                           style: TextStyle(
-                            color: Colors.grey[600],
+                            color: AppColors.onSurfaceVariant,
                             fontWeight: FontWeight.w500,
                           ),
                         ),
@@ -366,8 +367,8 @@ class _GuardianAddUnknownCaregiverScreenState
                           _sendConnectionRequest(caregiver);
                         },
                         style: ElevatedButton.styleFrom(
-                          backgroundColor: Color(0xFFA0C4FD),
-                          foregroundColor: Color(0xFF2B3F99),
+                          backgroundColor: AppColors.primaryLight,
+                          foregroundColor: AppColors.info,
                           padding: EdgeInsets.symmetric(
                             horizontal: 24,
                             vertical: 12,
@@ -406,7 +407,7 @@ class _GuardianAddUnknownCaregiverScreenState
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text('Missing guardian, patient, or caregiver ID.'),
-          backgroundColor: Colors.red,
+          backgroundColor: AppColors.error,
         ),
       );
       return;
@@ -422,7 +423,7 @@ class _GuardianAddUnknownCaregiverScreenState
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text('Connection request sent successfully!'),
-          backgroundColor: Colors.green,
+          backgroundColor: AppColors.success,
           duration: Duration(seconds: 2),
         ),
       );
@@ -437,7 +438,7 @@ class _GuardianAddUnknownCaregiverScreenState
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text('Failed to send connection request.'),
-          backgroundColor: Colors.red,
+          backgroundColor: AppColors.error,
         ),
       );
     }
@@ -644,8 +645,8 @@ class _GuardianAddUnknownCaregiverScreenState
           children: [
             CircleAvatar(
               radius: 30,
-              backgroundColor: Color(0xFFA0C4FD).withOpacity(0.3),
-              child: Icon(Icons.person, size: 30, color: Color(0xFF2B3F99)),
+              backgroundColor: AppColors.primaryLight.withOpacity(0.3),
+              child: Icon(Icons.person, size: 30, color: AppColors.info),
             ),
             SizedBox(width: 16),
             Expanded(
@@ -657,7 +658,7 @@ class _GuardianAddUnknownCaregiverScreenState
                     style: TextStyle(
                       fontSize: 16,
                       fontWeight: FontWeight.bold,
-                      color: Color(0xFF2B3F99),
+                      color: AppColors.info,
                     ),
                   ),
                   if (city.isNotEmpty) ...[
@@ -667,14 +668,14 @@ class _GuardianAddUnknownCaregiverScreenState
                         Icon(
                           Icons.location_on,
                           size: 16,
-                          color: Colors.grey[600],
+                          color: AppColors.onSurfaceVariant,
                         ),
                         SizedBox(width: 4),
                         Text(
                           city,
                           style: TextStyle(
                             fontSize: 12,
-                            color: Colors.grey[600],
+                            color: AppColors.onSurfaceVariant,
                           ),
                         ),
                       ],
@@ -684,13 +685,17 @@ class _GuardianAddUnknownCaregiverScreenState
                     SizedBox(height: 4),
                     Row(
                       children: [
-                        Icon(Icons.star, size: 16, color: Colors.grey[600]),
+                        Icon(
+                          Icons.star,
+                          size: 16,
+                          color: AppColors.onSurfaceVariant,
+                        ),
                         SizedBox(width: 4),
                         Text(
                           'Skills: $skills',
                           style: TextStyle(
                             fontSize: 12,
-                            color: Colors.grey[600],
+                            color: AppColors.onSurfaceVariant,
                           ),
                         ),
                       ],
@@ -700,13 +705,17 @@ class _GuardianAddUnknownCaregiverScreenState
                     SizedBox(height: 4),
                     Row(
                       children: [
-                        Icon(Icons.work, size: 16, color: Colors.grey[600]),
+                        Icon(
+                          Icons.work,
+                          size: 16,
+                          color: AppColors.onSurfaceVariant,
+                        ),
                         SizedBox(width: 4),
                         Text(
                           'Experience: $experience',
                           style: TextStyle(
                             fontSize: 12,
-                            color: Colors.grey[600],
+                            color: AppColors.onSurfaceVariant,
                           ),
                         ),
                       ],
@@ -720,8 +729,8 @@ class _GuardianAddUnknownCaregiverScreenState
                 ElevatedButton(
                   onPressed: () => _viewProfile(caregiver),
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: Color(0xFFA0C4FD),
-                    foregroundColor: Color(0xFF2B3F99),
+                    backgroundColor: AppColors.primaryLight,
+                    foregroundColor: AppColors.info,
                     padding: EdgeInsets.symmetric(horizontal: 12, vertical: 8),
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(8),
@@ -736,8 +745,8 @@ class _GuardianAddUnknownCaregiverScreenState
                 ElevatedButton(
                   onPressed: () => _showConnectionRequestDialog(caregiver),
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: Color(0xFFA0C4FD),
-                    foregroundColor: Color(0xFF2B3F99),
+                    backgroundColor: AppColors.primaryLight,
+                    foregroundColor: AppColors.info,
                     padding: EdgeInsets.symmetric(horizontal: 12, vertical: 8),
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(8),
@@ -764,18 +773,18 @@ class _GuardianAddUnknownCaregiverScreenState
           selectedPatient.toString(),
     );
     return Scaffold(
-      backgroundColor: Colors.grey[50],
+      backgroundColor: AppColors.surfaceVariant,
       appBar: AppBar(
         title: Text(
           'Add Unknown Caregiver',
           style: TextStyle(
-            fontSize: 24,
-            fontWeight: FontWeight.bold,
-            color: Color(0xFF2B3F99),
+            fontSize: 20,
+            fontWeight: FontWeight.w600,
+            color: Colors.black87,
           ),
         ),
-        backgroundColor: Colors.white,
-        iconTheme: IconThemeData(color: Color(0xFF2B3F99)),
+        backgroundColor: AppColors.surface,
+        iconTheme: IconThemeData(color: Colors.black),
         elevation: 0,
         centerTitle: false,
       ),
@@ -788,7 +797,7 @@ class _GuardianAddUnknownCaregiverScreenState
             Padding(
               padding: const EdgeInsets.only(bottom: 16.0),
               child: Card(
-                color: Color(0xFFA0C4FD).withOpacity(0.18),
+                color: AppColors.primaryLight.withOpacity(0.18),
                 elevation: 0,
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(10),
@@ -800,7 +809,7 @@ class _GuardianAddUnknownCaregiverScreenState
                   ),
                   child: Row(
                     children: [
-                      Icon(Icons.person, color: Color(0xFF2B3F99)),
+                      Icon(Icons.person, color: AppColors.info),
                       SizedBox(width: 12),
                       Expanded(
                         child: selectedPatient != null
@@ -812,7 +821,7 @@ class _GuardianAddUnknownCaregiverScreenState
                                     style: TextStyle(
                                       fontSize: 16,
                                       fontWeight: FontWeight.bold,
-                                      color: Color(0xFF2B3F99),
+                                      color: AppColors.info,
                                     ),
                                   ),
                                   if ((selectedPatient!['city'] ?? '')
@@ -822,7 +831,7 @@ class _GuardianAddUnknownCaregiverScreenState
                                       selectedPatient!['city'],
                                       style: TextStyle(
                                         fontSize: 14,
-                                        color: Colors.grey[600],
+                                        color: AppColors.onSurfaceVariant,
                                       ),
                                     ),
                                 ],
@@ -831,7 +840,7 @@ class _GuardianAddUnknownCaregiverScreenState
                                 'No patient selected',
                                 style: TextStyle(
                                   fontSize: 16,
-                                  color: Colors.grey[500],
+                                  color: AppColors.onSurfaceVariant,
                                 ),
                               ),
                       ),
@@ -845,13 +854,13 @@ class _GuardianAddUnknownCaregiverScreenState
               style: TextStyle(
                 fontSize: 16,
                 fontWeight: FontWeight.bold,
-                color: Color(0xFF2B3F99),
+                color: AppColors.info,
               ),
             ),
             SizedBox(height: 12),
             Container(
               decoration: BoxDecoration(
-                border: Border.all(color: Colors.grey[300]!),
+                border: Border.all(color: AppColors.outline),
                 borderRadius: BorderRadius.circular(8),
               ),
               child: DropdownButtonFormField<String>(
@@ -863,7 +872,10 @@ class _GuardianAddUnknownCaregiverScreenState
                   ),
                   border: InputBorder.none,
                   hintText: 'Select City',
-                  prefixIcon: Icon(Icons.search, color: Colors.grey[600]),
+                  prefixIcon: Icon(
+                    Icons.search,
+                    color: AppColors.onSurfaceVariant,
+                  ),
                 ),
                 items: sriLankanCities.map((city) {
                   return DropdownMenuItem<String>(
@@ -884,13 +896,16 @@ class _GuardianAddUnknownCaregiverScreenState
                     style: TextStyle(
                       fontSize: 16,
                       fontWeight: FontWeight.bold,
-                      color: Color(0xFF2B3F99),
+                      color: AppColors.info,
                     ),
                   ),
                 ),
                 Text(
                   '${filteredCaregivers.length} found',
-                  style: TextStyle(fontSize: 14, color: Colors.grey[600]),
+                  style: TextStyle(
+                    fontSize: 14,
+                    color: AppColors.onSurfaceVariant,
+                  ),
                 ),
               ],
             ),
@@ -908,7 +923,7 @@ class _GuardianAddUnknownCaregiverScreenState
                           child: Text(
                             errorMessage!,
                             textAlign: TextAlign.center,
-                            style: TextStyle(color: Colors.red[600]),
+                            style: TextStyle(color: AppColors.error),
                           ),
                         ),
                       );
@@ -920,14 +935,14 @@ class _GuardianAddUnknownCaregiverScreenState
                             Icon(
                               Icons.search_off,
                               size: 64,
-                              color: Colors.grey[400],
+                              color: AppColors.onSurfaceVariant,
                             ),
                             SizedBox(height: 16),
                             Text(
                               'No caregivers found',
                               style: TextStyle(
                                 fontSize: 16,
-                                color: Colors.grey[600],
+                                color: AppColors.onSurfaceVariant,
                               ),
                               textAlign: TextAlign.center,
                             ),
@@ -936,7 +951,7 @@ class _GuardianAddUnknownCaregiverScreenState
                               'Try selecting a different location',
                               style: TextStyle(
                                 fontSize: 14,
-                                color: Colors.grey[500],
+                                color: AppColors.onSurfaceVariant,
                               ),
                               textAlign: TextAlign.center,
                             ),
