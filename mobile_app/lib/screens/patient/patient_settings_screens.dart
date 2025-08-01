@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../../routes/app_routes.dart';
+import '../../constants/color_constants.dart';
 
 class PatientSettingsScreen extends StatefulWidget {
   @override
@@ -22,8 +23,8 @@ class _PatientSettingsScreenState extends State<PatientSettingsScreen> {
       color: Colors.transparent,
       child: InkWell(
         onTap: onTap,
-        splashColor: Colors.blue.withOpacity(0.1),
-        highlightColor: Colors.blue.withOpacity(0.05),
+        splashColor: AppColors.primaryLight.withOpacity(0.1),
+        highlightColor: AppColors.primaryLight.withOpacity(0.05),
         child: Container(
           padding: EdgeInsets.symmetric(vertical: 16, horizontal: 20),
           child: Row(
@@ -37,14 +38,17 @@ class _PatientSettingsScreenState extends State<PatientSettingsScreen> {
                       style: TextStyle(
                         fontSize: 16,
                         fontWeight: FontWeight.w500,
-                        color: Colors.black87,
+                        color: AppColors.primary,
                       ),
                     ),
                     if (subtitle.isNotEmpty) ...[
                       SizedBox(height: 4),
                       Text(
                         subtitle,
-                        style: TextStyle(fontSize: 14, color: Colors.grey[600]),
+                        style: TextStyle(
+                          fontSize: 14, 
+                          color: AppColors.onSurfaceVariant,
+                        ),
                       ),
                     ],
                   ],
@@ -81,7 +85,7 @@ class _PatientSettingsScreenState extends State<PatientSettingsScreen> {
                     });
                     Navigator.of(context).pop();
                   },
-                  activeColor: Color(0xFF2B3F99),
+                  activeColor: AppColors.primary,
                 );
               },
             ),
@@ -142,12 +146,12 @@ class _PatientSettingsScreenState extends State<PatientSettingsScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.grey[50],
+      backgroundColor: AppColors.lightAccent,
       appBar: AppBar(
-        backgroundColor: Colors.white,
+        backgroundColor: AppColors.surface,
         elevation: 0,
         leading: IconButton(
-          icon: Icon(Icons.arrow_back, color: Colors.black87),
+          icon: Icon(Icons.arrow_back, color: AppColors.primary),
           onPressed: () {
             Navigator.pushNamedAndRemoveUntil(
               context,
@@ -161,7 +165,7 @@ class _PatientSettingsScreenState extends State<PatientSettingsScreen> {
           style: TextStyle(
             fontSize: 20,
             fontWeight: FontWeight.w600,
-            color: Colors.black87,
+            color: AppColors.primary,
           ),
         ),
         centerTitle: false,
@@ -169,7 +173,7 @@ class _PatientSettingsScreenState extends State<PatientSettingsScreen> {
       body: Column(
         children: [
           Container(
-            color: Colors.white,
+            color: AppColors.surface,
             child: Column(
               children: [
                 _buildSettingsItem(
@@ -182,31 +186,31 @@ class _PatientSettingsScreenState extends State<PatientSettingsScreen> {
                         _receiveNotifications = value;
                       });
                     },
-                    activeColor: Color(0xFFA0C4FD),
+                    activeColor: AppColors.primaryLight,
                   ),
                 ),
-                Divider(height: 1, thickness: 1, color: Colors.grey[200]),
+                Divider(height: 1, thickness: 1, color: AppColors.outline),
 
                 _buildSettingsItem(
                   title: 'Language',
                   subtitle: _selectedLanguage,
-                  trailing: Icon(Icons.chevron_right, color: Colors.grey[600]),
+                  trailing: Icon(Icons.chevron_right, color: AppColors.onSurfaceVariant),
                   onTap: _showLanguageDialog,
                 ),
-                Divider(height: 1, thickness: 1, color: Colors.grey[200]),
+                Divider(height: 1, thickness: 1, color: AppColors.outline),
 
                 _buildSettingsItem(
                   title: 'Privacy',
                   subtitle: 'Manage your data',
-                  trailing: Icon(Icons.chevron_right, color: Colors.grey[600]),
+                  trailing: Icon(Icons.chevron_right, color: AppColors.onSurfaceVariant),
                   onTap: _showPrivacyScreen,
                 ),
-                Divider(height: 1, thickness: 1, color: Colors.grey[200]),
+                Divider(height: 1, thickness: 1, color: AppColors.outline),
 
                 _buildSettingsItem(
                   title: 'Help',
                   subtitle: 'FAQs and support',
-                  trailing: Icon(Icons.chevron_right, color: Color(0xFF2B3F99)),
+                  trailing: Icon(Icons.chevron_right, color: AppColors.primary),
                   onTap: _showHelpScreen,
                 ),
               ],
@@ -222,8 +226,8 @@ class _PatientSettingsScreenState extends State<PatientSettingsScreen> {
             child: ElevatedButton(
               onPressed: _showLogoutDialog,
               style: ElevatedButton.styleFrom(
-                backgroundColor: Color(0xA0C4FD).withOpacity(0.35),
-                foregroundColor: Color(0xFF2B3F99),
+                backgroundColor: AppColors.lightAccent,
+                foregroundColor: AppColors.primary,
                 padding: EdgeInsets.symmetric(vertical: 16),
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(8),

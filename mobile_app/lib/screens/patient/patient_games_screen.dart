@@ -126,8 +126,8 @@ class PatientGamesScreen extends StatelessWidget {
               child: ElevatedButton(
                 onPressed: onTap,
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: PatientColors.primaryLight,
-                  foregroundColor: PatientColors.primary,
+                  backgroundColor: AppColors.lightAccent,
+                  foregroundColor: AppColors.primary,
                   padding: const EdgeInsets.symmetric(vertical: 16),
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(12),
