@@ -4,6 +4,7 @@ import 'dart:io';
 import 'dart:async';
 import 'package:flutter/material.dart';
 import '../../routes/app_routes.dart';
+import '../../constants/color_constants.dart';
 
 // 1. Error Types and Models
 enum ErrorType {
@@ -203,11 +204,11 @@ class _SelectTypeWithErrorHandlingState extends State<SelectTypeWithErrorHandlin
           'Add Task',
           style: TextStyle(
             color: Colors.black87,
-            fontSize: 18,
-            fontWeight: FontWeight.w500,
+            fontSize: 20,
+            fontWeight: FontWeight.w600,
           ),
         ),
-        centerTitle: true,
+        centerTitle: false,
         actions: [
           IconButton(
             icon: Icon(Icons.notifications_outlined, color: Colors.black87),
@@ -379,7 +380,7 @@ class _SelectTypeWithErrorHandlingState extends State<SelectTypeWithErrorHandlin
             Icon(
               Icons.calendar_today,
               size: 20,
-              color: Colors.black,
+              color: AppColors.primaryDark,
             ),
             SizedBox(width: 12),
             Text(
@@ -387,7 +388,7 @@ class _SelectTypeWithErrorHandlingState extends State<SelectTypeWithErrorHandlin
               style: TextStyle(
                 fontSize: 16,
                 fontWeight: FontWeight.w600,
-                color: Colors.black,
+                color: AppColors.primaryDark,
               ),
             ),
           ],

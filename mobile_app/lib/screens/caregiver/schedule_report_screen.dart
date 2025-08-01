@@ -76,7 +76,7 @@ class _ScheduleReportScreenState extends State<ScheduleReportScreen> {
                     backgroundColor: Color(0xFFA0C4FD),
                     child: Icon(
                       Icons.person,
-                      color: Color(0xFF2B3F99),
+                      color: Color(0xFF1c1c84),
                       size: 30,
                     ),
                   ),
