@@ -5,6 +5,7 @@ import 'volunteer_bottom_navigation_screen.dart';
 import '../../routes/app_routes.dart';
 import '../../widgets/volunteer_articles_tab_body.dart';
 import '../../widgets/volunteer_qa_tab_body.dart';
+import '../../constants/color_constants.dart';
 
 class VolunteerCommunityScreen extends StatefulWidget {
   const VolunteerCommunityScreen({Key? key}) : super(key: key);
@@ -54,12 +55,13 @@ class _VolunteerCommunityScreenState extends State<VolunteerCommunityScreen>
         centerTitle: false,
         bottom: TabBar(
           controller: _tabController,
-          labelColor: Color(0xFF2B3F99),
-          unselectedLabelColor: Colors.grey,
-          indicatorColor: Color(0xFF2B3F99),
+          labelColor: AppColors.info,
+          unselectedLabelColor: AppColors.onSurfaceVariant,
+          indicatorColor: AppColors.info,
+          splashFactory: NoSplash.splashFactory,
           labelStyle: const TextStyle(
             fontWeight: FontWeight.w600,
-            fontSize: 15,
+            fontSize: 18,
           ),
           tabs: const [
             Tab(text: 'Articles'),
