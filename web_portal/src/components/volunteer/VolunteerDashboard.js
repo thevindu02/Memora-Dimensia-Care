@@ -1,5 +1,5 @@
 // src/components/volunteers/VolunteerDashboard.js
-import React, { useState } from 'react';
+import React, { useState, onNavigate } from 'react';
 import {
   Box,
   Typography,
@@ -16,9 +16,6 @@ import {
   ListItemAvatar,
   ListItemText,
   Divider,
-  Drawer,
-  ListItemButton,
-  ListItemIcon,
   Menu,
   MenuItem,
 } from '@mui/material';
@@ -31,12 +28,10 @@ import AccessTimeIcon from '@mui/icons-material/AccessTime';
 import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
 import VisibilityIcon from '@mui/icons-material/Visibility';
-import SettingsIcon from '@mui/icons-material/Settings';
-import DashboardIcon from '@mui/icons-material/Dashboard';
-import WriteIcon from '@mui/icons-material/Create';
 
 import VolunteerNav from './VolunteerNav';
 import Footer from '../home/Footer';
+import SideBar from './SideBar';
 
 import {
   Chart as ChartJS,
@@ -60,8 +55,8 @@ const colors = {
   backgroundLight: '#F7F8FA',
 };
 
-// Sample volunteer info (placeholder)
-const volunteerName = "Alex Morgan";
+// Sample volunteer info (should be provided by parent or context)
+const volunteerName = "Amanda Nethmini";
 const volunteerProfileImage = "https://randomuser.me/api/portraits/women/44.jpg";
 
 const stats = [
@@ -214,121 +209,73 @@ const QuickActionButton = ({ label, icon, tooltip, onClick }) => (
   </Tooltip>
 );
 
-const SidebarContent = ({ onNavigate }) => (
-  <Box
+const StatCard = ({ label, value, icon: IconComp, bgColor, iconColor }) => (
+  <Paper
+    elevation={4}
     sx={{
-      width: 240,
-      bgcolor: colors.white,
-      height: '100%',
       display: 'flex',
-      flexDirection: 'column',
-      p: 2,
-      borderRight: `1px solid ${colors.softLavender}`,
+      alignItems: 'center',
+      gap: 2,
+      bgcolor: colors.white,
+      borderRadius: 3,
+      p: 3,
+      boxShadow: `0 6px 20px ${colors.softLavender}99`,
+      cursor: 'default',
+      userSelect: 'none',
     }}
-    role="presentation"
   >
-    {/* Profile Section with Picture */}
-    <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, mb: 3 }}>
-      <Avatar
-        alt={volunteerName}
-        src={volunteerProfileImage}
-        sx={{ width: 56, height: 56, border: `2px solid ${colors.deepPurple}` }}
-      />
-      <Box>
-        <Typography variant="subtitle1" sx={{ mb: 0.2, color: colors.calmNavy, fontWeight: 'bold' }}>
-          Welcome,
-        </Typography>
-        <Typography variant="h6" sx={{ color: colors.deepPurple, fontWeight: 'bold' }}>
-          {volunteerName}
-        </Typography>
-        <Typography variant="body2" sx={{ color: colors.lightSkyBlue, fontStyle: 'italic' }}>
-          Volunteer Contributor
-        </Typography>
-      </Box>
+    <Box
+      sx={{
+        width: 54,
+        height: 54,
+        bgcolor: bgColor,
+        borderRadius: '50%',
+        display: 'flex',
+        justifyContent: 'center',
+        alignItems: 'center',
+        boxShadow: `0 2px 8px ${bgColor}bb`,
+        color: iconColor,
+        flexShrink: 0,
+      }}
+    >
+      <IconComp sx={{ fontSize: 28 }} />
     </Box>
-    <Divider sx={{ mb: 2 }} />
-    <List>
-      <ListItemButton onClick={() => onNavigate('Dashboard')}>
-        <ListItemIcon>
-          <DashboardIcon sx={{ color: colors.deepPurple }} />
-        </ListItemIcon>
-        <ListItemText primary="Dashboard" />
-      </ListItemButton>
-      <ListItemButton onClick={() => onNavigate('Write Blog')}>
-        <ListItemIcon>
-          <WriteIcon sx={{ color: colors.deepPurple }} />
-        </ListItemIcon>
-        <ListItemText primary="New Blog" />
-      </ListItemButton>
-      <ListItemButton onClick={() => onNavigate('Schedule Session')}>
-        <ListItemIcon>
-          <ScheduleIcon sx={{ color: colors.deepPurple }} />
-        </ListItemIcon>
-        <ListItemText primary="Schedule Session" />
-      </ListItemButton>
-      <ListItemButton onClick={() => onNavigate('Forum')}>
-        <ListItemIcon>
-          <ForumIcon sx={{ color: colors.deepPurple }} />
-        </ListItemIcon>
-        <ListItemText primary="Forum" />
-      </ListItemButton>
-      <ListItemButton onClick={() => onNavigate('Settings')}>
-        <ListItemIcon>
-          <SettingsIcon sx={{ color: colors.deepPurple }} />
-        </ListItemIcon>
-        <ListItemText primary="Settings" />
-      </ListItemButton>
-    </List>
-  </Box>
+    <Box>
+      <Typography variant="h5" sx={{ color: colors.deepPurple, fontWeight: 700, lineHeight: 1 }}>
+        {value}
+      </Typography>
+      <Typography variant="body2" sx={{ color: colors.calmNavy, fontWeight: 600 }}>
+        {label}
+      </Typography>
+    </Box>
+  </Paper>
 );
 
-export default function VolunteerDashboard() {
-  const [sidebarOpen, setSidebarOpen] = useState(false);
-
-  // State for profile dropdown menu
+export default function VolunteerDashboard({ volunteerName, volunteerProfileImage, onNavigate }) {
+  // Profile dropdown menu state
   const [anchorEl, setAnchorEl] = useState(null);
   const openProfileMenu = Boolean(anchorEl);
 
-  // Handlers for sidebar toggle and navigation clicks
-  const toggleSidebar = () => {
-    setSidebarOpen((open) => !open);
-  };
-
-  const handleNavigate = (page) => {
-    alert(`Navigate to ${page} - implement your routing here`);
-    setSidebarOpen(false); // close sidebar on navigation
-  };
-
-  const handleActionClick = (action) => {
-    alert(`Action triggered: ${action}`);
-  };
-
-  // Profile menu handlers
-  const handleProfileClick = (event) => {
-    setAnchorEl(event.currentTarget);
-  };
-
-  const handleProfileClose = () => {
-    setAnchorEl(null);
-  };
+  // Handlers
+  const handleProfileClick = (event) => setAnchorEl(event.currentTarget);
+  const handleProfileClose = () => setAnchorEl(null);
 
   const handleMenuItemClick = (option) => {
     alert(`You clicked ${option}`);
     handleProfileClose();
-    // Add your routing or sign-out logic here
   };
+
+  // Handlers for quick action buttons
+  const handleActionClick = (action) => alert(`Action triggered: ${action}`);
 
   return (
     <>
+          <SideBar
+        volunteerName={volunteerName}
+        profileImage={volunteerProfileImage}
+        onNavigate={onNavigate}
+      />
       <VolunteerNav />
-      <Drawer
-        anchor="left"
-        open={sidebarOpen}
-        onClose={() => setSidebarOpen(false)}
-        PaperProps={{ sx: { bgcolor: colors.white, width: 240 } }}
-      >
-        <SidebarContent onNavigate={handleNavigate} />
-      </Drawer>
       <Box
         sx={{
           bgcolor: colors.backgroundLight,
@@ -338,29 +285,20 @@ export default function VolunteerDashboard() {
           fontFamily: 'Poppins, Lato, Nunito, Arial, sans-serif',
           color: colors.calmNavy,
           position: 'relative',
+          ml: { md: 30 }, // Leave space for sidebar on md+ screens if sidebar fixed outside
         }}
       >
         <Container maxWidth="lg">
-          {/* Header with sidebar toggle */}
+          {/* Header */}
           <Box
             sx={{
               display: 'flex',
               alignItems: 'center',
               mb: { xs: 4, md: 6 },
               gap: 2,
+              justifyContent: 'space-between',
             }}
           >
-            <IconButton
-              onClick={toggleSidebar}
-              aria-label={sidebarOpen ? 'Close menu' : 'Open menu'}
-              sx={{
-                color: colors.deepPurple,
-                border: `1px solid ${colors.deepPurple}`,
-                '&:hover': { bgcolor: colors.softLavender },
-              }}
-            >
-              <MenuIcon />
-            </IconButton>
             <Typography variant="h4" sx={{ fontWeight: 700, color: colors.deepPurple, flexGrow: 1 }}>
               Volunteer Dashboard
             </Typography>
@@ -382,7 +320,6 @@ export default function VolunteerDashboard() {
               />
             </IconButton>
 
-            {/* Dropdown Menu */}
             <Menu
               id="profile-menu"
               anchorEl={anchorEl}
@@ -401,12 +338,8 @@ export default function VolunteerDashboard() {
               transformOrigin={{ horizontal: 'right', vertical: 'top' }}
               anchorOrigin={{ horizontal: 'right', vertical: 'bottom' }}
             >
-              <MenuItem onClick={() => handleMenuItemClick('Profile')}>
-                Profile
-              </MenuItem>
-              <MenuItem onClick={() => handleMenuItemClick('Sign Out')}>
-                Sign Out
-              </MenuItem>
+              <MenuItem onClick={() => handleMenuItemClick('Profile')}>Profile</MenuItem>
+              <MenuItem onClick={() => handleMenuItemClick('Sign Out')}>Sign Out</MenuItem>
             </Menu>
           </Box>
 
@@ -427,45 +360,7 @@ export default function VolunteerDashboard() {
           <Grid container spacing={3} sx={{ mb: 6 }}>
             {stats.map(({ label, value, icon: IconComp, bgColor, iconColor }) => (
               <Grid item xs={12} sm={6} md={3} key={label}>
-                <Paper
-                  elevation={4}
-                  sx={{
-                    display: 'flex',
-                    alignItems: 'center',
-                    gap: 2,
-                    bgcolor: colors.white,
-                    borderRadius: 3,
-                    p: 3,
-                    boxShadow: `0 6px 20px ${colors.softLavender}99`,
-                    cursor: 'default',
-                    userSelect: 'none',
-                  }}
-                >
-                  <Box
-                    sx={{
-                      width: 54,
-                      height: 54,
-                      bgcolor: bgColor,
-                      borderRadius: '50%',
-                      display: 'flex',
-                      justifyContent: 'center',
-                      alignItems: 'center',
-                      boxShadow: `0 2px 8px ${bgColor}bb`,
-                      color: iconColor,
-                      flexShrink: 0,
-                    }}
-                  >
-                    <IconComp sx={{ fontSize: 28 }} />
-                  </Box>
-                  <Box>
-                    <Typography variant="h5" sx={{ color: colors.deepPurple, fontWeight: 700, lineHeight: 1 }}>
-                      {value}
-                    </Typography>
-                    <Typography variant="body2" sx={{ color: colors.calmNavy, fontWeight: 600 }}>
-                      {label}
-                    </Typography>
-                  </Box>
-                </Paper>
+                <StatCard label={label} value={value} icon={IconComp} bgColor={bgColor} iconColor={iconColor} />
               </Grid>
             ))}
           </Grid>
