@@ -5,6 +5,7 @@ import { Box } from '@mui/material';
 import VolunteerDashboard from './VolunteerDashboard';
 import CreateBlog from './CreateBlog';
 import ScheduleSession from './ScheduleSession';
+import QnAforum from './QnAforum';
 
 export default function VolunteerRoutes() {
   const [currentPage, setCurrentPage] = useState('Dashboard');
@@ -32,7 +33,8 @@ export default function VolunteerRoutes() {
         )}
         {currentPage === 'Write Blog' && <CreateBlog />}
         {currentPage === 'Schedule Session' && <ScheduleSession />}
-        {/* Add other pages similarly */}
+        {currentPage === 'Forum' && <QnAforum/>}
+       
       </Box>
 
       {/* <Footer /> -- Also moved inside Dashboard or all pages layout */}
