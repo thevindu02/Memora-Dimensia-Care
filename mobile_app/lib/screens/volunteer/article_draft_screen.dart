@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'package:http/http.dart' as http;
 import '../../services/api_constants.dart';
 import '../../services/auth_service.dart';
+import '../../constants/color_constants.dart';
 
 class ArticleDraftScreen extends StatefulWidget {
   const ArticleDraftScreen({Key? key}) : super(key: key);
@@ -148,7 +149,7 @@ class _ArticleDraftScreenState extends State<ArticleDraftScreen> {
             children: [
               Row(
                 children: [
-                  Icon(Icons.drafts, color: Colors.orange, size: 24),
+                  Icon(Icons.drafts, color: AppColors.info),
                   SizedBox(width: 8),
                   Expanded(
                     child: Text(
@@ -220,7 +221,7 @@ class _ArticleDraftScreenState extends State<ArticleDraftScreen> {
                         draft['categoryName'],
                         style: TextStyle(
                           fontSize: 12,
-                          color: Colors.blue[700],
+                          color: Colors.black,
                           fontWeight: FontWeight.w500,
                         ),
                       ),
@@ -446,6 +447,12 @@ class _DraftEditScreenState extends State<DraftEditScreen> {
           _categoryIds = data
               .map<int>((cat) => cat['categoryId'] as int)
               .toList();
+
+          // Validate that the selected category ID exists in the loaded categories
+          if (_selectedCategoryId != null &&
+              !_categoryIds.contains(_selectedCategoryId)) {
+            _selectedCategoryId = null;
+          }
         });
       }
     } catch (e) {
@@ -517,8 +524,8 @@ class _DraftEditScreenState extends State<DraftEditScreen> {
             child: ElevatedButton(
               onPressed: _isLoading ? null : _saveDraft,
               style: ElevatedButton.styleFrom(
-                backgroundColor: Color(0xFF87CEEB), // Sky blue color
-                foregroundColor: Colors.white,
+                backgroundColor: AppColors.primaryLight, // Light Sky Blue color
+                foregroundColor: AppColors.deep,
                 padding: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(8),
@@ -529,7 +536,7 @@ class _DraftEditScreenState extends State<DraftEditScreen> {
                 'Save',
                 style: TextStyle(
                   fontWeight: FontWeight.w600,
-                  color: Colors.black,
+                  color: AppColors.deep,
                 ),
               ),
             ),
@@ -549,7 +556,10 @@ class _DraftEditScreenState extends State<DraftEditScreen> {
                   // Category Dropdown
                   Text(
                     'Category',
-                    style: TextStyle(fontWeight: FontWeight.w600),
+                    style: TextStyle(
+                      fontWeight: FontWeight.w600,
+                      color: Colors.black,
+                    ),
                   ),
                   SizedBox(height: 8),
                   DropdownButtonFormField<int>(
@@ -557,7 +567,10 @@ class _DraftEditScreenState extends State<DraftEditScreen> {
                     items: List.generate(_categories.length, (index) {
                       return DropdownMenuItem(
                         value: _categoryIds[index],
-                        child: Text(_categories[index]),
+                        child: Text(
+                          _categories[index],
+                          style: TextStyle(color: Colors.black),
+                        ),
                       );
                     }),
                     onChanged: (val) =>
@@ -573,17 +586,29 @@ class _DraftEditScreenState extends State<DraftEditScreen> {
                     ),
                     validator: (val) =>
                         val == null ? 'Please select a category' : null,
-                    hint: Text('Select Category'),
+                    hint: Text(
+                      'Select Category',
+                      style: TextStyle(color: Colors.grey),
+                    ),
+                    style: TextStyle(color: Colors.black),
                   ),
                   SizedBox(height: 16),
 
                   // Title Field
-                  Text('Title', style: TextStyle(fontWeight: FontWeight.w600)),
+                  Text(
+                    'Title',
+                    style: TextStyle(
+                      fontWeight: FontWeight.w600,
+                      color: Colors.black,
+                    ),
+                  ),
                   SizedBox(height: 8),
                   TextFormField(
                     controller: _titleController,
+                    style: TextStyle(color: Colors.black),
                     decoration: InputDecoration(
                       hintText: 'Enter article title',
+                      hintStyle: TextStyle(color: Colors.grey),
                       border: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(12),
                       ),
@@ -595,13 +620,21 @@ class _DraftEditScreenState extends State<DraftEditScreen> {
                   SizedBox(height: 16),
 
                   // tag Field
-                  Text('Tags', style: TextStyle(fontWeight: FontWeight.w600)),
+                  Text(
+                    'Tags',
+                    style: TextStyle(
+                      fontWeight: FontWeight.w600,
+                      color: Colors.black,
+                    ),
+                  ),
                   SizedBox(height: 8),
                   TextFormField(
                     controller: _summaryController,
                     maxLines: 1,
+                    style: TextStyle(color: Colors.black),
                     decoration: InputDecoration(
                       hintText: 'Enter tags (comma separated)',
+                      hintStyle: TextStyle(color: Colors.grey),
                       border: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(12),
                       ),
@@ -613,14 +646,19 @@ class _DraftEditScreenState extends State<DraftEditScreen> {
                   // Content Field
                   Text(
                     'Content',
-                    style: TextStyle(fontWeight: FontWeight.w600),
+                    style: TextStyle(
+                      fontWeight: FontWeight.w600,
+                      color: Colors.black,
+                    ),
                   ),
                   SizedBox(height: 8),
                   TextFormField(
                     controller: _contentController,
                     maxLines: 8,
+                    style: TextStyle(color: Colors.black),
                     decoration: InputDecoration(
                       hintText: 'Write your article content here...',
+                      hintStyle: TextStyle(color: Colors.grey),
                       border: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(12),
                       ),
@@ -639,10 +677,9 @@ class _DraftEditScreenState extends State<DraftEditScreen> {
                         child: ElevatedButton(
                           onPressed: _isLoading ? null : _saveDraft,
                           style: ElevatedButton.styleFrom(
-                            backgroundColor: Color(
-                              0xFF87CEEB,
-                            ), // Sky blue color
-                            foregroundColor: Colors.white,
+                            backgroundColor:
+                                AppColors.primaryLight, // Light Sky Blue color
+                            foregroundColor: AppColors.deep,
                             padding: EdgeInsets.symmetric(vertical: 16),
                             shape: RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(12),
