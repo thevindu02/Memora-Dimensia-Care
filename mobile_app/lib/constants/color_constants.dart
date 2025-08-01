@@ -8,10 +8,10 @@ class AppColors {
   static const Color primaryLight = Color(0xFFA0C4FD);      // Light Sky Blue  
   static const Color primaryDark = Color(0xFF1c1c84);       // Deep Navy
   static const Color onPrimary = Color(0xFFFFFFFF);         // White text on primary
-  
   // Secondary Theme Colors
   static const Color secondary = Color(0xFFA0C4FD);         // Light Sky Blue
   static const Color accent = Color(0xFFC3B1E1);            // Soft Lavender
+  static const Color lightAccent = Color(0xFFECE2FD);       // Light Soft Lavender
   static const Color onSecondary = Color(0xFF000000);       // Black text on secondary
   
   // Info/Calm Colors
@@ -36,8 +36,8 @@ class AppColors {
   
   // Semantic colors
   static const Color error = Color(0xFFE57373);
-  static const Color success = Color(0xFF4CAF50);
-  static const Color successBackground = Color(0xFFE8F5E8);
+  static const Color success = Color(0xFF39A45D);
+  static const Color successBackground = Color(0xFFD3F4D6);
   static const Color warning = Color(0xFFFF9800);
   
   // Outline and shadow

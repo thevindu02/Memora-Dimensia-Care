@@ -4,7 +4,6 @@ import 'dart:io';
 import 'dart:async';
 import 'package:flutter/material.dart';
 import '../../routes/app_routes.dart';
-import '../../constants/color_constants.dart';
 
 // 1. Error Types and Models
 enum ErrorType {
@@ -135,7 +134,6 @@ class Approute {
   static const String addTask = '/add-task';
   static const String addMedication = '/add-medication';
   static const String addAppointment = '/add-appointment';
-  static const String todayRoutine = '/today-routine';
 }
 
 // 5. Enhanced SelectType Widget with Error Handling
@@ -145,7 +143,6 @@ class SelectTypeWithErrorHandling extends StatefulWidget {
 }
 
 class _SelectTypeWithErrorHandlingState extends State<SelectTypeWithErrorHandling> {
-  int _currentIndex = 1;
   bool _isLoading = false;
   String? _errorMessage;
 
@@ -204,11 +201,11 @@ class _SelectTypeWithErrorHandlingState extends State<SelectTypeWithErrorHandlin
           'Add Task',
           style: TextStyle(
             color: Colors.black87,
-            fontSize: 20,
-            fontWeight: FontWeight.w600,
+            fontSize: 18,
+            fontWeight: FontWeight.w500,
           ),
         ),
-        centerTitle: false,
+        centerTitle: true,
         actions: [
           IconButton(
             icon: Icon(Icons.notifications_outlined, color: Colors.black87),
@@ -219,7 +216,6 @@ class _SelectTypeWithErrorHandlingState extends State<SelectTypeWithErrorHandlin
         ],
       ),
       body: _buildBody(),
-      bottomNavigationBar: _buildBottomNavigation(),
     );
   }
 
@@ -234,19 +230,11 @@ class _SelectTypeWithErrorHandlingState extends State<SelectTypeWithErrorHandlin
 
     return Padding(
       padding: EdgeInsets.all(16),
-      child: Column(
-        children: [
-          Expanded(
-            child: ListView.builder(
-              itemCount: routineCards.length,
-              itemBuilder: (context, index) {
-                return _buildRoutineCard(routineCards[index]);
-              },
-            ),
-          ),
-          SizedBox(height: 16),
-          _buildTodayRoutineButton(),
-        ],
+      child: ListView.builder(
+        itemCount: routineCards.length,
+        itemBuilder: (context, index) {
+          return _buildRoutineCard(routineCards[index]);
+        },
       ),
     );
   }
@@ -353,89 +341,6 @@ class _SelectTypeWithErrorHandlingState extends State<SelectTypeWithErrorHandlin
             ),
           ],
         ),
-      ),
-    );
-  }
-
-  Widget _buildTodayRoutineButton() {
-    return Container(
-      width: double.infinity,
-      height: 56,
-      child: ElevatedButton(
-        onPressed: () {
-          Navigator.pushNamed(context, AppRoutes.patientRoutine);
-        },
-        style: ElevatedButton.styleFrom(
-          backgroundColor: Color(0xFF9FC3FC),
-          foregroundColor: Colors.white,
-          elevation: 2,
-          shadowColor: Colors.black.withOpacity(0.1),
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(12),
-          ),
-        ),
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Icon(
-              Icons.calendar_today,
-              size: 20,
-              color: AppColors.primaryDark,
-            ),
-            SizedBox(width: 12),
-            Text(
-              'Today Routine',
-              style: TextStyle(
-                fontSize: 16,
-                fontWeight: FontWeight.w600,
-                color: AppColors.primaryDark,
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget _buildBottomNavigation() {
-    return Container(
-      decoration: BoxDecoration(
-        color: Colors.white,
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.05),
-            blurRadius: 10,
-            offset: Offset(0, -2),
-          ),
-        ],
-      ),
-      child: BottomNavigationBar(
-        currentIndex: _currentIndex,
-        onTap: (index) {
-          if (index == 0) { // Patients tab
-            // Navigate to detailed patients screen
-            Navigator.pushNamed(context, AppRoutes.caregiverDashboard);
-          }else if(index==3){
-            Navigator.pushNamed(context, AppRoutes.caregiverProfile);
-          }
-          else if(index==2){
-            Navigator.pushNamed(context, AppRoutes.viewArticleList);
-          }
-          else {
-            setState(() {
-              _currentIndex = index;
-            });
-          }
-        },
-        type: BottomNavigationBarType.fixed,
-        selectedItemColor: Color(0xFF2B3F99),
-        unselectedItemColor: Color(0xFF2B3F99),
-        items: const [
-          BottomNavigationBarItem(icon: Icon(Icons.home_outlined), label: 'Home'),
-          BottomNavigationBarItem(icon: Icon(Icons.people), label: 'Patients'),
-          BottomNavigationBarItem(icon: Icon(Icons.article_outlined), label: 'Community'),
-          BottomNavigationBarItem(icon: Icon(Icons.person_outline), label: 'Profile'),
-        ],
       ),
     );
   }
@@ -1427,29 +1332,6 @@ class _SelectTypeWithErrorHandlingState extends State<SelectTypeWithErrorHandlin
     );
   }
 
-  void _showTodayRoutineDialog() {
-    _showCustomDialog(
-      title: 'Today\'s Routine',
-      content: 'View and manage your routine for today.',
-      icon: Icons.today,
-      iconColor: Color(0xFF6C9BD1),
-      actions: [
-        TextButton(
-          onPressed: () => Navigator.pop(context),
-          child: Text('Close'),
-        ),
-        ElevatedButton(
-          onPressed: () {
-            Navigator.pop(context);
-            // Navigate to today's routine page
-            _safeNavigate('/today-routine');
-          },
-          child: Text('View Routine'),
-        ),
-      ],
-    );
-  }
-
   void _showCustomDialog({
     required String title,
     required String content,
@@ -1501,28 +1383,6 @@ class _SelectTypeWithErrorHandlingState extends State<SelectTypeWithErrorHandlin
         );
       },
     );
-  }
-
-  void _handleBottomNavigation(int index) {
-    try {
-      if (index == 0) {
-        _safeNavigate(Approute.caregiverDashboard);
-      } else if (index == 2) {
-        _safeNavigate(Approute.viewArticleList);
-      } else if (index == 3) {
-        _safeNavigate(Approute.caregiverProfile);
-      } else {
-        setState(() {
-          _currentIndex = index;
-        });
-      }
-    } catch (e) {
-      ErrorHandler.handleError(AppError(
-        type: ErrorType.navigation,
-        message: 'Failed to navigate to tab',
-        details: e.toString(),
-      ));
-    }
   }
 
   void _safeNavigate(String route) {

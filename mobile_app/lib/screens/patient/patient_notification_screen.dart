@@ -11,7 +11,8 @@ class PatientNotificationScreen extends StatefulWidget {
 
 class _PatientNotificationScreenState extends State<PatientNotificationScreen> {
   int unreadCount = 3;
-  int readCount = 1;
+  int readCount = 2;
+  bool showUnread = true; // Track which tab is active
 
   List<NotificationItem> notifications = [
     NotificationItem(
@@ -37,6 +38,22 @@ class _PatientNotificationScreenState extends State<PatientNotificationScreen> {
       icon: Icons.playlist_add_check,
       iconColor: PatientColors.error,
       isRead: false,
+    ),
+    NotificationItem(
+      id: 4,
+      title: "Medicine taken successfully",
+      time: "1 hour ago",
+      icon: Icons.medical_services,
+      iconColor: PatientColors.success,
+      isRead: true,
+    ),
+    NotificationItem(
+      id: 5,
+      title: "Exercise completed",
+      time: "3 hours ago",
+      icon: Icons.fitness_center,
+      iconColor: PatientColors.activityPhysical,
+      isRead: true,
     ),
   ];
 
@@ -98,97 +115,115 @@ class _PatientNotificationScreenState extends State<PatientNotificationScreen> {
               children: [
                 // Unread notifications tab
                 Expanded(
-                  child: Container(
-                    padding: const EdgeInsets.symmetric(vertical: 12),
-                    decoration: BoxDecoration(
-                      color: PatientColors.primaryLight,
-                      borderRadius: BorderRadius.circular(25),
-                    ),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Container(
-                          width: 8,
-                          height: 8,
-                          decoration: const BoxDecoration(
-                            color: PatientColors.primary,
-                            shape: BoxShape.circle,
-                          ),
-                        ),
-                        const SizedBox(width: 8),
-                        const Text(
-                          'Unread notification',
-                          style: TextStyle(
-                            color: PatientColors.primary,
-                            fontWeight: FontWeight.w500,
-                          ),
-                        ),
-                        const SizedBox(width: 8),
-                        Container(
-                          padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
-                          decoration: BoxDecoration(
-                            color: PatientColors.primary,
-                            borderRadius: BorderRadius.circular(10),
-                          ),
-                          child: Text(
-                            '$unreadCount',
-                            style: const TextStyle(
-                              color: PatientColors.onPrimary,
-                              fontSize: 12,
-                              fontWeight: FontWeight.bold,
+                  child: GestureDetector(
+                    onTap: () {
+                      setState(() {
+                        showUnread = true;
+                      });
+                    },
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(vertical: 12),
+                      decoration: BoxDecoration(
+                        color: showUnread ? PatientColors.primaryLight : Colors.transparent,
+                        borderRadius: BorderRadius.circular(25),
+                      ),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Container(
+                            width: 8,
+                            height: 8,
+                            decoration: BoxDecoration(
+                              color: showUnread ? PatientColors.primary : PatientColors.onSurfaceVariant,
+                              shape: BoxShape.circle,
                             ),
                           ),
-                        ),
-                      ],
+                          const SizedBox(width: 8),
+                          Text(
+                            'Unread notification',
+                            style: TextStyle(
+                              color: showUnread ? PatientColors.primary : PatientColors.onSurfaceVariant,
+                              fontWeight: FontWeight.w500,
+                            ),
+                          ),
+                          const SizedBox(width: 8),
+                          Container(
+                            padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                            decoration: BoxDecoration(
+                              color: showUnread ? PatientColors.primary : PatientColors.onSurfaceVariant,
+                              borderRadius: BorderRadius.circular(10),
+                            ),
+                            child: Text(
+                              '$unreadCount',
+                              style: const TextStyle(
+                                color: PatientColors.onPrimary,
+                                fontSize: 12,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
                     ),
                   ),
                 ),
                 const SizedBox(width: 12),
                 // Read notifications tab
                 Expanded(
-                  child: Container(
-                    padding: const EdgeInsets.symmetric(vertical: 12),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Container(
-                          width: 20,
-                          height: 20,
-                          decoration: const BoxDecoration(
-                            color: PatientColors.success,
-                            shape: BoxShape.circle,
-                          ),
-                          child: const Icon(
-                            Icons.check,
-                            color: PatientColors.onPrimary,
-                            size: 14,
-                          ),
-                        ),
-                        const SizedBox(width: 8),
-                        const Text(
-                          'Read notifications',
-                          style: TextStyle(
-                            color: PatientColors.onSurfaceVariant,
-                            fontWeight: FontWeight.w500,
-                          ),
-                        ),
-                        const SizedBox(width: 8),
-                        Container(
-                          padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
-                          decoration: BoxDecoration(
-                            color: PatientColors.success,
-                            borderRadius: BorderRadius.circular(10),
-                          ),
-                          child: Text(
-                            '$readCount',
-                            style: const TextStyle(
+                  child: GestureDetector(
+                    onTap: () {
+                      setState(() {
+                        showUnread = false;
+                      });
+                    },
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(vertical: 12),
+                      decoration: BoxDecoration(
+                        color: !showUnread ? PatientColors.primaryLight : Colors.transparent,
+                        borderRadius: BorderRadius.circular(25),
+                      ),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Container(
+                            width: 20,
+                            height: 20,
+                            decoration: BoxDecoration(
+                              color: !showUnread ? PatientColors.success : PatientColors.onSurfaceVariant,
+                              shape: BoxShape.circle,
+                            ),
+                            child: const Icon(
+                              Icons.check,
                               color: PatientColors.onPrimary,
-                              fontSize: 12,
-                              fontWeight: FontWeight.bold,
+                              size: 14,
                             ),
                           ),
-                        ),
-                      ],
+                          const SizedBox(width: 8),
+                          Text(
+                            'Read notifications',
+                            style: TextStyle(
+                              color: !showUnread ? PatientColors.success : PatientColors.onSurfaceVariant,
+                              fontWeight: FontWeight.w500,
+                            ),
+                          ),
+                          const SizedBox(width: 8),
+                          Container(
+                            padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                            decoration: BoxDecoration(
+                              color: !showUnread ? PatientColors.success : PatientColors.onSurfaceVariant,
+                              borderRadius: BorderRadius.circular(10),
+                            ),
+                            child: Text(
+                              '$readCount',
+                              style: const TextStyle(
+                                color: PatientColors.onPrimary,
+                                fontSize: 12,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
                     ),
                   ),
                 ),
@@ -200,10 +235,40 @@ class _PatientNotificationScreenState extends State<PatientNotificationScreen> {
           Expanded(
             child: ListView.builder(
               padding: const EdgeInsets.symmetric(horizontal: 16),
-              itemCount: notifications.where((n) => !n.isRead).length,
+              itemCount: showUnread 
+                  ? notifications.where((n) => !n.isRead).length
+                  : notifications.where((n) => n.isRead).length,
               itemBuilder: (context, index) {
-                final unreadNotifications = notifications.where((n) => !n.isRead).toList();
-                final notification = unreadNotifications[index];
+                final filteredNotifications = showUnread
+                    ? notifications.where((n) => !n.isRead).toList()
+                    : notifications.where((n) => n.isRead).toList();
+                
+                if (filteredNotifications.isEmpty) {
+                  return Center(
+                    child: Padding(
+                      padding: const EdgeInsets.all(32.0),
+                      child: Column(
+                        children: [
+                          Icon(
+                            showUnread ? Icons.notifications_none : Icons.check_circle_outline,
+                            size: 64,
+                            color: PatientColors.onSurfaceVariant,
+                          ),
+                          const SizedBox(height: 16),
+                          Text(
+                            showUnread ? 'No unread notifications' : 'No read notifications',
+                            style: const TextStyle(
+                              color: PatientColors.onSurfaceVariant,
+                              fontSize: 16,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  );
+                }
+                
+                final notification = filteredNotifications[index];
 
                 return Container(
                   margin: const EdgeInsets.only(bottom: 12),
@@ -274,18 +339,20 @@ class _PatientNotificationScreenState extends State<PatientNotificationScreen> {
                         // Action buttons
                         Column(
                           children: [
-                            GestureDetector(
-                              onTap: () => markAsRead(notification.id),
-                              child: Text(
-                                'Mark as read',
-                                style: TextStyle(
-                                  color: PatientColors.primary,
-                                  fontSize: 12,
-                                  fontWeight: FontWeight.w500,
+                            if (!notification.isRead) ...[
+                              GestureDetector(
+                                onTap: () => markAsRead(notification.id),
+                                child: Text(
+                                  'Mark as read',
+                                  style: TextStyle(
+                                    color: PatientColors.primary,
+                                    fontSize: 12,
+                                    fontWeight: FontWeight.w500,
+                                  ),
                                 ),
                               ),
-                            ),
-                            const SizedBox(height: 8),
+                              const SizedBox(height: 8),
+                            ],
                             GestureDetector(
                               onTap: () => dismissNotification(notification.id),
                               child: Icon(

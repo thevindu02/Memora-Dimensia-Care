@@ -20,30 +20,30 @@ class PatientBottomNavigationBar extends StatelessWidget {
       items: [
         BottomNavigationBarItem(
           icon: currentIndex == 0
-              ? Icon(Icons.dashboard, color: PatientColors.navigationActive)
+              ? Icon(Icons.dashboard, color: AppColors.primary)
               : Icon(Icons.dashboard_outlined),
           label: 'Dashboard',
         ),
         BottomNavigationBarItem(
           icon: currentIndex == 1
-              ? Icon(Icons.notifications, color: PatientColors.navigationActive)
+              ? Icon(Icons.notifications, color: AppColors.primary)
               : Icon(Icons.notifications_none),
           label: 'Notifications',
         ),
         BottomNavigationBarItem(
           icon: currentIndex == 2
-              ? Icon(Icons.videogame_asset, color: PatientColors.navigationActive)
+              ? Icon(Icons.videogame_asset, color: AppColors.primary)
               : Icon(Icons.videogame_asset_outlined),
           label: 'Games',
         ),
         BottomNavigationBarItem(
           icon: currentIndex == 3
-              ? Icon(Icons.person, color: PatientColors.navigationActive)
+              ? Icon(Icons.person, color: AppColors.primary)
               : Icon(Icons.person_outline),
           label: 'Profile',
         ),
       ],
-      selectedItemColor: PatientColors.navigationActive,
+      selectedItemColor: AppColors.primary,
       unselectedItemColor: PatientColors.navigationInactive,
       showUnselectedLabels: true,
     );
