@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../../routes/app_routes.dart';
+import '../../constants/color_constants.dart';
 
 class CustomBottomNavigationBar extends StatelessWidget {
   final int currentIndex;
@@ -17,13 +18,10 @@ class CustomBottomNavigationBar extends StatelessWidget {
       currentIndex: currentIndex,
       onTap: onTap,
       type: BottomNavigationBarType.fixed,
-      backgroundColor: Colors.white,
-      selectedItemColor: Color(0xFF2B3F99),
-      unselectedItemColor: Colors.grey[600],
-      selectedLabelStyle: TextStyle(
-        fontWeight: FontWeight.w600,
-        fontSize: 12,
-      ),
+      backgroundColor: AppColors.surface,
+      selectedItemColor: AppColors.info,
+      unselectedItemColor: AppColors.onSurfaceVariant,
+      selectedLabelStyle: TextStyle(fontWeight: FontWeight.w600, fontSize: 12),
       unselectedLabelStyle: TextStyle(
         fontWeight: FontWeight.w400,
         fontSize: 12,
@@ -59,26 +57,30 @@ class BottomNavHelper {
   static void handleNavigation(BuildContext context, int index) {
     switch (index) {
       case 0:
-      // Only navigate if not already on dashboard
-        if (ModalRoute.of(context)?.settings.name != AppRoutes.guardianDashboard) {
+        // Only navigate if not already on dashboard
+        if (ModalRoute.of(context)?.settings.name !=
+            AppRoutes.guardianDashboard) {
           Navigator.pushReplacementNamed(context, AppRoutes.guardianDashboard);
         }
         break;
       case 1:
-      // Only navigate if not already on articles
-        if (ModalRoute.of(context)?.settings.name != AppRoutes.guardianArticles) {
+        // Only navigate if not already on articles
+        if (ModalRoute.of(context)?.settings.name !=
+            AppRoutes.guardianArticles) {
           Navigator.pushReplacementNamed(context, AppRoutes.guardianArticles);
         }
         break;
       case 2:
-      // Only navigate if not already on Q&A forums
-        if (ModalRoute.of(context)?.settings.name != AppRoutes.guardianQAForums) {
+        // Only navigate if not already on Q&A forums
+        if (ModalRoute.of(context)?.settings.name !=
+            AppRoutes.guardianQAForums) {
           Navigator.pushReplacementNamed(context, AppRoutes.guardianQAForums);
         }
         break;
       case 3:
-      // Only navigate if not already on profile
-        if (ModalRoute.of(context)?.settings.name != AppRoutes.guardianProfile) {
+        // Only navigate if not already on profile
+        if (ModalRoute.of(context)?.settings.name !=
+            AppRoutes.guardianProfile) {
           Navigator.pushReplacementNamed(context, AppRoutes.guardianProfile);
         }
         break;

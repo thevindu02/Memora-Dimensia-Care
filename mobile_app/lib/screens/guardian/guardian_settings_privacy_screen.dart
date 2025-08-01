@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../../constants/color_constants.dart';
 
 class GuardianSettingsPrivacyScreen extends StatefulWidget {
   @override
@@ -15,23 +16,23 @@ class _PrivacySettingsScreenState extends State<GuardianSettingsPrivacyScreen> {
     required ValueChanged<bool> onChanged,
   }) {
     return Container(
-      color: Colors.white,
+      color: AppColors.surface,
       child: SwitchListTile(
         title: Text(
           title,
           style: TextStyle(
             fontSize: 16,
             fontWeight: FontWeight.w500,
-            color: Colors.black87,
+            color: AppColors.onSurface,
           ),
         ),
         subtitle: Text(
           subtitle,
-          style: TextStyle(fontSize: 14, color: Colors.grey[600]),
+          style: TextStyle(fontSize: 14, color: AppColors.onSurfaceVariant),
         ),
         value: value,
         onChanged: onChanged,
-        activeColor: Colors.blue,
+        activeColor: AppColors.primaryLight,
         contentPadding: EdgeInsets.symmetric(horizontal: 20, vertical: 8),
       ),
     );
@@ -45,7 +46,7 @@ class _PrivacySettingsScreenState extends State<GuardianSettingsPrivacyScreen> {
     required ValueChanged<String?> onChanged,
   }) {
     return Container(
-      color: Colors.white,
+      color: AppColors.surface,
       padding: EdgeInsets.symmetric(horizontal: 20, vertical: 16),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -55,20 +56,20 @@ class _PrivacySettingsScreenState extends State<GuardianSettingsPrivacyScreen> {
             style: TextStyle(
               fontSize: 16,
               fontWeight: FontWeight.w500,
-              color: Colors.black87,
+              color: AppColors.onSurface,
             ),
           ),
           SizedBox(height: 4),
           Text(
             subtitle,
-            style: TextStyle(fontSize: 14, color: Colors.grey[600]),
+            style: TextStyle(fontSize: 14, color: AppColors.onSurfaceVariant),
           ),
           SizedBox(height: 12),
           Container(
             width: double.infinity,
             padding: EdgeInsets.symmetric(horizontal: 12),
             decoration: BoxDecoration(
-              border: Border.all(color: Colors.grey[300]!),
+              border: Border.all(color: AppColors.outline),
               borderRadius: BorderRadius.circular(8),
             ),
             child: DropdownButton<String>(
@@ -169,12 +170,12 @@ class _PrivacySettingsScreenState extends State<GuardianSettingsPrivacyScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.grey[50],
+      backgroundColor: AppColors.surfaceVariant,
       appBar: AppBar(
-        backgroundColor: Colors.white,
+        backgroundColor: AppColors.surface,
         elevation: 0,
         leading: IconButton(
-          icon: Icon(Icons.arrow_back, color: Colors.black87),
+          icon: Icon(Icons.arrow_back, color: Colors.black),
           onPressed: () => Navigator.pop(context),
         ),
         title: Text(
@@ -182,7 +183,7 @@ class _PrivacySettingsScreenState extends State<GuardianSettingsPrivacyScreen> {
           style: TextStyle(
             fontSize: 20,
             fontWeight: FontWeight.w600,
-            color: Colors.black87,
+            color: AppColors.onSurface,
           ),
         ),
         centerTitle: false,

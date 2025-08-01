@@ -3,6 +3,7 @@ import '../../routes/app_routes.dart';
 import '../../services/patient_service.dart';
 import '../../services/auth_service.dart';
 import '../../services/guardian_service.dart'; // Add this import
+import '../../constants/color_constants.dart';
 
 class GuardianAddCaregiverScreen extends StatefulWidget {
   @override
@@ -116,12 +117,8 @@ class _GuardianAddCaregiverScreenState
                 children: [
                   CircleAvatar(
                     radius: 25,
-                    backgroundColor: Color(0xFFA0C4FD).withOpacity(0.3),
-                    child: Icon(
-                      Icons.person,
-                      color: Color(0xFF2B3F99),
-                      size: 30,
-                    ),
+                    backgroundColor: AppColors.primaryLight.withOpacity(0.3),
+                    child: Icon(Icons.person, color: AppColors.info, size: 30),
                   ),
                   SizedBox(width: 16),
                   Expanded(
@@ -133,7 +130,7 @@ class _GuardianAddCaregiverScreenState
                           style: TextStyle(
                             fontSize: 16,
                             fontWeight: FontWeight.w600,
-                            color: Color(0xFF2B3F99),
+                            color: AppColors.info,
                           ),
                         ),
                         SizedBox(height: 4),
@@ -151,7 +148,7 @@ class _GuardianAddCaregiverScreenState
                               patient['dementiaStage'] ?? '',
                               style: TextStyle(
                                 fontSize: 12,
-                                color: Color(0xFF2B3F99),
+                                color: AppColors.info,
                                 fontWeight: FontWeight.w500,
                               ),
                             ),
@@ -221,7 +218,7 @@ class _GuardianAddCaregiverScreenState
                   color: Color(0xFFA0C4FD).withOpacity(0.35),
                   shape: BoxShape.circle,
                 ),
-                child: Icon(icon, size: 28, color: Color(0xFF2B3F99)),
+                child: Icon(icon, size: 28, color: AppColors.info),
               ),
               SizedBox(width: 16),
               Expanded(
@@ -233,13 +230,16 @@ class _GuardianAddCaregiverScreenState
                       style: TextStyle(
                         fontSize: 18,
                         fontWeight: FontWeight.w600,
-                        color: Color(0xFF2B3F99),
+                        color: AppColors.info,
                       ),
                     ),
                     SizedBox(height: 4),
                     Text(
                       subtitle,
-                      style: TextStyle(fontSize: 14, color: Colors.grey[600]),
+                      style: TextStyle(
+                        fontSize: 14,
+                        color: AppColors.onSurfaceVariant,
+                      ),
                     ),
                   ],
                 ),
@@ -262,21 +262,21 @@ class _GuardianAddCaregiverScreenState
       );
     }
     return Scaffold(
-      backgroundColor: Colors.grey[50],
+      backgroundColor: AppColors.surfaceVariant,
       appBar: AppBar(
-        backgroundColor: Colors.white,
+        backgroundColor: AppColors.surface,
         elevation: 0,
         title: Text(
           'Add Caregiver',
           style: TextStyle(
-            fontSize: 24,
-            fontWeight: FontWeight.bold,
-            color: Color(0xFF2B3F99),
+            fontSize: 20,
+            fontWeight: FontWeight.w600,
+            color: Colors.black87,
           ),
         ),
         centerTitle: false,
         leading: IconButton(
-          icon: Icon(Icons.arrow_back, color: Color(0xFF2B3F99)),
+          icon: Icon(Icons.arrow_back, color: Colors.black),
           onPressed: () {
             if (selectedPatient != null) {
               setState(() {
@@ -290,7 +290,7 @@ class _GuardianAddCaregiverScreenState
         actions: [
           if (selectedPatient == null)
             IconButton(
-              icon: Icon(Icons.refresh, color: Color(0xFF2B3F99)),
+              icon: Icon(Icons.refresh, color: AppColors.info),
               onPressed: _fetchPatients,
             ),
         ],
@@ -309,13 +309,16 @@ class _GuardianAddCaregiverScreenState
                   style: TextStyle(
                     fontSize: 18,
                     fontWeight: FontWeight.w600,
-                    color: Color(0xFF2B3F99),
+                    color: AppColors.info,
                   ),
                 ),
                 SizedBox(height: 8),
                 Text(
                   'Choose which patient you want to add a caregiver for',
-                  style: TextStyle(fontSize: 14, color: Colors.grey[600]),
+                  style: TextStyle(
+                    fontSize: 14,
+                    color: AppColors.onSurfaceVariant,
+                  ),
                 ),
                 SizedBox(height: 20),
                 if (isLoading)
@@ -415,11 +418,11 @@ class _GuardianAddCaregiverScreenState
                 Container(
                   padding: EdgeInsets.all(16),
                   decoration: BoxDecoration(
-                    color: Colors.white, // PURE WHITE background
+                    color: AppColors.surface, // PURE WHITE background
                     borderRadius: BorderRadius.circular(12),
                     boxShadow: [
                       BoxShadow(
-                        color: Colors.grey.withOpacity(0.18),
+                        color: AppColors.shadow,
                         spreadRadius: 1,
                         blurRadius: 12,
                         offset: Offset(0, 4),
@@ -433,7 +436,7 @@ class _GuardianAddCaregiverScreenState
                         children: [
                           Icon(
                             Icons.info_outline,
-                            color: Color(0xFF2B3F99),
+                            color: AppColors.info,
                             size: 20,
                           ),
                           SizedBox(width: 8),
@@ -442,7 +445,7 @@ class _GuardianAddCaregiverScreenState
                               'Selected patient: ${selectedPatient?['name'] ?? 'N/A'}',
                               style: TextStyle(
                                 fontSize: 14,
-                                color: Colors.grey[700],
+                                color: AppColors.onSurfaceVariant,
                                 fontWeight: FontWeight.w500,
                               ),
                               overflow: TextOverflow.ellipsis,
@@ -457,7 +460,7 @@ class _GuardianAddCaregiverScreenState
                             child: Text(
                               'Change',
                               style: TextStyle(
-                                color: Color(0xFF2B3F99),
+                                color: AppColors.info,
                                 fontWeight: FontWeight.w500,
                                 fontSize: 13,
                               ),
@@ -474,13 +477,16 @@ class _GuardianAddCaregiverScreenState
                   style: TextStyle(
                     fontSize: 18,
                     fontWeight: FontWeight.w600,
-                    color: Color(0xFF2B3F99),
+                    color: AppColors.info,
                   ),
                 ),
                 SizedBox(height: 8),
                 Text(
                   'Select how you want to add a caregiver',
-                  style: TextStyle(fontSize: 14, color: Colors.grey[600]),
+                  style: TextStyle(
+                    fontSize: 14,
+                    color: AppColors.onSurfaceVariant,
+                  ),
                 ),
                 SizedBox(height: 20),
                 _buildCaregiverTypeCard(

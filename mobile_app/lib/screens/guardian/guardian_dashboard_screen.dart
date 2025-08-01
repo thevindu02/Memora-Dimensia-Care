@@ -4,6 +4,7 @@ import '../../routes/app_routes.dart';
 import '../../services/patient_service.dart';
 import '../../services/auth_service.dart';
 import '../../services/guardian_service.dart'; // Added import for GuardianService
+import '../../constants/color_constants.dart';
 import 'guardian_bottom_nav_bar.dart';
 
 class GuardianDashboardScreen extends StatefulWidget {
@@ -59,11 +60,7 @@ class _GuardianDashboardScreenState extends State<GuardianDashboardScreen> {
     ],
   };
 
-  // Color palette
-  static const Color softLavender = Color(0xFFC3B1E1);
-  static const Color deepPurple = Color(0xFF390797);
-  static const Color lightSkyBlue = Color(0xFFA0C4FD);
-  static const Color calmNavy = Color(0xFF2B3F99);
+  // Color palette - using AppColors for consistency
 
   IconData _getAlertIcon(String type) {
     switch (type) {
@@ -81,13 +78,13 @@ class _GuardianDashboardScreenState extends State<GuardianDashboardScreen> {
   Color _getAlertColor(String type) {
     switch (type) {
       case 'Wandering Alert':
-        return Colors.redAccent; // High contrast for wandering alerts
+        return AppColors.error; // High contrast for wandering alerts
       case 'Task Skipped':
-        return softLavender;
+        return AppColors.accent;
       case 'Biometric Anomaly':
-        return deepPurple;
+        return AppColors.primary;
       default:
-        return lightSkyBlue;
+        return AppColors.primaryLight;
     }
   }
 
@@ -202,17 +199,20 @@ class _GuardianDashboardScreenState extends State<GuardianDashboardScreen> {
           margin: EdgeInsets.only(bottom: 16),
           padding: EdgeInsets.all(20),
           decoration: BoxDecoration(
-            color: Colors.white,
+            color: AppColors.surface,
             borderRadius: BorderRadius.circular(16),
             boxShadow: [
               BoxShadow(
-                color: Colors.grey.withOpacity(0.08),
+                color: AppColors.shadow,
                 spreadRadius: 0,
                 blurRadius: 20,
                 offset: Offset(0, 4),
               ),
             ],
-            border: Border.all(color: Colors.grey.withOpacity(0.05), width: 1),
+            border: Border.all(
+              color: AppColors.outline.withOpacity(0.05),
+              width: 1,
+            ),
           ),
           child: Row(
             children: [
@@ -222,15 +222,15 @@ class _GuardianDashboardScreenState extends State<GuardianDashboardScreen> {
                 decoration: BoxDecoration(
                   gradient: LinearGradient(
                     colors: [
-                      Color(0xFF2B3F99).withOpacity(0.1),
-                      Color(0xFFA0C4FD).withOpacity(0.2),
+                      AppColors.info.withOpacity(0.1),
+                      AppColors.primaryLight.withOpacity(0.2),
                     ],
                     begin: Alignment.topLeft,
                     end: Alignment.bottomRight,
                   ),
                   shape: BoxShape.circle,
                 ),
-                child: Icon(Icons.person, color: Color(0xFF2B3F99), size: 28),
+                child: Icon(Icons.person, color: AppColors.info, size: 28),
               ),
               SizedBox(width: 16),
               Expanded(
@@ -242,7 +242,7 @@ class _GuardianDashboardScreenState extends State<GuardianDashboardScreen> {
                       style: TextStyle(
                         fontSize: 18,
                         fontWeight: FontWeight.w700,
-                        color: Colors.black87,
+                        color: AppColors.onSurface,
                         letterSpacing: -0.5,
                       ),
                     ),
@@ -250,14 +250,14 @@ class _GuardianDashboardScreenState extends State<GuardianDashboardScreen> {
                     Container(
                       padding: EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                       decoration: BoxDecoration(
-                        color: Color(0xFFA0C4FD).withOpacity(0.2),
+                        color: AppColors.primaryLight.withOpacity(0.2),
                         borderRadius: BorderRadius.circular(12),
                       ),
                       child: Text(
                         patient['dementiaStage'] ?? '',
                         style: TextStyle(
                           fontSize: 12,
-                          color: Color(0xFF2B3F99),
+                          color: AppColors.info,
                           fontWeight: FontWeight.w600,
                         ),
                       ),
@@ -283,23 +283,26 @@ class _GuardianDashboardScreenState extends State<GuardianDashboardScreen> {
       child: InkWell(
         onTap: onTap,
         borderRadius: BorderRadius.circular(16),
-        splashColor: Colors.blue.withOpacity(0.3),
-        highlightColor: Colors.blue.withOpacity(0.2),
+        splashColor: AppColors.primaryLight.withOpacity(0.3),
+        highlightColor: AppColors.primaryLight.withOpacity(0.2),
         child: Container(
           width: 100,
           padding: EdgeInsets.symmetric(vertical: 20, horizontal: 16),
           decoration: BoxDecoration(
-            color: Colors.white,
+            color: AppColors.surface,
             borderRadius: BorderRadius.circular(16),
             boxShadow: [
               BoxShadow(
-                color: Colors.grey.withOpacity(0.08),
+                color: AppColors.shadow,
                 spreadRadius: 0,
                 blurRadius: 20,
                 offset: Offset(0, 4),
               ),
             ],
-            border: Border.all(color: Colors.grey.withOpacity(0.05), width: 1),
+            border: Border.all(
+              color: AppColors.outline.withOpacity(0.05),
+              width: 1,
+            ),
           ),
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
@@ -310,22 +313,22 @@ class _GuardianDashboardScreenState extends State<GuardianDashboardScreen> {
                 decoration: BoxDecoration(
                   gradient: LinearGradient(
                     colors: [
-                      Color(0xFF2B3F99).withOpacity(0.1),
-                      Color(0xFFA0C4FD).withOpacity(0.3),
+                      AppColors.info.withOpacity(0.1),
+                      AppColors.primaryLight.withOpacity(0.3),
                     ],
                     begin: Alignment.topLeft,
                     end: Alignment.bottomRight,
                   ),
                   shape: BoxShape.circle,
                 ),
-                child: Icon(icon, size: 26, color: Color(0xFF2B3F99)),
+                child: Icon(icon, size: 26, color: AppColors.info),
               ),
               SizedBox(height: 12),
               Text(
                 label,
                 style: TextStyle(
                   fontSize: 12,
-                  color: Colors.black87,
+                  color: AppColors.onSurface,
                   fontWeight: FontWeight.w600,
                   letterSpacing: -0.2,
                 ),
@@ -394,9 +397,9 @@ class _GuardianDashboardScreenState extends State<GuardianDashboardScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Color(0xFFF8FAFC),
+      backgroundColor: AppColors.surfaceVariant,
       appBar: AppBar(
-        backgroundColor: Colors.white,
+        backgroundColor: AppColors.surface,
         elevation: 0,
         title: Row(
           children: [
@@ -412,7 +415,7 @@ class _GuardianDashboardScreenState extends State<GuardianDashboardScreen> {
               style: TextStyle(
                 fontSize: 24,
                 fontWeight: FontWeight.w800,
-                color: Colors.black87,
+                color: AppColors.onSurface,
                 letterSpacing: -0.5,
               ),
             ),
@@ -425,7 +428,7 @@ class _GuardianDashboardScreenState extends State<GuardianDashboardScreen> {
           IconButton(
             icon: Icon(
               Icons.notifications_none_outlined,
-              color: Colors.black,
+              color: AppColors.onSurface,
               size: 28,
             ),
             onPressed: () {
@@ -446,9 +449,7 @@ class _GuardianDashboardScreenState extends State<GuardianDashboardScreen> {
                 child: Container(
                   padding: EdgeInsets.all(40),
                   child: CircularProgressIndicator(
-                    valueColor: AlwaysStoppedAnimation<Color>(
-                      Color(0xFF2B3F99),
-                    ),
+                    valueColor: AlwaysStoppedAnimation<Color>(AppColors.info),
                   ),
                 ),
               )
@@ -457,11 +458,11 @@ class _GuardianDashboardScreenState extends State<GuardianDashboardScreen> {
                 width: double.infinity,
                 padding: EdgeInsets.all(32),
                 decoration: BoxDecoration(
-                  color: Colors.white,
+                  color: AppColors.surface,
                   borderRadius: BorderRadius.circular(16),
                   boxShadow: [
                     BoxShadow(
-                      color: Colors.grey.withOpacity(0.08),
+                      color: AppColors.shadow,
                       spreadRadius: 0,
                       blurRadius: 20,
                       offset: Offset(0, 4),
@@ -473,7 +474,7 @@ class _GuardianDashboardScreenState extends State<GuardianDashboardScreen> {
                     Icon(
                       Icons.person_add_outlined,
                       size: 48,
-                      color: Colors.grey[400],
+                      color: AppColors.onSurfaceVariant,
                     ),
                     SizedBox(height: 16),
                     Text(
@@ -481,13 +482,16 @@ class _GuardianDashboardScreenState extends State<GuardianDashboardScreen> {
                       style: TextStyle(
                         fontSize: 16,
                         fontWeight: FontWeight.w600,
-                        color: Colors.grey[600],
+                        color: AppColors.onSurfaceVariant,
                       ),
                     ),
                     SizedBox(height: 8),
                     Text(
                       'Add your first patient to get started',
-                      style: TextStyle(fontSize: 14, color: Colors.grey[500]),
+                      style: TextStyle(
+                        fontSize: 14,
+                        color: AppColors.onSurfaceVariant,
+                      ),
                     ),
                   ],
                 ),
@@ -505,7 +509,7 @@ class _GuardianDashboardScreenState extends State<GuardianDashboardScreen> {
                   style: TextStyle(
                     fontSize: 22,
                     fontWeight: FontWeight.w800,
-                    color: Colors.black87,
+                    color: AppColors.onSurface,
                     letterSpacing: -0.5,
                   ),
                 ),
@@ -514,7 +518,7 @@ class _GuardianDashboardScreenState extends State<GuardianDashboardScreen> {
                   width: 6,
                   height: 6,
                   decoration: BoxDecoration(
-                    color: Color(0xFF2B3F99),
+                    color: AppColors.info,
                     shape: BoxShape.circle,
                   ),
                 ),
@@ -578,7 +582,7 @@ class _GuardianDashboardScreenState extends State<GuardianDashboardScreen> {
                   style: TextStyle(
                     fontSize: 22,
                     fontWeight: FontWeight.w800,
-                    color: Colors.black87,
+                    color: AppColors.onSurface,
                     letterSpacing: -0.5,
                   ),
                 ),
@@ -586,7 +590,7 @@ class _GuardianDashboardScreenState extends State<GuardianDashboardScreen> {
                 Container(
                   padding: EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                   decoration: BoxDecoration(
-                    color: Color(0xFF2B3F99).withOpacity(0.1),
+                    color: AppColors.info.withOpacity(0.1),
                     borderRadius: BorderRadius.circular(12),
                   ),
                   child: Text(
@@ -594,7 +598,7 @@ class _GuardianDashboardScreenState extends State<GuardianDashboardScreen> {
                     style: TextStyle(
                       fontSize: 12,
                       fontWeight: FontWeight.w700,
-                      color: Color(0xFF2B3F99),
+                      color: AppColors.info,
                     ),
                   ),
                 ),
@@ -608,11 +612,11 @@ class _GuardianDashboardScreenState extends State<GuardianDashboardScreen> {
                 width: double.infinity,
                 padding: EdgeInsets.all(32),
                 decoration: BoxDecoration(
-                  color: Colors.white,
+                  color: AppColors.surface,
                   borderRadius: BorderRadius.circular(16),
                   boxShadow: [
                     BoxShadow(
-                      color: Colors.grey.withOpacity(0.08),
+                      color: AppColors.shadow,
                       spreadRadius: 0,
                       blurRadius: 20,
                       offset: Offset(0, 4),
@@ -624,7 +628,7 @@ class _GuardianDashboardScreenState extends State<GuardianDashboardScreen> {
                     Icon(
                       Icons.notifications_none_outlined,
                       size: 48,
-                      color: Colors.grey[400],
+                      color: AppColors.onSurfaceVariant,
                     ),
                     SizedBox(height: 16),
                     Text(
@@ -632,13 +636,16 @@ class _GuardianDashboardScreenState extends State<GuardianDashboardScreen> {
                       style: TextStyle(
                         fontSize: 16,
                         fontWeight: FontWeight.w600,
-                        color: Colors.grey[600],
+                        color: AppColors.onSurfaceVariant,
                       ),
                     ),
                     SizedBox(height: 8),
                     Text(
                       'All clear! No alerts at the moment.',
-                      style: TextStyle(fontSize: 14, color: Colors.grey[500]),
+                      style: TextStyle(
+                        fontSize: 14,
+                        color: AppColors.onSurfaceVariant,
+                      ),
                     ),
                   ],
                 ),
