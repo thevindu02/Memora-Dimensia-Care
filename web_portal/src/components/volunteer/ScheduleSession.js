@@ -48,7 +48,7 @@ const InfoTooltip = ({ title }) => (
 );
 
 export default function ScheduleSession({
-  volunteerName = "Alex Morgan",
+  volunteerName = "Amanda Nethmini",
   volunteerProfileImage = "https://randomuser.me/api/portraits/women/44.jpg",
   onNavigate = () => {},
 }) {

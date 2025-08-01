@@ -15,7 +15,7 @@ export default function VolunteerRoutes() {
   };
 
   // Volunteer info to pass to Dashboard (sidebar inside it reads these)
-  const volunteerName = "Alex Morgan";
+  const volunteerName = "Amanda Nethmini";
   const volunteerProfileImage = "https://randomuser.me/api/portraits/women/44.jpg";
 
   return (
@@ -31,6 +31,7 @@ export default function VolunteerRoutes() {
             onNavigate={handleNavigate}
           />
         )}
+        {/* {currentPage === 'Dashboard' && <VolunteerDashboard />} */}
         {currentPage === 'Write Blog' && <CreateBlog />}
         {currentPage === 'Schedule Session' && <ScheduleSession />}
         {currentPage === 'Forum' && <QnAforum/>}

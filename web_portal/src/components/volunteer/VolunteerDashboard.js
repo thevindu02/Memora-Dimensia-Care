@@ -56,7 +56,7 @@ const colors = {
 };
 
 // Sample volunteer info (should be provided by parent or context)
-const volunteerName = "Alex Morgan";
+const volunteerName = "Amanda Nethmini";
 const volunteerProfileImage = "https://randomuser.me/api/portraits/women/44.jpg";
 
 const stats = [

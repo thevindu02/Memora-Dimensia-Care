@@ -6,7 +6,6 @@ import {
   TextField,
   InputAdornment,
   IconButton,
-  Chip,
   Stack,
   Paper,
   Avatar,
@@ -20,7 +19,6 @@ import ClearIcon from '@mui/icons-material/Clear';
 import PersonIcon from '@mui/icons-material/Person';
 import ChatBubbleOutlineIcon from '@mui/icons-material/ChatBubbleOutline';
 import ThumbUpOffAltIcon from '@mui/icons-material/ThumbUpOffAlt';
-import InfoOutlinedIcon from '@mui/icons-material/InfoOutlined';
 import AddCircleIcon from '@mui/icons-material/AddCircle';
 
 import VolunteerNav from './VolunteerNav';
@@ -216,7 +214,18 @@ function DiscussionCard({ discussion }) {
         <Typography variant="subtitle1" fontWeight={700} noWrap sx={{ mb: 0.5, color: colors.deepPurple }}>
           {discussion.title}
         </Typography>
-        <Typography variant="body2" sx={{ color: colors.calmNavy, mb: 0.75, display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+        <Typography 
+          variant="body2" 
+          sx={{ 
+            color: colors.calmNavy, 
+            mb: 0.75, 
+            display: '-webkit-box', 
+            WebkitLineClamp: 2, 
+            WebkitBoxOrient: 'vertical', 
+            overflow: 'hidden', 
+            textOverflow: 'ellipsis' 
+          }}
+        >
           {discussion.description}
         </Typography>
         <Box sx={{ display: 'flex', alignItems: 'center', mb: 1 }}>
@@ -244,11 +253,11 @@ function DiscussionCard({ discussion }) {
 export default function QnAforum() {
   const [searchTerm, setSearchTerm] = useState('');
 
-  // Filter discussions by search term matching title/description/tags/authors
+  // Filter discussions by search term matching title/description/authors
   const filteredDiscussions = useMemo(() => {
     const term = searchTerm.trim().toLowerCase();
     if (!term) return initialDiscussions;
-    return initialDiscussions.filter(({ title, description, author }) => 
+    return initialDiscussions.filter(({ title, description, author }) =>
       title.toLowerCase().includes(term) ||
       description.toLowerCase().includes(term) ||
       author.toLowerCase().includes(term)
@@ -257,121 +266,150 @@ export default function QnAforum() {
 
   const handleClearSearch = () => setSearchTerm('');
 
+  // Volunteer info for sidebar
+  const volunteerName = "Alex Morgan";
+  const volunteerProfileImage = "https://randomuser.me/api/portraits/women/44.jpg";
+
+  // Handle navigation from sidebar
+  const [currentPage, setCurrentPage] = React.useState('QnA Forum');
+
+  const onNavigate = (page) => {
+    // You can improve navigation handling here (e.g., pass up state or use React Router)
+    setCurrentPage(page);
+    alert(`Navigate to: ${page} (dummy)`);
+  };
+
+  // Render only QnAforum page content here; sidebar navigation can trigger page change in a parent component
+
   return (
-    <Box
-      sx={{
-        bgcolor: colors.backgroundLight,
-        minHeight: '100vh',
-        p: 2,
-        fontFamily: 'Poppins, Lato, Nunito, Arial, sans-serif',
-        color: colors.calmNavy,
-      }}
-    >
-      {/* Search Bar */}
-      <Box sx={{ mb: 3 }}>
-        <TextField
-          variant="outlined"
-          placeholder="Search discussions, tags, or authors…"
-          fullWidth
-          size="medium"
-          value={searchTerm}
-          onChange={(e) => setSearchTerm(e.target.value)}
-          InputProps={{
-            sx: {
-              borderRadius: 3,
-              bgcolor: colors.white,
-              boxShadow: `inset 2px 2px 5px ${colors.softLavender}, inset -2px -2px 5px ${colors.white}`,
-              color: colors.calmNavy,
-            },
-            startAdornment: (
-              <InputAdornment position="start">
-                <SearchIcon sx={{ color: colors.deepPurple }} />
-              </InputAdornment>
-            ),
-            endAdornment: searchTerm ? (
-              <InputAdornment position="end">
-                <IconButton
-                  onClick={handleClearSearch}
-                  aria-label="Clear search"
-                  size="small"
-                >
-                  <ClearIcon sx={{ color: colors.deepPurple }} />
-                </IconButton>
-              </InputAdornment>
-            ) : null,
-            'aria-label': 'Search discussions',
-          }}
-        />
-      </Box>
-
-      {/* Popular Topics */}
-      <Box sx={{ mb: 4, overflowX: 'auto' }} aria-label="Popular topics">
-        <Stack direction="row" spacing={1}>
-          {popularTopics.map((topic) => (
-            <TopicCard key={topic.id} topic={topic} />
-          ))}
-        </Stack>
-      </Box>
-
-      {/* Discussion Feed or Empty State */}
-      <Box sx={{ pb: 12, minHeight: 200 }}>
-        {filteredDiscussions.length > 0 ? (
-          filteredDiscussions.map((d) => <DiscussionCard key={d.id} discussion={d} />)
-        ) : (
-          <Box
-            sx={{
-              mt: 6,
-              textAlign: 'center',
-              color: colors.softLavender,
-              px: 3,
-              userSelect: 'none',
-            }}
-            role="status"
-            aria-live="polite"
-          >
-            <img
-              src="https://images.unsplash.com/photo-1535223289827-42f1e9919769?auto=format&fit=crop&w=200&q=80"
-              alt="No discussions found"
-              style={{ width: 120, marginBottom: 16, opacity: 0.6, userSelect: 'none' }}
-              aria-hidden="true"
-              draggable={false}
+    <>
+      <SideBar
+        volunteerName={volunteerName}
+        profileImage={volunteerProfileImage}
+        onNavigate={onNavigate}
+      />
+      <Box
+        sx={{
+          pl: { md: '260px' },
+          minHeight: '100vh',
+          bgcolor: colors.backgroundLight,
+          fontFamily: 'Poppins, Lato, Nunito, Arial, sans-serif',
+          color: colors.calmNavy,
+          display: 'flex',
+          flexDirection: 'column',
+        }}
+      >
+        <VolunteerNav />
+        <Box sx={{ flexGrow: 1, p: 2 }}>
+          {/* Search Bar */}
+          <Box sx={{ mb: 3 }}>
+            <TextField
+              variant="outlined"
+              placeholder="Search discussions, tags, or authors…"
+              fullWidth
+              size="medium"
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              InputProps={{
+                sx: {
+                  borderRadius: 3,
+                  bgcolor: colors.white,
+                  boxShadow: `inset 2px 2px 5px ${colors.softLavender}, inset -2px -2px 5px ${colors.white}`,
+                  color: colors.calmNavy,
+                },
+                startAdornment: (
+                  <InputAdornment position="start">
+                    <SearchIcon sx={{ color: colors.deepPurple }} />
+                  </InputAdornment>
+                ),
+                endAdornment: searchTerm ? (
+                  <InputAdornment position="end">
+                    <IconButton
+                      onClick={handleClearSearch}
+                      aria-label="Clear search"
+                      size="small"
+                    >
+                      <ClearIcon sx={{ color: colors.deepPurple }} />
+                    </IconButton>
+                  </InputAdornment>
+                ) : null,
+                'aria-label': 'Search discussions',
+              }}
             />
-            <Typography variant="body1" sx={{ fontWeight: 600 }}>
-              No discussions found. Try different keywords.
-            </Typography>
           </Box>
-        )}
-      </Box>
 
-      {/* Floating Ask a Question Button */}
-      <Fade in appear>
-        <Button
-          variant="contained"
-          color="primary"
-          startIcon={<AddCircleIcon />}
-          sx={{
-            position: 'fixed',
-            bottom: 24,
-            right: 24,
-            borderRadius: 30,
-            bgcolor: colors.lightSkyBlue,
-            color: colors.white,
-            px: 3,
-            py: 1.5,
-            fontWeight: 700,
-            boxShadow: `0 6px 15px ${colors.lightSkyBlue}bb`,
-            textTransform: 'none',
-            "&:hover": {
-              bgcolor: colors.deepPurple,
-              boxShadow: `0 8px 20px ${colors.deepPurple}cc`,
-            },
-          }}
-          aria-label="Ask a question"
-          onClick={() => alert('Ask a Question clicked (dummy)')}
-        >
-          Ask a Question
-        </Button>
-      </Fade>
-    </Box>
+          {/* Popular Topics */}
+          <Box sx={{ mb: 4, overflowX: 'auto' }} aria-label="Popular topics">
+            <Stack direction="row" spacing={1}>
+              {popularTopics.map((topic) => (
+                <TopicCard key={topic.id} topic={topic} />
+              ))}
+            </Stack>
+          </Box>
+
+          {/* Discussion Feed or Empty State */}
+          <Box sx={{ pb: 12, minHeight: 200 }}>
+            {filteredDiscussions.length > 0 ? (
+              filteredDiscussions.map((d) => <DiscussionCard key={d.id} discussion={d} />)
+            ) : (
+              <Box
+                sx={{
+                  mt: 6,
+                  textAlign: 'center',
+                  color: colors.softLavender,
+                  px: 3,
+                  userSelect: 'none',
+                }}
+                role="status"
+                aria-live="polite"
+              >
+                <img
+                  src="https://images.unsplash.com/photo-1535223289827-42f1e9919769?auto=format&fit=crop&w=200&q=80"
+                  alt="No discussions found"
+                  style={{ width: 120, marginBottom: 16, opacity: 0.6, userSelect: 'none' }}
+                  aria-hidden="true"
+                  draggable={false}
+                />
+                <Typography variant="body1" sx={{ fontWeight: 600 }}>
+                  No discussions found. Try different keywords.
+                </Typography>
+              </Box>
+            )}
+          </Box>
+
+          {/* Floating Ask a Question Button */}
+          <Fade in appear>
+            <Button
+              variant="contained"
+              color="primary"
+              startIcon={<AddCircleIcon />}
+              sx={{
+                position: 'fixed',
+                bottom: 24,
+                right: 24,
+                borderRadius: 30,
+                bgcolor: colors.lightSkyBlue,
+                color: colors.white,
+                px: 3,
+                py: 1.5,
+                fontWeight: 700,
+                boxShadow: `0 6px 15px ${colors.lightSkyBlue}bb`,
+                textTransform: 'none',
+                "&:hover": {
+                  bgcolor: colors.deepPurple,
+                  boxShadow: `0 8px 20px ${colors.deepPurple}cc`,
+                },
+              }}
+              aria-label="Ask a question"
+              onClick={() => alert('Ask a Question clicked (dummy)')}
+            >
+              Ask a Question
+            </Button>
+          </Fade>
+        </Box>
+        <Footer />
+      </Box>
+    </>
   );
 }
+
