@@ -7,6 +7,7 @@ import 'volunteer_bottom_navigation_screen.dart';
 import '../../utils/system_ui_utils.dart';
 import 'volunteer_community_screen.dart';
 import 'volunteer_settings_screen.dart';
+import '../../constants/color_constants.dart';
 
 class VolunteerDashboardScreen extends StatefulWidget {
   const VolunteerDashboardScreen({Key? key}) : super(key: key);
@@ -47,9 +48,9 @@ class _VolunteerDashboardScreenState extends State<VolunteerDashboardScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.white,
+      backgroundColor: AppColors.background,
       appBar: AppBar(
-        backgroundColor: Colors.white,
+        backgroundColor: AppColors.background,
         elevation: 0,
         leading: SizedBox.shrink(),
         title: const Padding(
@@ -57,9 +58,9 @@ class _VolunteerDashboardScreenState extends State<VolunteerDashboardScreen> {
           child: Text(
             'Dashboard',
             style: TextStyle(
-              fontSize: 24,
+              fontSize: 20,
               fontWeight: FontWeight.bold,
-              color: Color(0xFF2B3F99),
+              color: AppColors.onSurface,
             ),
           ),
         ),
@@ -77,15 +78,8 @@ class _VolunteerDashboardScreenState extends State<VolunteerDashboardScreen> {
                 width: double.infinity,
                 padding: EdgeInsets.all(24),
                 decoration: BoxDecoration(
-                  color: Color(0xFF2B3F99),
+                  color: Color(0x33ADD8E6), // Light sky blue with 20% opacity
                   borderRadius: BorderRadius.circular(20),
-                  boxShadow: [
-                    BoxShadow(
-                      color: Color(0xFF2B3F99).withOpacity(0.3),
-                      blurRadius: 12,
-                      offset: Offset(0, 4),
-                    ),
-                  ],
                 ),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -95,7 +89,7 @@ class _VolunteerDashboardScreenState extends State<VolunteerDashboardScreen> {
                       style: TextStyle(
                         fontSize: 20,
                         fontWeight: FontWeight.bold,
-                        color: Colors.white,
+                        color: Color(0xFF000080), // Deep navy
                       ),
                     ),
                     SizedBox(height: 8),
@@ -103,7 +97,9 @@ class _VolunteerDashboardScreenState extends State<VolunteerDashboardScreen> {
                       'Ready to make a difference today?',
                       style: TextStyle(
                         fontSize: 14,
-                        color: Colors.white.withOpacity(0.9),
+                        color: Color(
+                          0xFF000080,
+                        ).withOpacity(0.9), // Deep navy with opacity
                       ),
                     ),
                   ],
@@ -115,7 +111,7 @@ class _VolunteerDashboardScreenState extends State<VolunteerDashboardScreen> {
                 style: TextStyle(
                   fontSize: 18,
                   fontWeight: FontWeight.bold,
-                  color: Color(0xFF2B3F99),
+                  color: AppColors.onSurface,
                 ),
               ),
               SizedBox(height: 16),
@@ -156,7 +152,7 @@ class _VolunteerDashboardScreenState extends State<VolunteerDashboardScreen> {
                 style: TextStyle(
                   fontSize: 18,
                   fontWeight: FontWeight.bold,
-                  color: Color(0xFF2B3F99),
+                  color: AppColors.onSurface,
                 ),
               ),
               SizedBox(height: 16),
@@ -167,19 +163,11 @@ class _VolunteerDashboardScreenState extends State<VolunteerDashboardScreen> {
                   children: [
                     _buildStatCard('Scheduled Sessions', '3', Icons.schedule),
                     SizedBox(width: 16),
-                    _buildStatCard(
-                      'Articles Contributed',
-                      '5',
-                      Icons.article,
-                    ),
+                    _buildStatCard('Articles Contributed', '5', Icons.article),
                     SizedBox(width: 16),
                     _buildStatCard('Forum Replies', '12', Icons.forum),
                     SizedBox(width: 16),
-                    _buildStatCard(
-                      'Hours Volunteered',
-                      '8',
-                      Icons.access_time,
-                    ),
+                    _buildStatCard('Hours Volunteered', '8', Icons.access_time),
                   ],
                 ),
               ),
@@ -189,7 +177,7 @@ class _VolunteerDashboardScreenState extends State<VolunteerDashboardScreen> {
                 style: TextStyle(
                   fontSize: 18,
                   fontWeight: FontWeight.bold,
-                  color: Color(0xFF2B3F99),
+                  color: AppColors.onSurface,
                 ),
               ),
               SizedBox(height: 16),
@@ -217,17 +205,17 @@ class _VolunteerDashboardScreenState extends State<VolunteerDashboardScreen> {
           width: 100,
           padding: EdgeInsets.symmetric(vertical: 20, horizontal: 12),
           decoration: BoxDecoration(
-            color: Colors.white,
+            color: AppColors.surface,
             borderRadius: BorderRadius.circular(20),
             boxShadow: [
               BoxShadow(
-                color: Colors.black.withOpacity(0.08),
+                color: AppColors.shadow,
                 blurRadius: 12,
                 offset: Offset(0, 4),
               ),
             ],
             border: Border.all(
-              color: Color(0xFFA0C4FD).withOpacity(0.3),
+              color: AppColors.primaryLight.withOpacity(0.3),
               width: 1,
             ),
           ),
@@ -238,18 +226,15 @@ class _VolunteerDashboardScreenState extends State<VolunteerDashboardScreen> {
                 width: 56,
                 height: 56,
                 decoration: BoxDecoration(
-                  color: Color(0xFF2B3F99),
+                  color: Color(0x33ADD8E6), // Light sky blue with 20% opacity
                   shape: BoxShape.circle,
-                  boxShadow: [
-                    BoxShadow(
-                      color: Color(0xFF2B3F99).withOpacity(0.3),
-                      blurRadius: 8,
-                      offset: Offset(0, 2),
-                    ),
-                  ],
                 ),
                 child: Center(
-                  child: Icon(icon, color: Colors.white, size: 28),
+                  child: Icon(
+                    icon,
+                    color: Color(0xFF000080),
+                    size: 28,
+                  ), // Deep navy
                 ),
               ),
               SizedBox(height: 12),
@@ -259,7 +244,7 @@ class _VolunteerDashboardScreenState extends State<VolunteerDashboardScreen> {
                 style: TextStyle(
                   fontSize: 13,
                   fontWeight: FontWeight.w600,
-                  color: Color(0xFF2B3F99),
+                  color: AppColors.onSurface,
                   height: 1.2,
                 ),
               ),
@@ -276,17 +261,17 @@ class _VolunteerDashboardScreenState extends State<VolunteerDashboardScreen> {
       height: 120,
       padding: EdgeInsets.symmetric(vertical: 12, horizontal: 6),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: AppColors.surface,
         borderRadius: BorderRadius.circular(16),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.08),
+            color: AppColors.shadow,
             blurRadius: 12,
             offset: Offset(0, 4),
           ),
         ],
         border: Border.all(
-          color: Color(0xFFA0C4FD).withOpacity(0.3),
+          color: AppColors.primaryLight.withOpacity(0.3),
           width: 1,
         ),
       ),
@@ -298,12 +283,10 @@ class _VolunteerDashboardScreenState extends State<VolunteerDashboardScreen> {
             width: 36,
             height: 36,
             decoration: BoxDecoration(
-              color: Color(0xFFA0C4FD).withOpacity(0.2),
+              color: AppColors.primaryLight.withOpacity(0.2),
               shape: BoxShape.circle,
             ),
-            child: Center(
-              child: Icon(icon, color: Color(0xFF2B3F99), size: 18),
-            ),
+            child: Center(child: Icon(icon, color: AppColors.info, size: 18)),
           ),
           SizedBox(height: 6),
           Text(
@@ -311,7 +294,7 @@ class _VolunteerDashboardScreenState extends State<VolunteerDashboardScreen> {
             style: TextStyle(
               fontSize: 16,
               fontWeight: FontWeight.bold,
-              color: Color(0xFF2B3F99),
+              color: AppColors.onSurface,
             ),
           ),
           SizedBox(height: 2),
@@ -321,7 +304,7 @@ class _VolunteerDashboardScreenState extends State<VolunteerDashboardScreen> {
               textAlign: TextAlign.center,
               style: TextStyle(
                 fontSize: 9,
-                color: Colors.grey[600],
+                color: AppColors.onSurfaceVariant,
                 fontWeight: FontWeight.w500,
                 height: 1.0,
               ),
@@ -340,17 +323,17 @@ class _VolunteerDashboardScreenState extends State<VolunteerDashboardScreen> {
       width: double.infinity,
       padding: EdgeInsets.all(24),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: AppColors.surface,
         borderRadius: BorderRadius.circular(20),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.08),
+            color: AppColors.shadow,
             blurRadius: 12,
             offset: Offset(0, 4),
           ),
         ],
         border: Border.all(
-          color: Color(0xFFA0C4FD).withOpacity(0.3),
+          color: AppColors.primaryLight.withOpacity(0.3),
           width: 1,
         ),
       ),
@@ -360,18 +343,15 @@ class _VolunteerDashboardScreenState extends State<VolunteerDashboardScreen> {
             width: 56,
             height: 56,
             decoration: BoxDecoration(
-              color: Color(0xFF2B3F99),
+              color: Color(0x33ADD8E6), // Light sky blue with 20% opacity
               shape: BoxShape.circle,
-              boxShadow: [
-                BoxShadow(
-                  color: Color(0xFF2B3F99).withOpacity(0.3),
-                  blurRadius: 8,
-                  offset: Offset(0, 2),
-                ),
-              ],
             ),
             child: Center(
-              child: Icon(Icons.schedule, color: Colors.white, size: 28),
+              child: Icon(
+                Icons.schedule,
+                color: Color(0xFF000080),
+                size: 28,
+              ), // Deep navy
             ),
           ),
           SizedBox(width: 20),
@@ -384,7 +364,7 @@ class _VolunteerDashboardScreenState extends State<VolunteerDashboardScreen> {
                   style: TextStyle(
                     fontSize: 16,
                     fontWeight: FontWeight.bold,
-                    color: Color(0xFF2B3F99),
+                    color: AppColors.onSurface,
                   ),
                 ),
                 SizedBox(height: 6),
@@ -392,7 +372,7 @@ class _VolunteerDashboardScreenState extends State<VolunteerDashboardScreen> {
                   'With: Jane Doe',
                   style: TextStyle(
                     fontSize: 14,
-                    color: Colors.grey[600],
+                    color: AppColors.onSurfaceVariant,
                     fontWeight: FontWeight.w500,
                   ),
                 ),
@@ -400,7 +380,7 @@ class _VolunteerDashboardScreenState extends State<VolunteerDashboardScreen> {
                   'Today at 3:00 PM',
                   style: TextStyle(
                     fontSize: 14,
-                    color: Colors.grey[600],
+                    color: AppColors.onSurfaceVariant,
                     fontWeight: FontWeight.w500,
                   ),
                 ),
@@ -411,13 +391,13 @@ class _VolunteerDashboardScreenState extends State<VolunteerDashboardScreen> {
             width: 36,
             height: 36,
             decoration: BoxDecoration(
-              color: Color(0xFFA0C4FD).withOpacity(0.2),
+              color: AppColors.primaryLight.withOpacity(0.2),
               shape: BoxShape.circle,
             ),
             child: Center(
               child: Icon(
                 Icons.arrow_forward_ios,
-                color: Color(0xFF2B3F99),
+                color: AppColors.info,
                 size: 16,
               ),
             ),

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:mobile_app/constants/color_constants.dart';
 import 'dart:ui';
 import '../../routes/app_routes.dart';
 import '../../services/patient_service.dart';
@@ -19,6 +20,7 @@ class ScheduleTask {
   final Color color;
   bool isSelected;
   bool isCompleted;
+  bool isSkipped;
 
   ScheduleTask({
     required this.title,
@@ -28,6 +30,7 @@ class ScheduleTask {
     required this.color,
     this.isSelected = false,
     this.isCompleted = false,
+    this.isSkipped = false,
   });
 }
 
@@ -37,35 +40,34 @@ class ScheduleRoutineScreen extends StatefulWidget {
 }
 
 class _ScheduleRoutineScreenState extends State<ScheduleRoutineScreen> {
-  int _currentIndex = 1;
   List<ScheduleTask> tasks = [
     ScheduleTask(
       title: 'Breakfast Time',
       description: 'Morning meal',
       time: '8:00 AM',
       icon: Icons.restaurant,
-      color: Colors.orange,
+      color: AppColors.primaryDark,
     ),
     ScheduleTask(
       title: 'Dinner Time',
       description: 'Evening meal',
       time: '6:00 PM',
       icon: Icons.dinner_dining,
-      color: Colors.purple,
+      color: AppColors.primaryDark,
     ),
     ScheduleTask(
       title: 'Bathing Time',
       description: 'Personal hygiene',
       time: '7:00 PM',
       icon: Icons.bathtub,
-      color: Colors.blue,
+      color: AppColors.primaryDark,
     ),
     ScheduleTask(
       title: 'Sleep Time',
       description: 'Night rest',
       time: '10:00 PM',
       icon: Icons.bed,
-      color: Colors.indigo,
+      color: AppColors.primaryDark,
     ),
   ];
 
@@ -135,8 +137,89 @@ class _ScheduleRoutineScreenState extends State<ScheduleRoutineScreen> {
       task.isCompleted = !task.isCompleted;
       if (task.isCompleted) {
         task.isSelected = false; // Deselect when completed
+        task.isSkipped = false; // Reset skip status when completed
       }
     });
+  }
+
+  // Helper methods for task counts
+  int get completedTasksCount => tasks.where((task) => task.isCompleted).length;
+  int get skippedTasksCount => tasks.where((task) => task.isSkipped).length;
+  int get uncompletedTasksCount =>
+      tasks.where((task) => !task.isCompleted && !task.isSkipped).length;
+
+  void _skipSelectedTask() {
+    setState(() {
+      for (var task in tasks) {
+        if (task.isSelected) {
+          task.isSkipped = true;
+          task.isSelected = false;
+          task.isCompleted = false;
+          break;
+        }
+      }
+    });
+  }
+
+  Widget _buildTaskSummaryCard(IconData icon, int count, Color color) {
+    String label;
+    Color bgColor;
+    Color textColor;
+
+    if (icon == Icons.check_circle_rounded) {
+      label = 'Completed';
+      bgColor = Colors.green[50]!;
+      textColor = Colors.green[700]!;
+    } else if (icon == Icons.schedule_rounded) {
+      label = 'Skipped';
+      bgColor = Colors.orange[50]!;
+      textColor = Colors.orange[700]!;
+    } else {
+      label = 'Remaining';
+      bgColor = Colors.blue[50]!;
+      textColor = Colors.blue[700]!;
+    }
+
+    return Expanded(
+      child: Container(
+        padding: const EdgeInsets.all(12),
+        decoration: BoxDecoration(
+          color: bgColor,
+          borderRadius: BorderRadius.circular(15),
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Flexible(
+                  child: Text(
+                    label,
+                    style: TextStyle(
+                      fontSize: 12,
+                      color: textColor,
+                      fontWeight: FontWeight.w500,
+                    ),
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                ),
+                Icon(icon, color: textColor, size: 18),
+              ],
+            ),
+            const SizedBox(height: 8),
+            Text(
+              count.toString(),
+              style: TextStyle(
+                fontSize: 28,
+                fontWeight: FontWeight.bold,
+                color: textColor,
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
   }
 
   void _showSkipDialog() {
@@ -245,12 +328,7 @@ class _ScheduleRoutineScreenState extends State<ScheduleRoutineScreen> {
                             if (reasonController.text.trim().isNotEmpty) {
                               // Handle skip logic here
                               Navigator.of(context).pop();
-                              setState(() {
-                                // Reset selection
-                                for (var task in tasks) {
-                                  task.isSelected = false;
-                                }
-                              });
+                              _skipSelectedTask();
 
                               // Show confirmation
                               ScaffoldMessenger.of(context).showSnackBar(
@@ -312,7 +390,7 @@ class _ScheduleRoutineScreenState extends State<ScheduleRoutineScreen> {
           'Schedule Routine',
           style: TextStyle(
             color: Colors.black,
-            fontSize: 18,
+            fontSize: 20,
             fontWeight: FontWeight.w600,
           ),
         ),
@@ -425,6 +503,32 @@ class _ScheduleRoutineScreenState extends State<ScheduleRoutineScreen> {
               ),
             ),
 
+            // Task Summary Cards
+            Padding(
+              padding: EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+              child: Row(
+                children: [
+                  _buildTaskSummaryCard(
+                    Icons.check_circle_rounded,
+                    completedTasksCount,
+                    AppColors.success,
+                  ),
+                  const SizedBox(width: 8),
+                  _buildTaskSummaryCard(
+                    Icons.schedule_rounded,
+                    skippedTasksCount,
+                    Colors.orange,
+                  ),
+                  const SizedBox(width: 8),
+                  _buildTaskSummaryCard(
+                    Icons.hourglass_empty_rounded,
+                    uncompletedTasksCount,
+                    AppColors.primary,
+                  ),
+                ],
+              ),
+            ),
+
             // Daily Activities Header
             Padding(
               padding: EdgeInsets.symmetric(horizontal: 16),
@@ -467,17 +571,21 @@ class _ScheduleRoutineScreenState extends State<ScheduleRoutineScreen> {
                   child: Material(
                     color: Colors.transparent,
                     child: InkWell(
-                      onTap: () => _selectTask(task),
+                      onTap: () => task.isSkipped ? null : _selectTask(task),
                       borderRadius: BorderRadius.circular(12),
                       child: Container(
                         padding: EdgeInsets.all(16),
                         decoration: BoxDecoration(
-                          color: task.isSelected
+                          color: task.isSkipped
+                              ? Colors.orange.shade50
+                              : task.isSelected
                               ? Colors.blue.shade50
                               : Colors.white,
                           borderRadius: BorderRadius.circular(12),
                           border: Border.all(
-                            color: task.isSelected
+                            color: task.isSkipped
+                                ? Colors.orange.shade300
+                                : task.isSelected
                                 ? Colors.blue
                                 : Colors.grey.shade200,
                             width: task.isSelected ? 2 : 1,
@@ -513,19 +621,52 @@ class _ScheduleRoutineScreenState extends State<ScheduleRoutineScreen> {
                                     crossAxisAlignment:
                                         CrossAxisAlignment.start,
                                     children: [
-                                      Text(
-                                        task.title,
-                                        style: TextStyle(
-                                          fontWeight: FontWeight.w600,
-                                          fontSize: 16,
-                                          color: Colors.black87,
-                                        ),
+                                      Row(
+                                        children: [
+                                          Text(
+                                            task.title,
+                                            style: TextStyle(
+                                              fontWeight: FontWeight.w600,
+                                              fontSize: 16,
+                                              color: task.isSkipped
+                                                  ? Colors.grey.shade400
+                                                  : Colors.black87,
+                                              decoration: task.isSkipped
+                                                  ? TextDecoration.lineThrough
+                                                  : null,
+                                            ),
+                                          ),
+                                          if (task.isSkipped) ...[
+                                            SizedBox(width: 8),
+                                            Container(
+                                              padding: EdgeInsets.symmetric(
+                                                horizontal: 8,
+                                                vertical: 2,
+                                              ),
+                                              decoration: BoxDecoration(
+                                                color: Colors.orange.shade100,
+                                                borderRadius:
+                                                    BorderRadius.circular(12),
+                                              ),
+                                              child: Text(
+                                                'SKIPPED',
+                                                style: TextStyle(
+                                                  fontSize: 10,
+                                                  fontWeight: FontWeight.bold,
+                                                  color: Colors.orange.shade700,
+                                                ),
+                                              ),
+                                            ),
+                                          ],
+                                        ],
                                       ),
                                       SizedBox(height: 4),
                                       Text(
                                         task.description,
                                         style: TextStyle(
-                                          color: Colors.grey.shade600,
+                                          color: task.isSkipped
+                                              ? Colors.grey.shade400
+                                              : Colors.grey.shade600,
                                           fontSize: 14,
                                         ),
                                       ),
@@ -545,11 +686,19 @@ class _ScheduleRoutineScreenState extends State<ScheduleRoutineScreen> {
                                     ),
                                     SizedBox(height: 8),
                                     GestureDetector(
-                                      onTap: () => _toggleTaskCompletion(task),
+                                      onTap: () => task.isSkipped
+                                          ? null
+                                          : _toggleTaskCompletion(task),
                                       child: task.isCompleted
                                           ? Icon(
                                               Icons.check_circle,
                                               color: Colors.green,
+                                              size: 20,
+                                            )
+                                          : task.isSkipped
+                                          ? Icon(
+                                              Icons.cancel,
+                                              color: Colors.orange,
                                               size: 20,
                                             )
                                           : Container(
@@ -569,7 +718,9 @@ class _ScheduleRoutineScreenState extends State<ScheduleRoutineScreen> {
                               ],
                             ),
                             // Skip button for selected task
-                            if (task.isSelected && !task.isCompleted)
+                            if (task.isSelected &&
+                                !task.isCompleted &&
+                                !task.isSkipped)
                               Container(
                                 margin: EdgeInsets.only(top: 12),
                                 width: double.infinity,
@@ -596,6 +747,50 @@ class _ScheduleRoutineScreenState extends State<ScheduleRoutineScreen> {
                                   ),
                                 ),
                               ),
+                            // Undo Skip button for skipped tasks
+                            if (task.isSkipped)
+                              Container(
+                                margin: EdgeInsets.only(top: 12),
+                                width: double.infinity,
+                                child: ElevatedButton(
+                                  onPressed: () {
+                                    setState(() {
+                                      task.isSkipped = false;
+                                    });
+                                    ScaffoldMessenger.of(context).showSnackBar(
+                                      SnackBar(
+                                        content: Text(
+                                          'Task "${task.title}" restored',
+                                        ),
+                                        backgroundColor: Colors.green,
+                                      ),
+                                    );
+                                  },
+                                  style: ElevatedButton.styleFrom(
+                                    backgroundColor: Colors.orange.shade100,
+                                    foregroundColor: Colors.orange.shade700,
+                                    padding: EdgeInsets.symmetric(vertical: 8),
+                                    shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(8),
+                                    ),
+                                    elevation: 0,
+                                  ),
+                                  child: Row(
+                                    mainAxisAlignment: MainAxisAlignment.center,
+                                    children: [
+                                      Icon(Icons.undo, size: 16),
+                                      SizedBox(width: 4),
+                                      Text(
+                                        'Undo Skip',
+                                        style: TextStyle(
+                                          fontSize: 14,
+                                          fontWeight: FontWeight.w500,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              ),
                           ],
                         ),
                       ),
@@ -618,7 +813,7 @@ class _ScheduleRoutineScreenState extends State<ScheduleRoutineScreen> {
                   );
                 },
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: Color(0xFF9FC3FC),
+                  backgroundColor: AppColors.primaryLight,
                   foregroundColor: Color(0xFF2B3F99),
                   padding: EdgeInsets.symmetric(vertical: 16),
                   shape: RoundedRectangleBorder(
@@ -629,7 +824,7 @@ class _ScheduleRoutineScreenState extends State<ScheduleRoutineScreen> {
                 child: Text(
                   'Complete Daily Routine',
                   style: TextStyle(
-                    color: Color(0xFF2B3F99),
+                    color: AppColors.primary,
                     fontSize: 16,
                     fontWeight: FontWeight.w600,
                   ),

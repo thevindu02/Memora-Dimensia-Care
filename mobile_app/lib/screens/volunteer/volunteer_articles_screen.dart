@@ -4,6 +4,7 @@ import 'dart:io';
 import 'dart:convert';
 import 'package:http/http.dart' as http;
 import '../../services/api_constants.dart';
+import '../../constants/color_constants.dart';
 
 class VolunteerArticlesScreen extends StatefulWidget {
   const VolunteerArticlesScreen({Key? key}) : super(key: key);
@@ -239,11 +240,11 @@ class _VolunteerArticlesScreenState extends State<VolunteerArticlesScreen> {
     setState(() {
       _isLoading = true;
     });
-    
+
     final int volunteerId = 1; // TODO: Get this from your login/session!
-    
+
     String? uploadedImageUrl;
-    
+
     // Upload image to backend if one is selected
     if (_selectedImages.isNotEmpty) {
       uploadedImageUrl = await _uploadImageToBackend(_selectedImages.first);
@@ -302,7 +303,7 @@ class _VolunteerArticlesScreenState extends State<VolunteerArticlesScreen> {
         'POST',
         Uri.parse('${ApiConstants.baseUrl}/api/upload/image'),
       );
-      
+
       // Add the image file to the request
       request.files.add(
         await http.MultipartFile.fromPath(
@@ -310,14 +311,14 @@ class _VolunteerArticlesScreenState extends State<VolunteerArticlesScreen> {
           imageFile.path,
         ),
       );
-      
+
       // Add additional fields if needed
       request.fields['type'] = 'article';
       request.fields['volunteerId'] = '1'; // TODO: Get from session
-      
+
       var streamedResponse = await request.send();
       var response = await http.Response.fromStream(streamedResponse);
-      
+
       if (response.statusCode == 200) {
         final responseData = jsonDecode(response.body);
         // Backend should return the uploaded file URL or path
@@ -355,16 +356,23 @@ class _VolunteerArticlesScreenState extends State<VolunteerArticlesScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.white,
+      backgroundColor: AppColors.background,
       appBar: AppBar(
-        backgroundColor: Colors.white,
+        backgroundColor: AppColors.background,
         elevation: 0,
         leading: IconButton(
-          icon: Icon(Icons.arrow_back, color: Color(0xFF2B3F99)),
+          icon: Icon(Icons.arrow_back, color: AppColors.onSurface),
           onPressed: () => Navigator.pop(context),
         ),
-        title: Text('Create Article', style: TextStyle(color: Color(0xFF2B3F99))),
-        centerTitle: true,
+        title: Text(
+          'Create Article',
+          style: TextStyle(
+            fontSize: 20,
+            fontWeight: FontWeight.bold,
+            color: AppColors.onSurface,
+          ),
+        ),
+        centerTitle: false,
       ),
       body: Stack(
         children: [
@@ -380,7 +388,7 @@ class _VolunteerArticlesScreenState extends State<VolunteerArticlesScreen> {
                     style: TextStyle(
                       fontSize: 20,
                       fontWeight: FontWeight.bold,
-                      color: Color(0xFF2B3F99),
+                      color: AppColors.onSurface,
                     ),
                   ),
                   SizedBox(height: 20),
@@ -389,7 +397,7 @@ class _VolunteerArticlesScreenState extends State<VolunteerArticlesScreen> {
                     'Category',
                     style: TextStyle(
                       fontWeight: FontWeight.w600,
-                      color: Color(0xFF2B3F99),
+                      color: AppColors.onSurface,
                     ),
                   ),
                   SizedBox(height: 6),
@@ -433,10 +441,13 @@ class _VolunteerArticlesScreenState extends State<VolunteerArticlesScreen> {
                   ),
                   SizedBox(height: 16),
                   // Topic Field
-                  Text('Title', style: TextStyle(
-                    fontWeight: FontWeight.w600,
-                    color: Color(0xFF2B3F99),
-                  )),
+                  Text(
+                    'Title',
+                    style: TextStyle(
+                      fontWeight: FontWeight.w600,
+                      color: AppColors.onSurface,
+                    ),
+                  ),
                   SizedBox(height: 6),
                   TextFormField(
                     controller: _topicController,
@@ -450,10 +461,13 @@ class _VolunteerArticlesScreenState extends State<VolunteerArticlesScreen> {
                   ),
                   SizedBox(height: 16),
                   // Tags Field
-                  Text('Tags', style: TextStyle(
-                    fontWeight: FontWeight.w600,
-                    color: Color(0xFF2B3F99),
-                  )),
+                  Text(
+                    'Tags',
+                    style: TextStyle(
+                      fontWeight: FontWeight.w600,
+                      color: AppColors.onSurface,
+                    ),
+                  ),
                   SizedBox(height: 6),
                   TextFormField(
                     controller: _tagsController,
@@ -469,7 +483,7 @@ class _VolunteerArticlesScreenState extends State<VolunteerArticlesScreen> {
                     'Content',
                     style: TextStyle(
                       fontWeight: FontWeight.w600,
-                      color: Color(0xFF2B3F99),
+                      color: AppColors.onSurface,
                     ),
                   ),
                   SizedBox(height: 6),
@@ -599,8 +613,8 @@ class _VolunteerArticlesScreenState extends State<VolunteerArticlesScreen> {
                               ? null
                               : () => submitArticle(draft: false),
                           style: ElevatedButton.styleFrom(
-                            backgroundColor: Color(0xFF2B3F99),
-                            foregroundColor: Colors.white,
+                            backgroundColor: AppColors.primaryLight,
+                            foregroundColor: AppColors.info,
                             padding: EdgeInsets.symmetric(vertical: 12),
                             shape: RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(8),
@@ -622,12 +636,12 @@ class _VolunteerArticlesScreenState extends State<VolunteerArticlesScreen> {
                               ? null
                               : () => submitArticle(draft: true),
                           style: OutlinedButton.styleFrom(
-                            foregroundColor: Color(0xFF2B3F99),
+                            foregroundColor: AppColors.info,
                             padding: EdgeInsets.symmetric(vertical: 12),
                             shape: RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(8),
                             ),
-                            side: BorderSide(color: Color(0xFFA0C4FD)),
+                            side: BorderSide(color: AppColors.primaryLight),
                           ),
                           child: Text(
                             'Save Draft',
@@ -644,10 +658,13 @@ class _VolunteerArticlesScreenState extends State<VolunteerArticlesScreen> {
                   Center(
                     child: TextButton.icon(
                       onPressed: _isLoading ? null : _clearForm,
-                      icon: Icon(Icons.clear, color: Color(0xFF2B3F99)),
+                      icon: Icon(Icons.clear, color: AppColors.info),
                       label: Text(
                         'Clear Form',
-                        style: TextStyle(color: Color(0xFF2B3F99)),
+                        style: TextStyle(
+                          color: AppColors.info,
+                          fontWeight: FontWeight.bold,
+                        ),
                       ),
                     ),
                   ),

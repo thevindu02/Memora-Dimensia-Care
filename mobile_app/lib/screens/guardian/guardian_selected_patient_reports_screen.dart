@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../../constants/color_constants.dart';
 
 class GuardianSelectedPatientReportsScreen extends StatefulWidget {
   @override
@@ -198,7 +199,7 @@ class _GuardianSelectedPatientReportsScreenState extends State<GuardianSelectedP
                     style: TextStyle(
                       fontSize: 16,
                       fontWeight: FontWeight.w600,
-                      color: Colors.black87,
+                      color: AppColors.onSurface,
                     ),
                   ),
                   SizedBox(height: 4),
@@ -206,7 +207,7 @@ class _GuardianSelectedPatientReportsScreenState extends State<GuardianSelectedP
                     'Generated at ${report['time']}',
                     style: TextStyle(
                       fontSize: 12,
-                      color: Colors.grey[600],
+                      color: AppColors.onSurfaceVariant,
                     ),
                   ),
                 ],
@@ -233,10 +234,10 @@ class _GuardianSelectedPatientReportsScreenState extends State<GuardianSelectedP
           // Routine Summary Section
           Container(
             padding: EdgeInsets.all(16),
-            decoration: BoxDecoration(
-              color: Colors.grey[50],
-              borderRadius: BorderRadius.circular(8),
-            ),
+                          decoration: BoxDecoration(
+                color: AppColors.surface,
+                borderRadius: BorderRadius.circular(8),
+              ),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
@@ -253,7 +254,7 @@ class _GuardianSelectedPatientReportsScreenState extends State<GuardianSelectedP
                       style: TextStyle(
                         fontSize: 16,
                         fontWeight: FontWeight.w600,
-                        color: Colors.black87,
+                        color: AppColors.onSurface,
                       ),
                     ),
                     Spacer(),
@@ -289,7 +290,7 @@ class _GuardianSelectedPatientReportsScreenState extends State<GuardianSelectedP
                           SizedBox(width: 8),
                           Text(
                             task,
-                            style: TextStyle(fontSize: 13, color: Colors.grey[700]),
+                            style: TextStyle(fontSize: 13, color: AppColors.onSurfaceVariant),
                           ),
                         ],
                       ),
@@ -380,7 +381,7 @@ class _GuardianSelectedPatientReportsScreenState extends State<GuardianSelectedP
                       style: TextStyle(
                         fontSize: 16,
                         fontWeight: FontWeight.w600,
-                        color: Colors.black87,
+                        color: AppColors.onSurface,
                       ),
                     ),
                   ],
@@ -395,7 +396,7 @@ class _GuardianSelectedPatientReportsScreenState extends State<GuardianSelectedP
                       style: TextStyle(
                         fontSize: 14,
                         fontWeight: FontWeight.w500,
-                        color: Colors.black87,
+                        color: AppColors.onSurface,
                       ),
                     ),
                     SizedBox(width: 8),
@@ -403,7 +404,7 @@ class _GuardianSelectedPatientReportsScreenState extends State<GuardianSelectedP
                       '${biometrics['heartRate']['avg']} bpm avg (${biometrics['heartRate']['min']}-${biometrics['heartRate']['max']})',
                       style: TextStyle(
                         fontSize: 13,
-                        color: Colors.grey[700],
+                        color: AppColors.onSurfaceVariant,
                       ),
                     ),
                   ],
@@ -418,7 +419,7 @@ class _GuardianSelectedPatientReportsScreenState extends State<GuardianSelectedP
                       style: TextStyle(
                         fontSize: 14,
                         fontWeight: FontWeight.w500,
-                        color: Colors.black87,
+                        color: AppColors.onSurface,
                       ),
                     ),
                     SizedBox(width: 8),
@@ -426,7 +427,7 @@ class _GuardianSelectedPatientReportsScreenState extends State<GuardianSelectedP
                       '${biometrics['bloodPressure']['systolic']}/${biometrics['bloodPressure']['diastolic']} mmHg',
                       style: TextStyle(
                         fontSize: 13,
-                        color: Colors.grey[700],
+                        color: AppColors.onSurfaceVariant,
                       ),
                     ),
                   ],
@@ -441,7 +442,7 @@ class _GuardianSelectedPatientReportsScreenState extends State<GuardianSelectedP
                       style: TextStyle(
                         fontSize: 14,
                         fontWeight: FontWeight.w500,
-                        color: Colors.black87,
+                        color: AppColors.onSurface,
                       ),
                     ),
                     SizedBox(width: 8),
@@ -449,7 +450,7 @@ class _GuardianSelectedPatientReportsScreenState extends State<GuardianSelectedP
                       '${biometrics['steps']} steps',
                       style: TextStyle(
                         fontSize: 13,
-                        color: Colors.grey[700],
+                        color: AppColors.onSurfaceVariant,
                       ),
                     ),
                   ],
@@ -464,7 +465,7 @@ class _GuardianSelectedPatientReportsScreenState extends State<GuardianSelectedP
                       style: TextStyle(
                         fontSize: 14,
                         fontWeight: FontWeight.w500,
-                        color: Colors.black87,
+                        color: AppColors.onSurface,
                       ),
                     ),
                     SizedBox(width: 8),
@@ -472,7 +473,7 @@ class _GuardianSelectedPatientReportsScreenState extends State<GuardianSelectedP
                       '${biometrics['sleepHours']} hours',
                       style: TextStyle(
                         fontSize: 13,
-                        color: Colors.grey[700],
+                        color: AppColors.onSurfaceVariant,
                       ),
                     ),
                   ],
@@ -533,12 +534,12 @@ class _GuardianSelectedPatientReportsScreenState extends State<GuardianSelectedP
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.grey[50],
+      backgroundColor: AppColors.surfaceVariant,
       appBar: AppBar(
-        backgroundColor: Colors.white,
+        backgroundColor: AppColors.surface,
         elevation: 0,
         leading: IconButton(
-          icon: Icon(Icons.arrow_back, color: Colors.black87),
+                     icon: Icon(Icons.arrow_back, color: Colors.black),
           onPressed: () => Navigator.pop(context),
         ),
         title: Text(
@@ -546,7 +547,7 @@ class _GuardianSelectedPatientReportsScreenState extends State<GuardianSelectedP
           style: TextStyle(
             fontSize: 20,
             fontWeight: FontWeight.bold,
-            color: Colors.black87,
+            color: AppColors.onSurface,
           ),
         ),
         centerTitle: false,

@@ -3,6 +3,7 @@ import '../../routes/app_routes.dart';
 import '../../services/auth_service.dart';
 import '../../services/caregiver_service.dart';
 import 'package:flutter/foundation.dart' show kIsWeb;
+import '../../constants/color_constants.dart';
 
 class Patient {
   final int patientId;
@@ -252,7 +253,7 @@ class _PatientsScreenState extends State<PatientListScreen> {
       margin: EdgeInsets.only(bottom: 16),
       padding: EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: Color(0x33C3B1E1), // Soft Lavender with 20% opacity
+        color: AppColors.primaryLight.withOpacity(0.08),
         borderRadius: BorderRadius.circular(12),
         boxShadow: [
           BoxShadow(
@@ -287,7 +288,7 @@ class _PatientsScreenState extends State<PatientListScreen> {
                   style: const TextStyle(
                     fontSize: 16,
                     fontWeight: FontWeight.w600,
-                    color: Color(0xFF390797), // Deep Purple
+                    color: AppColors.primaryDark, // Deep Purple
                   ),
                 ),
                 Padding(

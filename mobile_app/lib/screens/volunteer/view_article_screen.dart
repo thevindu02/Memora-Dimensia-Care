@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../../constants/color_constants.dart';
 
 // --- Articles Tab ---
 class VolunteerArticlesTab extends StatefulWidget {
@@ -122,7 +123,11 @@ class _VolunteerArticlesTabState extends State<VolunteerArticlesTab> {
                 Flexible(
                   child: Text(
                     _searchQuery.isEmpty ? 'Recent Articles' : 'Search Results',
-                    style: TextStyle(fontSize: 18, fontWeight: FontWeight.w600),
+                    style: TextStyle(
+                      fontSize: 18,
+                      fontWeight: FontWeight.w600,
+                      color: AppColors.onSurface,
+                    ),
                     overflow: TextOverflow.ellipsis,
                   ),
                 ),
@@ -209,6 +214,7 @@ class _VolunteerArticlesTabState extends State<VolunteerArticlesTab> {
                       style: TextStyle(
                         fontSize: 16,
                         fontWeight: FontWeight.w600,
+                        color: AppColors.onSurface,
                       ),
                       maxLines: 2,
                       overflow: TextOverflow.ellipsis,
@@ -420,6 +426,7 @@ class _CaregiverArticleDetailPageState
                             style: TextStyle(
                               fontSize: 24,
                               fontWeight: FontWeight.bold,
+                              color: AppColors.onSurface,
                             ),
                           ),
                           SizedBox(height: 8),
@@ -428,11 +435,15 @@ class _CaregiverArticleDetailPageState
                               Icon(
                                 Icons.person,
                                 size: 16,
-                                color: Colors.grey[600],
+                                color: AppColors.info,
                               ),
                               SizedBox(width: 4),
                               Text(
                                 widget.article['author'] ?? 'Unknown Author',
+                                style: TextStyle(
+                                  color: AppColors.info,
+                                  fontWeight: FontWeight.bold,
+                                ),
                               ),
                               SizedBox(width: 12),
                               Container(
@@ -508,14 +519,19 @@ class _CaregiverArticleDetailPageState
                             'Article Content',
                             style: TextStyle(
                               fontSize: 18,
-                              fontWeight: FontWeight.w600,
+                              fontWeight: FontWeight.bold,
+                              color: AppColors.onSurface,
                             ),
                           ),
                           SizedBox(height: 12),
                           Text(
                             widget.article['content'] ??
                                 'No content available.',
-                            style: TextStyle(fontSize: 16, height: 1.6),
+                            style: TextStyle(
+                              fontSize: 16,
+                              height: 1.6,
+                              color: AppColors.onSurface,
+                            ),
                           ),
                         ],
                       ),
@@ -530,7 +546,8 @@ class _CaregiverArticleDetailPageState
                             'Comments (${_comments.length})',
                             style: TextStyle(
                               fontSize: 18,
-                              fontWeight: FontWeight.w600,
+                              fontWeight: FontWeight.bold,
+                              color: AppColors.onSurface,
                             ),
                           ),
                           SizedBox(height: 16),
@@ -558,11 +575,12 @@ class _CaregiverArticleDetailPageState
                                       children: [
                                         CircleAvatar(
                                           radius: 20,
-                                          backgroundColor: Colors.blue[100],
+                                          backgroundColor:
+                                              AppColors.primaryLight,
                                           child: Icon(
                                             Icons.person,
                                             size: 20,
-                                            color: Colors.blue[800],
+                                            color: AppColors.info,
                                           ),
                                         ),
                                         SizedBox(width: 12),
@@ -573,7 +591,8 @@ class _CaregiverArticleDetailPageState
                                             Text(
                                               comment['author'] ?? 'Anonymous',
                                               style: TextStyle(
-                                                fontWeight: FontWeight.w600,
+                                                fontWeight: FontWeight.bold,
+                                                color: AppColors.info,
                                               ),
                                             ),
                                             Text(
@@ -589,7 +608,12 @@ class _CaregiverArticleDetailPageState
                                       ],
                                     ),
                                     SizedBox(height: 12),
-                                    Text(comment['content'] ?? 'No content'),
+                                    Text(
+                                      comment['content'] ?? 'No content',
+                                      style: TextStyle(
+                                        color: AppColors.onSurface,
+                                      ),
+                                    ),
                                   ],
                                 ),
                               );
@@ -619,7 +643,7 @@ class _CaregiverArticleDetailPageState
                       child: TextField(
                         controller: _commentController,
                         decoration: InputDecoration(
-                          hintText: 'Add a comment...',
+                          hintText: 'Reply to comments...',
                           border: InputBorder.none,
                           contentPadding: EdgeInsets.symmetric(
                             horizontal: 16,
@@ -631,9 +655,9 @@ class _CaregiverArticleDetailPageState
                   ),
                   SizedBox(width: 8),
                   CircleAvatar(
-                    backgroundColor: Color(0xFF2B3F99),
+                    backgroundColor: AppColors.primaryLight,
                     child: IconButton(
-                      icon: Icon(Icons.send, color: Colors.white),
+                      icon: Icon(Icons.send, color: AppColors.info),
                       onPressed: _addComment,
                     ),
                   ),
