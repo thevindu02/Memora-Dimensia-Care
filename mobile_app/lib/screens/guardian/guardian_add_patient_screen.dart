@@ -5,10 +5,12 @@ import '../../services/patient_service.dart'; // Update the path as needed
 import '../../services/user_service.dart';
 import '../../services/auth_service.dart';
 import '../../services/guardian_service.dart';
+import '../../constants/color_constants.dart';
 
 class GuardianAddPatientScreen extends StatefulWidget {
   @override
-  _GuardianAddPatientScreenState createState() => _GuardianAddPatientScreenState();
+  _GuardianAddPatientScreenState createState() =>
+      _GuardianAddPatientScreenState();
 }
 
 class _GuardianAddPatientScreenState extends State<GuardianAddPatientScreen> {
@@ -90,7 +92,9 @@ class _GuardianAddPatientScreenState extends State<GuardianAddPatientScreen> {
     if (value == null || value.trim().isEmpty) {
       return 'Email is required';
     }
-    if (!RegExp(r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$').hasMatch(value.trim())) {
+    if (!RegExp(
+      r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$',
+    ).hasMatch(value.trim())) {
       return 'Please enter a valid email address';
     }
     return null;
@@ -157,18 +161,18 @@ class _GuardianAddPatientScreenState extends State<GuardianAddPatientScreen> {
     if (_selectedDOB == null) {
       return 'Date of birth is required';
     }
-    
+
     final now = DateTime.now();
     final age = now.year - _selectedDOB!.year;
-    
+
     if (_selectedDOB!.isAfter(now)) {
       return 'Date of birth cannot be in the future';
     }
-    
+
     if (age > 150) {
       return 'Please enter a valid date of birth';
     }
-    
+
     return null;
   }
 
@@ -176,17 +180,18 @@ class _GuardianAddPatientScreenState extends State<GuardianAddPatientScreen> {
     if (_selectedDiagnosisDate == null) {
       return 'Diagnosis date is required';
     }
-    
+
     final now = DateTime.now();
-    
+
     if (_selectedDiagnosisDate!.isAfter(now)) {
       return 'Diagnosis date cannot be in the future';
     }
-    
-    if (_selectedDOB != null && _selectedDiagnosisDate!.isBefore(_selectedDOB!)) {
+
+    if (_selectedDOB != null &&
+        _selectedDiagnosisDate!.isBefore(_selectedDOB!)) {
       return 'Diagnosis date cannot be before date of birth';
     }
-    
+
     return null;
   }
 
@@ -213,19 +218,18 @@ class _GuardianAddPatientScreenState extends State<GuardianAddPatientScreen> {
         inputFormatters: inputFormatters,
         decoration: InputDecoration(
           hintText: hintText,
-          hintStyle: TextStyle(
-            color: Colors.grey[500],
-            fontSize: 16,
-          ),
+          hintStyle: TextStyle(color: Colors.grey[500], fontSize: 16),
           border: InputBorder.none,
           contentPadding: EdgeInsets.symmetric(horizontal: 16, vertical: 16),
         ),
-        validator: validator ?? (value) {
-          if (value == null || value.isEmpty) {
-            return 'This field is required';
-          }
-          return null;
-        },
+        validator:
+            validator ??
+            (value) {
+              if (value == null || value.isEmpty) {
+                return 'This field is required';
+              }
+              return null;
+            },
       ),
     );
   }
@@ -246,18 +250,12 @@ class _GuardianAddPatientScreenState extends State<GuardianAddPatientScreen> {
         value: value,
         decoration: InputDecoration(
           hintText: hintText,
-          hintStyle: TextStyle(
-            color: Colors.grey[500],
-            fontSize: 16,
-          ),
+          hintStyle: TextStyle(color: Colors.grey[500], fontSize: 16),
           border: InputBorder.none,
           contentPadding: EdgeInsets.symmetric(horizontal: 16, vertical: 16),
         ),
         items: items.map((String item) {
-          return DropdownMenuItem<String>(
-            value: item,
-            child: Text(item),
-          );
+          return DropdownMenuItem<String>(value: item, child: Text(item));
         }).toList(),
         onChanged: onChanged,
         validator: (value) {
@@ -284,7 +282,8 @@ class _GuardianAddPatientScreenState extends State<GuardianAddPatientScreen> {
           _dobController.text = "${picked.day}/${picked.month}/${picked.year}";
         } else {
           _selectedDiagnosisDate = picked;
-          _diagnosisDateController.text = "${picked.day}/${picked.month}/${picked.year}";
+          _diagnosisDateController.text =
+              "${picked.day}/${picked.month}/${picked.year}";
         }
       });
     }
@@ -297,12 +296,12 @@ class _GuardianAddPatientScreenState extends State<GuardianAddPatientScreen> {
         // Additional custom validations for dates
         String? dobError = _validateDOB();
         String? diagnosisError = _validateDiagnosisDate();
-        
+
         if (dobError != null || diagnosisError != null) {
           String errorMessage = '';
           if (dobError != null) errorMessage += dobError + '\n';
           if (diagnosisError != null) errorMessage += diagnosisError;
-          
+
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
               content: Text(errorMessage.trim()),
@@ -336,7 +335,9 @@ class _GuardianAddPatientScreenState extends State<GuardianAddPatientScreen> {
           gender: _selectedGender ?? "",
         );
 
-        print('User creation result:  [1m [38;5;2m${userResult.success}, ${userResult.message} [0m');
+        print(
+          'User creation result:  [1m [38;5;2m${userResult.success}, ${userResult.message} [0m',
+        );
 
         if (!userResult.success || userResult.userId == null) {
           setState(() {
@@ -365,13 +366,19 @@ class _GuardianAddPatientScreenState extends State<GuardianAddPatientScreen> {
         // Fetch the guardianId from the guardian table using the user id
         int? guardianId;
         if (currentUserId != null) {
-          guardianId = await GuardianService.getGuardianIdByUserId(currentUserId);
+          guardianId = await GuardianService.getGuardianIdByUserId(
+            currentUserId,
+          );
         }
         print('Guardian Table ID: $guardianId');
 
         if (guardianId == null) {
           ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text('You must be logged in as a guardian to add a patient.')), 
+            SnackBar(
+              content: Text(
+                'You must be logged in as a guardian to add a patient.',
+              ),
+            ),
           );
           setState(() {
             _isLoading = false;
@@ -388,7 +395,9 @@ class _GuardianAddPatientScreenState extends State<GuardianAddPatientScreen> {
           relationship: _relationshipController.text.trim(),
         );
 
-        print('Patient creation result: ${patientResult.success}, ${patientResult.message}');
+        print(
+          'Patient creation result: ${patientResult.success}, ${patientResult.message}',
+        );
 
         setState(() {
           _isLoading = false;
@@ -434,12 +443,13 @@ class _GuardianAddPatientScreenState extends State<GuardianAddPatientScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final List<String> _dementiaTypeDisplayNames = dementiaTypeMap.keys.toList();
+    final List<String> _dementiaTypeDisplayNames = dementiaTypeMap.keys
+        .toList();
 
     return Scaffold(
-      backgroundColor: Colors.white,
+      backgroundColor: AppColors.surfaceVariant,
       appBar: AppBar(
-        backgroundColor: Colors.white,
+        backgroundColor: AppColors.surface,
         elevation: 0,
         leading: IconButton(
           icon: Icon(Icons.arrow_back, color: Colors.black),
@@ -450,7 +460,7 @@ class _GuardianAddPatientScreenState extends State<GuardianAddPatientScreen> {
           style: TextStyle(
             fontSize: 20,
             fontWeight: FontWeight.w600,
-            color: Colors.black87,
+            color: AppColors.onSurface,
           ),
         ),
         centerTitle: false,
@@ -479,7 +489,8 @@ class _GuardianAddPatientScreenState extends State<GuardianAddPatientScreen> {
                 hintText: 'Date of Birth',
                 readOnly: true,
                 onTap: () => _selectDate(context, true),
-                validator: (value) => _validateDateField(value, 'Date of birth'),
+                validator: (value) =>
+                    _validateDateField(value, 'Date of birth'),
               ),
 
               _buildDropdownField(
@@ -526,7 +537,7 @@ class _GuardianAddPatientScreenState extends State<GuardianAddPatientScreen> {
                       style: TextStyle(
                         fontSize: 16,
                         fontWeight: FontWeight.w500,
-                        color: Colors.black87,
+                        color: AppColors.onSurface,
                       ),
                     ),
                     SizedBox(height: 4),
@@ -534,7 +545,7 @@ class _GuardianAddPatientScreenState extends State<GuardianAddPatientScreen> {
                       'e.g., Mother, Father, Spouse, Grandmother, etc.',
                       style: TextStyle(
                         fontSize: 12,
-                        color: Colors.grey[600],
+                        color: AppColors.onSurfaceVariant,
                         fontStyle: FontStyle.italic,
                       ),
                     ),
@@ -559,7 +570,7 @@ class _GuardianAddPatientScreenState extends State<GuardianAddPatientScreen> {
                       style: TextStyle(
                         fontSize: 16,
                         fontWeight: FontWeight.w500,
-                        color: Colors.black87,
+                        color: AppColors.onSurface,
                       ),
                     ),
                     SizedBox(height: 8),
@@ -609,7 +620,8 @@ class _GuardianAddPatientScreenState extends State<GuardianAddPatientScreen> {
                 hintText: 'Date of diagnosis',
                 readOnly: true,
                 onTap: () => _selectDate(context, false),
-                validator: (value) => _validateDateField(value, 'Diagnosis date'),
+                validator: (value) =>
+                    _validateDateField(value, 'Diagnosis date'),
               ),
 
               SizedBox(height: 24),
@@ -620,7 +632,7 @@ class _GuardianAddPatientScreenState extends State<GuardianAddPatientScreen> {
                 child: ElevatedButton(
                   onPressed: _isLoading ? null : _handleSavePatient,
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: Color(0xFFA0C4FD),
+                    backgroundColor: AppColors.primaryLight,
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(12),
                     ),
@@ -628,17 +640,19 @@ class _GuardianAddPatientScreenState extends State<GuardianAddPatientScreen> {
                   ),
                   child: _isLoading
                       ? CircularProgressIndicator(
-                    valueColor: AlwaysStoppedAnimation<Color>(Color(0xFF2B3F99)),
-                    strokeWidth: 2,
-                  )
+                          valueColor: AlwaysStoppedAnimation<Color>(
+                            AppColors.info,
+                          ),
+                          strokeWidth: 2,
+                        )
                       : Text(
-                    'Save Patient',
-                    style: TextStyle(
-                      fontSize: 16,
-                      fontWeight: FontWeight.w600,
-                      color: Color(0xFF2B3F99),
-                    ),
-                  ),
+                          'Save Patient',
+                          style: TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.w600,
+                            color: AppColors.info,
+                          ),
+                        ),
                 ),
               ),
             ],

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../../routes/app_routes.dart';
+import '../../constants/color_constants.dart';
 import 'guardian_bottom_nav_bar.dart';
 
 class GuardianArticlesScreen extends StatefulWidget {
@@ -20,8 +21,8 @@ class _GuardianForumsScreenState extends State<GuardianArticlesScreen> {
       'title': 'Understanding Dementia',
       'description': 'Discussion on symptoms and care',
       'category': 'Caregiver Tips',
-      'author': 'Anonymous Guardian', // Changed to anonymous
-      'authorType': 'Guardian',
+      'author': 'Mr. Kamal Rathnayake', // Changed to anonymous
+      'authorType': 'Volunteer',
       'imageUrl':
           'https://images.unsplash.com/photo-1559757148-5c350d0d3c56?w=300&h=200&fit=crop',
       'comments': 15,
@@ -35,8 +36,8 @@ class _GuardianForumsScreenState extends State<GuardianArticlesScreen> {
       'title': 'Caregiver Support',
       'description': 'Share your experiences',
       'category': 'Caregiver Tips',
-      'author': 'Anonymous Guardian', // Changed to anonymous
-      'authorType': 'Guardian',
+      'author': 'Ms. Uthpala Mendis', // Changed to anonymous
+      'authorType': 'Volunteer',
       'imageUrl':
           'https://images.unsplash.com/photo-1582750433449-648ed127bb54?w=300&h=200&fit=crop',
       'comments': 8,
@@ -50,8 +51,8 @@ class _GuardianForumsScreenState extends State<GuardianArticlesScreen> {
       'title': 'Technology in Care',
       'description': 'Using apps to assist care',
       'category': 'Technology',
-      'author': 'Anonymous Guardian', // Changed to anonymous
-      'authorType': 'Guardian',
+      'author': 'Ms. Pahanmi Gunawardhana', // Changed to anonymous
+      'authorType': 'Volunteer',
       'imageUrl': 'https://picsum.photos/300/200?random=3',
       'comments': 12,
       'likes': 31,
@@ -64,8 +65,8 @@ class _GuardianForumsScreenState extends State<GuardianArticlesScreen> {
       'title': 'Medication Management',
       'description': 'How to organize medications',
       'category': 'Medication',
-      'author': 'Anonymous Guardian', // Changed to anonymous
-      'authorType': 'Guardian',
+      'author': 'Ms. Vinumi Jayakody', // Changed to anonymous
+      'authorType': 'Volunteer',
       'imageUrl':
           'https://images.unsplash.com/photo-1471864190281-a93a3070b6de?w=300&h=200&fit=crop',
       'comments': 22,
@@ -79,8 +80,8 @@ class _GuardianForumsScreenState extends State<GuardianArticlesScreen> {
       'title': 'Daily Activities for Dementia Patients',
       'description': 'Engaging activities and routines',
       'category': 'Activities',
-      'author': 'Anonymous Guardian', // Changed to anonymous
-      'authorType': 'Guardian',
+      'author': 'Mr. Ruwan Silva', // Changed to anonymous
+      'authorType': 'Volunteer',
       'imageUrl':
           'https://images.unsplash.com/photo-1511632765486-a01980e01a18?w=300&h=200&fit=crop',
       'comments': 18,
@@ -100,8 +101,8 @@ class _GuardianForumsScreenState extends State<GuardianArticlesScreen> {
       'title': 'Nutrition and Dementia',
       'description': 'Dietary considerations and tips',
       'category': 'Health',
-      'author': 'Anonymous Guardian', // Changed to anonymous
-      'authorType': 'Guardian',
+      'author': 'Mr. Sandun Fernando', // Changed to anonymous
+      'authorType': 'Volunteer',
       'imageUrl':
           'https://images.unsplash.com/photo-1490645935967-10de6ba17061?w=300&h=200&fit=crop',
       'comments': 14,
@@ -162,7 +163,7 @@ class _GuardianForumsScreenState extends State<GuardianArticlesScreen> {
     return Container(
       margin: EdgeInsets.symmetric(horizontal: 20, vertical: 16),
       decoration: BoxDecoration(
-        color: Colors.grey[100],
+        color: AppColors.surfaceVariant,
         borderRadius: BorderRadius.circular(12),
       ),
       child: TextField(
@@ -174,11 +175,11 @@ class _GuardianForumsScreenState extends State<GuardianArticlesScreen> {
         },
         decoration: InputDecoration(
           hintText: 'Search discussions',
-          hintStyle: TextStyle(color: Colors.grey[500]),
-          prefixIcon: Icon(Icons.search, color: Colors.grey[500]),
+          hintStyle: TextStyle(color: AppColors.onSurfaceVariant),
+          prefixIcon: Icon(Icons.search, color: AppColors.onSurfaceVariant),
           suffixIcon: _searchQuery.isNotEmpty
               ? IconButton(
-                  icon: Icon(Icons.clear, color: Colors.grey[500]),
+                  icon: Icon(Icons.clear, color: AppColors.onSurfaceVariant),
                   onPressed: _clearSearch,
                 )
               : null,
@@ -200,7 +201,7 @@ class _GuardianForumsScreenState extends State<GuardianArticlesScreen> {
             style: TextStyle(
               fontSize: 18,
               fontWeight: FontWeight.w600,
-              color: Colors.black87,
+              color: AppColors.onSurface,
             ),
           ),
           SizedBox(height: 16),
@@ -289,21 +290,21 @@ class _GuardianForumsScreenState extends State<GuardianArticlesScreen> {
       cursor: SystemMouseCursors.click, // Add proper cursor
       child: GestureDetector(
         onTap: () {
-          // Navigator.pushNamed(
-          //   context,
-          //   AppRoutes.guardianArticleDetail,
-          //   arguments: discussion,
-          // );
+          Navigator.pushNamed(
+            context,
+            AppRoutes.guardianArticleDetail,
+            arguments: discussion,
+          );
         },
         child: Container(
           margin: EdgeInsets.symmetric(horizontal: 20, vertical: 8),
           padding: EdgeInsets.all(16),
           decoration: BoxDecoration(
-            color: Colors.white,
+            color: AppColors.surface,
             borderRadius: BorderRadius.circular(12),
             boxShadow: [
               BoxShadow(
-                color: Colors.grey.withOpacity(0.1),
+                color: AppColors.shadow,
                 spreadRadius: 1,
                 blurRadius: 4,
                 offset: Offset(0, 2),
@@ -335,7 +336,7 @@ class _GuardianForumsScreenState extends State<GuardianArticlesScreen> {
                           style: TextStyle(
                             fontSize: 16,
                             fontWeight: FontWeight.w600,
-                            color: Colors.black87,
+                            color: AppColors.onSurface,
                           ),
                         ),
                         SizedBox(height: 4),
@@ -343,7 +344,7 @@ class _GuardianForumsScreenState extends State<GuardianArticlesScreen> {
                           discussion['description'],
                           style: TextStyle(
                             fontSize: 14,
-                            color: Colors.grey[600],
+                            color: AppColors.onSurfaceVariant,
                           ),
                           maxLines: 2,
                           overflow: TextOverflow.ellipsis,
@@ -361,7 +362,7 @@ class _GuardianForumsScreenState extends State<GuardianArticlesScreen> {
                               discussion['author'],
                               style: TextStyle(
                                 fontSize: 12,
-                                color: Colors.grey[500],
+                                color: AppColors.onSurfaceVariant,
                               ),
                             ),
                             SizedBox(width: 8),
@@ -372,8 +373,8 @@ class _GuardianForumsScreenState extends State<GuardianArticlesScreen> {
                               ),
                               decoration: BoxDecoration(
                                 color: discussion['authorType'] == 'Guardian'
-                                    ? Colors.blue[100]
-                                    : Colors.green[100],
+                                    ? AppColors.primaryLight.withOpacity(0.2)
+                                    : AppColors.success.withOpacity(0.2),
                                 borderRadius: BorderRadius.circular(10),
                               ),
                               child: Text(
@@ -381,8 +382,8 @@ class _GuardianForumsScreenState extends State<GuardianArticlesScreen> {
                                 style: TextStyle(
                                   fontSize: 10,
                                   color: discussion['authorType'] == 'Guardian'
-                                      ? Colors.blue[700]
-                                      : Colors.green[700],
+                                      ? AppColors.info
+                                      : AppColors.success,
                                   fontWeight: FontWeight.w500,
                                 ),
                               ),
@@ -400,23 +401,29 @@ class _GuardianForumsScreenState extends State<GuardianArticlesScreen> {
                   Icon(
                     Icons.chat_bubble_outline,
                     size: 16,
-                    color: Colors.grey[500],
+                    color: AppColors.onSurfaceVariant,
                   ),
                   SizedBox(width: 4),
                   Text(
                     '${discussion['comments']} comments',
-                    style: TextStyle(fontSize: 12, color: Colors.grey[500]),
+                    style: TextStyle(
+                      fontSize: 12,
+                      color: AppColors.onSurfaceVariant,
+                    ),
                   ),
                   SizedBox(width: 16),
                   Icon(
                     Icons.thumb_up_outlined,
                     size: 16,
-                    color: Colors.grey[500],
+                    color: AppColors.onSurfaceVariant,
                   ),
                   SizedBox(width: 4),
                   Text(
                     '${discussion['likes']} likes',
-                    style: TextStyle(fontSize: 12, color: Colors.grey[500]),
+                    style: TextStyle(
+                      fontSize: 12,
+                      color: AppColors.onSurfaceVariant,
+                    ),
                   ),
                 ],
               ),
@@ -457,9 +464,9 @@ class _GuardianForumsScreenState extends State<GuardianArticlesScreen> {
         return false; // We're handling the navigation ourselves
       },
       child: Scaffold(
-        backgroundColor: Colors.grey[50],
+        backgroundColor: AppColors.surfaceVariant,
         appBar: AppBar(
-          backgroundColor: Colors.white,
+          backgroundColor: AppColors.surface,
           elevation: 0,
           leading: _searchQuery.isNotEmpty
               ? IconButton(
@@ -475,7 +482,7 @@ class _GuardianForumsScreenState extends State<GuardianArticlesScreen> {
             style: TextStyle(
               fontSize: 20,
               fontWeight: FontWeight.w600,
-              color: Colors.black87,
+              color: AppColors.onSurface,
             ),
           ),
           centerTitle: false,

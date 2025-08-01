@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'dart:io';
 import '../../routes/app_routes.dart';
+import '../../constants/color_constants.dart';
 import 'guardian_bottom_nav_bar.dart';
 import '../../services/auth_service.dart';
 import '../../services/guardian_service.dart';
@@ -406,12 +407,12 @@ class _GuardianProfileScreenState extends State<GuardianProfileScreen> {
     return WillPopScope(
       onWillPop: _onWillPop,
       child: Scaffold(
-        backgroundColor: Colors.grey[50],
+        backgroundColor: AppColors.surfaceVariant,
         appBar: AppBar(
-          backgroundColor: Colors.white,
+          backgroundColor: AppColors.surface,
           elevation: 0,
           leading: IconButton(
-            icon: Icon(Icons.arrow_back, color: Colors.black87),
+            icon: Icon(Icons.arrow_back, color: AppColors.onSurface),
             onPressed: () {
               if (_isEditing) {
                 print('Exiting edit mode, staying on profile (AppBar)');
@@ -429,7 +430,7 @@ class _GuardianProfileScreenState extends State<GuardianProfileScreen> {
             style: TextStyle(
               fontSize: 20,
               fontWeight: FontWeight.w600,
-              color: Colors.black87,
+              color: AppColors.onSurface,
             ),
           ),
           centerTitle: false,
@@ -442,7 +443,7 @@ class _GuardianProfileScreenState extends State<GuardianProfileScreen> {
                   style: TextStyle(
                     fontSize: 16,
                     fontWeight: FontWeight.w600,
-                    color: Color(0xFF2B3F99),
+                    color: AppColors.info,
                   ),
                 ),
               ),
@@ -454,7 +455,7 @@ class _GuardianProfileScreenState extends State<GuardianProfileScreen> {
             children: [
               // Profile Header
               Container(
-                color: Colors.white,
+                color: AppColors.surface,
                 padding: EdgeInsets.all(20),
                 child: Row(
                   children: [
@@ -462,14 +463,14 @@ class _GuardianProfileScreenState extends State<GuardianProfileScreen> {
                       children: [
                         CircleAvatar(
                           radius: 30,
-                          backgroundColor: Colors.grey[800],
+                          backgroundColor: AppColors.onSurfaceVariant,
                           backgroundImage: _profileImage != null
                               ? FileImage(_profileImage!)
                               : null,
                           child: _profileImage == null
                               ? Icon(
                                   Icons.person,
-                                  color: Colors.white,
+                                  color: AppColors.onPrimary,
                                   size: 35,
                                 )
                               : null,
@@ -484,16 +485,16 @@ class _GuardianProfileScreenState extends State<GuardianProfileScreen> {
                                 width: 24,
                                 height: 24,
                                 decoration: BoxDecoration(
-                                  color: Color(0xFF2B3F99),
+                                  color: AppColors.info,
                                   shape: BoxShape.circle,
                                   border: Border.all(
-                                    color: Colors.white,
+                                    color: AppColors.onPrimary,
                                     width: 2,
                                   ),
                                 ),
                                 child: Icon(
                                   Icons.camera_alt,
-                                  color: Colors.white,
+                                  color: AppColors.onPrimary,
                                   size: 14,
                                 ),
                               ),
@@ -695,9 +696,8 @@ class _GuardianProfileScreenState extends State<GuardianProfileScreen> {
                               child: ElevatedButton(
                                 onPressed: _cancelEdit,
                                 style: ElevatedButton.styleFrom(
-                                  backgroundColor: Color(
-                                    0xFFA0C4FD,
-                                  ).withOpacity(0.35),
+                                  backgroundColor: AppColors.primaryLight
+                                      .withOpacity(0.35),
                                   elevation: 0,
                                   shape: RoundedRectangleBorder(
                                     borderRadius: BorderRadius.circular(8),
@@ -709,7 +709,7 @@ class _GuardianProfileScreenState extends State<GuardianProfileScreen> {
                                   style: TextStyle(
                                     fontSize: 16,
                                     fontWeight: FontWeight.w600,
-                                    color: Color(0xFF2B3F99),
+                                    color: AppColors.info,
                                   ),
                                 ),
                               ),
@@ -719,7 +719,7 @@ class _GuardianProfileScreenState extends State<GuardianProfileScreen> {
                               child: ElevatedButton(
                                 onPressed: _isLoading ? null : _saveProfile,
                                 style: ElevatedButton.styleFrom(
-                                  backgroundColor: Color(0xFFA0C4FD),
+                                  backgroundColor: AppColors.primaryLight,
                                   shape: RoundedRectangleBorder(
                                     borderRadius: BorderRadius.circular(8),
                                   ),
@@ -733,7 +733,7 @@ class _GuardianProfileScreenState extends State<GuardianProfileScreen> {
                                           strokeWidth: 2,
                                           valueColor:
                                               AlwaysStoppedAnimation<Color>(
-                                                Color(0xFF2B3F99),
+                                                AppColors.info,
                                               ),
                                         ),
                                       )
@@ -742,7 +742,7 @@ class _GuardianProfileScreenState extends State<GuardianProfileScreen> {
                                         style: TextStyle(
                                           fontSize: 16,
                                           fontWeight: FontWeight.w600,
-                                          color: Color(0xFF2B3F99),
+                                          color: AppColors.info,
                                         ),
                                       ),
                               ),

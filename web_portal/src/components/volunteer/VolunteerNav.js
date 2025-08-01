@@ -5,16 +5,16 @@ import logo from '../../assets/logo.png';
 
 const navItems = [
   { label: 'Home', to: '/home', type: 'route' },
+  { label: 'Dashboard', to: '/volunteer', type: 'route' },
   { label: 'For Patients', to: '/for_patients', type: 'route' },
   { label: 'For Caregivers', to: '/for_caregivers', type: 'route' },
   { label: 'For Guardians', to: '/for_guardians', type: 'route' },
   { label: 'For Volunteers', to: '/for_volunteers', type: 'route' },
   { label: 'Community', to: '/community', type: 'route' },
   { label: 'Contact Us', to: '/contact_us', type: 'route' },
-  {label : "Sign up", to: '/volunteer', type: 'route'}
 ];
 
-function Navbar() {
+function VolunteerNav() {
   return (
      <AppBar
       position="sticky"
@@ -51,4 +51,4 @@ function Navbar() {
   );
 }
 
-export default Navbar;
+export default VolunteerNav;

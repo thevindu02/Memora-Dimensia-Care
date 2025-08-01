@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import '../../constants/color_constants.dart';
+import '../../routes/app_routes.dart';
 
 class ViewArticleScreen extends StatefulWidget {
   @override
@@ -8,6 +10,7 @@ class ViewArticleScreen extends StatefulWidget {
 class _ViewArticleScreenState extends State<ViewArticleScreen>
     with SingleTickerProviderStateMixin {
   late TabController _tabController;
+  int _currentIndex = 2; // Set to 2 since this is the Community/Articles tab
 
   @override
   void initState() {
@@ -30,13 +33,13 @@ class _ViewArticleScreenState extends State<ViewArticleScreen>
         elevation: 0,
         title: Text(
           'Articles & Q&A Forum',
-          style: TextStyle(color: Colors.black, fontSize: 20),
+          style: TextStyle(color: Colors.black, fontSize: 20, fontWeight: FontWeight.w600),
         ),
         bottom: TabBar(
           controller: _tabController,
-          labelColor: Color(0xFF2B3F99),
+          labelColor: AppColors.primary,
           unselectedLabelColor: Colors.grey,
-          indicatorColor: Color(0xFF2B3F99),
+          indicatorColor: AppColors.primary,
           tabs: [
             Tab(text: 'Articles'),
             Tab(text: 'Q&A Forum'),
@@ -46,6 +49,48 @@ class _ViewArticleScreenState extends State<ViewArticleScreen>
       body: TabBarView(
         controller: _tabController,
         children: [CaregiverArticlesTab(), CaregiverQATab()],
+      ),
+      bottomNavigationBar: BottomNavigationBar(
+        currentIndex: _currentIndex,
+        onTap: (index) {
+          if (index == 0) {
+            // Home tab
+            Navigator.pushReplacementNamed(
+              context,
+              AppRoutes.caregiverDashboard,
+            );
+          } else if (index == 1) {
+            // Patients tab
+            Navigator.pushNamed(context, AppRoutes.caregiverPatients);
+          } else if (index == 2) {
+            // Community tab - already here, do nothing
+            setState(() {
+              _currentIndex = index;
+            });
+          } else if (index == 3) {
+            // Profile tab
+            Navigator.pushNamed(context, AppRoutes.caregiverProfile);
+          }
+        },
+        type: BottomNavigationBarType.fixed,
+        selectedItemColor:
+            AppColors.info, // Using AppColors.info for consistency
+        unselectedItemColor: AppColors.info,
+        items: const [
+          BottomNavigationBarItem(icon: Icon(Icons.home), label: 'Home'),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.people_outlined),
+            label: 'Patients',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.article_outlined),
+            label: 'Community',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.person_outlined),
+            label: 'Profile',
+          ),
+        ],
       ),
     );
   }
@@ -268,14 +313,14 @@ class _CaregiverArticlesTabState extends State<CaregiverArticlesTab> {
                                 vertical: 2,
                               ),
                               decoration: BoxDecoration(
-                                color: Color(0xFFA0C4FD),
+                                color: AppColors.primaryLight,
                                 borderRadius: BorderRadius.circular(10),
                               ),
                               child: Text(
                                 article['category'],
                                 style: TextStyle(
                                   fontSize: 12,
-                                  color: Color(0xFF2B3F99),
+                                  color: AppColors.primary,
                                 ),
                                 overflow: TextOverflow.ellipsis,
                               ),
@@ -457,7 +502,7 @@ class _CaregiverArticleDetailPageState
                                         : Icons.thumb_up_outlined,
                                     size: 20,
                                     color: _isLiked
-                                        ? Color(0xFF2B3F99)
+                                        ? AppColors.primary
                                         : Colors.grey[600],
                                   ),
                                   SizedBox(width: 4),
@@ -465,7 +510,7 @@ class _CaregiverArticleDetailPageState
                                     '$_likeCount likes',
                                     style: TextStyle(
                                       color: _isLiked
-                                          ? Color(0xFF2B3F99)
+                                          ? AppColors.primary
                                           : Colors.grey[600],
                                     ),
                                   ),
@@ -619,7 +664,7 @@ class _CaregiverArticleDetailPageState
                 ),
                 SizedBox(width: 8),
                 CircleAvatar(
-                  backgroundColor: Color(0xFF2B3F99),
+                  backgroundColor: AppColors.primary,
                   child: IconButton(
                     icon: Icon(Icons.send, color: Colors.white),
                     onPressed: _addComment,
@@ -704,7 +749,7 @@ class _CaregiverQATabState extends State<CaregiverQATab> {
       label: Text(
         filter,
         style: TextStyle(
-          color: isSelected ? Color(0xFF2B3F99) : Color(0xFF2B3F99),
+          color: isSelected ? AppColors.primary : AppColors.primary,
           fontSize: 12,
           fontWeight: FontWeight.w500,
         ),
@@ -716,12 +761,12 @@ class _CaregiverQATabState extends State<CaregiverQATab> {
         });
       },
       backgroundColor: Colors.white,
-      selectedColor: Color(0xFFA0C4FD),
-      checkmarkColor: Color(0xFF2B3F99),
+      selectedColor: AppColors.primaryLight,
+      checkmarkColor: AppColors.primary,
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(20),
         side: BorderSide(
-          color: isSelected ? Color(0xFFA0C4FD) : Colors.grey[300]!,
+          color: isSelected ? AppColors.primaryLight : Colors.grey[300]!,
         ),
       ),
     );
@@ -821,14 +866,14 @@ class _CaregiverQATabState extends State<CaregiverQATab> {
                   return Container(
                     padding: EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                     decoration: BoxDecoration(
-                      color: Color(0xFFA0C4FD).withOpacity(0.2),
+                      color: AppColors.primaryLight.withOpacity(0.2),
                       borderRadius: BorderRadius.circular(12),
                     ),
                     child: Text(
                       tag,
                       style: TextStyle(
                         fontSize: 11,
-                        color: Color(0xFF2B3F99),
+                        color: AppColors.primary,
                         fontWeight: FontWeight.w500,
                       ),
                     ),
@@ -909,7 +954,7 @@ class _CaregiverQATabState extends State<CaregiverQATab> {
                   ),
                   focusedBorder: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(8),
-                    borderSide: BorderSide(color: Color(0xFFA0C4FD)),
+                    borderSide: BorderSide(color: AppColors.primaryLight),
                   ),
                 ),
               ),
@@ -924,7 +969,7 @@ class _CaregiverQATabState extends State<CaregiverQATab> {
                   ),
                   focusedBorder: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(8),
-                    borderSide: BorderSide(color: Color(0xFFA0C4FD)),
+                    borderSide: BorderSide(color: AppColors.primaryLight),
                   ),
                 ),
               ),
@@ -939,7 +984,7 @@ class _CaregiverQATabState extends State<CaregiverQATab> {
                   ),
                   focusedBorder: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(8),
-                    borderSide: BorderSide(color: Color(0xFFA0C4FD)),
+                    borderSide: BorderSide(color: AppColors.primaryLight),
                   ),
                 ),
               ),
@@ -993,8 +1038,8 @@ class _CaregiverQATabState extends State<CaregiverQATab> {
                       );
                     },
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: Color(0xFFA0C4FD),
-                      foregroundColor: Color(0xFF2B3F99),
+                      backgroundColor: AppColors.primaryLight,
+                      foregroundColor: AppColors.primary,
                     ),
                     child: Text('Post Question'),
                   ),
@@ -1046,7 +1091,7 @@ class _CaregiverQATabState extends State<CaregiverQATab> {
                     ),
                     focusedBorder: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(8),
-                      borderSide: BorderSide(color: Color(0xFFA0C4FD)),
+                      borderSide: BorderSide(color: AppColors.primaryLight),
                     ),
                   ),
                 ),
@@ -1061,7 +1106,7 @@ class _CaregiverQATabState extends State<CaregiverQATab> {
                     ),
                     focusedBorder: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(8),
-                      borderSide: BorderSide(color: Color(0xFFA0C4FD)),
+                      borderSide: BorderSide(color: AppColors.primaryLight),
                     ),
                   ),
                 ),
@@ -1076,7 +1121,7 @@ class _CaregiverQATabState extends State<CaregiverQATab> {
                     ),
                     focusedBorder: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(8),
-                      borderSide: BorderSide(color: Color(0xFFA0C4FD)),
+                      borderSide: BorderSide(color: AppColors.primaryLight),
                     ),
                   ),
                 ),
@@ -1129,8 +1174,8 @@ class _CaregiverQATabState extends State<CaregiverQATab> {
                         );
                       },
                       style: ElevatedButton.styleFrom(
-                        backgroundColor: Color(0xFFA0C4FD),
-                        foregroundColor: Color(0xFF2B3F99),
+                        backgroundColor: AppColors.primaryLight,
+                        foregroundColor: AppColors.primary,
                       ),
                       child: Text('Post Question'),
                     ),
@@ -1200,8 +1245,8 @@ class _CaregiverQATabState extends State<CaregiverQATab> {
           right: 24,
           child: FloatingActionButton(
             onPressed: _showAddQuestionDialog,
-            backgroundColor: Color(0xFFA0C4FD),
-            child: Icon(Icons.add, color: Color(0xFF2B3F99)),
+            backgroundColor: AppColors.primaryLight,
+            child: Icon(Icons.add, color: AppColors.primary),
             tooltip: 'Ask a Question',
           ),
         ),
@@ -1268,11 +1313,11 @@ class _QuestionDetailScreenState extends State<QuestionDetailScreen> {
             children: [
               CircleAvatar(
                 radius: 16,
-                backgroundColor: Color(0xFFA0C4FD),
+                backgroundColor: AppColors.primaryLight,
                 child: Text(
                   reply['author'][0],
                   style: TextStyle(
-                    color: Color(0xFF2B3F99),
+                    color: AppColors.primary,
                     fontWeight: FontWeight.bold,
                     fontSize: 14,
                   ),
@@ -1458,14 +1503,14 @@ class _QuestionDetailScreenState extends State<QuestionDetailScreen> {
                                 vertical: 6,
                               ),
                               decoration: BoxDecoration(
-                                color: Color(0xFFA0C4FD).withOpacity(0.2),
+                                color: AppColors.primaryLight.withOpacity(0.2),
                                 borderRadius: BorderRadius.circular(16),
                               ),
                               child: Text(
                                 tag,
                                 style: TextStyle(
                                   fontSize: 12,
-                                  color: Color(0xFF2B3F99),
+                                  color: AppColors.primary,
                                   fontWeight: FontWeight.w500,
                                 ),
                               ),

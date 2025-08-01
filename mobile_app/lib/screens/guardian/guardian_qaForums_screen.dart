@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../../routes/app_routes.dart';
 import 'guardian_bottom_nav_bar.dart';
+import '../../constants/color_constants.dart';
 
 class GuardianQAForumsScreen extends StatefulWidget {
   @override
@@ -108,7 +109,7 @@ class _GuardianQAForumsScreenState extends State<GuardianQAForumsScreen> {
       label: Text(
         filter,
         style: TextStyle(
-          color: isSelected ? Color(0xFF2B3F99) : Color(0xFF2B3F99),
+          color: isSelected ? AppColors.info : AppColors.info,
           fontSize: 12,
           fontWeight: FontWeight.w500,
         ),
@@ -119,13 +120,13 @@ class _GuardianQAForumsScreenState extends State<GuardianQAForumsScreen> {
           _selectedFilter = filter;
         });
       },
-      backgroundColor: Colors.white,
-      selectedColor: Color(0xFFA0C4FD),
-      checkmarkColor: Color(0xFF2B3F99),
+      backgroundColor: AppColors.surface,
+      selectedColor: AppColors.primaryLight,
+      checkmarkColor: AppColors.info,
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(20),
         side: BorderSide(
-          color: isSelected ? Color(0xFFA0C4FD) : Colors.grey[300]!,
+          color: isSelected ? AppColors.primaryLight : AppColors.outline,
         ),
       ),
     );
@@ -148,11 +149,11 @@ class _GuardianQAForumsScreenState extends State<GuardianQAForumsScreen> {
           margin: EdgeInsets.only(bottom: 16),
           padding: EdgeInsets.all(16),
           decoration: BoxDecoration(
-            color: Colors.white,
+            color: AppColors.surface,
             borderRadius: BorderRadius.circular(12),
             boxShadow: [
               BoxShadow(
-                color: Colors.grey.withOpacity(0.1),
+                color: AppColors.shadow,
                 spreadRadius: 1,
                 blurRadius: 4,
                 offset: Offset(0, 2),
@@ -187,7 +188,10 @@ class _GuardianQAForumsScreenState extends State<GuardianQAForumsScreen> {
                   Spacer(),
                   Text(
                     question['timeAgo'],
-                    style: TextStyle(fontSize: 12, color: Colors.grey[600]),
+                    style: TextStyle(
+                      fontSize: 12,
+                      color: AppColors.onSurfaceVariant,
+                    ),
                   ),
                 ],
               ),
@@ -199,7 +203,7 @@ class _GuardianQAForumsScreenState extends State<GuardianQAForumsScreen> {
                 style: TextStyle(
                   fontSize: 16,
                   fontWeight: FontWeight.w600,
-                  color: Colors.black87,
+                  color: AppColors.onSurface,
                 ),
               ),
               SizedBox(height: 8),
@@ -295,13 +299,16 @@ class _GuardianQAForumsScreenState extends State<GuardianQAForumsScreen> {
                 style: TextStyle(
                   fontSize: 20,
                   fontWeight: FontWeight.bold,
-                  color: Colors.black87,
+                  color: AppColors.onSurface,
                 ),
               ),
               SizedBox(height: 8),
               Text(
                 'Your question will be posted anonymously',
-                style: TextStyle(fontSize: 14, color: Colors.grey[600]),
+                style: TextStyle(
+                  fontSize: 14,
+                  color: AppColors.onSurfaceVariant,
+                ),
               ),
               SizedBox(height: 20),
               TextField(
@@ -313,7 +320,7 @@ class _GuardianQAForumsScreenState extends State<GuardianQAForumsScreen> {
                   ),
                   focusedBorder: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(8),
-                    borderSide: BorderSide(color: Color(0xFFA0C4FD)),
+                    borderSide: BorderSide(color: AppColors.primaryLight),
                   ),
                 ),
               ),
@@ -328,7 +335,7 @@ class _GuardianQAForumsScreenState extends State<GuardianQAForumsScreen> {
                   ),
                   focusedBorder: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(8),
-                    borderSide: BorderSide(color: Color(0xFFA0C4FD)),
+                    borderSide: BorderSide(color: AppColors.primaryLight),
                   ),
                 ),
               ),
@@ -343,7 +350,7 @@ class _GuardianQAForumsScreenState extends State<GuardianQAForumsScreen> {
                   ),
                   focusedBorder: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(8),
-                    borderSide: BorderSide(color: Color(0xFFA0C4FD)),
+                    borderSide: BorderSide(color: AppColors.primaryLight),
                   ),
                 ),
               ),
@@ -420,9 +427,9 @@ class _GuardianQAForumsScreenState extends State<GuardianQAForumsScreen> {
         return false; // We're handling the navigation ourselves
       },
       child: Scaffold(
-        backgroundColor: Colors.grey[50],
+        backgroundColor: AppColors.surfaceVariant,
         appBar: AppBar(
-          backgroundColor: Colors.white,
+          backgroundColor: AppColors.surface,
           elevation: 0,
           leading: IconButton(
             icon: Icon(Icons.arrow_back, color: Colors.black),
@@ -433,7 +440,7 @@ class _GuardianQAForumsScreenState extends State<GuardianQAForumsScreen> {
             style: TextStyle(
               fontSize: 20,
               fontWeight: FontWeight.w600,
-              color: Colors.black87,
+              color: AppColors.onSurface,
             ),
           ),
           centerTitle: false,
@@ -443,7 +450,7 @@ class _GuardianQAForumsScreenState extends State<GuardianQAForumsScreen> {
             // Filter section
             Container(
               padding: EdgeInsets.all(16),
-              color: Colors.white,
+              color: AppColors.surface,
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
@@ -452,7 +459,7 @@ class _GuardianQAForumsScreenState extends State<GuardianQAForumsScreen> {
                     style: TextStyle(
                       fontSize: 16,
                       fontWeight: FontWeight.w600,
-                      color: Colors.black87,
+                      color: AppColors.onSurface,
                     ),
                   ),
                   SizedBox(height: 12),
@@ -487,8 +494,8 @@ class _GuardianQAForumsScreenState extends State<GuardianQAForumsScreen> {
         ),
         floatingActionButton: FloatingActionButton.extended(
           onPressed: _showAskQuestionDialog,
-          backgroundColor: Color(0xFFA0C4FD),
-          foregroundColor: Color(0xFF2B3F99),
+          backgroundColor: AppColors.primaryLight,
+          foregroundColor: AppColors.info,
           icon: Icon(Icons.add),
           label: Text('Ask Question'),
         ),
@@ -579,19 +586,25 @@ class _QuestionDetailScreenState extends State<QuestionDetailScreen> {
                       style: TextStyle(
                         fontSize: 14,
                         fontWeight: FontWeight.w600,
-                        color: Colors.black87,
+                        color: AppColors.onSurface,
                       ),
                     ),
                     Text(
                       reply['authorType'],
-                      style: TextStyle(fontSize: 12, color: Colors.grey[600]),
+                      style: TextStyle(
+                        fontSize: 12,
+                        color: AppColors.onSurfaceVariant,
+                      ),
                     ),
                   ],
                 ),
               ),
               Text(
                 reply['timeAgo'],
-                style: TextStyle(fontSize: 12, color: Colors.grey[600]),
+                style: TextStyle(
+                  fontSize: 12,
+                  color: AppColors.onSurfaceVariant,
+                ),
               ),
             ],
           ),
@@ -600,7 +613,7 @@ class _QuestionDetailScreenState extends State<QuestionDetailScreen> {
             reply['content'],
             style: TextStyle(
               fontSize: 14,
-              color: Colors.grey[700],
+              color: AppColors.onSurfaceVariant,
               height: 1.4,
             ),
           ),
@@ -641,12 +654,12 @@ class _QuestionDetailScreenState extends State<QuestionDetailScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.grey[50],
+      backgroundColor: AppColors.surfaceVariant,
       appBar: AppBar(
-        backgroundColor: Colors.white,
+        backgroundColor: AppColors.surface,
         elevation: 0,
         leading: IconButton(
-          icon: Icon(Icons.arrow_back, color: Colors.black87),
+          icon: Icon(Icons.arrow_back, color: Colors.black),
           onPressed: () => Navigator.pop(context),
         ),
         title: Text(
@@ -654,7 +667,7 @@ class _QuestionDetailScreenState extends State<QuestionDetailScreen> {
           style: TextStyle(
             fontSize: 20,
             fontWeight: FontWeight.bold,
-            color: Colors.black87,
+            color: AppColors.onSurface,
           ),
         ),
       ),

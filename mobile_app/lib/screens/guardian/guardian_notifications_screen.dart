@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../../routes/app_routes.dart';
+import '../../constants/color_constants.dart';
 
 class GuardianNotificationsScreen extends StatelessWidget {
   static const Color softLavender = Color(0xFFC3B1E1);
@@ -88,9 +89,9 @@ class GuardianNotificationsScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.white,
+      backgroundColor: AppColors.surfaceVariant,
       appBar: AppBar(
-        backgroundColor: Colors.white,
+        backgroundColor: AppColors.surface,
         elevation: 0,
         leading: IconButton(
           icon: Icon(Icons.arrow_back, color: Colors.black),
@@ -101,7 +102,7 @@ class GuardianNotificationsScreen extends StatelessWidget {
           style: TextStyle(
             fontSize: 24,
             fontWeight: FontWeight.w700,
-            color: Colors.black,
+            color: AppColors.onSurface,
           ),
         ),
         centerTitle: false,
@@ -119,7 +120,7 @@ class GuardianNotificationsScreen extends StatelessWidget {
           return Container(
             padding: EdgeInsets.all(18),
             decoration: BoxDecoration(
-              color: Colors.white,
+              color: AppColors.surface,
               borderRadius: BorderRadius.circular(14),
               boxShadow: [
                 BoxShadow(
@@ -154,18 +155,24 @@ class GuardianNotificationsScreen extends StatelessWidget {
                         style: TextStyle(
                           fontSize: 16,
                           fontWeight: FontWeight.w700,
-                          color: Color(0xFF2B3F99),
+                          color: AppColors.info,
                         ),
                       ),
                       SizedBox(height: 6),
                       Text(
                         notif['message'],
-                        style: TextStyle(fontSize: 14, color: Colors.grey[800]),
+                        style: TextStyle(
+                          fontSize: 14,
+                          color: AppColors.onSurface,
+                        ),
                       ),
                       SizedBox(height: 8),
                       Text(
                         notif['time'],
-                        style: TextStyle(fontSize: 12, color: Colors.grey[500]),
+                        style: TextStyle(
+                          fontSize: 12,
+                          color: AppColors.onSurfaceVariant,
+                        ),
                       ),
                     ],
                   ),
