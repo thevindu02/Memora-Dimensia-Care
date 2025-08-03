@@ -472,7 +472,9 @@ export default function VolunteerDashboard({ volunteerName, volunteerProfileImag
           </Box>
         </Container>
       </Box>
+      <Box sx={{ pl: { md: "260px" } }}>
       <Footer />
+    </Box>
     </>
   );
 }
