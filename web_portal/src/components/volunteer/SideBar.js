@@ -12,10 +12,11 @@ import {
 } from '@mui/material';
 
 import DashboardIcon from '@mui/icons-material/Dashboard';
-import ArticleIcon from '@mui/icons-material/Article';
+// import ArticleIcon from '@mui/icons-material/Article';
 import ScheduleIcon from '@mui/icons-material/Schedule';
 import ForumIcon from '@mui/icons-material/Forum';
 import SettingsIcon from '@mui/icons-material/Settings';
+import WriteIcon from '@mui/icons-material/Create';
 
 const colors = {
   white: '#FFFFFF',
@@ -54,9 +55,9 @@ export default function SideBar({ volunteerName, profileImage, onNavigate }) {
         </ListItemButton>
         <ListItemButton onClick={() => onNavigate('Write Blog')}>
           <ListItemIcon>
-            <ArticleIcon sx={{ color: colors.deepPurple }} />
+            <WriteIcon sx={{ color: colors.deepPurple }} />
           </ListItemIcon>
-          <ListItemText primary="New Blog" />
+          <ListItemText primary="New Article" />
         </ListItemButton>
         <ListItemButton onClick={() => onNavigate('Schedule Session')}>
           <ListItemIcon>
