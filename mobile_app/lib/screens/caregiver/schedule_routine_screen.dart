@@ -738,12 +738,19 @@ class _ScheduleRoutineScreenState extends State<ScheduleRoutineScreen> {
                                     ),
                                     elevation: 1,
                                   ),
-                                  child: Text(
-                                    'Skip',
-                                    style: TextStyle(
-                                      fontSize: 14,
-                                      fontWeight: FontWeight.w500,
-                                    ),
+                                  child: Row(
+                                    mainAxisAlignment: MainAxisAlignment.center,
+                                    children: [
+                                      Icon(Icons.skip_next, size: 16),
+                                      SizedBox(width: 4),
+                                      Text(
+                                        'Skip',
+                                        style: TextStyle(
+                                          fontSize: 14,
+                                          fontWeight: FontWeight.w500,
+                                        ),
+                                      ),
+                                    ],
                                   ),
                                 ),
                               ),
@@ -813,21 +820,28 @@ class _ScheduleRoutineScreenState extends State<ScheduleRoutineScreen> {
                   );
                 },
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: AppColors.primaryLight,
-                  foregroundColor: Color(0xFF2B3F99),
+                  backgroundColor: Colors.green,
+                  foregroundColor: Colors.white,
                   padding: EdgeInsets.symmetric(vertical: 16),
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(12),
                   ),
                   elevation: 2,
                 ),
-                child: Text(
-                  'Complete Daily Routine',
-                  style: TextStyle(
-                    color: AppColors.primary,
-                    fontSize: 16,
-                    fontWeight: FontWeight.w600,
-                  ),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Icon(Icons.check_circle, size: 20),
+                    SizedBox(width: 8),
+                    Text(
+                      'Complete Daily Routine',
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontSize: 16,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                  ],
                 ),
               ),
             ),

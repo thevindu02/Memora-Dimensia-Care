@@ -182,7 +182,7 @@ class HomeScreen extends StatelessWidget {
                 backgroundColor: AppColors.primaryLight.withOpacity(
                   0.10,
                 ), // Lighter accent
-                valueColor: AlwaysStoppedAnimation<Color>(Color(0xFF2B3F99)),
+                valueColor: AlwaysStoppedAnimation<Color>(Colors.green),
                 minHeight: 10,
                 borderRadius: BorderRadius.circular(5),
               ),

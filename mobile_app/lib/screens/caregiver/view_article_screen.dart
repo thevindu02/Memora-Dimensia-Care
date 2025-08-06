@@ -42,7 +42,7 @@ class _ViewArticleScreenState extends State<ViewArticleScreen>
         bottom: TabBar(
           controller: _tabController,
           labelColor: AppColors.primary,
-          unselectedLabelColor: Colors.grey,
+          unselectedLabelColor: AppColors.primary,
           indicatorColor: AppColors.primary,
           tabs: [
             Tab(text: 'Articles'),
@@ -77,17 +77,29 @@ class _ViewArticleScreenState extends State<ViewArticleScreen>
           }
         },
         type: BottomNavigationBarType.fixed,
-        selectedItemColor:
-            AppColors.info, // Using AppColors.info for consistency
-        unselectedItemColor: AppColors.info,
+        selectedItemColor: Color(0xFF2B3F99),
+        unselectedItemColor: Color(0xFF2B3F99),
+        selectedLabelStyle: TextStyle(
+          fontSize: 12,
+          fontWeight: FontWeight.w500,
+        ),
+        unselectedLabelStyle: TextStyle(
+          fontSize: 12,
+          fontWeight: FontWeight.w400,
+        ),
+        selectedIconTheme: IconThemeData(size: 24),
+        unselectedIconTheme: IconThemeData(size: 24),
         items: const [
-          BottomNavigationBarItem(icon: Icon(Icons.home), label: 'Home'),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.home_outlined),
+            label: 'Home',
+          ),
           BottomNavigationBarItem(
             icon: Icon(Icons.people_outlined),
             label: 'Patients',
           ),
           BottomNavigationBarItem(
-            icon: Icon(Icons.article_outlined),
+            icon: Icon(Icons.article),
             label: 'Community',
           ),
           BottomNavigationBarItem(
@@ -730,66 +742,39 @@ class _CaregiverArticleDetailPageState
             ),
           ),
           Container(
-            padding: EdgeInsets.all(20),
+            padding: EdgeInsets.all(16),
             decoration: BoxDecoration(
               color: Colors.white,
               border: Border(top: BorderSide(color: Colors.grey[300]!)),
             ),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
+            child: Row(
               children: [
-                Text(
-                  'Add a comment',
-                  style: TextStyle(
-                    fontSize: 16,
-                    fontWeight: FontWeight.w600,
-                    color: Colors.black,
-                  ),
-                ),
-                SizedBox(height: 12),
-                Container(
-                  decoration: BoxDecoration(
-                    color: Colors.grey[50],
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                  child: TextField(
-                    controller: _commentController,
-                    maxLines: 3,
-                    decoration: InputDecoration(
-                      hintText: 'Share your thoughts or ask a question...',
-                      hintStyle: TextStyle(color: Colors.grey[600]),
-                      border: InputBorder.none,
-                      contentPadding: EdgeInsets.all(16),
+                Expanded(
+                  child: Container(
+                    decoration: BoxDecoration(
+                      color: Colors.grey[100],
+                      borderRadius: BorderRadius.circular(24),
                     ),
-                  ),
-                ),
-                SizedBox(height: 12),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.end,
-                  children: [
-                    TextButton(
-                      onPressed: () {
-                        _commentController.clear();
-                        FocusScope.of(context).unfocus();
-                      },
-                      child: Text(
-                        'Cancel',
-                        style: TextStyle(color: Colors.grey[600]),
-                      ),
-                    ),
-                    SizedBox(width: 8),
-                    ElevatedButton(
-                      onPressed: _addComment,
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: AppColors.primaryLight,
-                        foregroundColor: AppColors.primary,
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(8),
+                    child: TextField(
+                      controller: _commentController,
+                      decoration: InputDecoration(
+                        hintText: 'Reply to comments...',
+                        border: InputBorder.none,
+                        contentPadding: EdgeInsets.symmetric(
+                          horizontal: 16,
+                          vertical: 12,
                         ),
                       ),
-                      child: Text('Post Comment'),
                     ),
-                  ],
+                  ),
+                ),
+                SizedBox(width: 8),
+                CircleAvatar(
+                  backgroundColor: AppColors.primaryLight,
+                  child: IconButton(
+                    icon: Icon(Icons.send, color: AppColors.primary),
+                    onPressed: _addComment,
+                  ),
                 ),
               ],
             ),
