@@ -155,7 +155,7 @@ class VolunteerCreateContentScreen extends StatelessWidget {
   void _navigateToArticleCreation(BuildContext context) {
     Navigator.push(
       context,
-      MaterialPageRoute(builder: (context) => VolunteerArticlesScreen()),
+      MaterialPageRoute(builder: (context) => VolunteerArticlesTabBody()),
     );
   }
 

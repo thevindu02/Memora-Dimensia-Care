@@ -24,7 +24,7 @@ class VolunteerRoutes {
         );
       case AppRoutes.volunteerArticles:
         return MaterialPageRoute(
-          builder: (_) => VolunteerArticlesScreen(),
+          builder: (_) => VolunteerArticlesTabBody(),
           settings: settings,
         );
       case AppRoutes.volunteerProfile:
@@ -83,7 +83,6 @@ class VolunteerRoutes {
           builder: (_) => VolunteerArticlesTab(),
           settings: settings,
         );
-
 
       default:
         return MaterialPageRoute(
