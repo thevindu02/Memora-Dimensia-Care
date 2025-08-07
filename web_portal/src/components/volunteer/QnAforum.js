@@ -115,7 +115,7 @@ function RoleBadge({ role }) {
         color: colors.deepPurple,
         px: 1.2,
         py: 0.3,
-        borderRadius: '12px',
+        borderRadius: 2,
         fontWeight: 600,
         fontSize: 12,
         userSelect: 'none',
@@ -192,7 +192,7 @@ function DiscussionCard({ discussion }) {
       sx={{
         p: 2,
         mb: 2,
-        borderRadius: 3,
+        borderRadius: 2,
         display: 'flex',
         cursor: 'pointer',
         boxShadow: `0 4px 10px ${colors.softLavender}77`,

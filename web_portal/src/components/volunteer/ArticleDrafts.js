@@ -108,7 +108,7 @@ export default function ArticleDrafts({
         component="main"
         sx={{
           pl: { md: "260px" }, // Sidebar width
-          pt: { xs: "56px", md: "64px" }, // Nav height approx
+          pt: { xs: "56px", md: "130px" }, // Nav height approx
           minHeight: "100vh",
           bgcolor: colors.backgroundLight,
           fontFamily: "Poppins, Lato, Nunito, Arial, sans-serif",
@@ -137,7 +137,7 @@ export default function ArticleDrafts({
                   elevation={3}
                   sx={{
                     mb: 3,
-                    borderRadius: 3,
+                    borderRadius: 2,
                     px: 2,
                     py: 1.5,
                     boxShadow: `0 6px 15px ${colors.softLavender}88`,
@@ -226,8 +226,9 @@ export default function ArticleDrafts({
         </Container>
       </Box>
 
-      {/* Footer at bottom */}
+      <Box sx={{ pl: { md: "260px" } }}>
       <Footer />
+    </Box>
     </>
   );
 }

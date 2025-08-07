@@ -204,8 +204,8 @@ export default function CreateBlog() {
           fontFamily: "Poppins, Lato, Nunito, Arial, sans-serif",
           color: colors.calmNavy,
           ml: { md: "260px" }, // Shift right for sidebar on medium and up
-          pt: { xs: 2, md: 10 }, // top padding to avoid nav overlap on md up
-          pb: { xs: 6, md: 8 }, // bottom padding for visual comfort / footer space
+          pt: "50px", // top padding to avoid nav overlap on md up
+          pb: 10, // bottom padding for visual comfort / footer space
         }}
       >
         <Container maxWidth="md">
@@ -232,7 +232,7 @@ export default function CreateBlog() {
               width: "100%",
               height: 140,
               bgcolor: colors.softLavender,
-              borderRadius: 3,
+              borderRadius: 2,
               mb: 5,
               display: "flex",
               justifyContent: "center",
@@ -326,7 +326,7 @@ export default function CreateBlog() {
                     bgcolor: colors.lightSkyBlue,
                     color: colors.deepPurple,
                     fontWeight: "600",
-                    borderRadius: "16px",
+                    borderRadius: 2,
                   }}
                 />
               ))}
@@ -408,7 +408,7 @@ export default function CreateBlog() {
               onChange={(e) => setContent(e.target.value)}
               sx={{
                 bgcolor: colors.white,
-                borderRadius: 3,
+                borderRadius: 2,
                 "& textarea": {
                   fontFamily: "Nunito, Arial, sans-serif",
                   fontWeight: 400,
@@ -428,7 +428,7 @@ export default function CreateBlog() {
             sx={{
               p: 2,
               mb: 5,
-              borderRadius: 3,
+              borderRadius: 2,
               bgcolor: colors.white,
               boxShadow: `0 4px 12px ${colors.softLavender}aa`,
             }}

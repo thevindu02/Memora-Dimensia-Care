@@ -9,6 +9,8 @@ import QnAforum from './QnAforum';
 import VolunteerSettings from './VolunteerSettings';
 import ArticleDrafts from './ArticleDrafts'; 
 import Articles from './Articles'; 
+import PublishedArticles from './PublishedArticles'; 
+import ViewArticle from './ViewArticle'; 
 
 export default function VolunteerRoutes() {
   const [currentPage, setCurrentPage] = useState('Dashboard');
@@ -41,7 +43,8 @@ export default function VolunteerRoutes() {
         {currentPage === 'Settings' && <VolunteerSettings />}
         {currentPage === 'Article Drafts' && <ArticleDrafts/>}
         {currentPage === 'Articles' && <Articles />}
-
+        {currentPage === 'Published Articles' && <PublishedArticles />}
+        {currentPage === 'View Article' && <ViewArticle />}
        
       </Box>
 

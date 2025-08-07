@@ -100,7 +100,7 @@ export default function ScheduleSession({
             sx={{
               mb: 4,
               height: 140,
-              borderRadius: 3,
+              borderRadius: 2,
               backgroundImage:
                 "url('https://images.unsplash.com/photo-1526256262350-7da7584cf5eb?auto=format&fit=crop&w=800&q=80')",
               backgroundSize: "cover",
@@ -141,7 +141,7 @@ export default function ScheduleSession({
             sx={{
               p: 2,
               mb: 3,
-              borderRadius: 3,
+              borderRadius: 2,
               boxShadow: `0 6px 18px ${colors.softLavender}88`,
               backgroundColor: colors.white,
             }}
@@ -185,7 +185,7 @@ export default function ScheduleSession({
             sx={{
               p: 2,
               mb: 3,
-              borderRadius: 3,
+              borderRadius: 2,
               boxShadow: `0 6px 18px ${colors.softLavender}88`,
               backgroundColor: colors.white,
             }}
@@ -230,7 +230,7 @@ export default function ScheduleSession({
             sx={{
               p: 2,
               mb: 3,
-              borderRadius: 3,
+              borderRadius: 2,
               boxShadow: `0 6px 18px ${colors.softLavender}88`,
               backgroundColor: colors.white,
             }}
@@ -268,7 +268,7 @@ export default function ScheduleSession({
             sx={{
               p: 2,
               mb: 3,
-              borderRadius: 3,
+              borderRadius: 2,
               boxShadow: `0 6px 18px ${colors.softLavender}88`,
               backgroundColor: colors.white,
             }}
@@ -308,7 +308,7 @@ export default function ScheduleSession({
             sx={{
               p: 2,
               mb: 5,
-              borderRadius: 3,
+              borderRadius: 2,
               boxShadow: `0 6px 18px ${colors.softLavender}88`,
               backgroundColor: colors.white,
             }}
@@ -347,17 +347,17 @@ export default function ScheduleSession({
             variant="contained"
             onClick={handleSchedule}
             sx={{
-              bgcolor: colors.lightSkyBlue,
+              bgcolor: colors.deepPurple,
               color: colors.white,
               fontWeight: "bold",
               borderRadius: 4,
               py: 1.75,
-              boxShadow: `0 8px 15px ${colors.lightSkyBlue}80`,
+              boxShadow: `0 8px 15px ${colors.deepPurple}80`,
               textTransform: "none",
               fontSize: 16,
               "&:hover": {
-                bgcolor: colors.deepPurple,
-                boxShadow: `0 12px 24px ${colors.deepPurple}cc`,
+                bgcolor: colors.lightSkyBlue,
+                boxShadow: `0 12px 24px ${colors.lightSkyBlue}cc`,
               },
               transition: "all 0.3s ease",
             }}

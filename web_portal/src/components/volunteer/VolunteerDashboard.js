@@ -280,6 +280,7 @@ export default function VolunteerDashboard({ volunteerName, volunteerProfileImag
         sx={{
           bgcolor: colors.backgroundLight,
           minHeight: '100vh',
+
           py: { xs: 4, md: 6 },
           px: { xs: 2, md: 4 },
           fontFamily: 'Poppins, Lato, Nunito, Arial, sans-serif',

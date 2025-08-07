@@ -20,6 +20,10 @@ import QnAforum from './components/volunteer/QnAforum';
 import VolunteerSettings from './components/volunteer/VolunteerSettings';
 import ArticleDrafts from './components/volunteer/ArticleDrafts'; 
 import Articles from './components/volunteer/Articles'; 
+import PublishedArticles from './components/volunteer/PublishedArticles'; 
+import ViewArticle from './components/volunteer/ViewArticle'; 
+
+
 function App() {
      console.log('App component rendered'); 
   return (
@@ -45,6 +49,8 @@ function App() {
           <Route path= "/VolunteerSettings" element={<VolunteerSettings />} />
           <Route path="/ArticleDrafts" element={<ArticleDrafts />} />
           <Route path="/Articles" element={<Articles />} />
+          <Route path="/PublishedArticles" element={<PublishedArticles />} />
+          <Route path="/ViewArticle/:id" element={<ViewArticle />} />
 
         </Routes>
       </Router>
