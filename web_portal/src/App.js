@@ -13,6 +13,13 @@ import Terms from './components/home/Terms';
 import PrivacyPolicy from './components/home/PrivacyPolicy';
 import Community from './components/home/Community';
 import VolunteerRoutes from './components/volunteer/VolunteerRoutes'; 
+import VolunteerDashboard from './components/volunteer/VolunteerDashboard';
+import CreateBlog from './components/volunteer/CreateBlog';
+import ScheduleSession from './components/volunteer/ScheduleSession';
+import QnAforum from './components/volunteer/QnAforum';
+import VolunteerSettings from './components/volunteer/VolunteerSettings';
+import ArticleDrafts from './components/volunteer/ArticleDrafts'; 
+import Articles from './components/volunteer/Articles'; 
 function App() {
      console.log('App component rendered'); 
   return (
@@ -31,8 +38,14 @@ function App() {
           <Route path="/privacy_policy" element={<PrivacyPolicy />} />
           <Route path="/community" element={<Community />} />
           <Route path= "/volunteer" element= {<VolunteerRoutes/>}/>
+          <Route path="/VolunteerDashboard" element={<VolunteerDashboard />} />
+          <Route path="/CreateBlog" element={<CreateBlog />} />
+          <Route path="/ScheduleSession" element={<ScheduleSession />} />
+          <Route path="/QnAforum" element={<QnAforum />} />
+          <Route path= "/VolunteerSettings" element={<VolunteerSettings />} />
+          <Route path="/ArticleDrafts" element={<ArticleDrafts />} />
+          <Route path="/Articles" element={<Articles />} />
 
-          {/* Add other routes as needed */}
         </Routes>
       </Router>
     </ThemeProvider>

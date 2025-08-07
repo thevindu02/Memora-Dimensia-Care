@@ -285,7 +285,7 @@ export default function VolunteerDashboard({ volunteerName, volunteerProfileImag
           fontFamily: 'Poppins, Lato, Nunito, Arial, sans-serif',
           color: colors.calmNavy,
           position: 'relative',
-          ml: { md: 30 }, // Leave space for sidebar on md+ screens if sidebar fixed outside
+          ml: { md: 30 }, 
         }}
       >
         <Container maxWidth="lg">

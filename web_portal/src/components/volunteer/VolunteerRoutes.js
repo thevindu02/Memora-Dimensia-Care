@@ -6,6 +6,9 @@ import VolunteerDashboard from './VolunteerDashboard';
 import CreateBlog from './CreateBlog';
 import ScheduleSession from './ScheduleSession';
 import QnAforum from './QnAforum';
+import VolunteerSettings from './VolunteerSettings';
+import ArticleDrafts from './ArticleDrafts'; 
+import Articles from './Articles'; 
 
 export default function VolunteerRoutes() {
   const [currentPage, setCurrentPage] = useState('Dashboard');
@@ -35,6 +38,10 @@ export default function VolunteerRoutes() {
         {currentPage === 'Write Blog' && <CreateBlog />}
         {currentPage === 'Schedule Session' && <ScheduleSession />}
         {currentPage === 'Forum' && <QnAforum/>}
+        {currentPage === 'Settings' && <VolunteerSettings />}
+        {currentPage === 'Article Drafts' && <ArticleDrafts/>}
+        {currentPage === 'Articles' && <Articles />}
+
        
       </Box>
 

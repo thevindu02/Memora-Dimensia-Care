@@ -64,6 +64,20 @@ export default function ScheduleSession({
 
   return (
     <>
+          {/* Top nav spans full width above SideBar */}
+          <Box
+            sx={{
+              position: "fixed",
+              top: 0,
+              left: 0,
+              right: 0,
+              zIndex: 1400,
+              bgcolor: colors.white,
+              boxShadow: "0 2px 8px rgb(0 0 0 / 0.1)",
+            }}
+          >
+            <VolunteerNav />
+          </Box>
       <SideBar
         volunteerName={volunteerName}
         profileImage={volunteerProfileImage}
