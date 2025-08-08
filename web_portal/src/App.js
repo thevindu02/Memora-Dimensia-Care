@@ -22,6 +22,10 @@ import ArticleDrafts from './components/volunteer/ArticleDrafts';
 import Articles from './components/volunteer/Articles'; 
 import PublishedArticles from './components/volunteer/PublishedArticles'; 
 import ViewArticle from './components/volunteer/ViewArticle'; 
+import VolunteerProfile from './components/volunteer/VolunteerProfile';
+import VolunteerSignup from './components/volunteer/VolunteerSignup';
+import VolunteerRegistrationSubmittedScreen from './components/volunteer/VolunteerRegistrationSubmittedScreen';
+import VolunteerRegistrationCompletedScreen from './components/volunteer/VolunteerRegistrationCompletedScreen';
 
 
 function App() {
@@ -51,6 +55,11 @@ function App() {
           <Route path="/Articles" element={<Articles />} />
           <Route path="/PublishedArticles" element={<PublishedArticles />} />
           <Route path="/ViewArticle/:id" element={<ViewArticle />} />
+          <Route path="/VolunteerProfile" element={<VolunteerProfile />} />
+          <Route path="/VolunteerSignup" element={<VolunteerSignup />} />
+          <Route path="/VolunteerRegistrationSubmitted" element={<VolunteerRegistrationSubmittedScreen />} />
+          <Route path="/VolunteerRegistrationCompleted" element={<VolunteerRegistrationCompletedScreen />} />
+          
 
         </Routes>
       </Router>

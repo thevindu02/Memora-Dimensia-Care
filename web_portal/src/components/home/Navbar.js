@@ -1,6 +1,7 @@
 // src/components/Navbar.js
 import React from 'react';
 import { AppBar, Toolbar, Typography, Button, Box } from '@mui/material';
+import { Link } from 'react-router-dom';
 import logo from '../../assets/logo.png'; 
 
 const navItems = [
@@ -11,7 +12,7 @@ const navItems = [
   { label: 'For Volunteers', to: '/for_volunteers', type: 'route' },
   { label: 'Community', to: '/community', type: 'route' },
   { label: 'Contact Us', to: '/contact_us', type: 'route' },
-  {label : "Sign up", to: '/volunteer', type: 'route'}
+  {label : "Sign up", to: '/VolunteerSignup', type: 'route'}
 ];
 
 function Navbar() {
@@ -41,7 +42,24 @@ function Navbar() {
         </Box>
         <Box sx={{ display: { xs: 'none', md: 'flex' }, gap: 2 }}>
           {navItems.map((item) => (
-            <Button key={item.label} href={item.to} color="inherit" sx={{ fontWeight: 600 }}>
+            <Button
+              key={item.label}
+              component={Link}
+              to={item.to}
+              color="inherit"
+              sx={{
+                fontWeight: 600,
+                ...(item.label === "Sign up" && {
+                  bgcolor: "#C3B1E1",
+                  color: "#390797",
+                  borderRadius: 2,
+                  px: 3,
+                  "&:hover": {
+                    bgcolor: "#b09ad6",
+                  },
+                }),
+              }}
+            >
               {item.label}
             </Button>
           ))}

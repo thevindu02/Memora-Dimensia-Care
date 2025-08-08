@@ -32,6 +32,7 @@ import VisibilityIcon from '@mui/icons-material/Visibility';
 import VolunteerNav from './VolunteerNav';
 import Footer from '../home/Footer';
 import SideBar from './SideBar';
+import VolunteerProfile from './VolunteerProfile';
 
 import {
   Chart as ChartJS,
@@ -256,17 +257,31 @@ export default function VolunteerDashboard({ volunteerName, volunteerProfileImag
   const [anchorEl, setAnchorEl] = useState(null);
   const openProfileMenu = Boolean(anchorEl);
 
+  // New state for showing profile page
+  const [showProfile, setShowProfile] = useState(false);
+
   // Handlers
   const handleProfileClick = (event) => setAnchorEl(event.currentTarget);
   const handleProfileClose = () => setAnchorEl(null);
 
   const handleMenuItemClick = (option) => {
-    alert(`You clicked ${option}`);
+    if (option === 'Profile') {
+      setShowProfile(true); // Show profile page
+    } else {
+      alert(`You clicked ${option}`);
+    }
     handleProfileClose();
   };
 
   // Handlers for quick action buttons
   const handleActionClick = (action) => alert(`Action triggered: ${action}`);
+
+  // Render profile page if showProfile is true
+  if (showProfile) {
+    return (
+      <VolunteerProfile onBack={() => setShowProfile(false)} />
+    );
+  }
 
   return (
     <>

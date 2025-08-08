@@ -11,6 +11,10 @@ import ArticleDrafts from './ArticleDrafts';
 import Articles from './Articles'; 
 import PublishedArticles from './PublishedArticles'; 
 import ViewArticle from './ViewArticle'; 
+import VolunteerProfile from './VolunteerProfile';
+import VolunteerSignup from './VolunteerSignup';
+import VolunteerRegistrationCompletedScreen from './VolunteerRegistrationCompletedScreen';
+import VolunteerRegistrationSubmittedScreen from './VolunteerRegistrationSubmittedScreen';
 
 export default function VolunteerRoutes() {
   const [currentPage, setCurrentPage] = useState('Dashboard');
@@ -45,7 +49,10 @@ export default function VolunteerRoutes() {
         {currentPage === 'Articles' && <Articles />}
         {currentPage === 'Published Articles' && <PublishedArticles />}
         {currentPage === 'View Article' && <ViewArticle />}
-       
+        {currentPage === 'Volunteer Profile' && <VolunteerProfile />}
+        {currentPage === 'Volunteer Signup' && <VolunteerSignup />}
+        {currentPage === 'Registration Completed' && <VolunteerRegistrationCompletedScreen />}
+        {currentPage === 'Registration Submitted' && <VolunteerRegistrationSubmittedScreen />}
       </Box>
 
       {/* <Footer /> -- Also moved inside Dashboard or all pages layout */}
