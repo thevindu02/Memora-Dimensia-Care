@@ -19,6 +19,7 @@ import {
   Menu,
   MenuItem,
 } from '@mui/material';
+import { useNavigate } from "react-router-dom";
 
 import MenuIcon from '@mui/icons-material/Menu';
 import ArticleIcon from '@mui/icons-material/Article';
@@ -259,6 +260,7 @@ export default function VolunteerDashboard({ volunteerName, volunteerProfileImag
 
   // New state for showing profile page
   const [showProfile, setShowProfile] = useState(false);
+  const navigate = useNavigate(); // Add this line
 
   // Handlers
   const handleProfileClick = (event) => setAnchorEl(event.currentTarget);
@@ -266,7 +268,9 @@ export default function VolunteerDashboard({ volunteerName, volunteerProfileImag
 
   const handleMenuItemClick = (option) => {
     if (option === 'Profile') {
-      setShowProfile(true); // Show profile page
+      setShowProfile(true);
+    } else if (option === 'Sign Out') {
+      navigate("/home"); // Navigate to home page on sign out
     } else {
       alert(`You clicked ${option}`);
     }

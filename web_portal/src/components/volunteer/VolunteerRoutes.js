@@ -15,6 +15,11 @@ import VolunteerProfile from './VolunteerProfile';
 import VolunteerSignup from './VolunteerSignup';
 import VolunteerRegistrationCompletedScreen from './VolunteerRegistrationCompletedScreen';
 import VolunteerRegistrationSubmittedScreen from './VolunteerRegistrationSubmittedScreen';
+import ForgetPassword from './ForgetPassword';
+import SignIn from './SignIn'; 
+import VolunteerPrivacy from './VolunteerPrivacy';
+import HelpAndSupport from './HelpAndSupport';
+
 
 export default function VolunteerRoutes() {
   const [currentPage, setCurrentPage] = useState('Dashboard');
@@ -53,6 +58,10 @@ export default function VolunteerRoutes() {
         {currentPage === 'Volunteer Signup' && <VolunteerSignup />}
         {currentPage === 'Registration Completed' && <VolunteerRegistrationCompletedScreen />}
         {currentPage === 'Registration Submitted' && <VolunteerRegistrationSubmittedScreen />}
+        {currentPage === 'Forget Password' && <ForgetPassword />}
+        {currentPage === 'Sign In' && <SignIn />}
+        {currentPage === 'Volunteer Privacy' && <VolunteerPrivacy />}
+        {currentPage === 'Help and Support' && <HelpAndSupport />}
       </Box>
 
       {/* <Footer /> -- Also moved inside Dashboard or all pages layout */}

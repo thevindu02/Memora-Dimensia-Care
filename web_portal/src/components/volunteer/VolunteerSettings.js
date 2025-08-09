@@ -25,6 +25,7 @@ import SideBar from "./SideBar";
 import VolunteerNav from "./VolunteerNav";
 import Footer from "../home/Footer";
 import { useTheme } from "@mui/material/styles";
+import { useNavigate } from "react-router-dom";
 
 const colors = {
   softLavender: "#C3B1E1",
@@ -138,6 +139,7 @@ export default function VolunteerSettings() {
 
   const theme = useTheme();
   const isSmallScreen = useMediaQuery(theme.breakpoints.down("sm"));
+  const navigate = useNavigate();
 
   const handleLogoutConfirm = () => {
     setLogoutModalOpen(false);
@@ -250,14 +252,14 @@ export default function VolunteerSettings() {
               title="Privacy"
               subtitle="Manage your data"
               hoverable={true}
-              onClick={() => alert("Privacy clicked (dummy)")}
+              onClick={() => navigate("/VolunteerPrivacy")} // Navigate to privacy page
             />
             <SettingItem
               icon={<HelpOutlineIcon />}
               title="Help & Support"
               subtitle="FAQs & Support"
               hoverable={true}
-              onClick={() => alert("Help & Support clicked (dummy)")}
+              onClick={() => navigate("/HelpAndSupport")} // Navigate to help page
             />
           </Box>
 

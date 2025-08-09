@@ -94,8 +94,6 @@ export default function VolunteerSignup({ open, onClose }) {
 
   // Validate Sri Lankan phone number (without country code)
   const validatePhone = (phone) => {
-    // Sri Lankan mobile numbers are 9 digits starting with 7, etc.
-    // We'll accept only digits after +94 prefix and length 9-10 digits
     const regex = /^[07]\d{8,9}$/;
     return regex.test(phone);
   };
@@ -188,7 +186,10 @@ export default function VolunteerSignup({ open, onClose }) {
         disableEscapeKeyDown={isSubmitting}
         disableBackdropClick={isSubmitting}
       >
-        <DialogTitle id="volunteer-signup-title" sx={{ mb: 3, fontWeight: 700, color: colors.calmNavy }}>
+        <DialogTitle
+          id="volunteer-signup-title"
+          sx={{ mb: 3, fontWeight: 700, color: colors.calmNavy }}
+        >
           Volunteer Registration
         </DialogTitle>
 
@@ -208,7 +209,10 @@ export default function VolunteerSignup({ open, onClose }) {
             }}
           >
             {/* Section: Name */}
-            <Typography variant="subtitle1" sx={{ color: colors.deepPurple, fontWeight: 600 }}>
+            <Typography
+              variant="subtitle1"
+              sx={{ color: colors.deepPurple, fontWeight: 600 }}
+            >
               Name
             </Typography>
             <Stack direction={{ xs: "column", sm: "row" }} spacing={2}>
@@ -221,7 +225,9 @@ export default function VolunteerSignup({ open, onClose }) {
                 error={!!errors.firstName}
                 helperText={errors.firstName}
                 InputProps={{
-                  startAdornment: <PersonIcon sx={{ color: colors.deepPurple, mr: 1 }} />,
+                  startAdornment: (
+                    <PersonIcon sx={{ color: colors.deepPurple, mr: 1 }} />
+                  ),
                 }}
                 size="small"
               />
@@ -234,7 +240,9 @@ export default function VolunteerSignup({ open, onClose }) {
                 error={!!errors.lastName}
                 helperText={errors.lastName}
                 InputProps={{
-                  startAdornment: <PersonIcon sx={{ color: colors.deepPurple, mr: 1 }} />,
+                  startAdornment: (
+                    <PersonIcon sx={{ color: colors.deepPurple, mr: 1 }} />
+                  ),
                 }}
                 size="small"
               />
@@ -244,11 +252,21 @@ export default function VolunteerSignup({ open, onClose }) {
             <Box>
               <Typography
                 variant="subtitle1"
-                sx={{ color: colors.deepPurple, fontWeight: 600, mb: 0.5, display: "flex", alignItems: "center", gap: 0.5 }}
+                sx={{
+                  color: colors.deepPurple,
+                  fontWeight: 600,
+                  mb: 0.5,
+                  display: "flex",
+                  alignItems: "center",
+                  gap: 0.5,
+                }}
               >
                 Email Address
                 <Tooltip title="Please enter the email address given by your organization" arrow>
-                  <InfoOutlinedIcon fontSize="small" sx={{ color: colors.lightSkyBlue, cursor: "help" }} />
+                  <InfoOutlinedIcon
+                    fontSize="small"
+                    sx={{ color: colors.lightSkyBlue, cursor: "help" }}
+                  />
                 </Tooltip>
               </Typography>
               <TextField
@@ -261,7 +279,9 @@ export default function VolunteerSignup({ open, onClose }) {
                 error={!!errors.email}
                 helperText={errors.email}
                 InputProps={{
-                  startAdornment: <EmailIcon sx={{ color: colors.deepPurple, mr: 1 }} />,
+                  startAdornment: (
+                    <EmailIcon sx={{ color: colors.deepPurple, mr: 1 }} />
+                  ),
                 }}
                 size="small"
               />
@@ -269,7 +289,10 @@ export default function VolunteerSignup({ open, onClose }) {
 
             {/* Phone Number */}
             <Box>
-              <Typography variant="subtitle1" sx={{ color: colors.deepPurple, fontWeight: 600, mb: 0.5 }}>
+              <Typography
+                variant="subtitle1"
+                sx={{ color: colors.deepPurple, fontWeight: 600, mb: 0.5 }}
+              >
                 Phone Number
               </Typography>
               <Stack direction="row" spacing={1} alignItems="center">
@@ -304,7 +327,9 @@ export default function VolunteerSignup({ open, onClose }) {
                   helperText={errors.phone}
                   size="small"
                   InputProps={{
-                    startAdornment: <PhoneIcon sx={{ color: colors.deepPurple, mr: 1 }} />,
+                    startAdornment: (
+                      <PhoneIcon sx={{ color: colors.deepPurple, mr: 1 }} />
+                    ),
                     inputMode: "numeric",
                     pattern: "[0-9]*",
                   }}
@@ -356,7 +381,9 @@ export default function VolunteerSignup({ open, onClose }) {
                 onClick={openFileDialog}
                 sx={{
                   position: "relative",
-                  border: `2px dashed ${errors.volunteerIDImage ? "red" : colors.softLavender}`,
+                  border: `2px dashed ${
+                    errors.volunteerIDImage ? "red" : colors.softLavender
+                  }`,
                   borderRadius: 3,
                   height: 170,
                   display: "flex",
@@ -400,10 +427,19 @@ export default function VolunteerSignup({ open, onClose }) {
                     </IconButton>
                   </>
                 ) : (
-                  <Stack direction="column" alignItems="center" spacing={1} sx={{ userSelect: "none" }}>
+                  <Stack
+                    direction="column"
+                    alignItems="center"
+                    spacing={1}
+                    sx={{ userSelect: "none" }}
+                  >
                     <UploadFileIcon sx={{ fontSize: 48 }} />
-                    <Typography variant="body2" sx={{ maxWidth: 200, textAlign: "center" }}>
-                      Drag & drop or click to upload a clear image of your volunteer ID
+                    <Typography
+                      variant="body2"
+                      sx={{ maxWidth: 200, textAlign: "center" }}
+                    >
+                      Drag & drop or click to upload a clear image of your volunteer
+                      ID
                     </Typography>
                   </Stack>
                 )}
@@ -438,37 +474,72 @@ export default function VolunteerSignup({ open, onClose }) {
                   role="alert"
                   aria-live="polite"
                 >
-                  <CheckCircleOutlineIcon sx={{ fontSize: 48, color: colors.lightSkyBlue }} />
-                  <Typography variant="h6" sx={{ color: colors.deepPurple, fontWeight: 700 }}>
+                  <CheckCircleOutlineIcon
+                    sx={{ fontSize: 48, color: colors.lightSkyBlue }}
+                  />
+                  <Typography
+                    variant="h6"
+                    sx={{ color: colors.deepPurple, fontWeight: 700 }}
+                  >
                     Registration Successful!
                   </Typography>
                   <Typography>Your volunteer registration has been submitted.</Typography>
                 </Box>
               ) : (
-                <Button
-                  type="submit"
-                  variant="contained"
-                  disabled={isSubmitting}
-                  sx={{
-                    bgcolor: `linear-gradient(45deg, ${colors.deepPurple}, ${colors.calmNavy})`,
-                    px: 6,
-                    py: 1.5,
-                    fontWeight: 700,
-                    letterSpacing: 0.5,
-                    borderRadius: 3,
-                    color: "white",
-                    fontSize: 16,
-                    boxShadow: `0 4px 15px ${colors.deepPurple}aa`,
-                    transition: "all 0.3s ease",
-                    "&:hover:not(:disabled)": {
-                      bgcolor: `linear-gradient(45deg, ${colors.calmNavy}, ${colors.deepPurple})`,
-                      boxShadow: `0 6px 20px ${colors.calmNavy}cc`,
-                    },
-                  }}
-                  aria-label="Submit volunteer registration"
-                >
-                  {isSubmitting ? <CircularProgress color="inherit" size={24} /> : "Register"}
-                </Button>
+                <>
+                  <Button
+                    type="submit"
+                    variant="contained"
+                    disabled={isSubmitting}
+                    sx={{
+                      bgcolor: `linear-gradient(45deg, ${colors.deepPurple}, ${colors.calmNavy})`,
+                      px: 6,
+                      py: 1.5,
+                      fontWeight: 700,
+                      letterSpacing: 0.5,
+                      borderRadius: 3,
+                      color: "white",
+                      fontSize: 16,
+                      boxShadow: `0 4px 15px ${colors.deepPurple}aa`,
+                      transition: "all 0.3s ease",
+                      "&:hover:not(:disabled)": {
+                        bgcolor: `linear-gradient(45deg, ${colors.calmNavy}, ${colors.deepPurple})`,
+                        boxShadow: `0 6px 20px ${colors.calmNavy}cc`,
+                      },
+                    }}
+                    aria-label="Submit volunteer registration"
+                  >
+                    {isSubmitting ? <CircularProgress color="inherit" size={24} /> : "Register"}
+                  </Button>
+
+                  {/* === Add "Already have an account? Sign in" below the button === */}
+                  <Typography
+                    variant="body2"
+                    sx={{ mt: 2, color: colors.calmNavy }}
+                  >
+                    Already have an account?{" "}
+                    <Box
+                      component="span"
+                      sx={{
+                        color: colors.deepPurple,
+                        fontWeight: 700,
+                        cursor: "pointer",
+                        textDecoration: "underline",
+                        "&:hover": { color: colors.lightSkyBlue },
+                      }}
+                      onClick={() => navigate("/login")} // Adjust login route if needed
+                      tabIndex={0}
+                      role="link"
+                      onKeyPress={(e) => {
+                        if (e.key === "Enter" || e.key === " ") {
+                          navigate("/login");
+                        }
+                      }}
+                    >
+                      Sign in
+                    </Box>
+                  </Typography>
+                </>
               )}
             </Box>
           </Box>
@@ -645,10 +716,7 @@ export default function VolunteerSignup({ open, onClose }) {
 
         {/* Volunteer ID Image Upload */}
         <Box>
-          <Typography
-            variant="subtitle1"
-            sx={{ color: colors.deepPurple, fontWeight: 600, mb: 1 }}
-          >
+          <Typography variant="subtitle1" sx={{ color: colors.deepPurple, fontWeight: 600, mb: 1 }}>
             Volunteer ID Image
           </Typography>
 
@@ -700,9 +768,17 @@ export default function VolunteerSignup({ open, onClose }) {
                 </IconButton>
               </>
             ) : (
-              <Stack direction="column" alignItems="center" spacing={1} sx={{ userSelect: "none" }}>
+              <Stack
+                direction="column"
+                alignItems="center"
+                spacing={1}
+                sx={{ userSelect: "none" }}
+              >
                 <UploadFileIcon sx={{ fontSize: 48 }} />
-                <Typography variant="body2" sx={{ maxWidth: 200, textAlign: "center" }}>
+                <Typography
+                  variant="body2"
+                  sx={{ maxWidth: 200, textAlign: "center" }}
+                >
                   Drag & drop or click to upload a clear image of your volunteer ID
                 </Typography>
               </Stack>
@@ -738,37 +814,72 @@ export default function VolunteerSignup({ open, onClose }) {
               role="alert"
               aria-live="polite"
             >
-              <CheckCircleOutlineIcon sx={{ fontSize: 48, color: colors.lightSkyBlue }} />
-              <Typography variant="h6" sx={{ color: colors.deepPurple, fontWeight: 700 }}>
+              <CheckCircleOutlineIcon
+                sx={{ fontSize: 48, color: colors.lightSkyBlue }}
+              />
+              <Typography
+                variant="h6"
+                sx={{ color: colors.deepPurple, fontWeight: 700 }}
+              >
                 Registration Successful!
               </Typography>
               <Typography>Your volunteer registration has been submitted.</Typography>
             </Box>
           ) : (
-            <Button
-              type="submit"
-              variant="contained"
-              disabled={isSubmitting}
-              sx={{
-                bgcolor: `linear-gradient(45deg, ${colors.deepPurple}, ${colors.calmNavy})`,
-                px: 6,
-                py: 1.5,
-                fontWeight: 700,
-                letterSpacing: 0.5,
-                borderRadius: 3,
-                color: "white",
-                fontSize: 16,
-                boxShadow: `0 4px 15px ${colors.deepPurple}aa`,
-                transition: "all 0.3s ease",
-                "&:hover:not(:disabled)": {
-                  bgcolor: `linear-gradient(45deg, ${colors.calmNavy}, ${colors.deepPurple})`,
-                  boxShadow: `0 6px 20px ${colors.calmNavy}cc`,
-                },
-              }}
-              aria-label="Submit volunteer registration"
-            >
-              {isSubmitting ? <CircularProgress color="inherit" size={24} /> : "Register"}
-            </Button>
+            <>
+              <Button
+                type="submit"
+                variant="contained"
+                disabled={isSubmitting}
+                sx={{
+                  bgcolor: `linear-gradient(45deg, ${colors.deepPurple}, ${colors.calmNavy})`,
+                  px: 6,
+                  py: 1.5,
+                  fontWeight: 700,
+                  letterSpacing: 0.5,
+                  borderRadius: 3,
+                  color: "white",
+                  fontSize: 16,
+                  boxShadow: `0 4px 15px ${colors.deepPurple}aa`,
+                  transition: "all 0.3s ease",
+                  "&:hover:not(:disabled)": {
+                    bgcolor: `linear-gradient(45deg, ${colors.calmNavy}, ${colors.deepPurple})`,
+                    boxShadow: `0 6px 20px ${colors.calmNavy}cc`,
+                  },
+                }}
+                aria-label="Submit volunteer registration"
+              >
+                {isSubmitting ? <CircularProgress color="inherit" size={24} /> : "Register"}
+              </Button>
+
+              {/* === Add "Already have an account? Sign in" below the button === */}
+              <Typography
+                variant="body2"
+                sx={{ mt: 2, color: colors.calmNavy }}
+              >
+                Already have an account?{" "}
+                <Box
+                  component="span"
+                  sx={{
+                    color: colors.deepPurple,
+                    fontWeight: 700,
+                    cursor: "pointer",
+                    textDecoration: "underline",
+                    "&:hover": { color: colors.lightSkyBlue },
+                  }}
+                  onClick={() => navigate("/SignIn")} // Adjust login route if needed
+                  tabIndex={0}
+                  role="link"
+                  onKeyPress={(e) => {
+                    if (e.key === "Enter" || e.key === " ") {
+                      navigate("/SignIn");
+                    }
+                  }}
+                >
+                  Sign in
+                </Box>
+              </Typography>
+            </>
           )}
         </Box>
       </Box>

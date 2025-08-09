@@ -26,6 +26,10 @@ import VolunteerProfile from './components/volunteer/VolunteerProfile';
 import VolunteerSignup from './components/volunteer/VolunteerSignup';
 import VolunteerRegistrationSubmittedScreen from './components/volunteer/VolunteerRegistrationSubmittedScreen';
 import VolunteerRegistrationCompletedScreen from './components/volunteer/VolunteerRegistrationCompletedScreen';
+import ForgetPassword from './components/volunteer/ForgetPassword';
+import SignIn from './components/volunteer/SignIn';
+import VolunteerPrivacy from './components/volunteer/VolunteerPrivacy';
+import HelpAndSupport from './components/volunteer/HelpAndSupport';
 
 
 function App() {
@@ -58,8 +62,11 @@ function App() {
           <Route path="/VolunteerProfile" element={<VolunteerProfile />} />
           <Route path="/VolunteerSignup" element={<VolunteerSignup />} />
           <Route path="/VolunteerRegistrationSubmitted" element={<VolunteerRegistrationSubmittedScreen />} />
-          <Route path="/VolunteerRegistrationCompleted" element={<VolunteerRegistrationCompletedScreen />} />
-          
+          <Route path="/VolunteerRegistrationComp leted" element={<VolunteerRegistrationCompletedScreen />} />
+          <Route path="/ForgetPassword" element={<ForgetPassword />} />
+          <Route path="/SignIn" element={<SignIn />} />
+          <Route path="/VolunteerPrivacy" element={<VolunteerPrivacy />} />
+          <Route path="/HelpAndSupport" element={<HelpAndSupport />} />
 
         </Routes>
       </Router>

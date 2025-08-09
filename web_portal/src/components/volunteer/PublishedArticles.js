@@ -206,6 +206,7 @@ function ArticleCard({ article }) {
 }
 
 export default function PublishedArticles() {
+  const navigate = useNavigate(); // Add this line
   const [articles, setArticles] = useState(publishedArticlesData);
 
   const articlesCount = articles.length;
@@ -297,8 +298,7 @@ export default function PublishedArticles() {
               px: 3,
               py: 1,
             }}
-            onClick={() => alert("New Article button clicked (non-functional placeholder)")}
-            aria-label="Add new article"
+             onClick={() => navigate("/CreateBlog")}
           >
             + New Article
           </Button>
