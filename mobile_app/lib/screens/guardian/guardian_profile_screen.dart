@@ -6,6 +6,7 @@ import '../../constants/color_constants.dart';
 import 'guardian_bottom_nav_bar.dart';
 import '../../services/auth_service.dart';
 import '../../services/guardian_service.dart';
+import '../../utils/name_utils.dart';
 
 class GuardianProfileScreen extends StatefulWidget {
   @override
@@ -62,7 +63,9 @@ class _GuardianProfileScreenState extends State<GuardianProfileScreen> {
           guardianId,
         );
         if (profile != null) {
-          _nameController.text = profile['name'] ?? '';
+          _nameController.text = NameUtils.capitalizeName(
+            profile['name'] ?? '',
+          );
           _emailController.text = profile['email'] ?? '';
           _phoneController.text = profile['phone'] ?? '';
           // Combine address fields: street, city, state

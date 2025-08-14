@@ -4,6 +4,7 @@ import '../../services/patient_service.dart';
 import '../../services/auth_service.dart';
 import '../../services/guardian_service.dart'; // Add this import
 import '../../constants/color_constants.dart';
+import '../../utils/name_utils.dart';
 
 class GuardianAddCaregiverScreen extends StatefulWidget {
   @override
@@ -126,7 +127,7 @@ class _GuardianAddCaregiverScreenState
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          patient['name'] ?? '',
+                          NameUtils.capitalizeName(patient['name'] ?? ''),
                           style: TextStyle(
                             fontSize: 16,
                             fontWeight: FontWeight.w600,
@@ -441,14 +442,35 @@ class _GuardianAddCaregiverScreenState
                           ),
                           SizedBox(width: 8),
                           Expanded(
-                            child: Text(
-                              'Selected patient: ${selectedPatient?['name'] ?? 'N/A'}',
-                              style: TextStyle(
-                                fontSize: 14,
-                                color: AppColors.onSurfaceVariant,
-                                fontWeight: FontWeight.w500,
-                              ),
-                              overflow: TextOverflow.ellipsis,
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                RichText(
+                                  text: TextSpan(
+                                    children: [
+                                      TextSpan(
+                                        text: 'Selected patient: ',
+                                        style: TextStyle(
+                                          fontSize: 13,
+                                          color: AppColors.onSurfaceVariant,
+                                          fontWeight: FontWeight.w500,
+                                        ),
+                                      ),
+                                      TextSpan(
+                                        text: NameUtils.capitalizeName(
+                                          selectedPatient?['name'] ?? 'N/A',
+                                        ),
+                                        style: TextStyle(
+                                          fontSize: 13,
+                                          fontWeight: FontWeight.w500,
+                                          color: AppColors.info,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                  overflow: TextOverflow.ellipsis,
+                                ),
+                              ],
                             ),
                           ),
                           TextButton(

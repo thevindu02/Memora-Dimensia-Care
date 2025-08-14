@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import '../../routes/app_routes.dart';
 import '../../services/guardian_service.dart';
 import '../../constants/color_constants.dart';
+import '../../utils/name_utils.dart';
 
 class GuardianAddKnownCaregiverScreen extends StatefulWidget {
   @override
@@ -97,7 +98,7 @@ class _GuardianAddKnownCaregiverScreenState
                 Text(
                   isSuccess
                       ? 'Great! $caregiverName has been successfully connected as a caregiver for '
-                            '${(selectedPatient?['name'] ?? selectedPatient?['fName'] ?? selectedPatient?['FName'] ?? selectedPatient?['fname'] ?? '').toString().trim().isEmpty ? 'N/A' : (selectedPatient?['name'] ?? selectedPatient?['fName'] ?? selectedPatient?['FName'] ?? selectedPatient?['fname'] ?? '')}. They will now be able to access and manage care information.'
+                            '${NameUtils.formatPatientName(selectedPatient ?? {})}. They will now be able to access and manage care information.'
                       : 'No caregiver found with this email address. Please check the email and try again. Make sure the caregiver is registered in our system.',
                   style: TextStyle(
                     fontSize: 14,
@@ -302,20 +303,7 @@ class _GuardianAddKnownCaregiverScreenState
                       ),
                     ),
                     Text(
-                      (selectedPatient?['name'] ??
-                                  selectedPatient?['fName'] ??
-                                  selectedPatient?['FName'] ??
-                                  selectedPatient?['fname'] ??
-                                  '')
-                              .toString()
-                              .trim()
-                              .isEmpty
-                          ? 'N/A'
-                          : (selectedPatient?['name'] ??
-                                selectedPatient?['fName'] ??
-                                selectedPatient?['FName'] ??
-                                selectedPatient?['fname'] ??
-                                ''),
+                      NameUtils.formatPatientName(selectedPatient ?? {}),
                       style: TextStyle(
                         fontSize: 14,
                         fontWeight: FontWeight.w600,

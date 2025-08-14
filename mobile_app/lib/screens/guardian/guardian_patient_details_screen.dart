@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../../routes/app_routes.dart';
 import '../../constants/color_constants.dart';
+import '../../utils/name_utils.dart';
 
 class GuardianPatientDetailsScreen extends StatefulWidget {
   final Map<String, dynamic>? patient;
@@ -162,7 +163,7 @@ class _GuardianPatientDetailsScreenState
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          '${patientData!['fName'] ?? patientData!['FName'] ?? patientData!['fname'] ?? ''} ${patientData!['lName'] ?? patientData!['LName'] ?? patientData!['lname'] ?? ''}',
+                          NameUtils.formatPatientName(patientData!),
                           style: TextStyle(
                             fontSize: 20,
                             fontWeight: FontWeight.w600,
@@ -217,19 +218,48 @@ class _GuardianPatientDetailsScreenState
                   SizedBox(height: 16),
 
                   _buildInfoRow(
+                    'First Name',
+                    NameUtils.capitalizeName(
+                      patientData!['fName'] ??
+                          patientData!['FName'] ??
+                          patientData!['fname'] ??
+                          'N/A',
+                    ),
+                  ),
+                  _buildInfoRow(
+                    'Last Name',
+                    NameUtils.capitalizeName(
+                      patientData!['lName'] ??
+                          patientData!['LName'] ??
+                          patientData!['lname'] ??
+                          'N/A',
+                    ),
+                  ),
+                  _buildInfoRow(
                     'Date of Birth',
                     patientData!['birthdate'] ?? 'N/A',
+                  ),
+                  _buildInfoRow(
+                    'Gender',
+                    NameUtils.capitalizeName(patientData!['gender'] ?? 'N/A'),
+                  ),
+                  _buildInfoRow(
+                    'Street',
+                    NameUtils.capitalizeName(patientData!['street'] ?? 'N/A'),
+                  ),
+                  _buildInfoRow(
+                    'City',
+                    NameUtils.capitalizeName(patientData!['city'] ?? 'N/A'),
+                  ),
+                  _buildInfoRow(
+                    'State',
+                    NameUtils.capitalizeName(patientData!['state'] ?? 'N/A'),
                   ),
                   _buildInfoRow(
                     'Contact Number',
                     patientData!['phoneNumber'] ?? 'N/A',
                   ),
-                  _buildInfoRow(
-                    'Address',
-                    '${patientData!['street'] ?? ''}, ${patientData!['city'] ?? ''}, ${patientData!['state'] ?? ''}',
-                  ),
                   _buildInfoRow('Email', patientData!['email'] ?? 'N/A'),
-                  _buildInfoRow('Gender', patientData!['gender'] ?? 'N/A'),
 
                   SizedBox(height: 16),
 
@@ -257,10 +287,9 @@ class _GuardianPatientDetailsScreenState
                   // Edit Button
                   Container(
                     width: double.infinity,
-                    child: ElevatedButton.icon(
+                    child: ElevatedButton(
                       onPressed: _editPatient,
-                      icon: Icon(Icons.edit, color: AppColors.info, size: 16),
-                      label: Text(
+                      child: Text(
                         'Edit Patient Details',
                         style: TextStyle(
                           fontSize: 14,

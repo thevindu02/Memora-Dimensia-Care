@@ -3,6 +3,7 @@ import '../../routes/app_routes.dart';
 import '../../services/patient_service.dart';
 import '../../services/auth_service.dart';
 import '../../constants/color_constants.dart';
+import '../../utils/name_utils.dart';
 
 class GuardianEditPatientDetailsScreen extends StatefulWidget {
   final Map<String, dynamic>? patient;
@@ -19,11 +20,14 @@ class _GuardianEditPatientDetailsScreenState
     extends State<GuardianEditPatientDetailsScreen> {
   final _formKey = GlobalKey<FormState>();
 
-  late TextEditingController _nameController;
+  late TextEditingController _firstNameController;
+  late TextEditingController _lastNameController;
   late TextEditingController _labelController;
   late TextEditingController _dateOfBirthController;
   late TextEditingController _contactNumberController;
-  late TextEditingController _addressController;
+  late TextEditingController _streetController;
+  late TextEditingController _cityController;
+  late TextEditingController _stateController;
   late TextEditingController _dementiaTypeController;
 
   // Changed from TextEditingController to String for dropdown
@@ -58,19 +62,25 @@ class _GuardianEditPatientDetailsScreenState
     _fetchPatients();
 
     // Initialize controllers first
-    _nameController = TextEditingController();
+    _firstNameController = TextEditingController();
+    _lastNameController = TextEditingController();
     _labelController = TextEditingController();
     _dateOfBirthController = TextEditingController();
     _contactNumberController = TextEditingController();
-    _addressController = TextEditingController();
+    _streetController = TextEditingController();
+    _cityController = TextEditingController();
+    _stateController = TextEditingController();
     _dementiaTypeController = TextEditingController();
 
     // Add listeners to update UI when text changes
-    _nameController.addListener(() => setState(() {}));
+    _firstNameController.addListener(() => setState(() {}));
+    _lastNameController.addListener(() => setState(() {}));
     _labelController.addListener(() => setState(() {}));
     _dateOfBirthController.addListener(() => setState(() {}));
     _contactNumberController.addListener(() => setState(() {}));
-    _addressController.addListener(() => setState(() {}));
+    _streetController.addListener(() => setState(() {}));
+    _cityController.addListener(() => setState(() {}));
+    _stateController.addListener(() => setState(() {}));
     _dementiaTypeController.addListener(() => setState(() {}));
 
     // Initialize data in the next frame
@@ -90,22 +100,32 @@ class _GuardianEditPatientDetailsScreenState
     }
 
     // Initialize controllers with patient data
-    _nameController.text =
-        '${patientData['fName'] ?? patientData['FName'] ?? patientData['fname'] ?? ''} ${patientData['lName'] ?? patientData['LName'] ?? patientData['lname'] ?? ''}';
+    _firstNameController.text =
+        patientData['fName'] ??
+        patientData['FName'] ??
+        patientData['fname'] ??
+        '';
+    _lastNameController.text =
+        patientData['lName'] ??
+        patientData['LName'] ??
+        patientData['lname'] ??
+        '';
     _labelController.text = patientData['label'] ?? 'Patient';
     _dateOfBirthController.text = patientData['birthdate'] ?? '';
     _contactNumberController.text = patientData['phoneNumber'] ?? '';
-    _addressController.text =
-        '${patientData['street'] ?? ''}, ${patientData['city'] ?? ''}, ${patientData['state'] ?? ''}';
+    _streetController.text = patientData['street'] ?? '';
+    _cityController.text = patientData['city'] ?? '';
+    _stateController.text = patientData['state'] ?? '';
     _dementiaTypeController.text = patientData['dementiaType'] ?? '';
     _selectedDementiaStage = patientData['dementiaStage'];
 
     // Store original values AFTER setting the controllers
-    _originalName = _nameController.text;
+    _originalName = '${_firstNameController.text} ${_lastNameController.text}';
     _originalLabel = _labelController.text;
     _originalDateOfBirth = _dateOfBirthController.text;
     _originalContactNumber = _contactNumberController.text;
-    _originalAddress = _addressController.text;
+    _originalAddress =
+        '${_streetController.text}, ${_cityController.text}, ${_stateController.text}';
     _originalDementiaType = _dementiaTypeController.text;
     _originalDementiaStage = _selectedDementiaStage ?? '';
 
@@ -114,11 +134,14 @@ class _GuardianEditPatientDetailsScreenState
 
   @override
   void dispose() {
-    _nameController.dispose();
+    _firstNameController.dispose();
+    _lastNameController.dispose();
     _labelController.dispose();
     _dateOfBirthController.dispose();
     _contactNumberController.dispose();
-    _addressController.dispose();
+    _streetController.dispose();
+    _cityController.dispose();
+    _stateController.dispose();
     _dementiaTypeController.dispose();
     super.dispose();
   }
@@ -313,11 +336,13 @@ class _GuardianEditPatientDetailsScreenState
         await Future.delayed(Duration(seconds: 2));
 
         // Update original values
-        _originalName = _nameController.text;
+        _originalName =
+            '${_firstNameController.text} ${_lastNameController.text}';
         _originalLabel = _labelController.text;
         _originalDateOfBirth = _dateOfBirthController.text;
         _originalContactNumber = _contactNumberController.text;
-        _originalAddress = _addressController.text;
+        _originalAddress =
+            '${_streetController.text}, ${_cityController.text}, ${_stateController.text}';
         _originalDementiaType = _dementiaTypeController.text;
         _originalDementiaStage = _selectedDementiaStage ?? '';
 
@@ -353,11 +378,20 @@ class _GuardianEditPatientDetailsScreenState
   void _cancelEdit() {
     // Reset to original values
     setState(() {
-      _nameController.text = _originalName;
+      // Split the original name back to first and last name
+      List<String> nameParts = _originalName.split(' ');
+      _firstNameController.text = nameParts.isNotEmpty ? nameParts[0] : '';
+      _lastNameController.text = nameParts.length > 1
+          ? nameParts.sublist(1).join(' ')
+          : '';
       _labelController.text = _originalLabel;
       _dateOfBirthController.text = _originalDateOfBirth;
       _contactNumberController.text = _originalContactNumber;
-      _addressController.text = _originalAddress;
+      // Split the original address back to components
+      List<String> addressParts = _originalAddress.split(', ');
+      _streetController.text = addressParts.isNotEmpty ? addressParts[0] : '';
+      _cityController.text = addressParts.length > 1 ? addressParts[1] : '';
+      _stateController.text = addressParts.length > 2 ? addressParts[2] : '';
       _dementiaTypeController.text = _originalDementiaType;
       _selectedDementiaStage = _originalDementiaStage;
     });
@@ -456,13 +490,30 @@ class _GuardianEditPatientDetailsScreenState
                     SizedBox(height: 16),
 
                     _buildTextField(
-                      label: 'Full Name',
-                      controller: _nameController,
-                      originalValue: _originalName,
-                      fieldName: 'name',
+                      label: 'First Name',
+                      controller: _firstNameController,
+                      originalValue: _originalName.split(' ').isNotEmpty
+                          ? _originalName.split(' ')[0]
+                          : '',
+                      fieldName: 'firstName',
                       validator: (value) {
                         if (value == null || value.isEmpty) {
-                          return 'Please enter patient name';
+                          return 'Please enter first name';
+                        }
+                        return null;
+                      },
+                    ),
+
+                    _buildTextField(
+                      label: 'Last Name',
+                      controller: _lastNameController,
+                      originalValue: _originalName.split(' ').length > 1
+                          ? _originalName.split(' ').sublist(1).join(' ')
+                          : '',
+                      fieldName: 'lastName',
+                      validator: (value) {
+                        if (value == null || value.isEmpty) {
+                          return 'Please enter last name';
                         }
                         return null;
                       },
@@ -495,6 +546,23 @@ class _GuardianEditPatientDetailsScreenState
                       },
                     ),
 
+                    _buildDropdownField(
+                      label: 'Gender',
+                      value: patientData['gender'] ?? '',
+                      items: ['Male', 'Female', 'Other'],
+                      onChanged: (value) {
+                        setState(() {
+                          patientData['gender'] = value;
+                        });
+                      },
+                      validator: (value) {
+                        if (value == null || value.isEmpty) {
+                          return 'Please select gender';
+                        }
+                        return null;
+                      },
+                    ),
+
                     _buildTextField(
                       label: 'Contact Number',
                       controller: _contactNumberController,
@@ -510,14 +578,80 @@ class _GuardianEditPatientDetailsScreenState
                     ),
 
                     _buildTextField(
-                      label: 'Address',
-                      controller: _addressController,
-                      originalValue: _originalAddress,
-                      fieldName: 'address',
-                      maxLines: 3,
+                      label: 'Street',
+                      controller: _streetController,
+                      originalValue: _originalAddress.split(', ').isNotEmpty
+                          ? _originalAddress.split(', ')[0]
+                          : '',
+                      fieldName: 'street',
                       validator: (value) {
                         if (value == null || value.isEmpty) {
-                          return 'Please enter address';
+                          return 'Please enter street address';
+                        }
+                        return null;
+                      },
+                    ),
+
+                    _buildTextField(
+                      label: 'City',
+                      controller: _cityController,
+                      originalValue: _originalAddress.split(', ').length > 1
+                          ? _originalAddress.split(', ')[1]
+                          : '',
+                      fieldName: 'city',
+                      validator: (value) {
+                        if (value == null || value.isEmpty) {
+                          return 'Please enter city';
+                        }
+                        return null;
+                      },
+                    ),
+
+                    _buildTextField(
+                      label: 'State',
+                      controller: _stateController,
+                      originalValue: _originalAddress.split(', ').length > 2
+                          ? _originalAddress.split(', ')[2]
+                          : '',
+                      fieldName: 'state',
+                      validator: (value) {
+                        if (value == null || value.isEmpty) {
+                          return 'Please enter state';
+                        }
+                        return null;
+                      },
+                    ),
+
+                    _buildTextField(
+                      label: 'Contact Number',
+                      controller: _contactNumberController,
+                      originalValue: _originalContactNumber,
+                      fieldName: 'contactNumber',
+                      keyboardType: TextInputType.phone,
+                      validator: (value) {
+                        if (value == null || value.isEmpty) {
+                          return 'Please enter contact number';
+                        }
+                        return null;
+                      },
+                    ),
+
+                    _buildTextField(
+                      label: 'Email',
+                      controller: TextEditingController(
+                        text: patientData['email'] ?? '',
+                      ),
+                      originalValue: patientData['email'] ?? '',
+                      fieldName: 'email',
+                      keyboardType: TextInputType.emailAddress,
+                      validator: (value) {
+                        if (value == null || value.isEmpty) {
+                          return 'Please enter email';
+                        }
+                        if (!RegExp(
+                          r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$',
+                        ).hasMatch(value)) {
+                          return 'Please enter a valid email';
                         }
                         return null;
                       },
