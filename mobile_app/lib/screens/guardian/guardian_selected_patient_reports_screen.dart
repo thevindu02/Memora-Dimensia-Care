@@ -669,6 +669,9 @@ class _GuardianSelectedPatientReportsScreenState
             ),
           ),
 
+          // Weekly Summary Chart
+          _buildDailyReportChart(),
+
           // Reports list
           Expanded(
             child: SingleChildScrollView(
@@ -738,6 +741,247 @@ class _GuardianSelectedPatientReportsScreenState
           ),
         ],
       ),
+    );
+  }
+
+  // Hardcoded daily report chart widget
+  Widget _buildDailyReportChart() {
+    // Hardcoded sample data for daily reports
+    final List<Map<String, dynamic>> weeklyData = [
+      {'day': 'Mon', 'mood': 8, 'sleep': 7, 'activity': 6},
+      {'day': 'Tue', 'mood': 7, 'sleep': 8, 'activity': 7},
+      {'day': 'Wed', 'mood': 6, 'sleep': 6, 'activity': 8},
+      {'day': 'Thu', 'mood': 9, 'sleep': 9, 'activity': 5},
+      {'day': 'Fri', 'mood': 8, 'sleep': 7, 'activity': 9},
+      {'day': 'Sat', 'mood': 9, 'sleep': 8, 'activity': 8},
+      {'day': 'Sun', 'mood': 7, 'sleep': 9, 'activity': 6},
+    ];
+
+    return Container(
+      padding: EdgeInsets.all(16),
+      margin: EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(12),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.grey.withOpacity(0.1),
+            spreadRadius: 1,
+            blurRadius: 8,
+            offset: Offset(0, 2),
+          ),
+        ],
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Icon(Icons.bar_chart, color: AppColors.info),
+              SizedBox(width: 8),
+              Text(
+                'Weekly Summary Report',
+                style: TextStyle(
+                  fontSize: 18,
+                  fontWeight: FontWeight.w600,
+                  color: AppColors.info,
+                ),
+              ),
+            ],
+          ),
+          SizedBox(height: 16),
+          Row(
+            children: [
+              // Legend
+              Expanded(
+                flex: 1,
+                child: Column(
+                  children: [
+                    _buildLegendItem('Mood Score', Color(0xFF4CAF50)),
+                    SizedBox(height: 8),
+                    _buildLegendItem('Sleep Quality', Color(0xFF2196F3)),
+                    SizedBox(height: 8),
+                    _buildLegendItem('Activity Level', Color(0xFFFF9800)),
+                  ],
+                ),
+              ),
+              SizedBox(width: 16),
+              // Chart area
+              Expanded(
+                flex: 3,
+                child: Container(
+                  height: 140, // Reduced from 160 to 140
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                    crossAxisAlignment: CrossAxisAlignment.end,
+                    children: weeklyData.map((data) {
+                      return Expanded(
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.end,
+                          children: [
+                            // Score labels on top
+                            Container(
+                              height: 30, // Reduced from 36 to 30
+                              child: Column(
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceEvenly,
+                                children: [
+                                  Text(
+                                    '${data['mood']}',
+                                    style: TextStyle(
+                                      fontSize: 8, // Reduced from 9 to 8
+                                      color: Color(0xFF4CAF50),
+                                      fontWeight: FontWeight.w600,
+                                    ),
+                                  ),
+                                  Text(
+                                    '${data['sleep']}',
+                                    style: TextStyle(
+                                      fontSize: 8, // Reduced from 9 to 8
+                                      color: Color(0xFF2196F3),
+                                      fontWeight: FontWeight.w600,
+                                    ),
+                                  ),
+                                  Text(
+                                    '${data['activity']}',
+                                    style: TextStyle(
+                                      fontSize: 8, // Reduced from 9 to 8
+                                      color: Color(0xFFFF9800),
+                                      fontWeight: FontWeight.w600,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                            SizedBox(height: 4),
+                            // Bars
+                            Container(
+                              width: 24,
+                              height: 60, // Reduced height for bars area
+                              child: Row(
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceEvenly,
+                                crossAxisAlignment: CrossAxisAlignment.end,
+                                children: [
+                                  // Mood bar
+                                  Container(
+                                    width: 6,
+                                    height:
+                                        (data['mood'] as int) *
+                                        5.0, // Further reduced multiplier (max 45px)
+                                    decoration: BoxDecoration(
+                                      color: Color(0xFF4CAF50),
+                                      borderRadius: BorderRadius.circular(3),
+                                    ),
+                                  ),
+                                  // Sleep bar
+                                  Container(
+                                    width: 6,
+                                    height:
+                                        (data['sleep'] as int) *
+                                        5.0, // Further reduced multiplier (max 45px)
+                                    decoration: BoxDecoration(
+                                      color: Color(0xFF2196F3),
+                                      borderRadius: BorderRadius.circular(3),
+                                    ),
+                                  ),
+                                  // Activity bar
+                                  Container(
+                                    width: 6,
+                                    height:
+                                        (data['activity'] as int) *
+                                        5.0, // Further reduced multiplier (max 45px)
+                                    decoration: BoxDecoration(
+                                      color: Color(0xFFFF9800),
+                                      borderRadius: BorderRadius.circular(3),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                            SizedBox(height: 4), // Reduced spacing
+                            // Day label
+                            Container(
+                              height: 16, // Reduced from 18 to 16
+                              child: Text(
+                                data['day'],
+                                style: TextStyle(
+                                  fontSize: 10, // Reduced from 11 to 10
+                                  color: Colors.grey[600],
+                                  fontWeight: FontWeight.w500,
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                      );
+                    }).toList(),
+                  ),
+                ),
+              ),
+            ],
+          ),
+          SizedBox(height: 12),
+          // Summary stats
+          Container(
+            padding: EdgeInsets.all(12),
+            decoration: BoxDecoration(
+              color: Color(0xFFF8F9FA),
+              borderRadius: BorderRadius.circular(8),
+            ),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceAround,
+              children: [
+                _buildStatItem('Avg Mood', '7.7', Color(0xFF4CAF50)),
+                _buildStatItem('Avg Sleep', '7.7', Color(0xFF2196F3)),
+                _buildStatItem('Avg Activity', '7.0', Color(0xFFFF9800)),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildLegendItem(String label, Color color) {
+    return Row(
+      children: [
+        Container(
+          width: 10,
+          height: 10,
+          decoration: BoxDecoration(
+            color: color,
+            borderRadius: BorderRadius.circular(2),
+          ),
+        ),
+        SizedBox(width: 6),
+        Expanded(
+          child: Text(
+            label,
+            style: TextStyle(
+              fontSize: 12,
+              color: Colors.grey[700],
+              fontWeight: FontWeight.w500,
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildStatItem(String label, String value, Color color) {
+    return Column(
+      children: [
+        Text(
+          value,
+          style: TextStyle(
+            fontSize: 16,
+            fontWeight: FontWeight.w700,
+            color: color,
+          ),
+        ),
+        Text(label, style: TextStyle(fontSize: 10, color: Colors.grey[600])),
+      ],
     );
   }
 

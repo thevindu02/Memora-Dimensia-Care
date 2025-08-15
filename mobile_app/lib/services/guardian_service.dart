@@ -77,4 +77,14 @@ class GuardianService {
       return 'Network error: $e';
     }
   }
+
+  /// Cancels a pending connection request. Returns true if successful, false otherwise.
+  static Future<bool> cancelConnectionRequest(int connectionId) async {
+    final url = Uri.parse('$baseUrl/cancel-connection-request/$connectionId');
+    final response = await http.post(
+      url,
+      headers: {'Content-Type': 'application/json'},
+    );
+    return response.statusCode == 200;
+  }
 }

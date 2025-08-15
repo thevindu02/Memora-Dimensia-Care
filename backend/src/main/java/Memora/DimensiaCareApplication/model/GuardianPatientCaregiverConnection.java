@@ -27,8 +27,14 @@ public class GuardianPatientCaregiverConnection {
     @Column(name = "connected_date_time")
     private LocalDateTime connectedDateTime;
 
+    @Column(name = "rejected_date_time")
+    private LocalDateTime rejectedDateTime;
+
+    @Column(name = "cancelled_date_time")
+    private LocalDateTime cancelledDateTime;
+
     public enum ConnectionStatus {
-        PENDING, REJECTED, EXPIRED, ACTIVE, INACTIVE
+        PENDING, REJECTED, EXPIRED, ACTIVE, INACTIVE, CANCELLED
     }
 
     // Getters and setters
@@ -44,4 +50,8 @@ public class GuardianPatientCaregiverConnection {
     public void setStatus(ConnectionStatus status) { this.status = status; }
     public LocalDateTime getConnectedDateTime() { return connectedDateTime; }
     public void setConnectedDateTime(LocalDateTime connectedDateTime) { this.connectedDateTime = connectedDateTime; }
+    public LocalDateTime getRejectedDateTime() { return rejectedDateTime; }
+    public void setRejectedDateTime(LocalDateTime rejectedDateTime) { this.rejectedDateTime = rejectedDateTime; }
+    public LocalDateTime getCancelledDateTime() { return cancelledDateTime; }
+    public void setCancelledDateTime(LocalDateTime cancelledDateTime) { this.cancelledDateTime = cancelledDateTime; }
 } 
