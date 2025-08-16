@@ -12,7 +12,26 @@ import ContactUsPage from './components/contact_us/ContactUsPage';
 import Terms from './components/home/Terms'; 
 import PrivacyPolicy from './components/home/PrivacyPolicy';
 import Community from './components/home/Community';
+import VolunteerRoutes from './components/volunteer/VolunteerRoutes'; 
 import VolunteerDashboard from './components/volunteer/VolunteerDashboard';
+import CreateBlog from './components/volunteer/CreateBlog';
+import ScheduleSession from './components/volunteer/ScheduleSession';
+import QnAforum from './components/volunteer/QnAforum';
+import VolunteerSettings from './components/volunteer/VolunteerSettings';
+import ArticleDrafts from './components/volunteer/ArticleDrafts'; 
+import Articles from './components/volunteer/Articles'; 
+import PublishedArticles from './components/volunteer/PublishedArticles'; 
+import ViewArticle from './components/volunteer/ViewArticle'; 
+import VolunteerProfile from './components/volunteer/VolunteerProfile';
+import VolunteerSignup from './components/volunteer/VolunteerSignup';
+import VolunteerRegistrationSubmittedScreen from './components/volunteer/VolunteerRegistrationSubmittedScreen';
+import VolunteerRegistrationCompletedScreen from './components/volunteer/VolunteerRegistrationCompletedScreen';
+import ForgetPassword from './components/volunteer/ForgetPassword';
+import SignIn from './components/volunteer/SignIn';
+import VolunteerPrivacy from './components/volunteer/VolunteerPrivacy';
+import HelpAndSupport from './components/volunteer/HelpAndSupport';
+
+
 function App() {
      console.log('App component rendered'); 
   return (
@@ -30,9 +49,25 @@ function App() {
           <Route path="/terms" element={<Terms />} />
           <Route path="/privacy_policy" element={<PrivacyPolicy />} />
           <Route path="/community" element={<Community />} />
-          <Route path= "/volunteer" element= {<VolunteerDashboard/>}/>
+          <Route path= "/volunteer" element= {<VolunteerRoutes/>}/>
+          <Route path="/VolunteerDashboard" element={<VolunteerDashboard />} />
+          <Route path="/CreateBlog" element={<CreateBlog />} />
+          <Route path="/ScheduleSession" element={<ScheduleSession />} />
+          <Route path="/QnAforum" element={<QnAforum />} />
+          <Route path= "/VolunteerSettings" element={<VolunteerSettings />} />
+          <Route path="/ArticleDrafts" element={<ArticleDrafts />} />
+          <Route path="/Articles" element={<Articles />} />
+          <Route path="/PublishedArticles" element={<PublishedArticles />} />
+          <Route path="/ViewArticle/:id" element={<ViewArticle />} />
+          <Route path="/VolunteerProfile" element={<VolunteerProfile />} />
+          <Route path="/VolunteerSignup" element={<VolunteerSignup />} />
+          <Route path="/VolunteerRegistrationSubmitted" element={<VolunteerRegistrationSubmittedScreen />} />
+          <Route path="/VolunteerRegistrationComp leted" element={<VolunteerRegistrationCompletedScreen />} />
+          <Route path="/ForgetPassword" element={<ForgetPassword />} />
+          <Route path="/SignIn" element={<SignIn />} />
+          <Route path="/VolunteerPrivacy" element={<VolunteerPrivacy />} />
+          <Route path="/HelpAndSupport" element={<HelpAndSupport />} />
 
-          {/* Add other routes as needed */}
         </Routes>
       </Router>
     </ThemeProvider>
