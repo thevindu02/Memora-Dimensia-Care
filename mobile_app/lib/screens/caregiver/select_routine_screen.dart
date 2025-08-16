@@ -5,16 +5,10 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import '../../routes/app_routes.dart';
 import '../../constants/color_constants.dart';
+import '../../services/daily_activity_service.dart';
 
 // 1. Error Types and Models
-enum ErrorType {
-  network,
-  validation,
-  navigation,
-  storage,
-  permission,
-  unknown
-}
+enum ErrorType { network, validation, navigation, storage, permission, unknown }
 
 class AppError {
   final ErrorType type;
@@ -73,7 +67,10 @@ class ErrorHandler {
   }
 
   static void _showNetworkError() {
-    _showSnackBar('No internet connection. Please check your network.', Colors.red);
+    _showSnackBar(
+      'No internet connection. Please check your network.',
+      Colors.red,
+    );
   }
 
   static void _showValidationError(String message) {
@@ -89,7 +86,10 @@ class ErrorHandler {
   }
 
   static void _showPermissionError() {
-    _showSnackBar('Permission denied. Please grant required permissions.', Colors.red);
+    _showSnackBar(
+      'Permission denied. Please grant required permissions.',
+      Colors.red,
+    );
   }
 
   static void _showGenericError() {
@@ -141,13 +141,17 @@ class Approute {
 // 5. Enhanced SelectType Widget with Error Handling
 class SelectTypeWithErrorHandling extends StatefulWidget {
   @override
-  _SelectTypeWithErrorHandlingState createState() => _SelectTypeWithErrorHandlingState();
+  _SelectTypeWithErrorHandlingState createState() =>
+      _SelectTypeWithErrorHandlingState();
 }
 
-class _SelectTypeWithErrorHandlingState extends State<SelectTypeWithErrorHandling> {
+class _SelectTypeWithErrorHandlingState
+    extends State<SelectTypeWithErrorHandling> {
   int _currentIndex = 1;
   bool _isLoading = false;
   String? _errorMessage;
+  final int scheduleId =
+      1; // You should pass this as a parameter or get it from context
 
   final List<RoutineCard> routineCards = [
     RoutineCard(
@@ -256,11 +260,7 @@ class _SelectTypeWithErrorHandlingState extends State<SelectTypeWithErrorHandlin
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Icon(
-            Icons.error_outline,
-            size: 64,
-            color: Colors.red[300],
-          ),
+          Icon(Icons.error_outline, size: 64, color: Colors.red[300]),
           SizedBox(height: 16),
           Text(
             'Something went wrong',
@@ -273,17 +273,11 @@ class _SelectTypeWithErrorHandlingState extends State<SelectTypeWithErrorHandlin
           SizedBox(height: 8),
           Text(
             _errorMessage ?? 'Unknown error occurred',
-            style: TextStyle(
-              fontSize: 14,
-              color: Colors.grey[600],
-            ),
+            style: TextStyle(fontSize: 14, color: Colors.grey[600]),
             textAlign: TextAlign.center,
           ),
           SizedBox(height: 24),
-          ElevatedButton(
-            onPressed: () => _retry(),
-            child: Text('Retry'),
-          ),
+          ElevatedButton(onPressed: () => _retry(), child: Text('Retry')),
         ],
       ),
     );
@@ -333,11 +327,7 @@ class _SelectTypeWithErrorHandlingState extends State<SelectTypeWithErrorHandlin
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    Icon(
-                      card.icon,
-                      size: 18,
-                      color: Colors.white,
-                    ),
+                    Icon(card.icon, size: 18, color: Colors.white),
                     SizedBox(width: 8),
                     Text(
                       card.buttonText,
@@ -377,11 +367,7 @@ class _SelectTypeWithErrorHandlingState extends State<SelectTypeWithErrorHandlin
         child: Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(
-              Icons.calendar_today,
-              size: 20,
-              color: AppColors.primaryDark,
-            ),
+            Icon(Icons.calendar_today, size: 20, color: AppColors.primaryDark),
             SizedBox(width: 12),
             Text(
               'Today Routine',
@@ -412,16 +398,15 @@ class _SelectTypeWithErrorHandlingState extends State<SelectTypeWithErrorHandlin
       child: BottomNavigationBar(
         currentIndex: _currentIndex,
         onTap: (index) {
-          if (index == 0) { // Patients tab
+          if (index == 0) {
+            // Patients tab
             // Navigate to detailed patients screen
             Navigator.pushNamed(context, AppRoutes.caregiverDashboard);
-          }else if(index==3){
+          } else if (index == 3) {
             Navigator.pushNamed(context, AppRoutes.caregiverProfile);
-          }
-          else if(index==2){
+          } else if (index == 2) {
             Navigator.pushNamed(context, AppRoutes.viewArticleList);
-          }
-          else {
+          } else {
             setState(() {
               _currentIndex = index;
             });
@@ -431,10 +416,19 @@ class _SelectTypeWithErrorHandlingState extends State<SelectTypeWithErrorHandlin
         selectedItemColor: Color(0xFF2B3F99),
         unselectedItemColor: Color(0xFF2B3F99),
         items: const [
-          BottomNavigationBarItem(icon: Icon(Icons.home_outlined), label: 'Home'),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.home_outlined),
+            label: 'Home',
+          ),
           BottomNavigationBarItem(icon: Icon(Icons.people), label: 'Patients'),
-          BottomNavigationBarItem(icon: Icon(Icons.article_outlined), label: 'Community'),
-          BottomNavigationBarItem(icon: Icon(Icons.person_outline), label: 'Profile'),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.article_outlined),
+            label: 'Community',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.person_outline),
+            label: 'Profile',
+          ),
         ],
       ),
     );
@@ -450,11 +444,13 @@ class _SelectTypeWithErrorHandlingState extends State<SelectTypeWithErrorHandlin
         _showErrorSnackBar('Cannot go back from this screen');
       }
     } catch (e) {
-      ErrorHandler.handleError(AppError(
-        type: ErrorType.navigation,
-        message: 'Failed to navigate back',
-        details: e.toString(),
-      ));
+      ErrorHandler.handleError(
+        AppError(
+          type: ErrorType.navigation,
+          message: 'Failed to navigate back',
+          details: e.toString(),
+        ),
+      );
     }
   }
 
@@ -463,11 +459,13 @@ class _SelectTypeWithErrorHandlingState extends State<SelectTypeWithErrorHandlin
       // Implement notification handling with error checking
       print('Notifications clicked');
     } catch (e) {
-      ErrorHandler.handleError(AppError(
-        type: ErrorType.unknown,
-        message: 'Failed to open notifications',
-        details: e.toString(),
-      ));
+      ErrorHandler.handleError(
+        AppError(
+          type: ErrorType.unknown,
+          message: 'Failed to open notifications',
+          details: e.toString(),
+        ),
+      );
     }
   }
 
@@ -489,15 +487,15 @@ class _SelectTypeWithErrorHandlingState extends State<SelectTypeWithErrorHandlin
           break;
       }
     } catch (e) {
-      ErrorHandler.handleError(AppError(
-        type: ErrorType.unknown,
-        message: 'Failed to show ${card.title} dialog',
-        details: e.toString(),
-      ));
+      ErrorHandler.handleError(
+        AppError(
+          type: ErrorType.unknown,
+          message: 'Failed to show ${card.title} dialog',
+          details: e.toString(),
+        ),
+      );
     }
   }
-
-
 
   // Dialog methods
   void _showDailyActivitiesDialog() {
@@ -505,6 +503,7 @@ class _SelectTypeWithErrorHandlingState extends State<SelectTypeWithErrorHandlin
     final _taskNameController = TextEditingController();
     final _descriptionController = TextEditingController();
     TimeOfDay? _selectedTime;
+    bool _isSubmitting = false;
 
     showDialog(
       context: context,
@@ -599,48 +598,109 @@ class _SelectTypeWithErrorHandlingState extends State<SelectTypeWithErrorHandlin
               ),
               actions: [
                 TextButton(
-                  onPressed: () {
-                    _taskNameController.dispose();
-                    _descriptionController.dispose();
-                    Navigator.pop(context);
-                  },
+                  onPressed: _isSubmitting
+                      ? null
+                      : () {
+                          Navigator.pop(context);
+                        },
                   child: Text('Cancel'),
                 ),
                 ElevatedButton(
-                  onPressed: () {
-                    if (_formKey.currentState!.validate()) {
-                      if (_selectedTime == null) {
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          SnackBar(content: Text('Please select a time')),
-                        );
-                        return;
-                      }
+                  onPressed: _isSubmitting
+                      ? null
+                      : () async {
+                          if (_formKey.currentState!.validate()) {
+                            if (_selectedTime == null) {
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                SnackBar(content: Text('Please select a time')),
+                              );
+                              return;
+                            }
 
-                      // Create the activity data
-                      final activityData = {
-                        'taskName': _taskNameController.text.trim(),
-                        'time': _selectedTime!.format(context),
-                        'description': _descriptionController.text.trim(),
-                      };
+                            setState(() {
+                              _isSubmitting = true;
+                            });
 
-                      // Clean up controllers
-                      _taskNameController.dispose();
-                      _descriptionController.dispose();
+                            try {
+                              // Format time as HH:mm
+                              String timeString =
+                                  '${_selectedTime!.hour.toString().padLeft(2, '0')}:${_selectedTime!.minute.toString().padLeft(2, '0')}';
 
-                      Navigator.pop(context);
+                              // Create request
+                              DailyActivityRequest request =
+                                  DailyActivityRequest(
+                                    taskName: _taskNameController.text.trim(),
+                                    time: timeString,
+                                    description:
+                                        _descriptionController.text
+                                            .trim()
+                                            .isNotEmpty
+                                        ? _descriptionController.text.trim()
+                                        : null,
+                                  );
 
-                      // Option 1: Pass data directly via Navigator
-                      Navigator.pushNamed(
-                        context,
-                        Approute.addDailyActivity,
-                        arguments: activityData,
-                      );
+                              // Make API call
+                              ApiResult<DailyActivity> result =
+                                  await DailyActivityService.addDailyActivity(
+                                    scheduleId,
+                                    request,
+                                  );
 
-                      // Option 2: If you want to use _safeNavigate, modify it to accept arguments
-                      // _safeNavigate(Approute.addDailyActivity, arguments: activityData);
-                    }
-                  },
-                  child: Text('Add Activity'),
+                              if (result.success && result.data != null) {
+                                // Close dialog first
+                                Navigator.pop(context);
+
+                                // Show success message
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  SnackBar(
+                                    content: Text(
+                                      'Daily activity added successfully!',
+                                    ),
+                                    backgroundColor: Colors.green,
+                                    behavior: SnackBarBehavior.floating,
+                                  ),
+                                );
+                              } else {
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  SnackBar(
+                                    content: Text(result.message),
+                                    backgroundColor: Colors.red,
+                                    behavior: SnackBarBehavior.floating,
+                                  ),
+                                );
+                              }
+                            } catch (e) {
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                SnackBar(
+                                  content: Text(
+                                    'Failed to add daily activity. Please try again.',
+                                  ),
+                                  backgroundColor: Colors.red,
+                                  behavior: SnackBarBehavior.floating,
+                                ),
+                              );
+                              print('Error adding daily activity: $e');
+                            } finally {
+                              if (mounted) {
+                                setState(() {
+                                  _isSubmitting = false;
+                                });
+                              }
+                            }
+                          }
+                        },
+                  child: _isSubmitting
+                      ? SizedBox(
+                          height: 16,
+                          width: 16,
+                          child: CircularProgressIndicator(
+                            strokeWidth: 2,
+                            valueColor: AlwaysStoppedAnimation<Color>(
+                              Colors.white,
+                            ),
+                          ),
+                        )
+                      : Text('Add Activity'),
                 ),
               ],
             );
@@ -649,6 +709,7 @@ class _SelectTypeWithErrorHandlingState extends State<SelectTypeWithErrorHandlin
       },
     );
   }
+
   void _showTaskManagementDialog() {
     final _formKey = GlobalKey<FormState>();
     final _descriptionController = TextEditingController();
@@ -711,7 +772,10 @@ class _SelectTypeWithErrorHandlingState extends State<SelectTypeWithErrorHandlin
                             children: [
                               Text(
                                 'Create and manage your tasks efficiently.',
-                                style: TextStyle(fontSize: 14, color: Colors.grey[600]),
+                                style: TextStyle(
+                                  fontSize: 14,
+                                  color: Colors.grey[600],
+                                ),
                               ),
                               SizedBox(height: 12),
 
@@ -722,12 +786,18 @@ class _SelectTypeWithErrorHandlingState extends State<SelectTypeWithErrorHandlin
                                   labelText: 'Game/Activity',
                                   border: OutlineInputBorder(),
                                   prefixIcon: Icon(Icons.games, size: 20),
-                                  contentPadding: EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                                  contentPadding: EdgeInsets.symmetric(
+                                    horizontal: 12,
+                                    vertical: 8,
+                                  ),
                                 ),
                                 items: _dementiaGames.map((String game) {
                                   return DropdownMenuItem<String>(
                                     value: game,
-                                    child: Text(game, style: TextStyle(fontSize: 14)),
+                                    child: Text(
+                                      game,
+                                      style: TextStyle(fontSize: 14),
+                                    ),
                                   );
                                 }).toList(),
                                 onChanged: (String? newValue) {
@@ -747,10 +817,12 @@ class _SelectTypeWithErrorHandlingState extends State<SelectTypeWithErrorHandlin
                               // Time Picker
                               InkWell(
                                 onTap: () async {
-                                  final TimeOfDay? picked = await showTimePicker(
-                                    context: context,
-                                    initialTime: _selectedTime ?? TimeOfDay.now(),
-                                  );
+                                  final TimeOfDay? picked =
+                                      await showTimePicker(
+                                        context: context,
+                                        initialTime:
+                                            _selectedTime ?? TimeOfDay.now(),
+                                      );
                                   if (picked != null) {
                                     setState(() {
                                       _selectedTime = picked;
@@ -761,8 +833,14 @@ class _SelectTypeWithErrorHandlingState extends State<SelectTypeWithErrorHandlin
                                   decoration: InputDecoration(
                                     labelText: 'Time',
                                     border: OutlineInputBorder(),
-                                    prefixIcon: Icon(Icons.access_time, size: 20),
-                                    contentPadding: EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                                    prefixIcon: Icon(
+                                      Icons.access_time,
+                                      size: 20,
+                                    ),
+                                    contentPadding: EdgeInsets.symmetric(
+                                      horizontal: 12,
+                                      vertical: 8,
+                                    ),
                                   ),
                                   child: Text(
                                     _selectedTime != null
@@ -787,7 +865,10 @@ class _SelectTypeWithErrorHandlingState extends State<SelectTypeWithErrorHandlin
                                   border: OutlineInputBorder(),
                                   prefixIcon: Icon(Icons.description, size: 20),
                                   hintText: 'Add notes...',
-                                  contentPadding: EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                                  contentPadding: EdgeInsets.symmetric(
+                                    horizontal: 12,
+                                    vertical: 8,
+                                  ),
                                 ),
                                 maxLines: 2,
                                 maxLength: 100,
@@ -824,7 +905,9 @@ class _SelectTypeWithErrorHandlingState extends State<SelectTypeWithErrorHandlin
                               if (_formKey.currentState!.validate()) {
                                 if (_selectedTime == null) {
                                   ScaffoldMessenger.of(context).showSnackBar(
-                                    SnackBar(content: Text('Please select a time')),
+                                    SnackBar(
+                                      content: Text('Please select a time'),
+                                    ),
                                   );
                                   return;
                                 }
@@ -833,7 +916,8 @@ class _SelectTypeWithErrorHandlingState extends State<SelectTypeWithErrorHandlin
                                 final taskData = {
                                   'game': _selectedGame!,
                                   'time': _selectedTime!.format(context),
-                                  'description': _descriptionController.text.trim(),
+                                  'description': _descriptionController.text
+                                      .trim(),
                                   'type': 'dementia_care_task',
                                 };
 
@@ -909,7 +993,10 @@ class _SelectTypeWithErrorHandlingState extends State<SelectTypeWithErrorHandlin
                       ),
                       child: Row(
                         children: [
-                          Icon(Icons.medical_services, color: Color(0xFF4CAF50)),
+                          Icon(
+                            Icons.medical_services,
+                            color: Color(0xFF4CAF50),
+                          ),
                           SizedBox(width: 8),
                           Text(
                             'Medication Reminders',
@@ -932,7 +1019,10 @@ class _SelectTypeWithErrorHandlingState extends State<SelectTypeWithErrorHandlin
                             children: [
                               Text(
                                 'Set up medication schedules and reminders.',
-                                style: TextStyle(fontSize: 14, color: Colors.grey[600]),
+                                style: TextStyle(
+                                  fontSize: 14,
+                                  color: Colors.grey[600],
+                                ),
                               ),
                               SizedBox(height: 12),
 
@@ -943,7 +1033,10 @@ class _SelectTypeWithErrorHandlingState extends State<SelectTypeWithErrorHandlin
                                   labelText: 'Task Name',
                                   border: OutlineInputBorder(),
                                   prefixIcon: Icon(Icons.assignment, size: 20),
-                                  contentPadding: EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                                  contentPadding: EdgeInsets.symmetric(
+                                    horizontal: 12,
+                                    vertical: 8,
+                                  ),
                                 ),
                                 style: TextStyle(fontSize: 14),
                                 validator: (value) {
@@ -962,7 +1055,10 @@ class _SelectTypeWithErrorHandlingState extends State<SelectTypeWithErrorHandlin
                                   labelText: 'Medication Name',
                                   border: OutlineInputBorder(),
                                   prefixIcon: Icon(Icons.medication, size: 20),
-                                  contentPadding: EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                                  contentPadding: EdgeInsets.symmetric(
+                                    horizontal: 12,
+                                    vertical: 8,
+                                  ),
                                 ),
                                 style: TextStyle(fontSize: 14),
                                 validator: (value) {
@@ -981,7 +1077,10 @@ class _SelectTypeWithErrorHandlingState extends State<SelectTypeWithErrorHandlin
                                   labelText: 'Number of Rounds (per day)',
                                   border: OutlineInputBorder(),
                                   prefixIcon: Icon(Icons.repeat, size: 20),
-                                  contentPadding: EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                                  contentPadding: EdgeInsets.symmetric(
+                                    horizontal: 12,
+                                    vertical: 8,
+                                  ),
                                 ),
                                 keyboardType: TextInputType.number,
                                 style: TextStyle(fontSize: 14),
@@ -989,7 +1088,8 @@ class _SelectTypeWithErrorHandlingState extends State<SelectTypeWithErrorHandlin
                                   if (value == null || value.trim().isEmpty) {
                                     return 'Please enter number of rounds';
                                   }
-                                  if (int.tryParse(value) == null || int.parse(value) <= 0) {
+                                  if (int.tryParse(value) == null ||
+                                      int.parse(value) <= 0) {
                                     return 'Please enter a valid number';
                                   }
                                   return null;
@@ -1004,7 +1104,10 @@ class _SelectTypeWithErrorHandlingState extends State<SelectTypeWithErrorHandlin
                                   labelText: 'Dosage (e.g., 1 tablet, 5ml)',
                                   border: OutlineInputBorder(),
                                   prefixIcon: Icon(Icons.colorize, size: 20),
-                                  contentPadding: EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                                  contentPadding: EdgeInsets.symmetric(
+                                    horizontal: 12,
+                                    vertical: 8,
+                                  ),
                                 ),
                                 style: TextStyle(fontSize: 14),
                                 validator: (value) {
@@ -1023,12 +1126,18 @@ class _SelectTypeWithErrorHandlingState extends State<SelectTypeWithErrorHandlin
                                   labelText: 'Meal Timing',
                                   border: OutlineInputBorder(),
                                   prefixIcon: Icon(Icons.restaurant, size: 20),
-                                  contentPadding: EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                                  contentPadding: EdgeInsets.symmetric(
+                                    horizontal: 12,
+                                    vertical: 8,
+                                  ),
                                 ),
                                 items: _mealTimings.map((String timing) {
                                   return DropdownMenuItem<String>(
                                     value: timing,
-                                    child: Text(timing, style: TextStyle(fontSize: 14)),
+                                    child: Text(
+                                      timing,
+                                      style: TextStyle(fontSize: 14),
+                                    ),
                                   );
                                 }).toList(),
                                 onChanged: (String? newValue) {
@@ -1053,7 +1162,10 @@ class _SelectTypeWithErrorHandlingState extends State<SelectTypeWithErrorHandlin
                                   border: OutlineInputBorder(),
                                   prefixIcon: Icon(Icons.description, size: 20),
                                   hintText: 'Special instructions...',
-                                  contentPadding: EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                                  contentPadding: EdgeInsets.symmetric(
+                                    horizontal: 12,
+                                    vertical: 8,
+                                  ),
                                 ),
                                 maxLines: 2,
                                 maxLength: 150,
@@ -1095,11 +1207,16 @@ class _SelectTypeWithErrorHandlingState extends State<SelectTypeWithErrorHandlin
                                 // Create the medication data
                                 final medicationData = {
                                   'taskName': _taskNameController.text.trim(),
-                                  'medicationName': _medicationNameController.text.trim(),
-                                  'rounds': int.parse(_roundsController.text.trim()),
+                                  'medicationName': _medicationNameController
+                                      .text
+                                      .trim(),
+                                  'rounds': int.parse(
+                                    _roundsController.text.trim(),
+                                  ),
                                   'dosage': _dosageController.text.trim(),
                                   'mealTiming': _selectedMealTiming!,
-                                  'description': _descriptionController.text.trim(),
+                                  'description': _descriptionController.text
+                                      .trim(),
                                   'type': 'medication_reminder',
                                 };
 
@@ -1193,7 +1310,10 @@ class _SelectTypeWithErrorHandlingState extends State<SelectTypeWithErrorHandlin
                             children: [
                               Text(
                                 'Schedule and manage your appointments.',
-                                style: TextStyle(fontSize: 14, color: Colors.grey[600]),
+                                style: TextStyle(
+                                  fontSize: 14,
+                                  color: Colors.grey[600],
+                                ),
                               ),
                               SizedBox(height: 12),
 
@@ -1204,7 +1324,10 @@ class _SelectTypeWithErrorHandlingState extends State<SelectTypeWithErrorHandlin
                                   labelText: 'Task Name',
                                   border: OutlineInputBorder(),
                                   prefixIcon: Icon(Icons.assignment, size: 20),
-                                  contentPadding: EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                                  contentPadding: EdgeInsets.symmetric(
+                                    horizontal: 12,
+                                    vertical: 8,
+                                  ),
                                 ),
                                 style: TextStyle(fontSize: 14),
                                 validator: (value) {
@@ -1222,8 +1345,14 @@ class _SelectTypeWithErrorHandlingState extends State<SelectTypeWithErrorHandlin
                                 decoration: InputDecoration(
                                   labelText: 'Hospital/Clinic',
                                   border: OutlineInputBorder(),
-                                  prefixIcon: Icon(Icons.local_hospital, size: 20),
-                                  contentPadding: EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                                  prefixIcon: Icon(
+                                    Icons.local_hospital,
+                                    size: 20,
+                                  ),
+                                  contentPadding: EdgeInsets.symmetric(
+                                    horizontal: 12,
+                                    vertical: 8,
+                                  ),
                                 ),
                                 style: TextStyle(fontSize: 14),
                                 validator: (value) {
@@ -1242,7 +1371,10 @@ class _SelectTypeWithErrorHandlingState extends State<SelectTypeWithErrorHandlin
                                   labelText: 'Doctor Name',
                                   border: OutlineInputBorder(),
                                   prefixIcon: Icon(Icons.person, size: 20),
-                                  contentPadding: EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                                  contentPadding: EdgeInsets.symmetric(
+                                    horizontal: 12,
+                                    vertical: 8,
+                                  ),
                                 ),
                                 style: TextStyle(fontSize: 14),
                                 validator: (value) {
@@ -1259,9 +1391,12 @@ class _SelectTypeWithErrorHandlingState extends State<SelectTypeWithErrorHandlin
                                 onTap: () async {
                                   final DateTime? picked = await showDatePicker(
                                     context: context,
-                                    initialDate: _selectedDate ?? DateTime.now(),
+                                    initialDate:
+                                        _selectedDate ?? DateTime.now(),
                                     firstDate: DateTime.now(),
-                                    lastDate: DateTime.now().add(Duration(days: 365)),
+                                    lastDate: DateTime.now().add(
+                                      Duration(days: 365),
+                                    ),
                                   );
                                   if (picked != null) {
                                     setState(() {
@@ -1273,8 +1408,14 @@ class _SelectTypeWithErrorHandlingState extends State<SelectTypeWithErrorHandlin
                                   decoration: InputDecoration(
                                     labelText: 'Date',
                                     border: OutlineInputBorder(),
-                                    prefixIcon: Icon(Icons.calendar_today, size: 20),
-                                    contentPadding: EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                                    prefixIcon: Icon(
+                                      Icons.calendar_today,
+                                      size: 20,
+                                    ),
+                                    contentPadding: EdgeInsets.symmetric(
+                                      horizontal: 12,
+                                      vertical: 8,
+                                    ),
                                   ),
                                   child: Text(
                                     _selectedDate != null
@@ -1294,10 +1435,12 @@ class _SelectTypeWithErrorHandlingState extends State<SelectTypeWithErrorHandlin
                               // Time Picker
                               InkWell(
                                 onTap: () async {
-                                  final TimeOfDay? picked = await showTimePicker(
-                                    context: context,
-                                    initialTime: _selectedTime ?? TimeOfDay.now(),
-                                  );
+                                  final TimeOfDay? picked =
+                                      await showTimePicker(
+                                        context: context,
+                                        initialTime:
+                                            _selectedTime ?? TimeOfDay.now(),
+                                      );
                                   if (picked != null) {
                                     setState(() {
                                       _selectedTime = picked;
@@ -1308,8 +1451,14 @@ class _SelectTypeWithErrorHandlingState extends State<SelectTypeWithErrorHandlin
                                   decoration: InputDecoration(
                                     labelText: 'Time',
                                     border: OutlineInputBorder(),
-                                    prefixIcon: Icon(Icons.access_time, size: 20),
-                                    contentPadding: EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                                    prefixIcon: Icon(
+                                      Icons.access_time,
+                                      size: 20,
+                                    ),
+                                    contentPadding: EdgeInsets.symmetric(
+                                      horizontal: 12,
+                                      vertical: 8,
+                                    ),
                                   ),
                                   child: Text(
                                     _selectedTime != null
@@ -1334,7 +1483,10 @@ class _SelectTypeWithErrorHandlingState extends State<SelectTypeWithErrorHandlin
                                   border: OutlineInputBorder(),
                                   prefixIcon: Icon(Icons.description, size: 20),
                                   hintText: 'Appointment details...',
-                                  contentPadding: EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                                  contentPadding: EdgeInsets.symmetric(
+                                    horizontal: 12,
+                                    vertical: 8,
+                                  ),
                                 ),
                                 maxLines: 2,
                                 maxLength: 150,
@@ -1374,13 +1526,17 @@ class _SelectTypeWithErrorHandlingState extends State<SelectTypeWithErrorHandlin
                               if (_formKey.currentState!.validate()) {
                                 if (_selectedDate == null) {
                                   ScaffoldMessenger.of(context).showSnackBar(
-                                    SnackBar(content: Text('Please select a date')),
+                                    SnackBar(
+                                      content: Text('Please select a date'),
+                                    ),
                                   );
                                   return;
                                 }
                                 if (_selectedTime == null) {
                                   ScaffoldMessenger.of(context).showSnackBar(
-                                    SnackBar(content: Text('Please select a time')),
+                                    SnackBar(
+                                      content: Text('Please select a time'),
+                                    ),
                                   );
                                   return;
                                 }
@@ -1389,10 +1545,13 @@ class _SelectTypeWithErrorHandlingState extends State<SelectTypeWithErrorHandlin
                                 final appointmentData = {
                                   'taskName': _taskNameController.text.trim(),
                                   'hospital': _hospitalController.text.trim(),
-                                  'doctorName': _doctorNameController.text.trim(),
-                                  'date': '${_selectedDate!.day}/${_selectedDate!.month}/${_selectedDate!.year}',
+                                  'doctorName': _doctorNameController.text
+                                      .trim(),
+                                  'date':
+                                      '${_selectedDate!.day}/${_selectedDate!.month}/${_selectedDate!.year}',
                                   'time': _selectedTime!.format(context),
-                                  'description': _descriptionController.text.trim(),
+                                  'description': _descriptionController.text
+                                      .trim(),
                                   'type': 'appointment',
                                 };
 
@@ -1472,30 +1631,20 @@ class _SelectTypeWithErrorHandlingState extends State<SelectTypeWithErrorHandlin
                   color: iconColor.withOpacity(0.1),
                   borderRadius: BorderRadius.circular(8),
                 ),
-                child: Icon(
-                  icon,
-                  color: iconColor,
-                  size: 24,
-                ),
+                child: Icon(icon, color: iconColor, size: 24),
               ),
               SizedBox(width: 12),
               Expanded(
                 child: Text(
                   title,
-                  style: TextStyle(
-                    fontSize: 18,
-                    fontWeight: FontWeight.w600,
-                  ),
+                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.w600),
                 ),
               ),
             ],
           ),
           content: Text(
             content,
-            style: TextStyle(
-              fontSize: 14,
-              color: Colors.grey[600],
-            ),
+            style: TextStyle(fontSize: 14, color: Colors.grey[600]),
           ),
           actions: actions,
         );
@@ -1517,11 +1666,13 @@ class _SelectTypeWithErrorHandlingState extends State<SelectTypeWithErrorHandlin
         });
       }
     } catch (e) {
-      ErrorHandler.handleError(AppError(
-        type: ErrorType.navigation,
-        message: 'Failed to navigate to tab',
-        details: e.toString(),
-      ));
+      ErrorHandler.handleError(
+        AppError(
+          type: ErrorType.navigation,
+          message: 'Failed to navigate to tab',
+          details: e.toString(),
+        ),
+      );
     }
   }
 
@@ -1529,11 +1680,13 @@ class _SelectTypeWithErrorHandlingState extends State<SelectTypeWithErrorHandlin
     try {
       Navigator.pushNamed(context, route);
     } catch (e) {
-      ErrorHandler.handleError(AppError(
-        type: ErrorType.navigation,
-        message: 'Failed to navigate to $route',
-        details: e.toString(),
-      ));
+      ErrorHandler.handleError(
+        AppError(
+          type: ErrorType.navigation,
+          message: 'Failed to navigate to $route',
+          details: e.toString(),
+        ),
+      );
       _showErrorSnackBar('Navigation failed. Please try again.');
     }
   }
@@ -1688,7 +1841,13 @@ class _AddMedicationScreenState extends State<AddMedicationScreen> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text('Task Details', style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600)),
+                      Text(
+                        'Task Details',
+                        style: TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
                       SizedBox(height: 16),
 
                       TextFormField(
@@ -1697,7 +1856,8 @@ class _AddMedicationScreenState extends State<AddMedicationScreen> {
                           labelText: 'Task',
                           border: OutlineInputBorder(),
                         ),
-                        validator: (value) => FormValidator.validateRequired(value, 'Task'),
+                        validator: (value) =>
+                            FormValidator.validateRequired(value, 'Task'),
                       ),
                       SizedBox(height: 16),
 
@@ -1738,7 +1898,9 @@ class _AddMedicationScreenState extends State<AddMedicationScreen> {
                           labelText: 'Before/After Meal',
                           border: OutlineInputBorder(),
                         ),
-                        items: ['Before Meal', 'After Meal'].map((String value) {
+                        items: ['Before Meal', 'After Meal'].map((
+                          String value,
+                        ) {
                           return DropdownMenuItem<String>(
                             value: value,
                             child: Text(value),
@@ -1749,7 +1911,10 @@ class _AddMedicationScreenState extends State<AddMedicationScreen> {
                             _selectedMealTiming = value;
                           });
                         },
-                        validator: (value) => FormValidator.validateRequired(value, 'Meal timing'),
+                        validator: (value) => FormValidator.validateRequired(
+                          value,
+                          'Meal timing',
+                        ),
                       ),
                       SizedBox(height: 16),
 
@@ -1800,11 +1965,13 @@ class _AddMedicationScreenState extends State<AddMedicationScreen> {
         Navigator.pop(context);
       }
     } catch (e) {
-      ErrorHandler.handleError(AppError(
-        type: ErrorType.navigation,
-        message: 'Failed to navigate back',
-        details: e.toString(),
-      ));
+      ErrorHandler.handleError(
+        AppError(
+          type: ErrorType.navigation,
+          message: 'Failed to navigate back',
+          details: e.toString(),
+        ),
+      );
     }
   }
 
@@ -1831,11 +1998,13 @@ class _AddMedicationScreenState extends State<AddMedicationScreen> {
         if (e is AppError) {
           ErrorHandler.handleError(e);
         } else {
-          ErrorHandler.handleError(AppError(
-            type: ErrorType.unknown,
-            message: 'Failed to add medication',
-            details: e.toString(),
-          ));
+          ErrorHandler.handleError(
+            AppError(
+              type: ErrorType.unknown,
+              message: 'Failed to add medication',
+              details: e.toString(),
+            ),
+          );
         }
       } finally {
         if (mounted) {
@@ -1866,11 +2035,13 @@ class _AddMedicationScreenState extends State<AddMedicationScreen> {
       if (e is AppError) {
         ErrorHandler.handleError(e);
       } else {
-        ErrorHandler.handleError(AppError(
-          type: ErrorType.unknown,
-          message: 'Failed to save draft',
-          details: e.toString(),
-        ));
+        ErrorHandler.handleError(
+          AppError(
+            type: ErrorType.unknown,
+            message: 'Failed to save draft',
+            details: e.toString(),
+          ),
+        );
       }
     } finally {
       if (mounted) {

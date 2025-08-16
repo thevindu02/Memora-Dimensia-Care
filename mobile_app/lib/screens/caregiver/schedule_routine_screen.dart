@@ -3,6 +3,7 @@ import 'package:mobile_app/constants/color_constants.dart';
 import 'dart:ui';
 import '../../routes/app_routes.dart';
 import '../../services/patient_service.dart';
+import '../../services/daily_activity_service.dart';
 
 // Remove the nested MaterialApp - this was causing the routing issue
 class ScheduleRoutine extends StatelessWidget {
@@ -21,6 +22,8 @@ class ScheduleTask {
   bool isSelected;
   bool isCompleted;
   bool isSkipped;
+  final int? careActivityId; // Add ID for API operations
+  final int? dailyTaskId; // Add daily task ID
 
   ScheduleTask({
     required this.title,
@@ -31,7 +34,82 @@ class ScheduleTask {
     this.isSelected = false,
     this.isCompleted = false,
     this.isSkipped = false,
+    this.careActivityId,
+    this.dailyTaskId,
   });
+
+  // Factory constructor to create ScheduleTask from DailyActivity
+  factory ScheduleTask.fromDailyActivity(DailyActivity activity) {
+    return ScheduleTask(
+      title: activity.taskName,
+      description: activity.description ?? 'Daily activity',
+      time: _formatTime(activity.time),
+      icon: _getIconForTask(activity.taskName),
+      color: AppColors.primaryDark,
+      isCompleted: activity.status == 'COMPLETED',
+      isSkipped: activity.status == 'SKIPPED',
+      careActivityId: activity.careActivityId,
+      dailyTaskId: activity.dailyTaskId,
+    );
+  }
+
+  // Helper method to format time from HH:mm to readable format
+  static String _formatTime(String time) {
+    try {
+      final parts = time.split(':');
+      if (parts.length >= 2) {
+        final hour = int.parse(parts[0]);
+        final minute = int.parse(parts[1]);
+
+        if (hour == 0) {
+          return '12:${minute.toString().padLeft(2, '0')} AM';
+        } else if (hour < 12) {
+          return '$hour:${minute.toString().padLeft(2, '0')} AM';
+        } else if (hour == 12) {
+          return '12:${minute.toString().padLeft(2, '0')} PM';
+        } else {
+          return '${hour - 12}:${minute.toString().padLeft(2, '0')} PM';
+        }
+      }
+    } catch (e) {
+      print('Error formatting time: $e');
+    }
+    return time; // Return original if parsing fails
+  }
+
+  // Helper method to get appropriate icon for task
+  static IconData _getIconForTask(String taskName) {
+    final lowerTask = taskName.toLowerCase();
+    if (lowerTask.contains('breakfast') ||
+        lowerTask.contains('meal') ||
+        lowerTask.contains('eat')) {
+      return Icons.restaurant;
+    } else if (lowerTask.contains('dinner') || lowerTask.contains('lunch')) {
+      return Icons.dinner_dining;
+    } else if (lowerTask.contains('bath') ||
+        lowerTask.contains('shower') ||
+        lowerTask.contains('hygiene')) {
+      return Icons.bathtub;
+    } else if (lowerTask.contains('sleep') ||
+        lowerTask.contains('bed') ||
+        lowerTask.contains('rest')) {
+      return Icons.bed;
+    } else if (lowerTask.contains('medicine') ||
+        lowerTask.contains('medication') ||
+        lowerTask.contains('pill')) {
+      return Icons.medication;
+    } else if (lowerTask.contains('exercise') ||
+        lowerTask.contains('walk') ||
+        lowerTask.contains('activity')) {
+      return Icons.directions_walk;
+    } else if (lowerTask.contains('doctor') ||
+        lowerTask.contains('appointment') ||
+        lowerTask.contains('visit')) {
+      return Icons.local_hospital;
+    } else {
+      return Icons.task_alt; // Default icon
+    }
+  }
 }
 
 class ScheduleRoutineScreen extends StatefulWidget {
@@ -40,53 +118,34 @@ class ScheduleRoutineScreen extends StatefulWidget {
 }
 
 class _ScheduleRoutineScreenState extends State<ScheduleRoutineScreen> {
-  List<ScheduleTask> tasks = [
-    ScheduleTask(
-      title: 'Breakfast Time',
-      description: 'Morning meal',
-      time: '8:00 AM',
-      icon: Icons.restaurant,
-      color: AppColors.primaryDark,
-    ),
-    ScheduleTask(
-      title: 'Dinner Time',
-      description: 'Evening meal',
-      time: '6:00 PM',
-      icon: Icons.dinner_dining,
-      color: AppColors.primaryDark,
-    ),
-    ScheduleTask(
-      title: 'Bathing Time',
-      description: 'Personal hygiene',
-      time: '7:00 PM',
-      icon: Icons.bathtub,
-      color: AppColors.primaryDark,
-    ),
-    ScheduleTask(
-      title: 'Sleep Time',
-      description: 'Night rest',
-      time: '10:00 PM',
-      icon: Icons.bed,
-      color: AppColors.primaryDark,
-    ),
-  ];
-
+  List<ScheduleTask> tasks = [];
   String selectedTaskTitle = '';
   String? _patientName;
   bool _isPatientLoading = true;
   String? _patientError;
   int? _patientId;
+  int? _scheduleId; // Add schedule ID
+  bool _isTasksLoading = true;
+  String? _tasksError;
 
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
     final args = ModalRoute.of(context)?.settings.arguments;
     int? patientId;
+    int? scheduleId;
+
     if (args is int) {
       patientId = args;
-    } else if (args is Map && args['patientId'] != null) {
-      patientId = args['patientId'] as int;
+    } else if (args is Map) {
+      if (args['patientId'] != null) {
+        patientId = args['patientId'] as int;
+      }
+      if (args['scheduleId'] != null) {
+        scheduleId = args['scheduleId'] as int;
+      }
     }
+
     if (patientId != null) {
       _patientId = patientId;
       _fetchPatientName(patientId);
@@ -95,6 +154,22 @@ class _ScheduleRoutineScreenState extends State<ScheduleRoutineScreen> {
         _isPatientLoading = false;
         _patientError = 'No patient selected.';
       });
+    }
+
+    if (scheduleId != null) {
+      _scheduleId = scheduleId;
+      _fetchDailyActivities(scheduleId);
+    } else {
+      // For now, use schedule ID 1 as default (can be improved later to properly map patients to schedules)
+      if (patientId != null) {
+        _scheduleId = 1; // Use schedule ID 1 instead of patient ID
+        _fetchDailyActivities(1);
+      } else {
+        setState(() {
+          _isTasksLoading = false;
+          _tasksError = 'No schedule information available.';
+        });
+      }
     }
   }
 
@@ -115,6 +190,40 @@ class _ScheduleRoutineScreenState extends State<ScheduleRoutineScreen> {
       setState(() {
         _patientError = 'Failed to load patient info';
         _isPatientLoading = false;
+      });
+    }
+  }
+
+  Future<void> _fetchDailyActivities(int scheduleId) async {
+    setState(() {
+      _isTasksLoading = true;
+      _tasksError = null;
+    });
+
+    try {
+      final result = await DailyActivityService.getDailyActivities(scheduleId);
+
+      if (result.success && result.data != null) {
+        setState(() {
+          // Convert DailyActivity objects to ScheduleTask objects
+          tasks = result.data!
+              .map((activity) => ScheduleTask.fromDailyActivity(activity))
+              .toList();
+          _isTasksLoading = false;
+        });
+      } else {
+        setState(() {
+          _tasksError = result.message;
+          _isTasksLoading = false;
+          // Keep empty tasks list or provide default tasks
+          tasks = [];
+        });
+      }
+    } catch (e) {
+      setState(() {
+        _tasksError = 'Failed to load daily activities: $e';
+        _isTasksLoading = false;
+        tasks = [];
       });
     }
   }
@@ -147,233 +256,6 @@ class _ScheduleRoutineScreenState extends State<ScheduleRoutineScreen> {
   int get skippedTasksCount => tasks.where((task) => task.isSkipped).length;
   int get uncompletedTasksCount =>
       tasks.where((task) => !task.isCompleted && !task.isSkipped).length;
-
-  void _skipSelectedTask() {
-    setState(() {
-      for (var task in tasks) {
-        if (task.isSelected) {
-          task.isSkipped = true;
-          task.isSelected = false;
-          task.isCompleted = false;
-          break;
-        }
-      }
-    });
-  }
-
-  Widget _buildTaskSummaryCard(IconData icon, int count, Color color) {
-    String label;
-    Color bgColor;
-    Color textColor;
-
-    if (icon == Icons.check_circle_rounded) {
-      label = 'Completed';
-      bgColor = Colors.green[50]!;
-      textColor = Colors.green[700]!;
-    } else if (icon == Icons.schedule_rounded) {
-      label = 'Skipped';
-      bgColor = Colors.orange[50]!;
-      textColor = Colors.orange[700]!;
-    } else {
-      label = 'Remaining';
-      bgColor = Colors.blue[50]!;
-      textColor = Colors.blue[700]!;
-    }
-
-    return Expanded(
-      child: Container(
-        padding: const EdgeInsets.all(12),
-        decoration: BoxDecoration(
-          color: bgColor,
-          borderRadius: BorderRadius.circular(15),
-        ),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Flexible(
-                  child: Text(
-                    label,
-                    style: TextStyle(
-                      fontSize: 12,
-                      color: textColor,
-                      fontWeight: FontWeight.w500,
-                    ),
-                    overflow: TextOverflow.ellipsis,
-                  ),
-                ),
-                Icon(icon, color: textColor, size: 18),
-              ],
-            ),
-            const SizedBox(height: 8),
-            Text(
-              count.toString(),
-              style: TextStyle(
-                fontSize: 28,
-                fontWeight: FontWeight.bold,
-                color: textColor,
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  void _showSkipDialog() {
-    final TextEditingController reasonController = TextEditingController();
-
-    showDialog(
-      context: context,
-      barrierDismissible: false,
-      builder: (BuildContext context) {
-        return Stack(
-          children: [
-            // Blurred background
-            Positioned.fill(
-              child: Container(
-                color: Colors.black.withOpacity(0.3),
-                child: BackdropFilter(
-                  filter: ImageFilter.blur(sigmaX: 5.0, sigmaY: 5.0),
-                  child: Container(color: Colors.black.withOpacity(0.1)),
-                ),
-              ),
-            ),
-            // Dialog
-            Dialog(
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(20),
-              ),
-              child: Container(
-                padding: EdgeInsets.all(24),
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(20),
-                  color: Colors.white,
-                ),
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Text(
-                          'Skip Task',
-                          style: TextStyle(
-                            fontSize: 20,
-                            fontWeight: FontWeight.bold,
-                            color: Colors.black87,
-                          ),
-                        ),
-                        IconButton(
-                          onPressed: () {
-                            Navigator.of(context).pop();
-                          },
-                          icon: Icon(Icons.close, color: Colors.grey),
-                        ),
-                      ],
-                    ),
-                    SizedBox(height: 16),
-                    Text(
-                      'You are about to skip: $selectedTaskTitle',
-                      style: TextStyle(fontSize: 16, color: Colors.black54),
-                    ),
-                    SizedBox(height: 20),
-                    Text(
-                      'Reason for skipping:',
-                      style: TextStyle(
-                        fontSize: 16,
-                        fontWeight: FontWeight.w500,
-                        color: Colors.black87,
-                      ),
-                    ),
-                    SizedBox(height: 12),
-                    TextField(
-                      controller: reasonController,
-                      maxLines: 3,
-                      decoration: InputDecoration(
-                        hintText: 'Please provide a reason...',
-                        border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(12),
-                          borderSide: BorderSide(color: Colors.grey.shade300),
-                        ),
-                        focusedBorder: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(12),
-                          borderSide: BorderSide(color: Colors.blue, width: 2),
-                        ),
-                        contentPadding: EdgeInsets.all(16),
-                      ),
-                    ),
-                    SizedBox(height: 24),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.end,
-                      children: [
-                        TextButton(
-                          onPressed: () {
-                            Navigator.of(context).pop();
-                          },
-                          child: Text(
-                            'Cancel',
-                            style: TextStyle(
-                              color: Colors.grey.shade600,
-                              fontSize: 16,
-                            ),
-                          ),
-                        ),
-                        SizedBox(width: 12),
-                        ElevatedButton(
-                          onPressed: () {
-                            if (reasonController.text.trim().isNotEmpty) {
-                              // Handle skip logic here
-                              Navigator.of(context).pop();
-                              _skipSelectedTask();
-
-                              // Show confirmation
-                              ScaffoldMessenger.of(context).showSnackBar(
-                                SnackBar(
-                                  content: Text(
-                                    'Task "$selectedTaskTitle" skipped',
-                                  ),
-                                  backgroundColor: Colors.orange,
-                                ),
-                              );
-                            } else {
-                              // Show error if no reason provided
-                              ScaffoldMessenger.of(context).showSnackBar(
-                                SnackBar(
-                                  content: Text(
-                                    'Please provide a reason for skipping',
-                                  ),
-                                  backgroundColor: Colors.red,
-                                ),
-                              );
-                            }
-                          },
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: Colors.red,
-                            foregroundColor: Colors.white,
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(12),
-                            ),
-                          ),
-                          child: Text(
-                            'Skip Task',
-                            style: TextStyle(fontSize: 16),
-                          ),
-                        ),
-                      ],
-                    ),
-                  ],
-                ),
-              ),
-            ),
-          ],
-        );
-      },
-    );
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -428,129 +310,202 @@ class _ScheduleRoutineScreenState extends State<ScheduleRoutineScreen> {
                     borderRadius: BorderRadius.circular(12),
                     boxShadow: [
                       BoxShadow(
-                        color: Colors.grey.withOpacity(0.08),
-                        spreadRadius: 0,
-                        blurRadius: 20,
-                        offset: Offset(0, 4),
+                        color: Colors.grey.withOpacity(0.1),
+                        spreadRadius: 1,
+                        blurRadius: 4,
+                        offset: Offset(0, 2),
                       ),
                     ],
                   ),
-                  child: _isPatientLoading
-                      ? Row(
+                  child: Row(
+                    children: [
+                      CircleAvatar(
+                        radius: 30,
+                        backgroundColor: AppColors.primaryLight,
+                        child: Icon(
+                          Icons.person,
+                          size: 35,
+                          color: AppColors.primaryDark,
+                        ),
+                      ),
+                      SizedBox(width: 16),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            CircleAvatar(
-                              radius: 25,
-                              backgroundColor: Color(0xFFA0C4FD),
-                              child: Icon(
-                                Icons.person,
-                                color: Color(0xFF2B3F99),
-                                size: 30,
-                              ),
-                            ),
-                            SizedBox(width: 12),
-                            CircularProgressIndicator(),
-                          ],
-                        )
-                      : _patientError != null
-                      ? Row(
-                          children: [
-                            CircleAvatar(
-                              radius: 25,
-                              backgroundColor: Color(0xFFA0C4FD),
-                              child: Icon(
-                                Icons.person,
-                                color: Color(0xFF2B3F99),
-                                size: 30,
-                              ),
-                            ),
-                            SizedBox(width: 12),
                             Text(
-                              _patientError!,
-                              style: TextStyle(fontSize: 16, color: Colors.red),
-                            ),
-                          ],
-                        )
-                      : Row(
-                          children: [
-                            CircleAvatar(
-                              radius: 25,
-                              backgroundColor: Color(0xFFA0C4FD),
-                              child: Icon(
-                                Icons.person,
-                                color: Color(0xFF2B3F99),
-                                size: 30,
+                              'Patient',
+                              style: TextStyle(
+                                fontSize: 14,
+                                color: Colors.grey[600],
                               ),
                             ),
-                            SizedBox(width: 12),
-                            Expanded(
-                              child: Text(
-                                (_patientName != null &&
-                                        _patientName!.trim().isNotEmpty &&
-                                        _patientName != 'Unknown')
-                                    ? _patientName!
-                                    : 'Unknown',
-                                style: TextStyle(
-                                  fontWeight: FontWeight.w600,
-                                  fontSize: 16,
-                                  color: Color(0xFF390797), // Deep Purple
-                                ),
-                                textAlign: TextAlign.left,
-                              ),
-                            ),
+                            SizedBox(height: 4),
+                            _isPatientLoading
+                                ? Text(
+                                    'Loading...',
+                                    style: TextStyle(
+                                      fontSize: 18,
+                                      fontWeight: FontWeight.w600,
+                                      color: Colors.grey[500],
+                                    ),
+                                  )
+                                : _patientError != null
+                                ? Text(
+                                    'Error loading patient',
+                                    style: TextStyle(
+                                      fontSize: 18,
+                                      fontWeight: FontWeight.w600,
+                                      color: Colors.red[600],
+                                    ),
+                                  )
+                                : Text(
+                                    _patientName ?? 'Unknown Patient',
+                                    style: TextStyle(
+                                      fontSize: 18,
+                                      fontWeight: FontWeight.w600,
+                                      color: Colors.black87,
+                                    ),
+                                  ),
                           ],
                         ),
+                      ),
+                      Icon(
+                        Icons.arrow_forward_ios,
+                        size: 20,
+                        color: Colors.grey[400],
+                      ),
+                    ],
+                  ),
                 ),
               ),
             ),
 
-            // Task Summary Cards
-            Padding(
-              padding: EdgeInsets.symmetric(horizontal: 16, vertical: 16),
-              child: Row(
-                children: [
-                  _buildTaskSummaryCard(
-                    Icons.check_circle_rounded,
-                    completedTasksCount,
-                    AppColors.success,
+            // Stats Cards
+            Row(
+              children: [
+                Expanded(
+                  child: Container(
+                    margin: EdgeInsets.only(left: 16, right: 8),
+                    padding: EdgeInsets.all(16),
+                    decoration: BoxDecoration(
+                      color: Colors.green.shade50,
+                      borderRadius: BorderRadius.circular(12),
+                      border: Border.all(color: Colors.green.shade200),
+                    ),
+                    child: Column(
+                      children: [
+                        Text(
+                          '$completedTasksCount',
+                          style: TextStyle(
+                            fontSize: 24,
+                            fontWeight: FontWeight.bold,
+                            color: Colors.green.shade700,
+                          ),
+                        ),
+                        SizedBox(height: 4),
+                        Text(
+                          'Completed',
+                          style: TextStyle(
+                            fontSize: 12,
+                            color: Colors.green.shade600,
+                          ),
+                        ),
+                      ],
+                    ),
                   ),
-                  const SizedBox(width: 8),
-                  _buildTaskSummaryCard(
-                    Icons.schedule_rounded,
-                    skippedTasksCount,
-                    Colors.orange,
+                ),
+                Expanded(
+                  child: Container(
+                    margin: EdgeInsets.symmetric(horizontal: 4),
+                    padding: EdgeInsets.all(16),
+                    decoration: BoxDecoration(
+                      color: Colors.orange.shade50,
+                      borderRadius: BorderRadius.circular(12),
+                      border: Border.all(color: Colors.orange.shade200),
+                    ),
+                    child: Column(
+                      children: [
+                        Text(
+                          '$skippedTasksCount',
+                          style: TextStyle(
+                            fontSize: 24,
+                            fontWeight: FontWeight.bold,
+                            color: Colors.orange.shade700,
+                          ),
+                        ),
+                        SizedBox(height: 4),
+                        Text(
+                          'Skipped',
+                          style: TextStyle(
+                            fontSize: 12,
+                            color: Colors.orange.shade600,
+                          ),
+                        ),
+                      ],
+                    ),
                   ),
-                  const SizedBox(width: 8),
-                  _buildTaskSummaryCard(
-                    Icons.hourglass_empty_rounded,
-                    uncompletedTasksCount,
-                    AppColors.primary,
+                ),
+                Expanded(
+                  child: Container(
+                    margin: EdgeInsets.only(left: 8, right: 16),
+                    padding: EdgeInsets.all(16),
+                    decoration: BoxDecoration(
+                      color: Colors.blue.shade50,
+                      borderRadius: BorderRadius.circular(12),
+                      border: Border.all(color: Colors.blue.shade200),
+                    ),
+                    child: Column(
+                      children: [
+                        Text(
+                          '$uncompletedTasksCount',
+                          style: TextStyle(
+                            fontSize: 24,
+                            fontWeight: FontWeight.bold,
+                            color: Colors.blue.shade700,
+                          ),
+                        ),
+                        SizedBox(height: 4),
+                        Text(
+                          'Pending',
+                          style: TextStyle(
+                            fontSize: 12,
+                            color: Colors.blue.shade600,
+                          ),
+                        ),
+                      ],
+                    ),
                   ),
-                ],
-              ),
+                ),
+              ],
             ),
 
-            // Daily Activities Header
-            Padding(
-              padding: EdgeInsets.symmetric(horizontal: 16),
+            SizedBox(height: 16),
+
+            // Add Task Button
+            Container(
+              margin: EdgeInsets.symmetric(horizontal: 16),
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   Text(
-                    'Daily Activities',
+                    'Today\'s Tasks',
                     style: TextStyle(
-                      fontSize: 20,
-                      fontWeight: FontWeight.bold,
+                      fontSize: 18,
+                      fontWeight: FontWeight.w600,
                       color: Colors.black87,
                     ),
                   ),
                   FloatingActionButton.small(
                     onPressed: () {
-                      // Added debug print to help troubleshoot
-                      print('Navigating to: ${AppRoutes.selectType}');
-                      Navigator.pushNamed(context, AppRoutes.selectType);
+                      Navigator.pushNamed(
+                        context,
+                        AppRoutes.selectType,
+                        arguments: _patientId,
+                      );
                     },
-                    backgroundColor: Color(0xFF9FC3FC),
-                    child: Icon(Icons.add, color: Colors.black),
+                    backgroundColor: Color(0xFF6B4EE6),
+                    child: Icon(Icons.add, color: Colors.white),
                   ),
                 ],
               ),
@@ -559,255 +514,9 @@ class _ScheduleRoutineScreenState extends State<ScheduleRoutineScreen> {
             SizedBox(height: 16),
 
             // Tasks List
-            ListView.builder(
-              shrinkWrap: true,
-              physics: NeverScrollableScrollPhysics(),
-              padding: EdgeInsets.symmetric(horizontal: 16),
-              itemCount: tasks.length,
-              itemBuilder: (context, index) {
-                final task = tasks[index];
-                return Container(
-                  margin: EdgeInsets.only(bottom: 12),
-                  child: Material(
-                    color: Colors.transparent,
-                    child: InkWell(
-                      onTap: () => task.isSkipped ? null : _selectTask(task),
-                      borderRadius: BorderRadius.circular(12),
-                      child: Container(
-                        padding: EdgeInsets.all(16),
-                        decoration: BoxDecoration(
-                          color: task.isSkipped
-                              ? Colors.orange.shade50
-                              : task.isSelected
-                              ? Colors.blue.shade50
-                              : Colors.white,
-                          borderRadius: BorderRadius.circular(12),
-                          border: Border.all(
-                            color: task.isSkipped
-                                ? Colors.orange.shade300
-                                : task.isSelected
-                                ? Colors.blue
-                                : Colors.grey.shade200,
-                            width: task.isSelected ? 2 : 1,
-                          ),
-                          boxShadow: [
-                            BoxShadow(
-                              color: Colors.grey.withOpacity(0.1),
-                              spreadRadius: 1,
-                              blurRadius: 4,
-                              offset: Offset(0, 2),
-                            ),
-                          ],
-                        ),
-                        child: Column(
-                          children: [
-                            Row(
-                              children: [
-                                Container(
-                                  padding: EdgeInsets.all(12),
-                                  decoration: BoxDecoration(
-                                    color: task.color.withOpacity(0.1),
-                                    borderRadius: BorderRadius.circular(8),
-                                  ),
-                                  child: Icon(
-                                    task.icon,
-                                    color: task.color,
-                                    size: 24,
-                                  ),
-                                ),
-                                SizedBox(width: 16),
-                                Expanded(
-                                  child: Column(
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.start,
-                                    children: [
-                                      Row(
-                                        children: [
-                                          Text(
-                                            task.title,
-                                            style: TextStyle(
-                                              fontWeight: FontWeight.w600,
-                                              fontSize: 16,
-                                              color: task.isSkipped
-                                                  ? Colors.grey.shade400
-                                                  : Colors.black87,
-                                              decoration: task.isSkipped
-                                                  ? TextDecoration.lineThrough
-                                                  : null,
-                                            ),
-                                          ),
-                                          if (task.isSkipped) ...[
-                                            SizedBox(width: 8),
-                                            Container(
-                                              padding: EdgeInsets.symmetric(
-                                                horizontal: 8,
-                                                vertical: 2,
-                                              ),
-                                              decoration: BoxDecoration(
-                                                color: Colors.orange.shade100,
-                                                borderRadius:
-                                                    BorderRadius.circular(12),
-                                              ),
-                                              child: Text(
-                                                'SKIPPED',
-                                                style: TextStyle(
-                                                  fontSize: 10,
-                                                  fontWeight: FontWeight.bold,
-                                                  color: Colors.orange.shade700,
-                                                ),
-                                              ),
-                                            ),
-                                          ],
-                                        ],
-                                      ),
-                                      SizedBox(height: 4),
-                                      Text(
-                                        task.description,
-                                        style: TextStyle(
-                                          color: task.isSkipped
-                                              ? Colors.grey.shade400
-                                              : Colors.grey.shade600,
-                                          fontSize: 14,
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                ),
-                                Column(
-                                  crossAxisAlignment: CrossAxisAlignment.end,
-                                  children: [
-                                    Text(
-                                      task.time,
-                                      style: TextStyle(
-                                        fontWeight: FontWeight.w500,
-                                        fontSize: 14,
-                                        color: Colors.black87,
-                                      ),
-                                    ),
-                                    SizedBox(height: 8),
-                                    GestureDetector(
-                                      onTap: () => task.isSkipped
-                                          ? null
-                                          : _toggleTaskCompletion(task),
-                                      child: task.isCompleted
-                                          ? Icon(
-                                              Icons.check_circle,
-                                              color: Colors.green,
-                                              size: 20,
-                                            )
-                                          : task.isSkipped
-                                          ? Icon(
-                                              Icons.cancel,
-                                              color: Colors.orange,
-                                              size: 20,
-                                            )
-                                          : Container(
-                                              width: 20,
-                                              height: 20,
-                                              decoration: BoxDecoration(
-                                                shape: BoxShape.circle,
-                                                border: Border.all(
-                                                  color: Colors.grey.shade400,
-                                                  width: 2,
-                                                ),
-                                              ),
-                                            ),
-                                    ),
-                                  ],
-                                ),
-                              ],
-                            ),
-                            // Skip button for selected task
-                            if (task.isSelected &&
-                                !task.isCompleted &&
-                                !task.isSkipped)
-                              Container(
-                                margin: EdgeInsets.only(top: 12),
-                                width: double.infinity,
-                                child: ElevatedButton(
-                                  onPressed: () {
-                                    selectedTaskTitle = task.title;
-                                    _showSkipDialog();
-                                  },
-                                  style: ElevatedButton.styleFrom(
-                                    backgroundColor: Colors.red,
-                                    foregroundColor: Colors.white,
-                                    padding: EdgeInsets.symmetric(vertical: 8),
-                                    shape: RoundedRectangleBorder(
-                                      borderRadius: BorderRadius.circular(8),
-                                    ),
-                                    elevation: 1,
-                                  ),
-                                  child: Row(
-                                    mainAxisAlignment: MainAxisAlignment.center,
-                                    children: [
-                                      Icon(Icons.skip_next, size: 16),
-                                      SizedBox(width: 4),
-                                      Text(
-                                        'Skip',
-                                        style: TextStyle(
-                                          fontSize: 14,
-                                          fontWeight: FontWeight.w500,
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                ),
-                              ),
-                            // Undo Skip button for skipped tasks
-                            if (task.isSkipped)
-                              Container(
-                                margin: EdgeInsets.only(top: 12),
-                                width: double.infinity,
-                                child: ElevatedButton(
-                                  onPressed: () {
-                                    setState(() {
-                                      task.isSkipped = false;
-                                    });
-                                    ScaffoldMessenger.of(context).showSnackBar(
-                                      SnackBar(
-                                        content: Text(
-                                          'Task "${task.title}" restored',
-                                        ),
-                                        backgroundColor: Colors.green,
-                                      ),
-                                    );
-                                  },
-                                  style: ElevatedButton.styleFrom(
-                                    backgroundColor: Colors.orange.shade100,
-                                    foregroundColor: Colors.orange.shade700,
-                                    padding: EdgeInsets.symmetric(vertical: 8),
-                                    shape: RoundedRectangleBorder(
-                                      borderRadius: BorderRadius.circular(8),
-                                    ),
-                                    elevation: 0,
-                                  ),
-                                  child: Row(
-                                    mainAxisAlignment: MainAxisAlignment.center,
-                                    children: [
-                                      Icon(Icons.undo, size: 16),
-                                      SizedBox(width: 4),
-                                      Text(
-                                        'Undo Skip',
-                                        style: TextStyle(
-                                          fontSize: 14,
-                                          fontWeight: FontWeight.w500,
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                ),
-                              ),
-                          ],
-                        ),
-                      ),
-                    ),
-                  ),
-                );
-              },
-            ),
+            _buildTasksList(),
 
-            // Complete Daily Routine Button - Now positioned within scrollable content
+            // Complete Daily Routine Button
             Container(
               margin: EdgeInsets.all(16),
               width: double.infinity,
@@ -850,39 +559,420 @@ class _ScheduleRoutineScreenState extends State<ScheduleRoutineScreen> {
       ),
     );
   }
-}
 
-// Example of what your SelectRoutine page might look like
-class SelectRoutinePage extends StatelessWidget {
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: Text('Select Routine Type'),
-        backgroundColor: Colors.white,
-        foregroundColor: Colors.black,
-        elevation: 0,
-      ),
-      body: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Text(
-              'Select Routine Type',
-              style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
-            ),
-            SizedBox(height: 20),
-            Text('This is your SelectRoutine page'),
-            SizedBox(height: 20),
-            ElevatedButton(
-              onPressed: () {
-                Navigator.pop(context);
-              },
-              child: Text('Go Back'),
-            ),
-          ],
+  Widget _buildTasksList() {
+    if (_isTasksLoading) {
+      return Container(
+        padding: EdgeInsets.all(32),
+        child: Center(
+          child: Column(
+            children: [
+              CircularProgressIndicator(
+                valueColor: AlwaysStoppedAnimation<Color>(
+                  AppColors.primaryDark,
+                ),
+              ),
+              SizedBox(height: 16),
+              Text(
+                'Loading daily activities...',
+                style: TextStyle(color: Colors.grey[600], fontSize: 16),
+              ),
+            ],
+          ),
         ),
-      ),
+      );
+    }
+
+    if (_tasksError != null) {
+      return Container(
+        padding: EdgeInsets.all(32),
+        child: Center(
+          child: Column(
+            children: [
+              Icon(Icons.error_outline, size: 48, color: Colors.red[300]),
+              SizedBox(height: 16),
+              Text(
+                _tasksError!,
+                textAlign: TextAlign.center,
+                style: TextStyle(color: Colors.red[600], fontSize: 16),
+              ),
+              SizedBox(height: 16),
+              ElevatedButton(
+                onPressed: () {
+                  if (_scheduleId != null) {
+                    _fetchDailyActivities(_scheduleId!);
+                  }
+                },
+                child: Text('Retry'),
+              ),
+            ],
+          ),
+        ),
+      );
+    }
+
+    if (tasks.isEmpty) {
+      return Container(
+        padding: EdgeInsets.all(32),
+        child: Center(
+          child: Column(
+            children: [
+              Icon(
+                Icons.calendar_today_outlined,
+                size: 48,
+                color: Colors.grey[400],
+              ),
+              SizedBox(height: 16),
+              Text(
+                'No daily activities scheduled',
+                style: TextStyle(color: Colors.grey[600], fontSize: 16),
+              ),
+              SizedBox(height: 8),
+              Text(
+                'Activities will appear here when added',
+                style: TextStyle(color: Colors.grey[500], fontSize: 14),
+              ),
+            ],
+          ),
+        ),
+      );
+    }
+
+    return ListView.builder(
+      shrinkWrap: true,
+      physics: NeverScrollableScrollPhysics(),
+      padding: EdgeInsets.symmetric(horizontal: 16),
+      itemCount: tasks.length,
+      itemBuilder: (context, index) {
+        final task = tasks[index];
+        return Container(
+          margin: EdgeInsets.only(bottom: 12),
+          child: Material(
+            color: Colors.transparent,
+            child: InkWell(
+              onTap: () => _selectTask(task),
+              borderRadius: BorderRadius.circular(12),
+              child: Container(
+                padding: EdgeInsets.all(16),
+                decoration: BoxDecoration(
+                  color: task.isSelected ? Color(0xFFE8E0FF) : Colors.white,
+                  borderRadius: BorderRadius.circular(12),
+                  border: Border.all(
+                    color: task.isSelected
+                        ? Color(0xFF6B4EE6)
+                        : Colors.grey.shade200,
+                    width: task.isSelected ? 2 : 1,
+                  ),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.grey.withOpacity(0.1),
+                      spreadRadius: 1,
+                      blurRadius: 4,
+                      offset: Offset(0, 2),
+                    ),
+                  ],
+                ),
+                child: Column(
+                  children: [
+                    Row(
+                      children: [
+                        // Task Icon
+                        Container(
+                          padding: EdgeInsets.all(12),
+                          decoration: BoxDecoration(
+                            color: task.color.withOpacity(0.1),
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                          child: Icon(task.icon, color: task.color, size: 24),
+                        ),
+                        SizedBox(width: 16),
+
+                        // Task Details
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                task.title,
+                                style: TextStyle(
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.w600,
+                                  color: Colors.black87,
+                                ),
+                              ),
+                              SizedBox(height: 4),
+                              Text(
+                                task.description,
+                                style: TextStyle(
+                                  fontSize: 14,
+                                  color: Colors.grey[600],
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+
+                        // Time
+                        Text(
+                          task.time,
+                          style: TextStyle(
+                            fontSize: 14,
+                            fontWeight: FontWeight.w500,
+                            color: Colors.black87,
+                          ),
+                        ),
+                        SizedBox(width: 16),
+
+                        // Completion Circle
+                        GestureDetector(
+                          onTap: () => _toggleTaskCompletion(task),
+                          child: Container(
+                            width: 24,
+                            height: 24,
+                            decoration: BoxDecoration(
+                              shape: BoxShape.circle,
+                              color: task.isCompleted
+                                  ? Colors.green
+                                  : Colors.transparent,
+                              border: Border.all(
+                                color: task.isCompleted
+                                    ? Colors.green
+                                    : Colors.grey.shade400,
+                                width: 2,
+                              ),
+                            ),
+                            child: task.isCompleted
+                                ? Icon(
+                                    Icons.check,
+                                    color: Colors.white,
+                                    size: 16,
+                                  )
+                                : null,
+                          ),
+                        ),
+                      ],
+                    ),
+
+                    // Skip Task Button (only show when task is selected)
+                    if (task.isSelected && !task.isCompleted)
+                      Container(
+                        margin: EdgeInsets.only(top: 16),
+                        width: double.infinity,
+                        child: ElevatedButton.icon(
+                          onPressed: () {
+                            setState(() {
+                              task.isSkipped = true;
+                              task.isSelected = false;
+                            });
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              SnackBar(
+                                content: Text('Task "${task.title}" skipped'),
+                                backgroundColor: Colors.red,
+                              ),
+                            );
+                          },
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: Colors.red,
+                            foregroundColor: Colors.white,
+                            padding: EdgeInsets.symmetric(vertical: 12),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(8),
+                            ),
+                            elevation: 0,
+                          ),
+                          icon: Icon(Icons.close, size: 18),
+                          label: Text(
+                            'Skip Task',
+                            style: TextStyle(
+                              fontSize: 16,
+                              fontWeight: FontWeight.w500,
+                            ),
+                          ),
+                        ),
+                      ),
+
+                    // Edit and Undo buttons row (show for selected tasks or skipped tasks)
+                    if ((task.isSelected && !task.isCompleted) ||
+                        task.isSkipped)
+                      Container(
+                        margin: EdgeInsets.only(top: task.isSelected ? 8 : 16),
+                        child: Row(
+                          children: [
+                            // Edit Button
+                            if (!task.isSkipped)
+                              Expanded(
+                                child: OutlinedButton.icon(
+                                  onPressed: () => _editTask(task),
+                                  style: OutlinedButton.styleFrom(
+                                    side: BorderSide(color: Color(0xFF6B4EE6)),
+                                    padding: EdgeInsets.symmetric(vertical: 8),
+                                    shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(8),
+                                    ),
+                                  ),
+                                  icon: Icon(
+                                    Icons.edit,
+                                    size: 16,
+                                    color: Color(0xFF6B4EE6),
+                                  ),
+                                  label: Text(
+                                    'Edit',
+                                    style: TextStyle(color: Color(0xFF6B4EE6)),
+                                  ),
+                                ),
+                              ),
+
+                            // Undo Skip Button (only for skipped tasks)
+                            if (task.isSkipped)
+                              Expanded(
+                                child: ElevatedButton.icon(
+                                  onPressed: () {
+                                    setState(() {
+                                      task.isSkipped = false;
+                                    });
+                                    ScaffoldMessenger.of(context).showSnackBar(
+                                      SnackBar(
+                                        content: Text(
+                                          'Task "${task.title}" restored',
+                                        ),
+                                        backgroundColor: Colors.green,
+                                      ),
+                                    );
+                                  },
+                                  style: ElevatedButton.styleFrom(
+                                    backgroundColor: Colors.green,
+                                    foregroundColor: Colors.white,
+                                    padding: EdgeInsets.symmetric(vertical: 8),
+                                    shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(8),
+                                    ),
+                                    elevation: 0,
+                                  ),
+                                  icon: Icon(Icons.undo, size: 16),
+                                  label: Text('Undo Skip'),
+                                ),
+                              ),
+                          ],
+                        ),
+                      ),
+                  ],
+                ),
+              ),
+            ),
+          ),
+        );
+      },
+    );
+  }
+
+  void _editTask(ScheduleTask task) {
+    // Show edit dialog for the task
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        final _taskNameController = TextEditingController(text: task.title);
+        final _descriptionController = TextEditingController(
+          text: task.description,
+        );
+        TimeOfDay? _selectedTime = TimeOfDay(
+          hour: int.parse(task.time.split(':')[0].split(' ')[0]),
+          minute: int.parse(task.time.split(':')[1].split(' ')[0]),
+        );
+
+        return StatefulBuilder(
+          builder: (context, setState) {
+            return AlertDialog(
+              title: Row(
+                children: [
+                  Icon(Icons.edit, color: Color(0xFF6B4EE6)),
+                  SizedBox(width: 8),
+                  Text('Edit Task'),
+                ],
+              ),
+              content: Container(
+                width: double.maxFinite,
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    // Task Name Field
+                    TextFormField(
+                      controller: _taskNameController,
+                      decoration: InputDecoration(
+                        labelText: 'Task Name',
+                        border: OutlineInputBorder(),
+                        prefixIcon: Icon(Icons.task_alt),
+                      ),
+                    ),
+                    SizedBox(height: 16),
+
+                    // Time Picker
+                    InkWell(
+                      onTap: () async {
+                        final TimeOfDay? picked = await showTimePicker(
+                          context: context,
+                          initialTime: _selectedTime ?? TimeOfDay.now(),
+                        );
+                        if (picked != null) {
+                          setState(() {
+                            _selectedTime = picked;
+                          });
+                        }
+                      },
+                      child: InputDecorator(
+                        decoration: InputDecoration(
+                          labelText: 'Time',
+                          border: OutlineInputBorder(),
+                          prefixIcon: Icon(Icons.access_time),
+                        ),
+                        child: Text(
+                          _selectedTime != null
+                              ? _selectedTime!.format(context)
+                              : 'Select time',
+                        ),
+                      ),
+                    ),
+                    SizedBox(height: 16),
+
+                    // Description Field
+                    TextFormField(
+                      controller: _descriptionController,
+                      decoration: InputDecoration(
+                        labelText: 'Description',
+                        border: OutlineInputBorder(),
+                        prefixIcon: Icon(Icons.description),
+                      ),
+                      maxLines: 3,
+                    ),
+                  ],
+                ),
+              ),
+              actions: [
+                TextButton(
+                  onPressed: () => Navigator.pop(context),
+                  child: Text('Cancel'),
+                ),
+                ElevatedButton(
+                  onPressed: () {
+                    // Update task locally (you can implement API call here)
+                    setState(() {
+                      // For now, just update the task object
+                      // You can implement the API call to update the task in the database
+                    });
+                    Navigator.pop(context);
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(
+                        content: Text('Task updated successfully!'),
+                        backgroundColor: Colors.green,
+                      ),
+                    );
+                  },
+                  child: Text('Save'),
+                ),
+              ],
+            );
+          },
+        );
+      },
     );
   }
 }
