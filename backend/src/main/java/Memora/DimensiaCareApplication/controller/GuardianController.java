@@ -63,6 +63,8 @@ public class GuardianController {
             resp.setCity(user.getCity());
             resp.setStreet(user.getStreet());
             resp.setState(user.getState());
+            resp.setGender(user.getGender());
+            resp.setBirthday(user.getBirthdate() != null ? user.getBirthdate().toString() : null);
             return ResponseEntity.ok(resp);
         } else {
             return ResponseEntity.notFound().build();
