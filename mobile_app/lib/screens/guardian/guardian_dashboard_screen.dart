@@ -5,6 +5,7 @@ import '../../services/patient_service.dart';
 import '../../services/auth_service.dart';
 import '../../services/guardian_service.dart'; // Added import for GuardianService
 import '../../constants/color_constants.dart';
+import '../../utils/name_utils.dart';
 import 'guardian_bottom_nav_bar.dart';
 
 class GuardianDashboardScreen extends StatefulWidget {
@@ -238,7 +239,7 @@ class _GuardianDashboardScreenState extends State<GuardianDashboardScreen> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      '${patient['fName'] ?? patient['FName'] ?? patient['fname'] ?? ''} ${patient['lName'] ?? patient['LName'] ?? patient['lname'] ?? ''}',
+                      NameUtils.formatPatientName(patient),
                       style: TextStyle(
                         fontSize: 18,
                         fontWeight: FontWeight.w700,

@@ -21,6 +21,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.bind.annotation.RequestBody;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.Period;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -204,6 +205,10 @@ public class CaregiverController {
             default:
                 stageScore = 0;
         }
+        
+        // Get timestamp for 2 days ago to filter out recently rejected caregivers
+        LocalDateTime twoDaysAgo = LocalDateTime.now().minusDays(2);
+        
         List<Caregiver> caregivers = caregiverRepository.findAll();
         List<CaregiverDetailsResponse> available = caregivers.stream()
                 .filter(cg -> {
@@ -211,9 +216,22 @@ public class CaregiverController {
                     if (score == null)
                         score = 0;
                     boolean eligible = score < 4 && score + stageScore <= 4;
+                    
+                    // Check if this caregiver has rejected a request from this patient in the last 2 days
+                    List<GuardianPatientCaregiverConnection> recentRejections = connectionRepository
+                        .findByPatientIdAndCaregiverIdAndStatusAndRejectedDateTimeAfter(
+                            patientId, 
+                            cg.getCaregiverId().longValue(), 
+                            GuardianPatientCaregiverConnection.ConnectionStatus.REJECTED, 
+                            twoDaysAgo
+                        );
+                    
+                    boolean notRecentlyRejected = recentRejections.isEmpty();
+                    
                     System.out.println("Caregiver ID: " + cg.getCaregiverId() + ", severityScore: " + score
-                            + ", eligible: " + eligible);
-                    return eligible;
+                            + ", eligible: " + eligible + ", notRecentlyRejected: " + notRecentlyRejected);
+                    
+                    return eligible && notRecentlyRejected;
                 })
                 .map(cg -> {
                     User user = cg.getUser();
@@ -363,6 +381,7 @@ public class CaregiverController {
             return ResponseEntity.badRequest().body("Invalid or already processed request");
         }
         conn.setStatus(GuardianPatientCaregiverConnection.ConnectionStatus.REJECTED);
+        conn.setRejectedDateTime(java.time.LocalDateTime.now());
         connectionRepository.save(conn);
         return ResponseEntity.ok().build();
     }

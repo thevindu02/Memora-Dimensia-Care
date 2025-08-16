@@ -8,6 +8,8 @@ public class GuardianDetailsResponse {
     private String city;
     private String street;
     private String state;
+    private String gender;
+    private String birthday;
 
     public Long getGuardianId() { return guardianId; }
     public void setGuardianId(Long guardianId) { this.guardianId = guardianId; }
@@ -27,4 +29,10 @@ public class GuardianDetailsResponse {
     public void setStreet(String street) { this.street = street; }
     public String getState() { return state; }
     public void setState(String state) { this.state = state; }
+    
+    public String getGender() { return gender; }
+    public void setGender(String gender) { this.gender = gender; }
+    
+    public String getBirthday() { return birthday; }
+    public void setBirthday(String birthday) { this.birthday = birthday; }
 } 

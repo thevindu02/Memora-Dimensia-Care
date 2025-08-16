@@ -496,7 +496,6 @@ class _GuardianQAForumsScreenState extends State<GuardianQAForumsScreen> {
           onPressed: _showAskQuestionDialog,
           backgroundColor: AppColors.primaryLight,
           foregroundColor: AppColors.info,
-          icon: Icon(Icons.add),
           label: Text('Ask Question'),
         ),
         bottomNavigationBar: CustomBottomNavigationBar(

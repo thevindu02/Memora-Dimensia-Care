@@ -1,12 +1,15 @@
 import 'package:flutter/material.dart';
 import '../../constants/color_constants.dart';
+import '../../utils/name_utils.dart';
 
 class GuardianSelectedPatientReportsScreen extends StatefulWidget {
   @override
-  _GuardianSelectedPatientReportsScreenState createState() => _GuardianSelectedPatientReportsScreenState();
+  _GuardianSelectedPatientReportsScreenState createState() =>
+      _GuardianSelectedPatientReportsScreenState();
 }
 
-class _GuardianSelectedPatientReportsScreenState extends State<GuardianSelectedPatientReportsScreen> {
+class _GuardianSelectedPatientReportsScreenState
+    extends State<GuardianSelectedPatientReportsScreen> {
   Map<String, dynamic>? patient;
   List<Map<String, dynamic>> allReports = [];
   List<Map<String, dynamic>> filteredReports = [];
@@ -16,7 +19,8 @@ class _GuardianSelectedPatientReportsScreenState extends State<GuardianSelectedP
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      patient = ModalRoute.of(context)?.settings.arguments as Map<String, dynamic>?;
+      patient =
+          ModalRoute.of(context)?.settings.arguments as Map<String, dynamic>?;
       _loadReports();
     });
   }
@@ -35,7 +39,11 @@ class _GuardianSelectedPatientReportsScreenState extends State<GuardianSelectedP
         },
         'biometricsSummary': {
           'heartRate': {'avg': 72, 'min': 58, 'max': 89, 'status': 'Normal'},
-          'bloodPressure': {'systolic': 120, 'diastolic': 80, 'status': 'Normal'},
+          'bloodPressure': {
+            'systolic': 120,
+            'diastolic': 80,
+            'status': 'Normal',
+          },
           'steps': 8500,
           'sleepHours': 7.5,
           'anomalies': [],
@@ -46,14 +54,23 @@ class _GuardianSelectedPatientReportsScreenState extends State<GuardianSelectedP
         'date': '2024-07-03',
         'time': '11:30 PM',
         'routineSummary': {
-          'completed': ['Morning medication', 'Breakfast', 'Physical therapy', 'Evening walk'],
+          'completed': [
+            'Morning medication',
+            'Breakfast',
+            'Physical therapy',
+            'Evening walk',
+          ],
           'notCompleted': [],
           'skipped': ['Afternoon snack'],
           'completionRate': 100,
         },
         'biometricsSummary': {
           'heartRate': {'avg': 68, 'min': 55, 'max': 85, 'status': 'Normal'},
-          'bloodPressure': {'systolic': 118, 'diastolic': 78, 'status': 'Normal'},
+          'bloodPressure': {
+            'systolic': 118,
+            'diastolic': 78,
+            'status': 'Normal',
+          },
           'steps': 9200,
           'sleepHours': 8.0,
           'anomalies': [],
@@ -71,7 +88,11 @@ class _GuardianSelectedPatientReportsScreenState extends State<GuardianSelectedP
         },
         'biometricsSummary': {
           'heartRate': {'avg': 78, 'min': 62, 'max': 95, 'status': 'Normal'},
-          'bloodPressure': {'systolic': 135, 'diastolic': 88, 'status': 'Elevated'},
+          'bloodPressure': {
+            'systolic': 135,
+            'diastolic': 88,
+            'status': 'Elevated',
+          },
           'steps': 4200,
           'sleepHours': 6.2,
           'anomalies': ['Elevated blood pressure detected at 3:15 PM'],
@@ -82,14 +103,23 @@ class _GuardianSelectedPatientReportsScreenState extends State<GuardianSelectedP
         'date': '2024-07-01',
         'time': '11:55 PM',
         'routineSummary': {
-          'completed': ['Morning medication', 'Breakfast', 'Physical therapy', 'Evening walk'],
+          'completed': [
+            'Morning medication',
+            'Breakfast',
+            'Physical therapy',
+            'Evening walk',
+          ],
           'notCompleted': [],
           'skipped': [],
           'completionRate': 100,
         },
         'biometricsSummary': {
           'heartRate': {'avg': 70, 'min': 56, 'max': 87, 'status': 'Normal'},
-          'bloodPressure': {'systolic': 115, 'diastolic': 75, 'status': 'Normal'},
+          'bloodPressure': {
+            'systolic': 115,
+            'diastolic': 75,
+            'status': 'Normal',
+          },
           'steps': 10500,
           'sleepHours': 8.5,
           'anomalies': [],
@@ -109,7 +139,8 @@ class _GuardianSelectedPatientReportsScreenState extends State<GuardianSelectedP
       if (date == null) {
         filteredReports = List.from(allReports);
       } else {
-        String dateString = '${date.year}-${date.month.toString().padLeft(2, '0')}-${date.day.toString().padLeft(2, '0')}';
+        String dateString =
+            '${date.year}-${date.month.toString().padLeft(2, '0')}-${date.day.toString().padLeft(2, '0')}';
         filteredReports = allReports.where((report) {
           return report['date'] == dateString;
         }).toList();
@@ -133,9 +164,7 @@ class _GuardianSelectedPatientReportsScreenState extends State<GuardianSelectedP
               onSurface: Colors.black,
             ),
             textButtonTheme: TextButtonThemeData(
-              style: TextButton.styleFrom(
-                foregroundColor: Color(0xFF2B3F99),
-              ),
+              style: TextButton.styleFrom(foregroundColor: Color(0xFF2B3F99)),
             ),
           ),
           child: child!,
@@ -216,7 +245,9 @@ class _GuardianSelectedPatientReportsScreenState extends State<GuardianSelectedP
             Container(
               padding: EdgeInsets.symmetric(horizontal: 12, vertical: 6),
               decoration: BoxDecoration(
-                color: _getStatusColor(biometrics['overallStatus']).withOpacity(0.1),
+                color: _getStatusColor(
+                  biometrics['overallStatus'],
+                ).withOpacity(0.1),
                 borderRadius: BorderRadius.circular(20),
               ),
               child: Text(
@@ -234,20 +265,16 @@ class _GuardianSelectedPatientReportsScreenState extends State<GuardianSelectedP
           // Routine Summary Section
           Container(
             padding: EdgeInsets.all(16),
-                          decoration: BoxDecoration(
-                color: AppColors.surface,
-                borderRadius: BorderRadius.circular(8),
-              ),
+            decoration: BoxDecoration(
+              color: AppColors.surface,
+              borderRadius: BorderRadius.circular(8),
+            ),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Row(
                   children: [
-                    Icon(
-                      Icons.check_circle,
-                      color: Colors.green,
-                      size: 20,
-                    ),
+                    Icon(Icons.check_circle, color: Colors.green, size: 20),
                     SizedBox(width: 8),
                     Text(
                       'Routine Summary',
@@ -290,7 +317,10 @@ class _GuardianSelectedPatientReportsScreenState extends State<GuardianSelectedP
                           SizedBox(width: 8),
                           Text(
                             task,
-                            style: TextStyle(fontSize: 13, color: AppColors.onSurfaceVariant),
+                            style: TextStyle(
+                              fontSize: 13,
+                              color: AppColors.onSurfaceVariant,
+                            ),
                           ),
                         ],
                       ),
@@ -318,7 +348,10 @@ class _GuardianSelectedPatientReportsScreenState extends State<GuardianSelectedP
                           SizedBox(width: 8),
                           Text(
                             task,
-                            style: TextStyle(fontSize: 13, color: Colors.grey[700]),
+                            style: TextStyle(
+                              fontSize: 13,
+                              color: Colors.grey[700],
+                            ),
                           ),
                         ],
                       ),
@@ -346,7 +379,10 @@ class _GuardianSelectedPatientReportsScreenState extends State<GuardianSelectedP
                           SizedBox(width: 8),
                           Text(
                             task,
-                            style: TextStyle(fontSize: 13, color: Colors.grey[700]),
+                            style: TextStyle(
+                              fontSize: 13,
+                              color: Colors.grey[700],
+                            ),
                           ),
                         ],
                       ),
@@ -370,11 +406,7 @@ class _GuardianSelectedPatientReportsScreenState extends State<GuardianSelectedP
               children: [
                 Row(
                   children: [
-                    Icon(
-                      Icons.favorite,
-                      color: Colors.red,
-                      size: 20,
-                    ),
+                    Icon(Icons.favorite, color: Colors.red, size: 20),
                     SizedBox(width: 8),
                     Text(
                       'Biometrics Summary',
@@ -501,7 +533,10 @@ class _GuardianSelectedPatientReportsScreenState extends State<GuardianSelectedP
                           Expanded(
                             child: Text(
                               anomaly,
-                              style: TextStyle(fontSize: 13, color: Colors.red[700]),
+                              style: TextStyle(
+                                fontSize: 13,
+                                color: Colors.red[700],
+                              ),
                             ),
                           ),
                         ],
@@ -539,11 +574,13 @@ class _GuardianSelectedPatientReportsScreenState extends State<GuardianSelectedP
         backgroundColor: AppColors.surface,
         elevation: 0,
         leading: IconButton(
-                     icon: Icon(Icons.arrow_back, color: Colors.black),
+          icon: Icon(Icons.arrow_back, color: Colors.black),
           onPressed: () => Navigator.pop(context),
         ),
         title: Text(
-          patient != null ? '${patient!['name']} Reports' : 'Patient Reports',
+          patient != null
+              ? 'Reports: ${NameUtils.formatPatientName(patient!)}'
+              : 'Patient Reports',
           style: TextStyle(
             fontSize: 20,
             fontWeight: FontWeight.bold,
@@ -578,8 +615,12 @@ class _GuardianSelectedPatientReportsScreenState extends State<GuardianSelectedP
                               : '${_selectedDate!.day}/${_selectedDate!.month}/${_selectedDate!.year}',
                           style: TextStyle(
                             fontSize: 14,
-                            color: _selectedDate == null ? Colors.grey[600] : Colors.black87,
-                            fontWeight: _selectedDate == null ? FontWeight.normal : FontWeight.w500,
+                            color: _selectedDate == null
+                                ? Colors.grey[600]
+                                : Colors.black87,
+                            fontWeight: _selectedDate == null
+                                ? FontWeight.normal
+                                : FontWeight.w500,
                           ),
                         ),
                       ],
@@ -619,11 +660,7 @@ class _GuardianSelectedPatientReportsScreenState extends State<GuardianSelectedP
                           color: Colors.grey[400],
                           borderRadius: BorderRadius.circular(12),
                         ),
-                        child: Icon(
-                          Icons.clear,
-                          color: Colors.white,
-                          size: 20,
-                        ),
+                        child: Icon(Icons.clear, color: Colors.white, size: 20),
                       ),
                     ),
                   ),
@@ -631,6 +668,9 @@ class _GuardianSelectedPatientReportsScreenState extends State<GuardianSelectedP
               ],
             ),
           ),
+
+          // Weekly Summary Chart
+          _buildDailyReportChart(),
 
           // Reports list
           Expanded(
@@ -657,7 +697,9 @@ class _GuardianSelectedPatientReportsScreenState extends State<GuardianSelectedP
                       child: Column(
                         children: [
                           Icon(
-                            _selectedDate == null ? Icons.calendar_today : Icons.search_off,
+                            _selectedDate == null
+                                ? Icons.calendar_today
+                                : Icons.search_off,
                             size: 48,
                             color: Colors.grey[400],
                           ),
@@ -689,7 +731,8 @@ class _GuardianSelectedPatientReportsScreenState extends State<GuardianSelectedP
                   else
                     Column(
                       children: [
-                        for (var report in filteredReports) _buildReportCard(report),
+                        for (var report in filteredReports)
+                          _buildReportCard(report),
                       ],
                     ),
                 ],
@@ -698,6 +741,247 @@ class _GuardianSelectedPatientReportsScreenState extends State<GuardianSelectedP
           ),
         ],
       ),
+    );
+  }
+
+  // Hardcoded daily report chart widget
+  Widget _buildDailyReportChart() {
+    // Hardcoded sample data for daily reports
+    final List<Map<String, dynamic>> weeklyData = [
+      {'day': 'Mon', 'mood': 8, 'sleep': 7, 'activity': 6},
+      {'day': 'Tue', 'mood': 7, 'sleep': 8, 'activity': 7},
+      {'day': 'Wed', 'mood': 6, 'sleep': 6, 'activity': 8},
+      {'day': 'Thu', 'mood': 9, 'sleep': 9, 'activity': 5},
+      {'day': 'Fri', 'mood': 8, 'sleep': 7, 'activity': 9},
+      {'day': 'Sat', 'mood': 9, 'sleep': 8, 'activity': 8},
+      {'day': 'Sun', 'mood': 7, 'sleep': 9, 'activity': 6},
+    ];
+
+    return Container(
+      padding: EdgeInsets.all(16),
+      margin: EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(12),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.grey.withOpacity(0.1),
+            spreadRadius: 1,
+            blurRadius: 8,
+            offset: Offset(0, 2),
+          ),
+        ],
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Icon(Icons.bar_chart, color: AppColors.info),
+              SizedBox(width: 8),
+              Text(
+                'Weekly Summary Report',
+                style: TextStyle(
+                  fontSize: 18,
+                  fontWeight: FontWeight.w600,
+                  color: AppColors.info,
+                ),
+              ),
+            ],
+          ),
+          SizedBox(height: 16),
+          Row(
+            children: [
+              // Legend
+              Expanded(
+                flex: 1,
+                child: Column(
+                  children: [
+                    _buildLegendItem('Mood Score', Color(0xFF4CAF50)),
+                    SizedBox(height: 8),
+                    _buildLegendItem('Sleep Quality', Color(0xFF2196F3)),
+                    SizedBox(height: 8),
+                    _buildLegendItem('Activity Level', Color(0xFFFF9800)),
+                  ],
+                ),
+              ),
+              SizedBox(width: 16),
+              // Chart area
+              Expanded(
+                flex: 3,
+                child: Container(
+                  height: 140, // Reduced from 160 to 140
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                    crossAxisAlignment: CrossAxisAlignment.end,
+                    children: weeklyData.map((data) {
+                      return Expanded(
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.end,
+                          children: [
+                            // Score labels on top
+                            Container(
+                              height: 30, // Reduced from 36 to 30
+                              child: Column(
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceEvenly,
+                                children: [
+                                  Text(
+                                    '${data['mood']}',
+                                    style: TextStyle(
+                                      fontSize: 8, // Reduced from 9 to 8
+                                      color: Color(0xFF4CAF50),
+                                      fontWeight: FontWeight.w600,
+                                    ),
+                                  ),
+                                  Text(
+                                    '${data['sleep']}',
+                                    style: TextStyle(
+                                      fontSize: 8, // Reduced from 9 to 8
+                                      color: Color(0xFF2196F3),
+                                      fontWeight: FontWeight.w600,
+                                    ),
+                                  ),
+                                  Text(
+                                    '${data['activity']}',
+                                    style: TextStyle(
+                                      fontSize: 8, // Reduced from 9 to 8
+                                      color: Color(0xFFFF9800),
+                                      fontWeight: FontWeight.w600,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                            SizedBox(height: 4),
+                            // Bars
+                            Container(
+                              width: 24,
+                              height: 60, // Reduced height for bars area
+                              child: Row(
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceEvenly,
+                                crossAxisAlignment: CrossAxisAlignment.end,
+                                children: [
+                                  // Mood bar
+                                  Container(
+                                    width: 6,
+                                    height:
+                                        (data['mood'] as int) *
+                                        5.0, // Further reduced multiplier (max 45px)
+                                    decoration: BoxDecoration(
+                                      color: Color(0xFF4CAF50),
+                                      borderRadius: BorderRadius.circular(3),
+                                    ),
+                                  ),
+                                  // Sleep bar
+                                  Container(
+                                    width: 6,
+                                    height:
+                                        (data['sleep'] as int) *
+                                        5.0, // Further reduced multiplier (max 45px)
+                                    decoration: BoxDecoration(
+                                      color: Color(0xFF2196F3),
+                                      borderRadius: BorderRadius.circular(3),
+                                    ),
+                                  ),
+                                  // Activity bar
+                                  Container(
+                                    width: 6,
+                                    height:
+                                        (data['activity'] as int) *
+                                        5.0, // Further reduced multiplier (max 45px)
+                                    decoration: BoxDecoration(
+                                      color: Color(0xFFFF9800),
+                                      borderRadius: BorderRadius.circular(3),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                            SizedBox(height: 4), // Reduced spacing
+                            // Day label
+                            Container(
+                              height: 16, // Reduced from 18 to 16
+                              child: Text(
+                                data['day'],
+                                style: TextStyle(
+                                  fontSize: 10, // Reduced from 11 to 10
+                                  color: Colors.grey[600],
+                                  fontWeight: FontWeight.w500,
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                      );
+                    }).toList(),
+                  ),
+                ),
+              ),
+            ],
+          ),
+          SizedBox(height: 12),
+          // Summary stats
+          Container(
+            padding: EdgeInsets.all(12),
+            decoration: BoxDecoration(
+              color: Color(0xFFF8F9FA),
+              borderRadius: BorderRadius.circular(8),
+            ),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceAround,
+              children: [
+                _buildStatItem('Avg Mood', '7.7', Color(0xFF4CAF50)),
+                _buildStatItem('Avg Sleep', '7.7', Color(0xFF2196F3)),
+                _buildStatItem('Avg Activity', '7.0', Color(0xFFFF9800)),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildLegendItem(String label, Color color) {
+    return Row(
+      children: [
+        Container(
+          width: 10,
+          height: 10,
+          decoration: BoxDecoration(
+            color: color,
+            borderRadius: BorderRadius.circular(2),
+          ),
+        ),
+        SizedBox(width: 6),
+        Expanded(
+          child: Text(
+            label,
+            style: TextStyle(
+              fontSize: 12,
+              color: Colors.grey[700],
+              fontWeight: FontWeight.w500,
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildStatItem(String label, String value, Color color) {
+    return Column(
+      children: [
+        Text(
+          value,
+          style: TextStyle(
+            fontSize: 16,
+            fontWeight: FontWeight.w700,
+            color: color,
+          ),
+        ),
+        Text(label, style: TextStyle(fontSize: 10, color: Colors.grey[600])),
+      ],
     );
   }
 

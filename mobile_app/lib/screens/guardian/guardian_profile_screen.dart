@@ -6,6 +6,7 @@ import '../../constants/color_constants.dart';
 import 'guardian_bottom_nav_bar.dart';
 import '../../services/auth_service.dart';
 import '../../services/guardian_service.dart';
+import '../../utils/name_utils.dart';
 
 class GuardianProfileScreen extends StatefulWidget {
   @override
@@ -25,9 +26,11 @@ class _GuardianProfileScreenState extends State<GuardianProfileScreen> {
   final _nameController = TextEditingController(text: 'John Doe');
   final _emailController = TextEditingController(text: 'john.doe@example.com');
   final _phoneController = TextEditingController(text: '+1 234 567 8900');
-  final _addressController = TextEditingController(
-    text: '123 Main St, City, State',
-  );
+  final _genderController = TextEditingController(text: 'Male');
+  final _birthdayController = TextEditingController(text: '1990-01-01');
+  final _streetController = TextEditingController(text: '123 Main St');
+  final _cityController = TextEditingController(text: 'City');
+  final _stateController = TextEditingController(text: 'State');
   final _currentPasswordController = TextEditingController();
   final _newPasswordController = TextEditingController();
   final _confirmPasswordController = TextEditingController();
@@ -36,7 +39,11 @@ class _GuardianProfileScreenState extends State<GuardianProfileScreen> {
   String _originalName = '';
   String _originalEmail = '';
   String _originalPhone = '';
-  String _originalAddress = '';
+  String _originalGender = '';
+  String _originalBirthday = '';
+  String _originalStreet = '';
+  String _originalCity = '';
+  String _originalState = '';
 
   bool _showCurrentPassword = false;
   bool _showNewPassword = false;
@@ -62,24 +69,28 @@ class _GuardianProfileScreenState extends State<GuardianProfileScreen> {
           guardianId,
         );
         if (profile != null) {
-          _nameController.text = profile['name'] ?? '';
+          _nameController.text = NameUtils.capitalizeName(
+            profile['name'] ?? '',
+          );
           _emailController.text = profile['email'] ?? '';
           _phoneController.text = profile['phone'] ?? '';
-          // Combine address fields: street, city, state
-          String street = profile['street'] ?? '';
-          String city = profile['city'] ?? '';
-          String state = profile['state'] ?? '';
-          String address = [
-            street,
-            city,
-            state,
-          ].where((e) => e.isNotEmpty).join(', ');
-          _addressController.text = address;
+          _genderController.text = profile['gender'] ?? '';
+          _birthdayController.text = profile['birthday'] ?? '';
+
+          // Set separate address fields
+          _streetController.text = profile['street'] ?? '';
+          _cityController.text = profile['city'] ?? '';
+          _stateController.text = profile['state'] ?? '';
+
           // Store original values for edit/cancel logic
           _originalName = _nameController.text;
           _originalEmail = _emailController.text;
           _originalPhone = _phoneController.text;
-          _originalAddress = _addressController.text;
+          _originalGender = _genderController.text;
+          _originalBirthday = _birthdayController.text;
+          _originalStreet = _streetController.text;
+          _originalCity = _cityController.text;
+          _originalState = _stateController.text;
         }
       }
     }
@@ -94,7 +105,11 @@ class _GuardianProfileScreenState extends State<GuardianProfileScreen> {
     _nameController.dispose();
     _emailController.dispose();
     _phoneController.dispose();
-    _addressController.dispose();
+    _genderController.dispose();
+    _birthdayController.dispose();
+    _streetController.dispose();
+    _cityController.dispose();
+    _stateController.dispose();
     _currentPasswordController.dispose();
     _newPasswordController.dispose();
     _confirmPasswordController.dispose();
@@ -110,7 +125,11 @@ class _GuardianProfileScreenState extends State<GuardianProfileScreen> {
     return _nameController.text != _originalName ||
         _emailController.text != _originalEmail ||
         _phoneController.text != _originalPhone ||
-        _addressController.text != _originalAddress ||
+        _genderController.text != _originalGender ||
+        _birthdayController.text != _originalBirthday ||
+        _streetController.text != _originalStreet ||
+        _cityController.text != _originalCity ||
+        _stateController.text != _originalState ||
         _currentPasswordController.text.isNotEmpty ||
         _newPasswordController.text.isNotEmpty ||
         _confirmPasswordController.text.isNotEmpty ||
@@ -221,7 +240,11 @@ class _GuardianProfileScreenState extends State<GuardianProfileScreen> {
       _nameController.text = _originalName;
       _emailController.text = _originalEmail;
       _phoneController.text = _originalPhone;
-      _addressController.text = _originalAddress;
+      _genderController.text = _originalGender;
+      _birthdayController.text = _originalBirthday;
+      _streetController.text = _originalStreet;
+      _cityController.text = _originalCity;
+      _stateController.text = _originalState;
       _currentPasswordController.clear();
       _newPasswordController.clear();
       _confirmPasswordController.clear();
@@ -241,11 +264,41 @@ class _GuardianProfileScreenState extends State<GuardianProfileScreen> {
       // Simulate API call
       await Future.delayed(Duration(seconds: 2));
 
+      // Combine address fields for backend
+      String combinedAddress = '';
+      if (_streetController.text.isNotEmpty) {
+        combinedAddress = _streetController.text;
+      }
+      if (_cityController.text.isNotEmpty) {
+        if (combinedAddress.isNotEmpty) combinedAddress += ', ';
+        combinedAddress += _cityController.text;
+      }
+      if (_stateController.text.isNotEmpty) {
+        if (combinedAddress.isNotEmpty) combinedAddress += ', ';
+        combinedAddress += _stateController.text;
+      }
+
+      // TODO: Replace with actual API call when backend is ready
+      // await GuardianService.updateProfile({
+      //   'name': _nameController.text,
+      //   'email': _emailController.text,
+      //   'phone': _phoneController.text,
+      //   'gender': _genderController.text,
+      //   'birthday': _birthdayController.text,
+      //   'street': _streetController.text,
+      //   'city': _cityController.text,
+      //   'state': _stateController.text,
+      // });
+
       // Update original values
       _originalName = _nameController.text;
       _originalEmail = _emailController.text;
       _originalPhone = _phoneController.text;
-      _originalAddress = _addressController.text;
+      _originalGender = _genderController.text;
+      _originalBirthday = _birthdayController.text;
+      _originalStreet = _streetController.text;
+      _originalCity = _cityController.text;
+      _originalState = _stateController.text;
       _originalProfileImage = _profileImage;
 
       setState(() {
@@ -287,6 +340,8 @@ class _GuardianProfileScreenState extends State<GuardianProfileScreen> {
     bool isPassword = false,
     bool? showPassword,
     VoidCallback? togglePasswordVisibility,
+    bool readOnly = false,
+    VoidCallback? onTap,
   }) {
     return Container(
       margin: EdgeInsets.only(bottom: 16),
@@ -308,15 +363,20 @@ class _GuardianProfileScreenState extends State<GuardianProfileScreen> {
           keyboardType: keyboardType,
           maxLines: maxLines,
           enabled: _isEditing,
+          readOnly: readOnly,
           obscureText: isPassword && !(showPassword ?? false),
-          onTap: () {
-            // Clear the field when tapped in edit mode if it contains original value
-            if (_isEditing && controller.text == originalValue && !isPassword) {
-              controller.clear();
-              _focusedFields.add(fieldName);
-              setState(() {});
-            }
-          },
+          onTap:
+              onTap ??
+              () {
+                // Clear the field when tapped in edit mode if it contains original value
+                if (_isEditing &&
+                    controller.text == originalValue &&
+                    !isPassword) {
+                  controller.clear();
+                  _focusedFields.add(fieldName);
+                  setState(() {});
+                }
+              },
           onChanged: (value) {
             if (value.isNotEmpty) {
               _modifiedFields.add(fieldName);
@@ -350,7 +410,9 @@ class _GuardianProfileScreenState extends State<GuardianProfileScreen> {
                     ),
                     onPressed: togglePasswordVisibility,
                   )
-                : null,
+                : (readOnly
+                      ? Icon(Icons.arrow_drop_down, color: Colors.grey[600])
+                      : null),
             border: OutlineInputBorder(
               borderRadius: BorderRadius.circular(8),
               borderSide: BorderSide(color: Colors.grey[300]!),
@@ -400,6 +462,72 @@ class _GuardianProfileScreenState extends State<GuardianProfileScreen> {
       _navigateToHome();
       return false; // Prevent default pop, handle navigation
     }
+  }
+
+  void _selectDate() async {
+    if (!_isEditing) return;
+
+    final DateTime? picked = await showDatePicker(
+      context: context,
+      initialDate: DateTime(1990, 1, 1),
+      firstDate: DateTime(1950),
+      lastDate: DateTime.now(),
+      builder: (context, child) {
+        return Theme(
+          data: Theme.of(context).copyWith(
+            colorScheme: ColorScheme.light(primary: Color(0xFF2B3F99)),
+          ),
+          child: child!,
+        );
+      },
+    );
+    if (picked != null) {
+      setState(() {
+        _birthdayController.text =
+            "${picked.year}-${picked.month.toString().padLeft(2, '0')}-${picked.day.toString().padLeft(2, '0')}";
+        _modifiedFields.add('birthday');
+      });
+    }
+  }
+
+  void _showGenderPicker() {
+    if (!_isEditing) return;
+
+    showModalBottomSheet(
+      context: context,
+      builder: (BuildContext context) {
+        return Container(
+          height: 200,
+          child: Column(
+            children: [
+              Container(
+                padding: EdgeInsets.all(16),
+                child: Text(
+                  'Select Gender',
+                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.w600),
+                ),
+              ),
+              Expanded(
+                child: ListView(
+                  children: ['Male', 'Female', 'Other'].map((gender) {
+                    return ListTile(
+                      title: Text(gender),
+                      onTap: () {
+                        setState(() {
+                          _genderController.text = gender;
+                          _modifiedFields.add('gender');
+                        });
+                        Navigator.pop(context);
+                      },
+                    );
+                  }).toList(),
+                ),
+              ),
+            ],
+          ),
+        );
+      },
+    );
   }
 
   @override
@@ -596,19 +724,92 @@ class _GuardianProfileScreenState extends State<GuardianProfileScreen> {
                         },
                       ),
 
+                      Row(
+                        children: [
+                          Expanded(
+                            child: _buildTextField(
+                              controller: _genderController,
+                              label: 'Gender',
+                              icon: Icons.person_outline,
+                              originalValue: _originalGender,
+                              fieldName: 'gender',
+                              readOnly: true,
+                              onTap: _isEditing ? _showGenderPicker : null,
+                            ),
+                          ),
+                          SizedBox(width: 16),
+                          Expanded(
+                            child: _buildTextField(
+                              controller: _birthdayController,
+                              label: 'Birthday',
+                              icon: Icons.calendar_today,
+                              originalValue: _originalBirthday,
+                              fieldName: 'birthday',
+                              readOnly: true,
+                              onTap: _selectDate,
+                            ),
+                          ),
+                        ],
+                      ),
+
+                      Text(
+                        'Address Information',
+                        style: TextStyle(
+                          fontSize: 18,
+                          fontWeight: FontWeight.w600,
+                          color: Colors.black87,
+                        ),
+                      ),
+                      SizedBox(height: 16),
+
                       _buildTextField(
-                        controller: _addressController,
-                        label: 'Address',
+                        controller: _streetController,
+                        label: 'Street Address',
                         icon: Icons.location_on,
-                        originalValue: _originalAddress,
-                        fieldName: 'address',
-                        maxLines: 3,
+                        originalValue: _originalStreet,
+                        fieldName: 'street',
                         validator: (value) {
                           if (value == null || value.isEmpty) {
-                            return 'Please enter your address';
+                            return 'Please enter your street address';
                           }
                           return null;
                         },
+                      ),
+
+                      Row(
+                        children: [
+                          Expanded(
+                            child: _buildTextField(
+                              controller: _cityController,
+                              label: 'City',
+                              icon: Icons.location_city,
+                              originalValue: _originalCity,
+                              fieldName: 'city',
+                              validator: (value) {
+                                if (value == null || value.isEmpty) {
+                                  return 'Please enter your city';
+                                }
+                                return null;
+                              },
+                            ),
+                          ),
+                          SizedBox(width: 16),
+                          Expanded(
+                            child: _buildTextField(
+                              controller: _stateController,
+                              label: 'State/Province',
+                              icon: Icons.map,
+                              originalValue: _originalState,
+                              fieldName: 'state',
+                              validator: (value) {
+                                if (value == null || value.isEmpty) {
+                                  return 'Please enter your state';
+                                }
+                                return null;
+                              },
+                            ),
+                          ),
+                        ],
                       ),
 
                       if (_isEditing) ...[
