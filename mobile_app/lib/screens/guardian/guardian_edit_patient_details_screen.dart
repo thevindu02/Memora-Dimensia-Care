@@ -20,10 +20,13 @@ class _GuardianEditPatientDetailsScreenState
   late TextEditingController _lastNameController;
   late TextEditingController _labelController;
   late TextEditingController _dateOfBirthController;
+  late TextEditingController _genderController;
   late TextEditingController _contactNumberController;
   late TextEditingController _streetController;
   late TextEditingController _cityController;
   late TextEditingController _stateController;
+  late TextEditingController _dementiaTypeController;
+  late TextEditingController _dementiaStageController;
 
   // Changed from TextEditingController to String for dropdown
   String? _selectedDementiaStage;
@@ -60,6 +63,7 @@ class _GuardianEditPatientDetailsScreenState
   String _originalName = '';
   String _originalLabel = '';
   String _originalDateOfBirth = '';
+  String _originalGender = '';
   String _originalContactNumber = '';
   String _originalAddress = '';
   String _originalDementiaType = '';
@@ -74,20 +78,26 @@ class _GuardianEditPatientDetailsScreenState
     _lastNameController = TextEditingController();
     _labelController = TextEditingController();
     _dateOfBirthController = TextEditingController();
+    _genderController = TextEditingController();
     _contactNumberController = TextEditingController();
     _streetController = TextEditingController();
     _cityController = TextEditingController();
     _stateController = TextEditingController();
+    _dementiaTypeController = TextEditingController();
+    _dementiaStageController = TextEditingController();
 
     // Add listeners to update UI when text changes
     _firstNameController.addListener(() => setState(() {}));
     _lastNameController.addListener(() => setState(() {}));
     _labelController.addListener(() => setState(() {}));
     _dateOfBirthController.addListener(() => setState(() {}));
+    _genderController.addListener(() => setState(() {}));
     _contactNumberController.addListener(() => setState(() {}));
     _streetController.addListener(() => setState(() {}));
     _cityController.addListener(() => setState(() {}));
     _stateController.addListener(() => setState(() {}));
+    _dementiaTypeController.addListener(() => setState(() {}));
+    _dementiaStageController.addListener(() => setState(() {}));
 
     // Initialize data in the next frame
     WidgetsBinding.instance.addPostFrameCallback((_) {
@@ -118,6 +128,7 @@ class _GuardianEditPatientDetailsScreenState
         '';
     _labelController.text = patientData['label'] ?? 'Patient';
     _dateOfBirthController.text = patientData['birthdate'] ?? '';
+    _genderController.text = patientData['gender'] ?? '';
     _contactNumberController.text = patientData['phoneNumber'] ?? '';
     _streetController.text = patientData['street'] ?? '';
     _cityController.text = patientData['city'] ?? '';
@@ -134,6 +145,10 @@ class _GuardianEditPatientDetailsScreenState
     if (_selectedDementiaType!.isEmpty) {
       _selectedDementiaType = null;
     }
+    _dementiaTypeController.text = _selectedDementiaType ?? '';
+
+    _selectedDementiaStage = patientData['dementiaStage'];
+    _dementiaStageController.text = _selectedDementiaStage ?? '';
 
     // Initialize date of birth
     if (patientData['birthdate'] != null &&
@@ -158,6 +173,7 @@ class _GuardianEditPatientDetailsScreenState
     _originalName = '${_firstNameController.text} ${_lastNameController.text}';
     _originalLabel = _labelController.text;
     _originalDateOfBirth = _dateOfBirthController.text;
+    _originalGender = _genderController.text;
     _originalContactNumber = _contactNumberController.text;
     _originalAddress =
         '${_streetController.text}, ${_cityController.text}, ${_stateController.text}';
@@ -173,10 +189,13 @@ class _GuardianEditPatientDetailsScreenState
     _lastNameController.dispose();
     _labelController.dispose();
     _dateOfBirthController.dispose();
+    _genderController.dispose();
     _contactNumberController.dispose();
     _streetController.dispose();
     _cityController.dispose();
     _stateController.dispose();
+    _dementiaTypeController.dispose();
+    _dementiaStageController.dispose();
     super.dispose();
   }
 
@@ -198,61 +217,61 @@ class _GuardianEditPatientDetailsScreenState
     required TextEditingController controller,
     required String originalValue,
     required String fieldName,
+    required IconData icon,
     String? Function(String?)? validator,
     TextInputType? keyboardType,
     int maxLines = 1,
+    bool readOnly = false,
+    VoidCallback? onTap,
+    Color? textColor,
   }) {
     return Container(
-      margin: EdgeInsets.only(bottom: 12),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            label,
-            style: TextStyle(
-              fontSize: 14,
-              fontWeight: FontWeight.w600,
-              color: AppColors.onSurface,
-            ),
+      margin: EdgeInsets.only(bottom: 16),
+      child: TextFormField(
+        controller: controller,
+        validator: validator,
+        keyboardType: keyboardType,
+        maxLines: maxLines,
+        readOnly: readOnly,
+        onTap: onTap,
+        style: TextStyle(
+          color:
+              textColor ??
+              (controller.text == originalValue
+                  ? Colors.grey[500]!
+                  : Colors.black87),
+        ),
+        onChanged: (value) {
+          setState(() {});
+        },
+        decoration: InputDecoration(
+          labelText: label,
+          labelStyle: TextStyle(
+            color: Colors.black87,
+            fontSize: 16,
+            fontWeight: FontWeight.w500,
           ),
-          SizedBox(height: 6),
-          TextFormField(
-            controller: controller,
-            validator: validator,
-            keyboardType: keyboardType,
-            maxLines: maxLines,
-            style: TextStyle(
-              color: controller.text == originalValue
-                  ? AppColors.onSurfaceVariant
-                  : AppColors.onSurface,
-              fontSize: 14,
-            ),
-            onChanged: (value) {
-              // Force rebuild when text changes
-              setState(() {});
-            },
-            decoration: InputDecoration(
-              hintText: 'Enter $label',
-              hintStyle: TextStyle(color: AppColors.onSurfaceVariant),
-              border: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(6),
-                borderSide: BorderSide(color: AppColors.outline),
-              ),
-              focusedBorder: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(6),
-                borderSide: BorderSide(color: AppColors.primaryLight, width: 2),
-              ),
-              enabledBorder: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(6),
-                borderSide: BorderSide(color: AppColors.outline),
-              ),
-              filled: true,
-              fillColor: controller.text == originalValue
-                  ? AppColors.surfaceVariant
-                  : AppColors.surface,
-            ),
+          hintText: 'Enter $label',
+          hintStyle: TextStyle(color: Colors.grey[400]),
+          prefixIcon: Icon(icon, color: Colors.grey[600]),
+          suffixIcon: readOnly
+              ? Icon(Icons.arrow_drop_down, color: Colors.grey[600])
+              : null,
+          border: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(8),
+            borderSide: BorderSide(color: Colors.grey[300]!),
           ),
-        ],
+          focusedBorder: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(8),
+            borderSide: BorderSide(color: Colors.blue, width: 2),
+          ),
+          enabledBorder: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(8),
+            borderSide: BorderSide(color: Colors.grey[300]!),
+          ),
+          filled: true,
+          fillColor: Colors.grey[50],
+        ),
       ),
     );
   }
@@ -270,59 +289,6 @@ class _GuardianEditPatientDetailsScreenState
       default:
         return value;
     }
-  }
-
-  Widget _buildDatePickerField({
-    required String label,
-    required TextEditingController controller,
-    required DateTime? selectedDate,
-    required VoidCallback onTap,
-    String? Function(String?)? validator,
-  }) {
-    return Container(
-      margin: EdgeInsets.only(bottom: 12),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            label,
-            style: TextStyle(
-              fontSize: 14,
-              fontWeight: FontWeight.w600,
-              color: AppColors.onSurface,
-            ),
-          ),
-          SizedBox(height: 6),
-          TextFormField(
-            controller: controller,
-            validator: validator,
-            readOnly: true,
-            onTap: onTap,
-            style: TextStyle(color: AppColors.onSurface, fontSize: 14),
-            decoration: InputDecoration(
-              hintText: 'Select $label',
-              hintStyle: TextStyle(color: AppColors.onSurfaceVariant),
-              border: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(6),
-                borderSide: BorderSide(color: AppColors.outline),
-              ),
-              focusedBorder: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(6),
-                borderSide: BorderSide(color: AppColors.primaryLight, width: 2),
-              ),
-              enabledBorder: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(6),
-                borderSide: BorderSide(color: AppColors.outline),
-              ),
-              contentPadding: EdgeInsets.symmetric(
-                horizontal: 12,
-                vertical: 12,
-              ),
-            ),
-          ),
-        ],
-      ),
-    );
   }
 
   Widget _buildDropdownField({
@@ -495,6 +461,87 @@ class _GuardianEditPatientDetailsScreenState
     }
   }
 
+  void _showGenderPicker() {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: ['Male', 'Female', 'Other'].map((gender) {
+              return ListTile(
+                title: Text(gender),
+                onTap: () {
+                  setState(() {
+                    _genderController.text = gender;
+                    patientData['gender'] = gender;
+                  });
+                  Navigator.pop(context);
+                },
+              );
+            }).toList(),
+          ),
+        );
+      },
+    );
+  }
+
+  void _showDementiaTypePicker() {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text('Select Dementia Type'),
+          content: Container(
+            width: double.maxFinite,
+            child: ListView(
+              shrinkWrap: true,
+              children: dementiaTypeMap.keys.map((type) {
+                return ListTile(
+                  title: Text(type),
+                  onTap: () {
+                    setState(() {
+                      _selectedDementiaType = type;
+                      _dementiaTypeController.text = type;
+                    });
+                    Navigator.pop(context);
+                  },
+                );
+              }).toList(),
+            ),
+          ),
+        );
+      },
+    );
+  }
+
+  void _showDementiaStagePicker() {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text('Select Dementia Stage'),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: _dementiaStages.map((stage) {
+              String displayText = _getDisplayText(stage);
+              return ListTile(
+                title: Text(displayText),
+                onTap: () {
+                  setState(() {
+                    _selectedDementiaStage = stage;
+                    _dementiaStageController.text = displayText;
+                  });
+                  Navigator.pop(context);
+                },
+              );
+            }).toList(),
+          ),
+        );
+      },
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -591,6 +638,7 @@ class _GuardianEditPatientDetailsScreenState
                           ? _originalName.split(' ')[0]
                           : '',
                       fieldName: 'firstName',
+                      icon: Icons.person,
                       validator: (value) {
                         if (value == null || value.isEmpty) {
                           return 'Please enter first name';
@@ -606,6 +654,7 @@ class _GuardianEditPatientDetailsScreenState
                           ? _originalName.split(' ').sublist(1).join(' ')
                           : '',
                       fieldName: 'lastName',
+                      icon: Icons.person_outline,
                       validator: (value) {
                         if (value == null || value.isEmpty) {
                           return 'Please enter last name';
@@ -619,6 +668,7 @@ class _GuardianEditPatientDetailsScreenState
                       controller: _labelController,
                       originalValue: _originalLabel,
                       fieldName: 'label',
+                      icon: Icons.label,
                       validator: (value) {
                         if (value == null || value.isEmpty) {
                           return 'Please enter a label';
@@ -627,10 +677,13 @@ class _GuardianEditPatientDetailsScreenState
                       },
                     ),
 
-                    _buildDatePickerField(
+                    _buildTextField(
                       label: 'Date of Birth',
                       controller: _dateOfBirthController,
-                      selectedDate: _selectedDateOfBirth,
+                      originalValue: _originalDateOfBirth,
+                      fieldName: 'dateOfBirth',
+                      icon: Icons.calendar_today,
+                      readOnly: true,
                       onTap: () => _selectDate(context),
                       validator: (value) {
                         if (value == null || value.isEmpty) {
@@ -640,32 +693,17 @@ class _GuardianEditPatientDetailsScreenState
                       },
                     ),
 
-                    _buildDropdownField(
+                    _buildTextField(
                       label: 'Gender',
-                      value: patientData['gender'] ?? '',
-                      items: ['Male', 'Female', 'Other'],
-                      onChanged: (value) {
-                        setState(() {
-                          patientData['gender'] = value;
-                        });
-                      },
+                      controller: _genderController,
+                      originalValue: _originalGender,
+                      fieldName: 'gender',
+                      icon: Icons.person,
+                      readOnly: true,
+                      onTap: _showGenderPicker,
                       validator: (value) {
                         if (value == null || value.isEmpty) {
                           return 'Please select gender';
-                        }
-                        return null;
-                      },
-                    ),
-
-                    _buildTextField(
-                      label: 'Contact Number',
-                      controller: _contactNumberController,
-                      originalValue: _originalContactNumber,
-                      fieldName: 'contactNumber',
-                      keyboardType: TextInputType.phone,
-                      validator: (value) {
-                        if (value == null || value.isEmpty) {
-                          return 'Please enter contact number';
                         }
                         return null;
                       },
@@ -678,6 +716,7 @@ class _GuardianEditPatientDetailsScreenState
                           ? _originalAddress.split(', ')[0]
                           : '',
                       fieldName: 'street',
+                      icon: Icons.location_on,
                       validator: (value) {
                         if (value == null || value.isEmpty) {
                           return 'Please enter street address';
@@ -693,6 +732,7 @@ class _GuardianEditPatientDetailsScreenState
                           ? _originalAddress.split(', ')[1]
                           : '',
                       fieldName: 'city',
+                      icon: Icons.location_city,
                       validator: (value) {
                         if (value == null || value.isEmpty) {
                           return 'Please enter city';
@@ -708,6 +748,7 @@ class _GuardianEditPatientDetailsScreenState
                           ? _originalAddress.split(', ')[2]
                           : '',
                       fieldName: 'state',
+                      icon: Icons.map,
                       validator: (value) {
                         if (value == null || value.isEmpty) {
                           return 'Please enter state';
@@ -721,6 +762,7 @@ class _GuardianEditPatientDetailsScreenState
                       controller: _contactNumberController,
                       originalValue: _originalContactNumber,
                       fieldName: 'contactNumber',
+                      icon: Icons.phone,
                       keyboardType: TextInputType.phone,
                       validator: (value) {
                         if (value == null || value.isEmpty) {
@@ -737,6 +779,7 @@ class _GuardianEditPatientDetailsScreenState
                       ),
                       originalValue: patientData['email'] ?? '',
                       fieldName: 'email',
+                      icon: Icons.email,
                       keyboardType: TextInputType.emailAddress,
                       validator: (value) {
                         if (value == null || value.isEmpty) {
@@ -763,15 +806,15 @@ class _GuardianEditPatientDetailsScreenState
                     ),
                     SizedBox(height: 16),
 
-                    _buildDropdownField(
+                    _buildTextField(
                       label: 'Dementia Type',
-                      value: _selectedDementiaType,
-                      items: dementiaTypeMap.keys.toList(),
-                      onChanged: (value) {
-                        setState(() {
-                          _selectedDementiaType = value;
-                        });
-                      },
+                      controller: _dementiaTypeController,
+                      originalValue: _originalDementiaType,
+                      fieldName: 'dementiaType',
+                      icon: Icons.medical_services,
+                      readOnly: true,
+                      onTap: _showDementiaTypePicker,
+                      textColor: Colors.grey[600],
                       validator: (value) {
                         if (value == null || value.isEmpty) {
                           return 'Please select dementia type';
@@ -780,15 +823,14 @@ class _GuardianEditPatientDetailsScreenState
                       },
                     ),
 
-                    _buildDropdownField(
+                    _buildTextField(
                       label: 'Dementia Stage',
-                      value: _selectedDementiaStage,
-                      items: _dementiaStages,
-                      onChanged: (value) {
-                        setState(() {
-                          _selectedDementiaStage = value;
-                        });
-                      },
+                      controller: _dementiaStageController,
+                      originalValue: _originalDementiaStage,
+                      fieldName: 'dementiaStage',
+                      icon: Icons.timeline,
+                      readOnly: true,
+                      onTap: _showDementiaStagePicker,
                       validator: (value) {
                         if (value == null || value.isEmpty) {
                           return 'Please select dementia stage';

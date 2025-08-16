@@ -16,42 +16,38 @@ class GuardianPatientDetailsScreen extends StatefulWidget {
 
 class _GuardianPatientDetailsScreenState
     extends State<GuardianPatientDetailsScreen> {
-  int _selectedIndex = 0;
   Map<String, dynamic>? patientData;
 
-  Widget _buildInfoRow(String label, String value) {
+  Widget _buildInfoField({
+    required String label,
+    required String value,
+    required IconData icon,
+  }) {
     return Container(
-      margin: EdgeInsets.only(bottom: 12),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            label,
-            style: TextStyle(
-              fontSize: 14,
-              fontWeight: FontWeight.w600,
-              color: AppColors.onSurface,
-            ),
+      margin: EdgeInsets.only(bottom: 16),
+      child: TextFormField(
+        initialValue: value,
+        enabled: false,
+        style: TextStyle(color: Colors.black87),
+        decoration: InputDecoration(
+          labelText: label,
+          labelStyle: TextStyle(
+            color: Colors.black87,
+            fontSize: 16,
+            fontWeight: FontWeight.w500,
           ),
-          SizedBox(height: 6),
-          Container(
-            width: double.infinity,
-            padding: EdgeInsets.symmetric(horizontal: 12, vertical: 10),
-            decoration: BoxDecoration(
-              color: AppColors.surface,
-              borderRadius: BorderRadius.circular(6),
-              border: Border.all(color: AppColors.outline.withOpacity(0.5)),
-            ),
-            child: Text(
-              value,
-              style: TextStyle(
-                fontSize: 14,
-                color: AppColors.onSurface,
-                fontWeight: FontWeight.w400,
-              ),
-            ),
+          prefixIcon: Icon(icon, color: Colors.grey[600]),
+          border: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(8),
+            borderSide: BorderSide(color: Colors.grey[300]!),
           ),
-        ],
+          disabledBorder: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(8),
+            borderSide: BorderSide(color: Colors.grey[200]!),
+          ),
+          filled: true,
+          fillColor: Colors.grey[100],
+        ),
       ),
     );
   }
@@ -217,49 +213,69 @@ class _GuardianPatientDetailsScreenState
                   ),
                   SizedBox(height: 16),
 
-                  _buildInfoRow(
-                    'First Name',
-                    NameUtils.capitalizeName(
+                  _buildInfoField(
+                    label: 'First Name',
+                    value: NameUtils.capitalizeName(
                       patientData!['fName'] ??
                           patientData!['FName'] ??
                           patientData!['fname'] ??
                           'N/A',
                     ),
+                    icon: Icons.person,
                   ),
-                  _buildInfoRow(
-                    'Last Name',
-                    NameUtils.capitalizeName(
+                  _buildInfoField(
+                    label: 'Last Name',
+                    value: NameUtils.capitalizeName(
                       patientData!['lName'] ??
                           patientData!['LName'] ??
                           patientData!['lname'] ??
                           'N/A',
                     ),
+                    icon: Icons.person_outline,
                   ),
-                  _buildInfoRow(
-                    'Date of Birth',
-                    patientData!['birthdate'] ?? 'N/A',
+                  _buildInfoField(
+                    label: 'Date of Birth',
+                    value: patientData!['birthdate'] ?? 'N/A',
+                    icon: Icons.calendar_today,
                   ),
-                  _buildInfoRow(
-                    'Gender',
-                    NameUtils.capitalizeName(patientData!['gender'] ?? 'N/A'),
+                  _buildInfoField(
+                    label: 'Gender',
+                    value: NameUtils.capitalizeName(
+                      patientData!['gender'] ?? 'N/A',
+                    ),
+                    icon: Icons.person,
                   ),
-                  _buildInfoRow(
-                    'Street',
-                    NameUtils.capitalizeName(patientData!['street'] ?? 'N/A'),
+                  _buildInfoField(
+                    label: 'Street',
+                    value: NameUtils.capitalizeName(
+                      patientData!['street'] ?? 'N/A',
+                    ),
+                    icon: Icons.location_on,
                   ),
-                  _buildInfoRow(
-                    'City',
-                    NameUtils.capitalizeName(patientData!['city'] ?? 'N/A'),
+                  _buildInfoField(
+                    label: 'City',
+                    value: NameUtils.capitalizeName(
+                      patientData!['city'] ?? 'N/A',
+                    ),
+                    icon: Icons.location_city,
                   ),
-                  _buildInfoRow(
-                    'State',
-                    NameUtils.capitalizeName(patientData!['state'] ?? 'N/A'),
+                  _buildInfoField(
+                    label: 'State',
+                    value: NameUtils.capitalizeName(
+                      patientData!['state'] ?? 'N/A',
+                    ),
+                    icon: Icons.map,
                   ),
-                  _buildInfoRow(
-                    'Contact Number',
-                    patientData!['phoneNumber'] ?? 'N/A',
+                  _buildInfoField(
+                    label: 'Contact Number',
+                    value: patientData!['phoneNumber'] ?? 'N/A',
+                    icon: Icons.phone,
                   ),
-                  _buildInfoRow('Email', patientData!['email'] ?? 'N/A'),
+                  _buildInfoField(
+                    label: 'Email',
+                    value: patientData!['email'] ?? 'N/A',
+                    icon: Icons.email,
+                  ),
 
                   SizedBox(height: 16),
 
@@ -273,13 +289,15 @@ class _GuardianPatientDetailsScreenState
                   ),
                   SizedBox(height: 16),
 
-                  _buildInfoRow(
-                    'Dementia Type',
-                    patientData!['dementiaType'] ?? 'N/A',
+                  _buildInfoField(
+                    label: 'Dementia Type',
+                    value: patientData!['dementiaType'] ?? 'N/A',
+                    icon: Icons.medical_services,
                   ),
-                  _buildInfoRow(
-                    'Dementia Stage',
-                    patientData!['dementiaStage'] ?? 'N/A',
+                  _buildInfoField(
+                    label: 'Dementia Stage',
+                    value: patientData!['dementiaStage'] ?? 'N/A',
+                    icon: Icons.timeline,
                   ),
 
                   SizedBox(height: 16),

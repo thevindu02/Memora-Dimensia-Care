@@ -26,14 +26,33 @@ class _GuardianAddPatientScreenState extends State<GuardianAddPatientScreen> {
   final _diagnosisDateController = TextEditingController();
   final _emailController = TextEditingController();
   //final _passwordController = TextEditingController();
-  final _relationshipController = TextEditingController();
+  final _customRelationshipController = TextEditingController();
 
   String? _selectedDementiaStage;
   String? _selectedDementiaType;
   DateTime? _selectedDOB;
   DateTime? _selectedDiagnosisDate;
   String? _selectedGender;
+  String? _selectedRelationship;
   bool _isLoading = false;
+
+  final List<String> _relationshipOptions = [
+    'Mother',
+    'Father',
+    'Spouse',
+    'Daughter',
+    'Son',
+    'Grandmother',
+    'Grandfather',
+    'Sister',
+    'Brother',
+    'Aunt',
+    'Uncle',
+    'Cousin',
+    'Friend',
+    'Caregiver',
+    'Other',
+  ];
 
   final List<String> _dementiaStages = [
     'Mild',
@@ -70,7 +89,7 @@ class _GuardianAddPatientScreenState extends State<GuardianAddPatientScreen> {
     _diagnosisDateController.dispose();
     _emailController.dispose();
     //_passwordController.dispose();
-    _relationshipController.dispose();
+    _customRelationshipController.dispose();
     super.dispose();
   }
 
@@ -96,19 +115,6 @@ class _GuardianAddPatientScreenState extends State<GuardianAddPatientScreen> {
       r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$',
     ).hasMatch(value.trim())) {
       return 'Please enter a valid email address';
-    }
-    return null;
-  }
-
-  String? _validatePassword(String? value) {
-    if (value == null || value.isEmpty) {
-      return 'Password is required';
-    }
-    if (value.length < 8) {
-      return 'Password must be at least 8 characters';
-    }
-    if (!RegExp(r'^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)').hasMatch(value)) {
-      return 'Password must contain uppercase, lowercase, and number';
     }
     return null;
   }
@@ -139,13 +145,22 @@ class _GuardianAddPatientScreenState extends State<GuardianAddPatientScreen> {
 
   String? _validateRelationship(String? value) {
     if (value == null || value.trim().isEmpty) {
-      return 'Relationship is required';
+      return 'Please select a relationship';
     }
-    if (value.trim().length < 2) {
-      return 'Relationship must be at least 2 characters';
-    }
-    if (!RegExp(r'^[a-zA-Z\s]+$').hasMatch(value.trim())) {
-      return 'Relationship can only contain letters and spaces';
+    return null;
+  }
+
+  String? _validateCustomRelationship(String? value) {
+    if (_selectedRelationship == 'Other') {
+      if (value == null || value.trim().isEmpty) {
+        return 'Please specify the relationship';
+      }
+      if (value.trim().length < 2) {
+        return 'Relationship must be at least 2 characters';
+      }
+      if (!RegExp(r'^[a-zA-Z\s]+$').hasMatch(value.trim())) {
+        return 'Relationship can only contain letters and spaces';
+      }
     }
     return null;
   }
@@ -392,7 +407,9 @@ class _GuardianAddPatientScreenState extends State<GuardianAddPatientScreen> {
           dateOfDiagnosis: dateOfDiagnosis ?? "",
           dementiaType: backendDementiaType ?? "",
           guardianId: guardianId, // <-- Use guardian table id here
-          relationship: _relationshipController.text.trim(),
+          relationship: _selectedRelationship == 'Other'
+              ? _customRelationshipController.text.trim()
+              : (_selectedRelationship ?? ''),
         );
 
         print(
@@ -526,7 +543,7 @@ class _GuardianAddPatientScreenState extends State<GuardianAddPatientScreen> {
               //   validator: _validatePassword,
               // ),
 
-              // Relationship field with clear instructions
+              // Relationship field with dropdown
               Container(
                 margin: EdgeInsets.only(bottom: 16),
                 child: Column(
@@ -540,21 +557,58 @@ class _GuardianAddPatientScreenState extends State<GuardianAddPatientScreen> {
                         color: AppColors.onSurface,
                       ),
                     ),
-                    SizedBox(height: 4),
-                    Text(
-                      'e.g., Mother, Father, Spouse, Grandmother, etc.',
-                      style: TextStyle(
-                        fontSize: 12,
-                        color: AppColors.onSurfaceVariant,
-                        fontStyle: FontStyle.italic,
+                    SizedBox(height: 8),
+                    Container(
+                      margin: EdgeInsets.only(bottom: 16),
+                      decoration: BoxDecoration(
+                        color: Colors.grey[100],
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      child: DropdownButtonFormField<String>(
+                        value: _selectedRelationship,
+                        decoration: InputDecoration(
+                          hintText: 'Select relationship',
+                          hintStyle: TextStyle(
+                            color: Colors.grey[500],
+                            fontSize: 16,
+                          ),
+                          border: InputBorder.none,
+                          contentPadding: EdgeInsets.symmetric(
+                            horizontal: 16,
+                            vertical: 16,
+                          ),
+                        ),
+                        items: _relationshipOptions.map((String relationship) {
+                          return DropdownMenuItem<String>(
+                            value: relationship,
+                            child: Text(
+                              relationship,
+                              style: TextStyle(
+                                color: Colors.black,
+                                fontSize: 16,
+                              ),
+                            ),
+                          );
+                        }).toList(),
+                        onChanged: (String? newValue) {
+                          setState(() {
+                            _selectedRelationship = newValue;
+                            if (newValue != 'Other') {
+                              _customRelationshipController.clear();
+                            }
+                          });
+                        },
+                        validator: _validateRelationship,
                       ),
                     ),
-                    SizedBox(height: 8),
-                    _buildTextField(
-                      controller: _relationshipController,
-                      hintText: 'e.g., Mother, Father, Spouse, etc.',
-                      validator: _validateRelationship,
-                    ),
+                    if (_selectedRelationship == 'Other') ...[
+                      SizedBox(height: 12),
+                      _buildTextField(
+                        controller: _customRelationshipController,
+                        hintText: 'Please specify the relationship',
+                        validator: _validateCustomRelationship,
+                      ),
+                    ],
                   ],
                 ),
               ),
