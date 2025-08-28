@@ -13,8 +13,11 @@ class VolunteerProfileScreen extends StatefulWidget {
 }
 
 class _VolunteerProfileScreenState extends State<VolunteerProfileScreen> {
-  bool isEditMode = false;
+  int _selectedIndex = 3;
+  bool _isEditing = false;
+  bool _isLoading = false;
   File? _profileImage;
+  File? _originalProfileImage;
   final ImagePicker _picker = ImagePicker();
 
   // Text editing controllers
@@ -30,6 +33,12 @@ class _VolunteerProfileScreenState extends State<VolunteerProfileScreen> {
   final TextEditingController _genderController = TextEditingController(
     text: 'Male',
   );
+
+  // Store original values to compare
+  String _originalName = 'John Smith';
+  String _originalEmail = 'john.smith@example.com';
+  String _originalPhone = '+1 (555) 123-4567';
+  String _originalGender = 'Male';
 
   @override
   void dispose() {
@@ -93,6 +102,101 @@ class _VolunteerProfileScreenState extends State<VolunteerProfileScreen> {
                   }
                 },
               ),
+              if (_profileImage != null)
+                ListTile(
+                  leading: Icon(Icons.delete, color: Colors.red),
+                  title: Text('Remove Photo'),
+                  onTap: () {
+                    Navigator.pop(context);
+                    setState(() {
+                      _profileImage = null;
+                    });
+                  },
+                ),
+            ],
+          ),
+        );
+      },
+    );
+  }
+
+  void _toggleEdit() {
+    setState(() {
+      _isEditing = !_isEditing;
+    });
+  }
+
+  void _cancelEdit() {
+    setState(() {
+      _fullNameController.text = _originalName;
+      _emailController.text = _originalEmail;
+      _phoneController.text = _originalPhone;
+      _genderController.text = _originalGender;
+      _profileImage = _originalProfileImage;
+      _isEditing = false;
+    });
+  }
+
+  void _saveProfile() async {
+    setState(() {
+      _isLoading = true;
+    });
+
+    // Simulate API call
+    await Future.delayed(Duration(seconds: 2));
+
+    // Update original values
+    _originalName = _fullNameController.text;
+    _originalEmail = _emailController.text;
+    _originalPhone = _phoneController.text;
+    _originalGender = _genderController.text;
+    _originalProfileImage = _profileImage;
+
+    setState(() {
+      _isLoading = false;
+      _isEditing = false;
+    });
+
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text('Profile updated successfully!'),
+        backgroundColor: Colors.green,
+      ),
+    );
+  }
+
+  void _showGenderPicker() {
+    if (!_isEditing) return;
+
+    showModalBottomSheet(
+      context: context,
+      builder: (BuildContext context) {
+        return Container(
+          height: 200,
+          child: Column(
+            children: [
+              Container(
+                padding: EdgeInsets.all(16),
+                child: Text(
+                  'Select Gender',
+                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.w600),
+                ),
+              ),
+              Expanded(
+                child: ListView(
+                  children: ['Male', 'Female', 'Other'].map((gender) {
+                    return ListTile(
+                      title: Text(gender),
+                      onTap: () {
+                        setState(() {
+                          _genderController.text = gender;
+                        });
+                        Navigator.pop(context);
+                      },
+                    );
+                  }).toList(),
+                ),
+              ),
             ],
           ),
         );
@@ -103,12 +207,12 @@ class _VolunteerProfileScreenState extends State<VolunteerProfileScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppColors.background,
+      backgroundColor: AppColors.surfaceVariant,
       appBar: AppBar(
-        backgroundColor: AppColors.background,
+        backgroundColor: AppColors.surface,
         elevation: 0,
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back, color: Colors.black),
+          icon: Icon(Icons.arrow_back, color: AppColors.onSurface),
           onPressed: () {
             Navigator.pushNamed(context, AppRoutes.volunteerDashboard);
           },
@@ -118,143 +222,228 @@ class _VolunteerProfileScreenState extends State<VolunteerProfileScreen> {
           style: TextStyle(
             fontSize: 20,
             fontWeight: FontWeight.w600,
-            color: Colors.black,
+            color: AppColors.onSurface,
           ),
         ),
         centerTitle: false,
         actions: [
-          TextButton(
-            onPressed: () {
-              setState(() {
-                isEditMode = !isEditMode;
-              });
-            },
-            child: Text(
-              isEditMode ? 'Save' : 'Edit',
-              style: TextStyle(
-                fontSize: 16,
-                fontWeight: FontWeight.w500,
-                color: AppColors.textPrimary,
+          if (!_isEditing)
+            TextButton(
+              onPressed: _toggleEdit,
+              child: Text(
+                'Edit',
+                style: TextStyle(
+                  fontSize: 16,
+                  fontWeight: FontWeight.w600,
+                  color: AppColors.info,
+                ),
               ),
             ),
-          ),
         ],
       ),
       body: SingleChildScrollView(
-        padding: const EdgeInsets.all(20.0),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // Profile Section
-            Row(
-              children: [
-                Stack(
-                  children: [
-                    CircleAvatar(
-                      radius: 30,
-                      backgroundColor: AppColors.outline,
-                      backgroundImage: _profileImage != null
-                          ? FileImage(_profileImage!)
-                          : NetworkImage(
-                                  'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150&h=150&fit=crop&crop=face',
-                                )
-                                as ImageProvider,
-                    ),
-                    if (isEditMode)
-                      Positioned(
-                        bottom: 0,
-                        right: 0,
-                        child: GestureDetector(
-                          onTap: _pickProfileImage,
-                          child: Container(
-                            decoration: BoxDecoration(
-                              color: AppColors.surface,
-                              shape: BoxShape.circle,
-                              boxShadow: [
-                                BoxShadow(
-                                  color: AppColors.shadow,
-                                  blurRadius: 4,
+            // Profile Header
+            Container(
+              color: AppColors.surface,
+              padding: EdgeInsets.all(20),
+              child: Row(
+                children: [
+                  Stack(
+                    children: [
+                      CircleAvatar(
+                        radius: 30,
+                        backgroundColor: AppColors.onSurfaceVariant,
+                        backgroundImage: _profileImage != null
+                            ? FileImage(_profileImage!)
+                            : null,
+                        child: _profileImage == null
+                            ? Icon(
+                                Icons.person,
+                                color: AppColors.onPrimary,
+                                size: 35,
+                              )
+                            : null,
+                      ),
+                      if (_isEditing)
+                        Positioned(
+                          bottom: -2,
+                          right: -2,
+                          child: GestureDetector(
+                            onTap: _pickProfileImage,
+                            child: Container(
+                              width: 24,
+                              height: 24,
+                              decoration: BoxDecoration(
+                                color: AppColors.info,
+                                shape: BoxShape.circle,
+                                border: Border.all(
+                                  color: AppColors.onPrimary,
+                                  width: 2,
                                 ),
-                              ],
-                            ),
-                            padding: EdgeInsets.all(4),
-                            child: Icon(
-                              Icons.camera_alt,
-                              color: Colors.black,
-                              size: 18,
+                              ),
+                              child: Icon(
+                                Icons.camera_alt,
+                                color: AppColors.onPrimary,
+                                size: 14,
+                              ),
                             ),
                           ),
                         ),
+                    ],
+                  ),
+                  SizedBox(width: 16),
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        _fullNameController.text,
+                        style: TextStyle(
+                          fontSize: 20,
+                          fontWeight: FontWeight.w600,
+                          color: Colors.black87,
+                        ),
                       ),
-                  ],
-                ),
-                SizedBox(width: 16),
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      'John Smith',
-                      style: TextStyle(
-                        fontSize: 20,
-                        fontWeight: FontWeight.bold,
-                        color: AppColors.onSurface,
+                      SizedBox(height: 4),
+                      Text(
+                        'Volunteer',
+                        style: TextStyle(
+                          fontSize: 14,
+                          color: Colors.grey[600],
+                        ),
                       ),
-                    ),
-                    SizedBox(height: 4),
-                    Text(
-                      'Volunteer',
-                      style: TextStyle(
-                        fontSize: 14,
-                        color: AppColors.onSurfaceVariant,
-                      ),
-                    ),
-                  ],
-                ),
-              ],
-            ),
-            SizedBox(height: 40),
-
-            // Personal Information Section
-            Text(
-              'Personal Information',
-              style: TextStyle(
-                fontSize: 18,
-                fontWeight: FontWeight.w600,
-                color: AppColors.onSurface,
+                    ],
+                  ),
+                ],
               ),
             ),
+
             SizedBox(height: 24),
 
-            // Full Name
-            _buildInfoItem(
-              Icons.person_outline,
-              'Full Name',
-              _fullNameController,
+            // Profile Form
+            Container(
+              color: Colors.white,
+              padding: EdgeInsets.all(20),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    'Personal Information',
+                    style: TextStyle(
+                      fontSize: 18,
+                      fontWeight: FontWeight.w600,
+                      color: Colors.black87,
+                    ),
+                  ),
+                  SizedBox(height: 24),
+
+                  _buildTextField(
+                    controller: _fullNameController,
+                    label: 'Full Name',
+                    icon: Icons.person,
+                    originalValue: _originalName,
+                    fieldName: 'name',
+                  ),
+
+                  _buildTextField(
+                    controller: _emailController,
+                    label: 'Email',
+                    icon: Icons.email,
+                    originalValue: _originalEmail,
+                    fieldName: 'email',
+                  ),
+
+                  _buildTextField(
+                    controller: _phoneController,
+                    label: 'Phone Number',
+                    icon: Icons.phone,
+                    originalValue: _originalPhone,
+                    fieldName: 'phone',
+                  ),
+
+                  Row(
+                    children: [
+                      Expanded(
+                        child: _buildTextField(
+                          controller: _genderController,
+                          label: 'Gender',
+                          icon: Icons.person_outline,
+                          originalValue: _originalGender,
+                          fieldName: 'gender',
+                          readOnly: true,
+                          onTap: _isEditing ? _showGenderPicker : null,
+                        ),
+                      ),
+                    ],
+                  ),
+
+                  if (_isEditing) ...[
+                    SizedBox(height: 24),
+                    Row(
+                      children: [
+                        Expanded(
+                          child: ElevatedButton(
+                            onPressed: _cancelEdit,
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: AppColors.primaryLight.withOpacity(0.35),
+                              elevation: 0,
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(8),
+                              ),
+                              padding: EdgeInsets.symmetric(vertical: 16),
+                            ),
+                            child: Text(
+                              'Cancel',
+                              style: TextStyle(
+                                fontSize: 16,
+                                fontWeight: FontWeight.w600,
+                                color: AppColors.info,
+                              ),
+                            ),
+                          ),
+                        ),
+                        SizedBox(width: 16),
+                        Expanded(
+                          child: ElevatedButton(
+                            onPressed: _isLoading ? null : _saveProfile,
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: AppColors.primaryLight,
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(8),
+                              ),
+                              padding: EdgeInsets.symmetric(vertical: 16),
+                            ),
+                            child: _isLoading
+                                ? SizedBox(
+                                    height: 20,
+                                    width: 20,
+                                    child: CircularProgressIndicator(
+                                      strokeWidth: 2,
+                                      valueColor: AlwaysStoppedAnimation<Color>(
+                                        AppColors.info,
+                                      ),
+                                    ),
+                                  )
+                                : Text(
+                                    'Save Changes',
+                                    style: TextStyle(
+                                      fontSize: 16,
+                                      fontWeight: FontWeight.w600,
+                                      color: AppColors.info,
+                                    ),
+                                  ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ],
+                ],
+              ),
             ),
-            SizedBox(height: 16),
 
-            // Email
-            _buildInfoItem(Icons.email_outlined, 'Email', _emailController),
-            SizedBox(height: 16),
-
-            // Phone Number
-            _buildInfoItem(
-              Icons.phone_outlined,
-              'Phone Number',
-              _phoneController,
-            ),
-            SizedBox(height: 16),
-
-            // Gender
-            _buildInfoItem(
-              Icons.person_2_outlined,
-              'Gender',
-              _genderController,
-            ),
-            SizedBox(height: 32),
-
-            // Remove the line '// Settings Section' and any other stray comments related to settings
-            SizedBox(height: 100), // Add some bottom padding
+            SizedBox(height: 24),
           ],
         ),
       ),
@@ -262,140 +451,46 @@ class _VolunteerProfileScreenState extends State<VolunteerProfileScreen> {
     );
   }
 
-  Widget _buildInfoItem(
-    IconData icon,
-    String label,
-    TextEditingController controller,
-  ) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(
-          label,
-          style: TextStyle(
-            fontSize: 14,
-            fontWeight: FontWeight.bold,
-            color: AppColors.onSurface,
-          ),
-        ),
-        SizedBox(height: 8),
-        Container(
-          padding: EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-          decoration: BoxDecoration(
-            color: AppColors.surfaceVariant,
-            borderRadius: BorderRadius.circular(8),
-            border: Border.all(
-              color: isEditMode ? AppColors.info : AppColors.outline,
-              width: isEditMode ? 2 : 1,
-            ),
-          ),
-          child: Row(
-            children: [
-              Icon(icon, color: AppColors.onSurfaceVariant, size: 20),
-              SizedBox(width: 12),
-              Expanded(
-                child: isEditMode
-                    ? TextField(
-                        controller: controller,
-                        decoration: InputDecoration(
-                          border: InputBorder.none,
-                          isDense: true,
-                          contentPadding: EdgeInsets.zero,
-                        ),
-                        style: TextStyle(
-                          fontSize: 16,
-                          fontWeight: FontWeight.w500,
-                          color: Colors.black,
-                        ),
-                      )
-                    : Text(
-                        controller.text,
-                        style: TextStyle(
-                          fontSize: 16,
-                          fontWeight: FontWeight.w500,
-                          color: Colors.black,
-                        ),
-                      ),
-              ),
-            ],
-          ),
-        ),
-      ],
-    );
-  }
-
-  Widget _buildSettingsItem(
-    IconData icon,
-    String title, {
-    bool hasToggle = false,
-    bool hasDropdown = false,
-    bool hasArrow = false,
-    bool isEnabled = false,
-    String? dropdownValue,
-    Function(bool)? onToggle,
-    Function(String?)? onDropdownChanged,
+  Widget _buildTextField({
+    required TextEditingController controller,
+    required String label,
+    required IconData icon,
+    required String originalValue,
+    required String fieldName,
+    bool readOnly = false,
     VoidCallback? onTap,
   }) {
-    return GestureDetector(
-      onTap: hasArrow ? onTap : null,
-      child: Container(
-        height: 56, // Fixed height for all settings items
-        padding: EdgeInsets.symmetric(horizontal: 16),
-        decoration: BoxDecoration(
-          color: Colors.grey[50],
-          borderRadius: BorderRadius.circular(8),
-          border: Border.all(color: Colors.grey[200]!, width: 1),
+    return Container(
+      margin: EdgeInsets.only(bottom: 16),
+      child: TextField(
+        controller: controller,
+        readOnly: !_isEditing || readOnly,
+        onTap: onTap,
+        style: TextStyle(
+          color: Colors.black87,
         ),
-        child: Row(
-          children: [
-            Icon(icon, color: Colors.grey[500], size: 20),
-            SizedBox(width: 12),
-            Expanded(
-              child: Text(
-                title,
-                style: TextStyle(
-                  fontSize: 16,
-                  fontWeight: FontWeight.w500,
-                  color: Colors.black,
-                ),
-              ),
-            ),
-            if (hasToggle)
-              Switch(
-                value: isEnabled,
-                onChanged: onToggle,
-                activeColor: Colors.blue,
-                activeTrackColor: Colors.blue.withOpacity(0.3),
-                inactiveTrackColor: Colors.grey[300],
-                inactiveThumbColor: Colors.white,
-              ),
-            if (hasDropdown)
-              DropdownButton<String>(
-                value: dropdownValue,
-                onChanged: onDropdownChanged,
-                underline: SizedBox(),
-                icon: Icon(Icons.keyboard_arrow_down, color: Colors.grey[500]),
-                items:
-                    [
-                      'English',
-                      'Spanish',
-                      'French',
-                      'German',
-                      'Chinese',
-                      'Arabic',
-                    ].map<DropdownMenuItem<String>>((String value) {
-                      return DropdownMenuItem<String>(
-                        value: value,
-                        child: Text(
-                          value,
-                          style: TextStyle(fontSize: 14, color: Colors.black),
-                        ),
-                      );
-                    }).toList(),
-              ),
-            if (hasArrow)
-              Icon(Icons.chevron_right, color: Colors.grey[400], size: 20),
-          ],
+        decoration: InputDecoration(
+          labelText: label,
+          labelStyle: TextStyle(
+            color: Colors.black87,
+            fontSize: 16,
+            fontWeight: FontWeight.w500,
+          ),
+          prefixIcon: Icon(icon, color: Colors.grey[600]),
+          border: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(8),
+            borderSide: BorderSide(color: Colors.grey[300]!),
+          ),
+          focusedBorder: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(8),
+            borderSide: BorderSide(color: Colors.blue, width: 2),
+          ),
+          disabledBorder: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(8),
+            borderSide: BorderSide(color: Colors.grey[200]!),
+          ),
+          filled: true,
+          fillColor: _isEditing ? Colors.grey[50] : Colors.grey[100],
         ),
       ),
     );
