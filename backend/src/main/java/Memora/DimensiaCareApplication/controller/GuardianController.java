@@ -1,27 +1,36 @@
 package Memora.DimensiaCareApplication.controller;
 
-import Memora.DimensiaCareApplication.model.Guardian;
-import Memora.DimensiaCareApplication.repository.GuardianRepository;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
-import Memora.DimensiaCareApplication.model.User;
-import org.springframework.web.bind.annotation.PathVariable;
-import Memora.DimensiaCareApplication.dto.response.GuardianDetailsResponse;
-import Memora.DimensiaCareApplication.model.GuardianPatientCaregiverConnection;
-import Memora.DimensiaCareApplication.service.GuardianService;
-import Memora.DimensiaCareApplication.repository.PatientRepository;
-import Memora.DimensiaCareApplication.repository.CaregiverRepository;
+import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.Comparator;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.ArrayList;
-import java.util.HashMap;
-import Memora.DimensiaCareApplication.model.Patient;
-import Memora.DimensiaCareApplication.repository.GuardianPatientCaregiverConnectionRepository;
-import org.springframework.web.bind.annotation.RequestBody;
-import Memora.DimensiaCareApplication.model.Caregiver;
 import java.util.Optional;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
+
+import Memora.DimensiaCareApplication.dto.request.GuardianProfileUpdateRequest;
+import Memora.DimensiaCareApplication.dto.response.GuardianDetailsResponse;
+import Memora.DimensiaCareApplication.model.Caregiver;
+import Memora.DimensiaCareApplication.model.Guardian;
+import Memora.DimensiaCareApplication.model.GuardianPatientCaregiverConnection;
+import Memora.DimensiaCareApplication.model.Patient;
+import Memora.DimensiaCareApplication.model.User;
+import Memora.DimensiaCareApplication.repository.CaregiverRepository;
+import Memora.DimensiaCareApplication.repository.GuardianPatientCaregiverConnectionRepository;
+import Memora.DimensiaCareApplication.repository.GuardianRepository;
+import Memora.DimensiaCareApplication.repository.PatientRepository;
+import Memora.DimensiaCareApplication.repository.UserRepository;
+import Memora.DimensiaCareApplication.service.GuardianService;
 
 @RestController
 @RequestMapping("/api/guardians")
@@ -39,6 +48,9 @@ public class GuardianController {
     private CaregiverRepository caregiverRepository;
     @Autowired
     private GuardianPatientCaregiverConnectionRepository connectionRepository;
+
+    @Autowired
+    private UserRepository userRepository;
 
     @GetMapping("/by-user/{userId}")
     public ResponseEntity<Long> getGuardianIdByUserId(@PathVariable Long userId) {
@@ -69,6 +81,36 @@ public class GuardianController {
         } else {
             return ResponseEntity.notFound().build();
         }
+    }
+
+    @PutMapping("/{guardianId}/edit-profile")
+    public ResponseEntity<?> editGuardianProfile(
+            @PathVariable Long guardianId,
+            @RequestBody GuardianProfileUpdateRequest req) {
+        Guardian guardian = guardianRepository.findById(guardianId).orElse(null);
+        if (guardian == null) {
+            return ResponseEntity.notFound().build();
+        }
+        User user = guardian.getUser();
+        if (user == null) {
+            return ResponseEntity.badRequest().body("Guardian does not have an associated user.");
+        }
+
+        // Update only editable fields
+        user.setFName(req.fName);
+        user.setLName(req.lName);
+        user.setEmail(req.email);
+        user.setPhoneNumber(req.phoneNumber);
+        user.setGender(req.gender);
+        user.setBirthdate(req.birthdate != null ? LocalDate.parse(req.birthdate) : null);
+        user.setStreet(req.street);
+        user.setCity(req.city);
+        user.setState(req.state);
+        user.setProfilePic(req.profilePic);
+
+        userRepository.save(user);
+
+        return ResponseEntity.ok(user);
     }
 
     @GetMapping("/{guardianId}/patients-with-request-status")
