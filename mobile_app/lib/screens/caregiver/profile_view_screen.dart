@@ -295,65 +295,67 @@ class _CaregiverProfileScreenState extends State<CaregiverProfileScreen> {
         _isLoading = true;
       });
 
-      // Split name into first and last name
-      final nameParts = _nameController.text.trim().split(' ');
-      final fName = nameParts.isNotEmpty ? nameParts.first : '';
-      final lName = nameParts.length > 1 ? nameParts.sublist(1).join(' ') : '';
-
-      // Prepare skills as a list
-      final skillsList = _skillsController.text.split(',').map((s) => s.trim()).where((s) => s.isNotEmpty).toList();
-
-      // Get caregiverId (implement AuthService.getCurrentCaregiverId if needed)
-      final caregiverId = await AuthService.getCurrentCaregiverId();
-      if (caregiverId == null) {
-        // Handle the error (show a message or return)
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Caregiver ID not found!')),
-        );
-        return;
+      // Combine address fields for backend
+      String combinedAddress = '';
+      if (_streetController.text.isNotEmpty) {
+        combinedAddress = _streetController.text;
+      }
+      if (_cityController.text.isNotEmpty) {
+        if (combinedAddress.isNotEmpty) combinedAddress += ', ';
+        combinedAddress += _cityController.text;
+      }
+      if (_stateController.text.isNotEmpty) {
+        if (combinedAddress.isNotEmpty) combinedAddress += ', ';
+        combinedAddress += _stateController.text;
       }
 
-      final success = await CaregiverService.updateProfile(
-        caregiverId: caregiverId, // Now guaranteed to be non-null
-        fName: fName,
-        lName: lName,
-        email: _emailController.text,
-        phoneNumber: _phoneController.text,
-        gender: _genderController.text,
-        birthdate: _birthdayController.text,
-        street: _streetController.text,
-        city: _cityController.text,
-        state: _stateController.text,
-        profilePic: '',
-        experience: _experienceController.text,
-        qualifications: _qualificationsController.text,
-        skills: skillsList,
+      // TODO: Replace with actual API call when backend is ready
+      // await CaregiverService.updateProfile({
+      //   'name': _nameController.text,
+      //   'email': _emailController.text,
+      //   'phone': _phoneController.text,
+      //   'gender': _genderController.text,
+      //   'birthday': _birthdayController.text,
+      //   'address': combinedAddress,  // Send combined address to backend
+      //   'experience': _experienceController.text,
+      //   'qualifications': _qualificationsController.text,
+      //   'skills': _skillsController.text,
+      // });
+
+      // Simulate API call
+      await Future.delayed(Duration(seconds: 2));
+
+      // Update original values
+      _originalName = _nameController.text;
+      _originalEmail = _emailController.text;
+      _originalPhone = _phoneController.text;
+      _originalGender = _genderController.text;
+      _originalBirthday = _birthdayController.text;
+      _originalStreet = _streetController.text;
+      _originalCity = _cityController.text;
+      _originalState = _stateController.text;
+      _originalExperience = _experienceController.text;
+      _originalQualifications = _qualificationsController.text;
+      _originalSkills = _skillsController.text;
+      _originalProfileImage = _profileImage;
+
+      setState(() {
+        _isLoading = false;
+        _isEditing = false;
+        _updateNameDisplay();
+      });
+
+      // Clear password fields
+      _currentPasswordController.clear();
+      _newPasswordController.clear();
+      _confirmPasswordController.clear();
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Profile updated successfully!'),
+          backgroundColor: Colors.green,
+        ),
       );
-
-      if (success) {
-        // Update original values and UI
-        setState(() {
-          _isLoading = false;
-          _isEditing = false;
-          _updateNameDisplay();
-        });
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('Profile updated successfully!'),
-            backgroundColor: Colors.green,
-          ),
-        );
-      } else {
-        setState(() {
-          _isLoading = false;
-        });
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('Failed to update profile.'),
-            backgroundColor: Colors.red,
-          ),
-        );
-      }
     }
   }
 

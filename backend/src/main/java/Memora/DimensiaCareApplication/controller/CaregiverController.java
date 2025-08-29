@@ -13,7 +13,6 @@ import Memora.DimensiaCareApplication.model.Caregiver;
 import Memora.DimensiaCareApplication.dto.response.ConnectedCaregiverRequestDTO;
 import Memora.DimensiaCareApplication.repository.CaregiverRepository;
 import Memora.DimensiaCareApplication.dto.request.CaregiverRegistrationRequest;
-import Memora.DimensiaCareApplication.dto.request.CaregiverProfileUpdateRequest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
@@ -385,54 +384,5 @@ public class CaregiverController {
         conn.setRejectedDateTime(java.time.LocalDateTime.now());
         connectionRepository.save(conn);
         return ResponseEntity.ok().build();
-    }
-
-    @PostMapping("/{caregiverId}/edit-profile")
-    public ResponseEntity<?> editCaregiverProfile(
-            @PathVariable Long caregiverId,
-            @RequestBody CaregiverProfileUpdateRequest req) {
-        try {
-            Caregiver caregiver = caregiverRepository.findById(caregiverId.intValue()).orElse(null);
-            if (caregiver == null) {
-                return ResponseEntity.notFound().build();
-            }
-            User user = caregiver.getUser();
-            if (user == null) {
-                return ResponseEntity.badRequest().body("Caregiver does not have an associated user.");
-            }
-
-            // Update user fields
-            user.setFName(req.fName);
-            user.setLName(req.lName);
-            user.setEmail(req.email);
-            user.setPhoneNumber(req.phoneNumber);
-            user.setGender(req.gender);
-            user.setStreet(req.street);
-            user.setCity(req.city);
-            user.setState(req.state);
-            user.setProfilePic(req.profilePic);
-            if (req.birthdate != null && !req.birthdate.isEmpty()) {
-                user.setBirthdate(LocalDate.parse(req.birthdate));
-            }
-
-            // Update caregiver fields
-            caregiver.setExperience(req.experience);
-            caregiver.setQualifications(req.qualifications);
-
-            // Update skills
-            if (req.skills != null) {
-                List<Skill> skillEntities = req.skills.stream()
-                    .map(skillName -> skillRepository.findBySkillName(skillName).orElse(null))
-                    .filter(s -> s != null)
-                    .collect(Collectors.toList());
-                caregiver.setSkills(new java.util.HashSet<>(skillEntities));
-            }
-
-            caregiverRepository.save(caregiver);
-
-            return ResponseEntity.ok("Profile updated successfully");
-        } catch (Exception e) {
-            return ResponseEntity.badRequest().body("Profile update failed: " + e.getMessage());
-        }
     }
 }

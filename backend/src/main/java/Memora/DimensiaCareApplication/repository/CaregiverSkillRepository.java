@@ -6,5 +6,4 @@ import java.util.List;
 
 public interface CaregiverSkillRepository extends JpaRepository<CaregiverSkill, Integer> {
     List<CaregiverSkill> findByCaregiverId(Integer caregiverId);
-    void deleteByCaregiverId(Integer caregiverId);
-}
+} 

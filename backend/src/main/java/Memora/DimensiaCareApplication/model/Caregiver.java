@@ -34,7 +34,7 @@ public class Caregiver {
 
     @ManyToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     @JoinTable(
-        name = "caregiver_skill",
+        name = "caregiver_skills",
         joinColumns = @JoinColumn(name = "caregiver_id"),
         inverseJoinColumns = @JoinColumn(name = "skill_id")
     )
