@@ -183,6 +183,24 @@ class PatientService {
       return PatientResult(success: false, message: 'Network error: $e');
     }
   }
+
+  // Get patient profile
+  static Future<PatientResult> getPatientProfile(int patientId) async {
+    try {
+      final response = await http.get(
+        Uri.parse('$baseUrl/$patientId'),
+        headers: {"Content-Type": "application/json"},
+      );
+      if (response.statusCode == 200) {
+        final data = jsonDecode(response.body);
+        return PatientResult(success: true, message: "Success", data: data);
+      } else {
+        return PatientResult(success: false, message: "Patient not found");
+      }
+    } catch (e) {
+      return PatientResult(success: false, message: 'Network error: $e');
+    }
+  }
 }
 
 // Result class for patient operations

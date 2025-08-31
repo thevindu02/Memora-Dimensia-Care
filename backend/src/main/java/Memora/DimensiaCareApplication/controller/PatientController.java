@@ -51,10 +51,11 @@ public class PatientController {
 
     @GetMapping("/{patientId}")
     public ResponseEntity<PatientDetailsResponse> getPatientById(@PathVariable Long patientId) {
-        PatientDetailsResponse resp = patientService.getPatientDetailsWithAcceptedDate(patientId);
-        if (resp == null) {
+        Patient patient = patientRepository.findById(patientId).orElse(null);
+        if (patient == null) {
             return ResponseEntity.notFound().build();
         }
+        PatientDetailsResponse resp = PatientDetailsResponse.fromPatient(patient);
         return ResponseEntity.ok(resp);
     }
 

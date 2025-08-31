@@ -1,30 +1,76 @@
 import 'package:flutter/material.dart';
 import '../../constants/color_constants.dart';
 import '../../routes/app_routes.dart';
+import '../../services/patient_service.dart';
 
 class PatientProfileScreen extends StatefulWidget {
-  const PatientProfileScreen({Key? key}) : super(key: key);
+  final int patientId;
+  const PatientProfileScreen({Key? key, required this.patientId}) : super(key: key);
 
   @override
   State<PatientProfileScreen> createState() => _PatientProfileScreenState();
 }
 
 class _PatientProfileScreenState extends State<PatientProfileScreen> {
-  final _firstNameController = TextEditingController(text: 'Sarah');
-  final _lastNameController = TextEditingController(text: 'Johnson');
-  final _emailController = TextEditingController(text: 'sarah.johnson@email.com');
-  final _phoneController = TextEditingController(text: '+1 (555) 123-4567');
-  final _genderController = TextEditingController(text: 'Female');
-  final _birthdayController = TextEditingController(text: '1985-03-15');
-  final _streetController = TextEditingController(text: '123 Oak Street');
-  final _cityController = TextEditingController(text: 'Springfield');
-  final _stateController = TextEditingController(text: 'IL');
-  final _dementiaTypeController = TextEditingController(text: 'ALZHEIMERS_DISEASE');
-  final _dementiaStageController = TextEditingController(text: 'MODERATE');
-  final _labelController = TextEditingController(text: 'Patient');
+  bool _isLoading = true;
+  Map<String, dynamic>? _patientData;
+
+  final _firstNameController = TextEditingController();
+  final _lastNameController = TextEditingController();
+  final _emailController = TextEditingController();
+  final _phoneController = TextEditingController();
+  final _genderController = TextEditingController();
+  final _birthdayController = TextEditingController();
+  final _streetController = TextEditingController();
+  final _cityController = TextEditingController();
+  final _stateController = TextEditingController();
+  final _dementiaTypeController = TextEditingController();
+  final _dementiaStageController = TextEditingController();
+  final _labelController = TextEditingController();
+
+  @override
+  void initState() {
+    super.initState();
+    _loadPatientProfile(widget.patientId);
+  }
+
+  Future<void> _loadPatientProfile(int patientId) async {
+    final result = await PatientService.getPatientProfile(patientId);
+    if (result.success && result.data != null) {
+      setState(() {
+        _patientData = result.data;
+        _isLoading = false;
+      });
+      _updateControllers();
+    } else {
+      setState(() {
+        _isLoading = false;
+      });
+      // Optionally show error
+    }
+  }
+
+  void _updateControllers() {
+    if (_patientData == null) return;
+    _firstNameController.text = _patientData!['FName'] ?? '';
+    _lastNameController.text = _patientData!['LName'] ?? '';
+    _emailController.text = _patientData!['email'] ?? '';
+    _phoneController.text = _patientData!['phoneNumber'] ?? '';
+    _genderController.text = _patientData!['gender'] ?? '';
+    _birthdayController.text = _patientData!['birthdate'] ?? '';
+    _streetController.text = _patientData!['street'] ?? '';
+    _cityController.text = _patientData!['city'] ?? '';
+    _stateController.text = _patientData!['state'] ?? '';
+    _dementiaTypeController.text = _patientData!['dementiaType'] ?? '';
+    _dementiaStageController.text = _patientData!['dementiaStage'] ?? '';
+    _labelController.text = _patientData!['label'] ?? '';
+  }
 
   @override
   Widget build(BuildContext context) {
+    if (_isLoading) {
+      return const Center(child: CircularProgressIndicator());
+    }
     return Scaffold(
       backgroundColor: PatientColors.background,
       appBar: AppBar(
@@ -319,3 +365,4 @@ class _PatientProfileScreenState extends State<PatientProfileScreen> {
     );
   }
 }
+

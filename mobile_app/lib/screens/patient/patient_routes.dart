@@ -25,8 +25,9 @@ class PatientRoutes {
           settings: settings,
         );
       case AppRoutes.patientProfile:
+        final patientId = settings.arguments as int? ?? 1; // Default to 1 if not provided
         return MaterialPageRoute(
-          builder: (_) => PatientProfileScreen(),
+          builder: (_) => PatientProfileScreen(patientId: patientId),
           settings: settings,
         );
       case AppRoutes.patientEmailVerification:
