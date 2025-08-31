@@ -1,13 +1,16 @@
 package Memora.DimensiaCareApplication.dto.request;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import Memora.DimensiaCareApplication.model.Patient;
 
 import java.time.LocalDate;
 
 public class PatientProfileUpdateRequest {
-    private String fName;
-    private String lName;
+    @JsonProperty("FName")
+    private String FName;
+    @JsonProperty("LName")
+    private String LName;
 
     // Automatically parse date from JSON (yyyy-MM-dd format)
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd")
@@ -20,19 +23,20 @@ public class PatientProfileUpdateRequest {
     private String state;
     private String email;
 
-    // Use enums directly instead of String
+    @JsonProperty("dementiaType")
     private Patient.DementiaType dementiaType;
+    @JsonProperty("dementiaStage")
     private Patient.DementiaStage dementiaStage;
 
     private String label;
     private String profilePic;
 
     // --- Getters and Setters ---
-    public String getFName() { return fName; }
-    public void setFName(String fName) { this.fName = fName; }
+    public String getFName() { return FName; }
+    public void setFName(String FName) { this.FName = FName; }
 
-    public String getLName() { return lName; }
-    public void setLName(String lName) { this.lName = lName; }
+    public String getLName() { return LName; }
+    public void setLName(String LName) { this.LName = LName; }
 
     public LocalDate getBirthdate() { return birthdate; }
     public void setBirthdate(LocalDate birthdate) { this.birthdate = birthdate; }

@@ -148,8 +148,8 @@ class PatientService {
     final url = Uri.parse('$baseUrl/$patientId/edit-profile');
 
     final body = {
-      'fName': fName,
-      'lName': lName,
+      'FName': fName,
+      'LName': lName,
       'birthdate': birthdate,
       'gender': gender,
       'phoneNumber': phoneNumber,

@@ -72,14 +72,10 @@ public class PatientController {
             return ResponseEntity.badRequest().body("Patient does not have an associated user.");
         }
 
-        // --- Update user fields only if provided ---
-        if (req.getFName() != null) user.setFName(req.getFName());
-        if (req.getLName() != null) user.setLName(req.getLName());
-
-        if (req.getBirthdate() != null) {
-            user.setBirthdate(req.getBirthdate());
-        }
-
+        // --- Update user fields ---
+        if (req.getFName() != null && !req.getFName().isEmpty()) user.setFName(req.getFName());
+        if (req.getLName() != null && !req.getLName().isEmpty()) user.setLName(req.getLName());
+        if (req.getBirthdate() != null) user.setBirthdate(req.getBirthdate());
         if (req.getGender() != null) user.setGender(req.getGender());
         if (req.getPhoneNumber() != null) user.setPhoneNumber(req.getPhoneNumber());
         if (req.getStreet() != null) user.setStreet(req.getStreet());
@@ -88,20 +84,20 @@ public class PatientController {
         if (req.getEmail() != null) user.setEmail(req.getEmail());
         if (req.getProfilePic() != null) user.setProfilePic(req.getProfilePic());
 
-        userRepository.save(user);
+        userRepository.save(user); // <--- Save user changes
 
-        // --- Update patient fields only if provided ---
+        // --- Update patient fields ---
         if (req.getLabel() != null) patient.setLabel(req.getLabel());
+        if (req.getDementiaType() != null) patient.setDementiaType(req.getDementiaType());
+        if (req.getDementiaStage() != null) patient.setDementiaStage(req.getDementiaStage());
 
-        if (req.getDementiaType() != null) {
-            patient.setDementiaType(req.getDementiaType());
-        }
+        patientRepository.save(patient); // <--- Save patient changes
 
-        if (req.getDementiaStage() != null) {
-            patient.setDementiaStage(req.getDementiaStage());
-        }
-
-        patientRepository.save(patient);
+        System.out.println("FName: " + req.getFName());
+        System.out.println("LName: " + req.getLName());
+        System.out.println("birthdate: " + req.getBirthdate());
+        System.out.println("dementiaType: " + req.getDementiaType());
+        System.out.println("dementiaStage: " + req.getDementiaStage());
 
         return ResponseEntity.ok("Patient profile updated successfully");
 
