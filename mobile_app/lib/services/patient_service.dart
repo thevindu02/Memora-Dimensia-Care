@@ -3,28 +3,29 @@ import 'package:http/http.dart' as http;
 import 'api_constants.dart';
 
 class PatientService {
-  static final String url = '${ApiConstants.baseUrl}/api/patients';
+  static final String baseUrl = '${ApiConstants.baseUrl}/api/patients';
+
   // Add a new patient
   static Future<PatientResult> addPatient({
     required int userId,
-    required String dementiaStage,
+    required String dementiaStage, // must be backend enum value (e.g. "MILD")
     required String dateOfDiagnosis, // Format: 'YYYY-MM-DD'
-    required String dementiaType,
-    required int guardianId, // <-- Add this
-    required String relationship, // <-- Add this
+    required String dementiaType, // must be backend enum value (e.g. "ALZHEIMERS_DISEASE")
+    required int guardianId,
+    required String relationship,
   }) async {
     final body = {
       "userId": userId,
       "dementiaStage": dementiaStage,
       "dateOfDiagnosis": dateOfDiagnosis,
       "dementiaType": dementiaType,
-      "guardianId": guardianId, // <-- Add this
-      "relationship": relationship, // <-- Add this
+      "guardianId": guardianId,
+      "relationship": relationship,
     };
 
     try {
       final response = await http.post(
-        Uri.parse(url),
+        Uri.parse(baseUrl),
         headers: {"Content-Type": "application/json"},
         body: jsonEncode(body),
       );
@@ -50,7 +51,7 @@ class PatientService {
   static Future<PatientResult> getPatient(int patientId) async {
     try {
       final response = await http.get(
-        Uri.parse('$url/$patientId'),
+        Uri.parse('$baseUrl/$patientId'),
         headers: {"Content-Type": "application/json"},
       );
 
@@ -69,7 +70,7 @@ class PatientService {
   static Future<PatientResult> deletePatient(int patientId) async {
     try {
       final response = await http.delete(
-        Uri.parse('$url/$patientId'),
+        Uri.parse('$baseUrl/$patientId'),
         headers: {"Content-Type": "application/json"},
       );
 
@@ -93,22 +94,20 @@ class PatientService {
   static Future<List<dynamic>> getPatientsByGuardian(int guardianId) async {
     try {
       final response = await http.get(
-        Uri.parse('$url/by-guardian/$guardianId'),
+        Uri.parse('$baseUrl/by-guardian/$guardianId'),
         headers: {"Content-Type": "application/json"},
       );
       if (response.statusCode == 200) {
         return jsonDecode(response.body) as List<dynamic>;
       } else {
-        // Optionally handle error response
         return [];
       }
     } catch (e) {
-      // Optionally handle network error
       return [];
     }
   }
 
-  // Fetch all patients for a specific guardian with their latest connection request status
+  // Fetch patients with request status
   static Future<List<dynamic>> getPatientsWithRequestStatus(
     int guardianId,
   ) async {
@@ -128,6 +127,62 @@ class PatientService {
       return [];
     }
   }
+
+  // Update patient profile
+  static Future<PatientResult> updateProfile({
+    required int patientId,
+    required String fName,
+    required String lName,
+    required String birthdate, // must be 'YYYY-MM-DD'
+    required String gender,
+    required String phoneNumber,
+    required String street,
+    required String city,
+    required String state,
+    required String email,
+    required String dementiaType, // must be backend enum
+    required String dementiaStage, // must be backend enum
+    required String label,
+    String? profilePic,
+  }) async {
+    final url = Uri.parse('$baseUrl/$patientId/edit-profile');
+
+    final body = {
+      'fName': fName,
+      'lName': lName,
+      'birthdate': birthdate,
+      'gender': gender,
+      'phoneNumber': phoneNumber,
+      'street': street,
+      'city': city,
+      'state': state,
+      'email': email,
+      'dementiaType': dementiaType,
+      'dementiaStage': dementiaStage,
+      'label': label,
+      'profilePic': profilePic ?? '',
+    };
+
+    try {
+      final response = await http.put(
+        url,
+        headers: {'Content-Type': 'application/json'},
+        body: jsonEncode(body),
+      );
+
+      if (response.statusCode == 200) {
+        return PatientResult(success: true, message: "Patient updated successfully");
+      } else {
+        final responseData = jsonDecode(response.body);
+        return PatientResult(
+          success: false,
+          message: responseData['message'] ?? 'Failed to update patient',
+        );
+      }
+    } catch (e) {
+      return PatientResult(success: false, message: 'Network error: $e');
+    }
+  }
 }
 
 // Result class for patient operations
@@ -138,3 +193,4 @@ class PatientResult {
 
   PatientResult({required this.success, required this.message, this.data});
 }
+

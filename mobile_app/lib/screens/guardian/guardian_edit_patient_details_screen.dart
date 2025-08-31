@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../../constants/color_constants.dart';
+import '../../services/patient_service.dart';
 
 class GuardianEditPatientDetailsScreen extends StatefulWidget {
   final Map<String, dynamic>? patient;
@@ -20,6 +21,7 @@ class _GuardianEditPatientDetailsScreenState
   late TextEditingController _lastNameController;
   late TextEditingController _labelController;
   late TextEditingController _dateOfBirthController;
+  late TextEditingController _emailController;
   late TextEditingController _genderController;
   late TextEditingController _contactNumberController;
   late TextEditingController _streetController;
@@ -42,18 +44,19 @@ class _GuardianEditPatientDetailsScreenState
   ];
 
   // Dementia types from add patient screen
-  final Map<String, String> dementiaTypeMap = {
-    "Alzheimer's Disease": 'ALZHEIMERS_DISEASE',
-    "Vascular Dementia": 'VASCULAR_DEMENTIA',
-    "Lewy Body Dementia": 'LEWY_BODY_DEMENTIA',
-    "Frontotemporal Dementia": 'FRONTOTEMPORAL_DEMENTIA',
-    "Mixed Dementia": 'MIXED_DEMENTIA',
-    "Parkinson's Disease Dementia": 'PARKINSONS_DISEASE_DEMENTIA',
-    "Creutzfeldt-Jakob Disease": 'CREUTZFELDT_JAKOB_DISEASE',
-    "Normal Pressure Hydrocephalus": 'NORMAL_PRESSURE_HYDROCEPHALUS',
-    "Huntington's Disease": 'HUNTINGTONS_DISEASE',
-    "Wernicke-Korsakoff Syndrome": 'WERNICKE_KORSAKOFF_SYNDROME',
-  };
+final Map<String, String> dementiaTypeMap = {
+  "Alzheimer's Disease": 'ALZHEIMERS_DISEASE',
+  "Vascular Dementia": 'VASCULAR_DEMENTIA',
+  "Lewy Body Dementia": 'LEWY_BODY_DEMENTIA', // ✅ FIXED
+  "Frontotemporal Dementia": 'FRONTOTEMPORAL_DEMENTIA',
+  "Mixed Dementia": 'MIXED_DEMENTIA',
+  "Parkinson's Disease Dementia": 'PARKINSONS_DISEASE_DEMENTIA',
+  "Creutzfeldt-Jakob Disease": 'CREUTZFELDT_JAKOB_DISEASE',
+  "Normal Pressure Hydrocephalus": 'NORMAL_PRESSURE_HYDROCEPHALUS',
+  "Huntington's Disease": 'HUNTINGTONS_DISEASE',
+  "Wernicke-Korsakoff Syndrome": 'WERNICKE_KORSAKOFF_SYNDROME',
+};
+
 
   bool _isLoading = false;
 
@@ -78,6 +81,7 @@ class _GuardianEditPatientDetailsScreenState
     _lastNameController = TextEditingController();
     _labelController = TextEditingController();
     _dateOfBirthController = TextEditingController();
+    _emailController = TextEditingController();
     _genderController = TextEditingController();
     _contactNumberController = TextEditingController();
     _streetController = TextEditingController();
@@ -91,6 +95,7 @@ class _GuardianEditPatientDetailsScreenState
     _lastNameController.addListener(() => setState(() {}));
     _labelController.addListener(() => setState(() {}));
     _dateOfBirthController.addListener(() => setState(() {}));
+    _emailController.addListener(() => setState(() {}));
     _genderController.addListener(() => setState(() {}));
     _contactNumberController.addListener(() => setState(() {}));
     _streetController.addListener(() => setState(() {}));
@@ -130,6 +135,7 @@ class _GuardianEditPatientDetailsScreenState
     _dateOfBirthController.text = patientData['birthdate'] ?? '';
     _genderController.text = patientData['gender'] ?? '';
     _contactNumberController.text = patientData['phoneNumber'] ?? '';
+    _emailController.text = patientData['email'] ?? '';
     _streetController.text = patientData['street'] ?? '';
     _cityController.text = patientData['city'] ?? '';
     _stateController.text = patientData['state'] ?? '';
@@ -151,16 +157,19 @@ class _GuardianEditPatientDetailsScreenState
     _dementiaStageController.text = _selectedDementiaStage ?? '';
 
     // Initialize date of birth
-    if (patientData['birthdate'] != null &&
-        patientData['birthdate'].isNotEmpty) {
+    if (patientData['birthdate'] != null && patientData['birthdate'].isNotEmpty) {
       try {
-        List<String> dateParts = patientData['birthdate'].split('/');
-        if (dateParts.length == 3) {
-          _selectedDateOfBirth = DateTime(
-            int.parse(dateParts[2]), // year
-            int.parse(dateParts[1]), // month
-            int.parse(dateParts[0]), // day
-          );
+        if (patientData['birthdate'].contains('/')) {
+          List<String> dateParts = patientData['birthdate'].split('/');
+          if (dateParts.length == 3) {
+            _selectedDateOfBirth = DateTime(
+              int.parse(dateParts[2]), // year
+              int.parse(dateParts[1]), // month
+              int.parse(dateParts[0]), // day
+            );
+          }
+        } else if (patientData['birthdate'].contains('-')) {
+          _selectedDateOfBirth = DateTime.parse(patientData['birthdate']);
         }
       } catch (e) {
         print('Error parsing date: $e');
@@ -189,6 +198,7 @@ class _GuardianEditPatientDetailsScreenState
     _lastNameController.dispose();
     _labelController.dispose();
     _dateOfBirthController.dispose();
+    _emailController.dispose();
     _genderController.dispose();
     _contactNumberController.dispose();
     _streetController.dispose();
@@ -361,56 +371,73 @@ class _GuardianEditPatientDetailsScreenState
   }
 
   void _saveChanges() async {
-    if (_formKey.currentState!.validate()) {
-      setState(() {
-        _isLoading = true;
-      });
+  if (_formKey.currentState!.validate()) {
+    setState(() => _isLoading = true);
 
-      try {
-        // Simulate API call
-        await Future.delayed(Duration(seconds: 2));
+    try {
+      // --- Safe patientId extraction ---
+      final rawId = patientData['patientId'] ?? patientData['id'];
+      final int? patientIdSafe = (rawId is int)
+          ? rawId
+          : int.tryParse(rawId?.toString() ?? '');
 
-        // Update original values
-        _originalName =
-            '${_firstNameController.text} ${_lastNameController.text}';
-        _originalLabel = _labelController.text;
-        _originalDateOfBirth = _dateOfBirthController.text;
-        _originalContactNumber = _contactNumberController.text;
-        _originalAddress =
-            '${_streetController.text}, ${_cityController.text}, ${_stateController.text}';
-        _originalDementiaType = _selectedDementiaType != null
-            ? dementiaTypeMap[_selectedDementiaType!] ?? ''
-            : '';
-        _originalDementiaStage = _selectedDementiaStage ?? '';
+      if (patientIdSafe == null || patientIdSafe <= 0) {
+        setState(() => _isLoading = false);
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Missing or invalid patient ID')),
+        );
+        return;
+      }
 
-        setState(() {
-          _isLoading = false;
-        });
+      final result = await PatientService.updateProfile(
+        patientId: patientIdSafe,
+        fName: _firstNameController.text.trim(),
+        lName: _lastNameController.text.trim(),
+        birthdate: _dateOfBirthController.text.isNotEmpty
+            ? _dateOfBirthController.text.trim() // must be yyyy-MM-dd
+            : '',
+        gender: _genderController.text.trim(),
+        phoneNumber: _contactNumberController.text.trim(),
+        street: _streetController.text.trim(),
+        city: _cityController.text.trim(),
+        state: _stateController.text.trim(),
+        email: _emailController.text.trim(), // <-- use edited email
+        dementiaType: dementiaTypeMap[_selectedDementiaType ?? ''] ?? '',
+        dementiaStage: _selectedDementiaStage ?? '',
+        label: _labelController.text.trim(),
+        profilePic: null,
+      );
 
-        // Show success message
+      setState(() => _isLoading = false);
+
+      if (result.success) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('Patient details updated successfully!'),
-            backgroundColor: AppColors.success,
+            content: Text(result.message),
+            backgroundColor: AppColors.success, // green
           ),
         );
-
-        // Navigate back
-        Navigator.pop(context);
-      } catch (e) {
-        setState(() {
-          _isLoading = false;
-        });
-
+        Navigator.pop(context, true);
+      } else {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('Error updating patient details: ${e.toString()}'),
-            backgroundColor: AppColors.error,
+            content: Text('Update failed: ${result.message}'),
+            backgroundColor: AppColors.error, // red
           ),
         );
       }
+    } catch (e) {
+      setState(() => _isLoading = false);
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Unexpected error: $e'),
+          backgroundColor: AppColors.error, // red
+        ),
+      );
     }
   }
+}
+
 
   void _cancelEdit() {
     // Reset to original values
@@ -455,8 +482,9 @@ class _GuardianEditPatientDetailsScreenState
     if (picked != null) {
       setState(() {
         _selectedDateOfBirth = picked;
+        // Always use yyyy-MM-dd format for backend
         _dateOfBirthController.text =
-            "${picked.day}/${picked.month}/${picked.year}";
+            "${picked.year.toString().padLeft(4, '0')}-${picked.month.toString().padLeft(2, '0')}-${picked.day.toString().padLeft(2, '0')}";
       });
     }
   }
@@ -774,9 +802,7 @@ class _GuardianEditPatientDetailsScreenState
 
                     _buildTextField(
                       label: 'Email',
-                      controller: TextEditingController(
-                        text: patientData['email'] ?? '',
-                      ),
+                      controller: _emailController,
                       originalValue: patientData['email'] ?? '',
                       fieldName: 'email',
                       icon: Icons.email,
