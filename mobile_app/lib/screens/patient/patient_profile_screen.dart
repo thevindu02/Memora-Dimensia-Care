@@ -13,7 +13,10 @@ class PatientProfileScreen extends StatefulWidget {
 
 class _PatientProfileScreenState extends State<PatientProfileScreen> {
   bool _isLoading = true;
+  bool _isEditing = false;
   Map<String, dynamic>? _patientData;
+
+  final _formKey = GlobalKey<FormState>();
 
   final _firstNameController = TextEditingController();
   final _lastNameController = TextEditingController();
@@ -27,6 +30,20 @@ class _PatientProfileScreenState extends State<PatientProfileScreen> {
   final _dementiaTypeController = TextEditingController();
   final _dementiaStageController = TextEditingController();
   final _labelController = TextEditingController();
+
+  // Store original values for cancel logic
+  String _originalFirstName = '';
+  String _originalLastName = '';
+  String _originalEmail = '';
+  String _originalPhone = '';
+  String _originalGender = '';
+  String _originalBirthday = '';
+  String _originalStreet = '';
+  String _originalCity = '';
+  String _originalState = '';
+  String _originalDementiaType = '';
+  String _originalDementiaStage = '';
+  String _originalLabel = '';
 
   @override
   void initState() {
@@ -64,6 +81,101 @@ class _PatientProfileScreenState extends State<PatientProfileScreen> {
     _dementiaTypeController.text = _patientData!['dementiaType'] ?? '';
     _dementiaStageController.text = _patientData!['dementiaStage'] ?? '';
     _labelController.text = _patientData!['label'] ?? '';
+
+    // Store originals for cancel logic
+    _originalFirstName = _firstNameController.text;
+    _originalLastName = _lastNameController.text;
+    _originalEmail = _emailController.text;
+    _originalPhone = _phoneController.text;
+    _originalGender = _genderController.text;
+    _originalBirthday = _birthdayController.text;
+    _originalStreet = _streetController.text;
+    _originalCity = _cityController.text;
+    _originalState = _stateController.text;
+    _originalDementiaType = _dementiaTypeController.text;
+    _originalDementiaStage = _dementiaStageController.text;
+    _originalLabel = _labelController.text;
+  }
+
+  void _toggleEdit() {
+    setState(() {
+      _isEditing = !_isEditing;
+    });
+  }
+
+  void _cancelEdit() {
+    setState(() {
+      _firstNameController.text = _originalFirstName;
+      _lastNameController.text = _originalLastName;
+      _emailController.text = _originalEmail;
+      _phoneController.text = _originalPhone;
+      _genderController.text = _originalGender;
+      _birthdayController.text = _originalBirthday;
+      _streetController.text = _originalStreet;
+      _cityController.text = _originalCity;
+      _stateController.text = _originalState;
+      _dementiaTypeController.text = _originalDementiaType;
+      _dementiaStageController.text = _originalDementiaStage;
+      _labelController.text = _originalLabel;
+      _isEditing = false;
+    });
+  }
+
+  Future<void> _saveProfile() async {
+    if (_formKey.currentState!.validate()) {
+      setState(() {
+        _isLoading = true;
+      });
+
+      // TODO: Implement your update logic here (call PatientService.updateProfile)
+      // Example:
+      // final success = await PatientService.updateProfile(...);
+
+      // Simulate success for now:
+      await Future.delayed(Duration(seconds: 1));
+      final success = true;
+
+      setState(() {
+        _isLoading = false;
+      });
+
+      if (success) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Profile updated successfully!'),
+            backgroundColor: Colors.green,
+          ),
+        );
+        setState(() {
+          _isEditing = false;
+        });
+        // Update originals
+        _updateControllers();
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Failed to update profile.'),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
+    }
+  }
+
+  void _selectDate() async {
+    if (!_isEditing) return;
+    final DateTime? picked = await showDatePicker(
+      context: context,
+      initialDate: DateTime.tryParse(_birthdayController.text) ?? DateTime(1990, 1, 1),
+      firstDate: DateTime(1900),
+      lastDate: DateTime.now(),
+    );
+    if (picked != null) {
+      setState(() {
+        _birthdayController.text =
+            "${picked.year}-${picked.month.toString().padLeft(2, '0')}-${picked.day.toString().padLeft(2, '0')}";
+      });
+    }
   }
 
   @override
@@ -92,16 +204,18 @@ class _PatientProfileScreenState extends State<PatientProfileScreen> {
         ),
         centerTitle: false,
         actions: [
-          IconButton(
-            icon: const Icon(Icons.notifications_outlined, color: PatientColors.onSurface),
-            onPressed: () {},
-          ),
-          IconButton(
-            icon: const Icon(Icons.settings, color: Colors.black),
-            onPressed: () {
-              Navigator.of(context).pushNamed(AppRoutes.patientSettings);
-            },
-          ),
+          if (!_isEditing)
+            TextButton(
+              onPressed: _toggleEdit,
+              child: Text(
+                'Edit',
+                style: TextStyle(
+                  fontSize: 16,
+                  fontWeight: FontWeight.w600,
+                  color: PatientColors.primary,
+                ),
+              ),
+            ),
         ],
       ),
       body: SingleChildScrollView(
@@ -180,138 +294,196 @@ class _PatientProfileScreenState extends State<PatientProfileScreen> {
             Container(
               color: Colors.white,
               padding: const EdgeInsets.all(20),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  const Text(
-                    'Personal Information',
-                    style: TextStyle(
-                      fontSize: 18,
-                      fontWeight: FontWeight.w600,
-                      color: Colors.black87,
-                    ),
-                  ),
-                  const SizedBox(height: 24),
-
-                  _buildLabeledTextField(
-                    label: 'First Name',
-                    icon: Icons.person,
-                    controller: _firstNameController,
-                  ),
-                  _buildLabeledTextField(
-                    label: 'Last Name',
-                    icon: Icons.person_outline,
-                    controller: _lastNameController,
-                  ),
-                  _buildLabeledTextField(
-                    label: 'Date of Birth',
-                    icon: Icons.cake_outlined,
-                    controller: _birthdayController,
-                  ),
-                  _buildLabeledTextField(
-                    label: 'Gender',
-                    icon: Icons.person_outline,
-                    controller: _genderController,
-                  ),
-                  _buildLabeledTextField(
-                    label: 'Street',
-                    icon: Icons.location_on_outlined,
-                    controller: _streetController,
-                  ),
-                  _buildLabeledTextField(
-                    label: 'City',
-                    icon: Icons.location_city,
-                    controller: _cityController,
-                  ),
-                  _buildLabeledTextField(
-                    label: 'State',
-                    icon: Icons.map,
-                    controller: _stateController,
-                  ),
-
-                  const SizedBox(height: 24),
-                  const Text(
-                    'Contact Information',
-                    style: TextStyle(
-                      fontSize: 18,
-                      fontWeight: FontWeight.w600,
-                      color: Colors.black87,
-                    ),
-                  ),
-                  const SizedBox(height: 16),
-
-                  _buildLabeledTextField(
-                    label: 'Phone Number',
-                    icon: Icons.phone_outlined,
-                    controller: _phoneController,
-                  ),
-                  _buildLabeledTextField(
-                    label: 'Email Address',
-                    icon: Icons.email_outlined,
-                    controller: _emailController,
-                  ),
-
-                  const SizedBox(height: 24),
-                  const Text(
-                    'Diseases Information',
-                    style: TextStyle(
-                      fontSize: 18,
-                      fontWeight: FontWeight.w600,
-                      color: Colors.black87,
-                    ),
-                  ),
-                  const SizedBox(height: 16),
-
-                  _buildLabeledTextField(
-                    label: 'Dementia Type',
-                    icon: Icons.medical_services,
-                    controller: _dementiaTypeController,
-                  ),
-                  _buildLabeledTextField(
-                    label: 'Dementia Stage',
-                    icon: Icons.timeline,
-                    controller: _dementiaStageController,
-                  ),
-                ],
-              ),
-            ),
-
-            const SizedBox(height: 24),
-
-            // Action Buttons
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16),
-              child: Column(
-                children: [
-                  SizedBox(
-                    width: double.infinity,
-                    child: ElevatedButton(
-                      onPressed: () {},
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: PatientColors.primary,
-                        foregroundColor: PatientColors.onPrimary,
-                        padding: const EdgeInsets.symmetric(vertical: 16),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(12),
-                        ),
+              child: Form(
+                key: _formKey,
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    const Text(
+                      'Personal Information',
+                      style: TextStyle(
+                        fontSize: 18,
+                        fontWeight: FontWeight.w600,
+                        color: Colors.black87,
                       ),
-                      child: const Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
+                    ),
+                    const SizedBox(height: 24),
+
+                    _buildEditableTextField(
+                      controller: _firstNameController,
+                      label: 'First Name',
+                      icon: Icons.person,
+                      enabled: _isEditing,
+                      validator: (value) {
+                        if (value == null || value.isEmpty) {
+                          return 'Please enter your first name';
+                        }
+                        return null;
+                      },
+                    ),
+                    _buildEditableTextField(
+                      controller: _lastNameController,
+                      label: 'Last Name',
+                      icon: Icons.person_outline,
+                      enabled: _isEditing,
+                      validator: (value) {
+                        if (value == null || value.isEmpty) {
+                          return 'Please enter your last name';
+                        }
+                        return null;
+                      },
+                    ),
+                    _buildEditableTextField(
+                      controller: _birthdayController,
+                      label: 'Date of Birth',
+                      icon: Icons.cake_outlined,
+                      enabled: _isEditing, // <-- allow editing when in edit mode
+                      onTap: _isEditing ? _selectDate : null,
+                    ),
+                    _buildEditableTextField(
+                      controller: _genderController,
+                      label: 'Gender',
+                      icon: Icons.person_outline,
+                      enabled: _isEditing,
+                    ),
+                    _buildEditableTextField(
+                      controller: _streetController,
+                      label: 'Street',
+                      icon: Icons.location_on_outlined,
+                      enabled: _isEditing,
+                    ),
+                    _buildEditableTextField(
+                      controller: _cityController,
+                      label: 'City',
+                      icon: Icons.location_city,
+                      enabled: _isEditing,
+                    ),
+                    _buildEditableTextField(
+                      controller: _stateController,
+                      label: 'State',
+                      icon: Icons.map,
+                      enabled: _isEditing,
+                    ),
+
+                    const SizedBox(height: 24),
+                    const Text(
+                      'Contact Information',
+                      style: TextStyle(
+                        fontSize: 18,
+                        fontWeight: FontWeight.w600,
+                        color: Colors.black87,
+                      ),
+                    ),
+                    const SizedBox(height: 16),
+
+                    _buildEditableTextField(
+                      controller: _phoneController,
+                      label: 'Phone Number',
+                      icon: Icons.phone_outlined,
+                      enabled: _isEditing,
+                    ),
+                    _buildEditableTextField(
+                      controller: _emailController,
+                      label: 'Email Address',
+                      icon: Icons.email_outlined,
+                      enabled: _isEditing,
+                      validator: (value) {
+                        if (value == null || value.isEmpty) {
+                          return 'Please enter your email';
+                        }
+                        if (!value.contains('@')) {
+                          return 'Please enter a valid email';
+                        }
+                        return null;
+                      },
+                    ),
+
+                    const SizedBox(height: 24),
+                    const Text(
+                      'Diseases Information',
+                      style: TextStyle(
+                        fontSize: 18,
+                        fontWeight: FontWeight.w600,
+                        color: Colors.black87,
+                      ),
+                    ),
+                    const SizedBox(height: 16),
+
+                    _buildEditableTextField(
+                      controller: _dementiaTypeController,
+                      label: 'Dementia Type',
+                      icon: Icons.medical_services,
+                      enabled: _isEditing,
+                    ),
+                    _buildEditableTextField(
+                      controller: _dementiaStageController,
+                      label: 'Dementia Stage',
+                      icon: Icons.timeline,
+                      enabled: _isEditing,
+                    ),
+
+                    if (_isEditing) ...[
+                      const SizedBox(height: 24),
+                      Row(
                         children: [
-                          Icon(Icons.edit, size: 20),
-                          SizedBox(width: 8),
-                          Text(
-                            'Edit Profile',
-                            style: TextStyle(
-                              fontSize: 16,
-                              fontWeight: FontWeight.w600,
+                          Expanded(
+                            child: ElevatedButton(
+                              onPressed: _cancelEdit,
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: PatientColors.primaryLight.withOpacity(0.35),
+                                elevation: 0,
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(8),
+                                ),
+                                padding: const EdgeInsets.symmetric(vertical: 16),
+                              ),
+                              child: const Text(
+                                'Cancel',
+                                style: TextStyle(
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.w600,
+                                  color: PatientColors.primary,
+                                ),
+                              ),
+                            ),
+                          ),
+                          const SizedBox(width: 16),
+                          Expanded(
+                            child: ElevatedButton(
+                              onPressed: _isLoading ? null : _saveProfile,
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: PatientColors.primaryLight,
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(8),
+                                ),
+                                padding: const EdgeInsets.symmetric(vertical: 16),
+                              ),
+                              child: _isLoading
+                                  ? const SizedBox(
+                                      height: 20,
+                                      width: 20,
+                                      child: CircularProgressIndicator(
+                                        strokeWidth: 2,
+                                        valueColor: AlwaysStoppedAnimation<Color>(
+                                          PatientColors.primary,
+                                        ),
+                                      ),
+                                    )
+                                  : const Text(
+                                      'Save Changes',
+                                      style: TextStyle(
+                                        fontSize: 16,
+                                        fontWeight: FontWeight.w600,
+                                        color: PatientColors.primary,
+                                      ),
+                                    ),
                             ),
                           ),
                         ],
                       ),
-                    ),
-                  ),
-                ],
+                    ],
+                  ],
+                ),
               ),
             ),
 
@@ -322,17 +494,22 @@ class _PatientProfileScreenState extends State<PatientProfileScreen> {
     );
   }
 
-  Widget _buildLabeledTextField({
+  Widget _buildEditableTextField({
+    required TextEditingController controller,
     required String label,
     required IconData icon,
-    required TextEditingController controller,
-    Color? iconColor,
+    bool enabled = false,
+    String? Function(String?)? validator,
+    VoidCallback? onTap,
   }) {
     return Container(
       margin: const EdgeInsets.only(bottom: 16),
       child: TextFormField(
         controller: controller,
-        readOnly: true,
+        enabled: enabled,
+        readOnly: onTap != null,
+        validator: validator,
+        onTap: onTap,
         style: TextStyle(
           fontSize: 14,
           color: Colors.grey[600],
@@ -345,7 +522,7 @@ class _PatientProfileScreenState extends State<PatientProfileScreen> {
             fontSize: 16,
             fontWeight: FontWeight.w500,
           ),
-          prefixIcon: Icon(icon, color: iconColor ?? Colors.grey[600]),
+          prefixIcon: Icon(icon, color: Colors.grey[600]),
           border: OutlineInputBorder(
             borderRadius: BorderRadius.circular(8),
             borderSide: BorderSide(color: Colors.grey[300]!),
@@ -359,7 +536,7 @@ class _PatientProfileScreenState extends State<PatientProfileScreen> {
             borderSide: BorderSide(color: Colors.grey[200]!),
           ),
           filled: true,
-          fillColor: Colors.grey[100],
+          fillColor: enabled ? Colors.grey[50] : Colors.grey[100],
         ),
       ),
     );

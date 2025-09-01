@@ -20,6 +20,7 @@ public class PatientDetailsResponse {
     private String dementiaStage;
     private String label;
     private String profilePic;
+    private String acceptedDate;
 
     public static PatientDetailsResponse fromPatient(Patient patient) {
         PatientDetailsResponse resp = new PatientDetailsResponse();
@@ -152,5 +153,13 @@ public class PatientDetailsResponse {
 
     public void setProfilePic(String profilePic) {
         this.profilePic = profilePic;
+    }
+
+    public String getAcceptedDate() {
+        return acceptedDate;
+    }
+
+    public void setAcceptedDate(String acceptedDate) {
+        this.acceptedDate = acceptedDate;
     }
 }
