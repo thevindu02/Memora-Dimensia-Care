@@ -28,8 +28,9 @@ class VolunteerRoutes {
           settings: settings,
         );
       case AppRoutes.volunteerProfile:
+        final volunteerId = settings.arguments as int? ?? 1; // Default to 1 if not provided
         return MaterialPageRoute(
-          builder: (_) => VolunteerProfileScreen(),
+          builder: (_) => VolunteerProfileScreen(volunteerId: volunteerId),
           settings: settings,
         );
       case AppRoutes.volunteerUploadImage:

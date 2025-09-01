@@ -4,9 +4,11 @@ import '../../constants/color_constants.dart';
 import '../../routes/app_routes.dart';
 import 'dart:io';
 import 'package:image_picker/image_picker.dart';
+import '../../../services/volunteer_service.dart';
 
 class VolunteerProfileScreen extends StatefulWidget {
-  const VolunteerProfileScreen({Key? key}) : super(key: key);
+  final int volunteerId;
+  const VolunteerProfileScreen({Key? key, required this.volunteerId}) : super(key: key);
 
   @override
   State<VolunteerProfileScreen> createState() => _VolunteerProfileScreenState();
@@ -41,12 +43,31 @@ class _VolunteerProfileScreenState extends State<VolunteerProfileScreen> {
   String _originalGender = 'Male';
 
   @override
+  void initState() {
+    super.initState();
+    _loadVolunteerProfile();
+  }
+
+  @override
   void dispose() {
     _fullNameController.dispose();
     _emailController.dispose();
     _phoneController.dispose();
     _genderController.dispose();
     super.dispose();
+  }
+
+  Future<void> _loadVolunteerProfile() async {
+    final data = await VolunteerService.getVolunteerProfile(widget.volunteerId);
+    if (data != null) {
+      setState(() {
+        _fullNameController.text = '${data['FName']} ${data['LName']}';
+        _emailController.text = data['email'] ?? '';
+        _phoneController.text = data['phoneNumber'] ?? '';
+        _genderController.text = data['gender'] ?? '';
+        // ...other fields...
+      });
+    }
   }
 
   Future<void> _pickProfileImage() async {
@@ -214,7 +235,12 @@ class _VolunteerProfileScreenState extends State<VolunteerProfileScreen> {
         leading: IconButton(
           icon: Icon(Icons.arrow_back, color: AppColors.onSurface),
           onPressed: () {
-            Navigator.pushNamed(context, AppRoutes.volunteerDashboard);
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => VolunteerProfileScreen(volunteerId: widget.volunteerId),
+              ),
+            );
           },
         ),
         title: Text(
