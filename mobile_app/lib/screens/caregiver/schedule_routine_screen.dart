@@ -4,6 +4,9 @@ import 'dart:ui';
 import '../../routes/app_routes.dart';
 import '../../services/patient_service.dart';
 import '../../services/daily_activity_service.dart';
+import '../../services/task_service.dart' as TaskAPI;
+import '../../services/medication_service.dart';
+import '../../models/medication_reminder.dart';
 
 // Remove the nested MaterialApp - this was causing the routing issue
 class ScheduleRoutine extends StatelessWidget {
@@ -22,8 +25,15 @@ class ScheduleTask {
   bool isSelected;
   bool isCompleted;
   bool isSkipped;
+  String? skipReason; // Add skip reason field
   final int? careActivityId; // Add ID for API operations
   final int? dailyTaskId; // Add daily task ID
+  // Additional medication details
+  final String? dosage;
+  final String? mealTiming;
+  final int? numberOfRounds;
+  final String? medicationDescription;
+  final String? taskType; // 'medication', 'daily_activity', 'game'
 
   ScheduleTask({
     required this.title,
@@ -34,8 +44,14 @@ class ScheduleTask {
     this.isSelected = false,
     this.isCompleted = false,
     this.isSkipped = false,
+    this.skipReason,
     this.careActivityId,
     this.dailyTaskId,
+    this.dosage,
+    this.mealTiming,
+    this.numberOfRounds,
+    this.medicationDescription,
+    this.taskType,
   });
 
   // Factory constructor to create ScheduleTask from DailyActivity
@@ -50,6 +66,46 @@ class ScheduleTask {
       isSkipped: activity.status == 'SKIPPED',
       careActivityId: activity.careActivityId,
       dailyTaskId: activity.dailyTaskId,
+      taskType: 'daily_activity',
+    );
+  }
+
+  // Factory constructor to create ScheduleTask from Task (game tasks)
+  factory ScheduleTask.fromTask(TaskAPI.Task task) {
+    return ScheduleTask(
+      title: task.gameName,
+      description: 'Game Activity: ${task.gameName}',
+      time: _formatTime(task.time),
+      icon: _getIconForGameTask(task.gameName),
+      color: AppColors.primaryDark, // Use same color as daily activities
+      isCompleted: task.status == 'COMPLETED',
+      isSkipped: task.status == 'SKIPPED',
+      careActivityId: task.careActivityId,
+      dailyTaskId: task.taskId, // Use taskId for game tasks
+      taskType: 'game',
+    );
+  }
+
+  // Factory constructor to create ScheduleTask from MedicationReminder
+  factory ScheduleTask.fromMedicationReminder(
+    MedicationScheduleItem medication,
+  ) {
+    return ScheduleTask(
+      title: medication.medicationName,
+      description:
+          'Medication: ${medication.dosage} - ${medication.mealTiming}',
+      time: _formatTime(medication.time),
+      icon: Icons.medication,
+      color: AppColors.primaryDark,
+      isCompleted: medication.status == 'TAKEN',
+      isSkipped: medication.status == 'SKIPPED',
+      careActivityId: medication.careActivityId,
+      dailyTaskId: medication.medicationId, // Use medication ID
+      taskType: 'medication',
+      dosage: medication.dosage,
+      mealTiming: medication.mealTiming,
+      numberOfRounds: medication.numberOfRounds,
+      medicationDescription: medication.description,
     );
   }
 
@@ -110,6 +166,28 @@ class ScheduleTask {
       return Icons.task_alt; // Default icon
     }
   }
+
+  // Helper method to get appropriate icon for game tasks
+  static IconData _getIconForGameTask(String gameName) {
+    final lowerGame = gameName.toLowerCase();
+    if (lowerGame.contains('memory') || lowerGame.contains('match')) {
+      return Icons.memory;
+    } else if (lowerGame.contains('puzzle')) {
+      return Icons.extension;
+    } else if (lowerGame.contains('word') || lowerGame.contains('trivia')) {
+      return Icons.quiz;
+    } else if (lowerGame.contains('color') || lowerGame.contains('paint')) {
+      return Icons.palette;
+    } else if (lowerGame.contains('music') || lowerGame.contains('sound')) {
+      return Icons.music_note;
+    } else if (lowerGame.contains('number') || lowerGame.contains('math')) {
+      return Icons.calculate;
+    } else if (lowerGame.contains('story') || lowerGame.contains('reading')) {
+      return Icons.book;
+    } else {
+      return Icons.games; // Default icon for games
+    }
+  }
 }
 
 class ScheduleRoutineScreen extends StatefulWidget {
@@ -158,12 +236,12 @@ class _ScheduleRoutineScreenState extends State<ScheduleRoutineScreen> {
 
     if (scheduleId != null) {
       _scheduleId = scheduleId;
-      _fetchDailyActivities(scheduleId);
+      _fetchAllTasks(scheduleId);
     } else {
       // For now, use schedule ID 1 as default (can be improved later to properly map patients to schedules)
       if (patientId != null) {
         _scheduleId = 1; // Use schedule ID 1 instead of patient ID
-        _fetchDailyActivities(1);
+        _fetchAllTasks(1);
       } else {
         setState(() {
           _isTasksLoading = false;
@@ -194,38 +272,137 @@ class _ScheduleRoutineScreenState extends State<ScheduleRoutineScreen> {
     }
   }
 
-  Future<void> _fetchDailyActivities(int scheduleId) async {
+  Future<void> _fetchAllTasks(int scheduleId) async {
+    print('DEBUG: Starting to fetch tasks for schedule ID: $scheduleId');
     setState(() {
       _isTasksLoading = true;
       _tasksError = null;
     });
 
     try {
-      final result = await DailyActivityService.getDailyActivities(scheduleId);
+      print('DEBUG: Making API calls...');
+      // Fetch daily activities, game tasks, and medications concurrently
+      final dailyActivitiesResult = DailyActivityService.getDailyActivities(
+        scheduleId,
+      );
+      final gameTasksResult = TaskAPI.TaskService.getTasksByScheduleId(
+        scheduleId,
+      );
+      final medicationsResult = MedicationService.getMedicationSchedule(
+        scheduleId,
+      );
 
-      if (result.success && result.data != null) {
-        setState(() {
-          // Convert DailyActivity objects to ScheduleTask objects
-          tasks = result.data!
-              .map((activity) => ScheduleTask.fromDailyActivity(activity))
-              .toList();
-          _isTasksLoading = false;
-        });
+      print('DEBUG: Waiting for all API calls to complete...');
+      final results = await Future.wait([
+        dailyActivitiesResult,
+        gameTasksResult,
+        medicationsResult,
+      ]);
+
+      print('DEBUG: All API calls completed');
+      // Cast results to their proper types
+      final dailyResult = results[0] as dynamic;
+      final taskResult = results[1] as TaskAPI.ApiResult<List<TaskAPI.Task>>;
+      final medications = results[2] as List<MedicationScheduleItem>;
+
+      print('DEBUG: Processing results...');
+      print('DEBUG: Daily result success: ${dailyResult.success}');
+      print('DEBUG: Game tasks result success: ${taskResult.success}');
+      print('DEBUG: Medications count: ${medications.length}');
+
+      List<ScheduleTask> allTasks = [];
+
+      // Add daily activities
+      if (dailyResult.success && dailyResult.data != null) {
+        final dailyTasks = (dailyResult.data as List<dynamic>)
+            .map((activity) => ScheduleTask.fromDailyActivity(activity))
+            .toList();
+        allTasks.addAll(dailyTasks);
+        print('Loaded ${dailyTasks.length} daily activities');
       } else {
-        setState(() {
-          _tasksError = result.message;
-          _isTasksLoading = false;
-          // Keep empty tasks list or provide default tasks
-          tasks = [];
-        });
+        print('Failed to load daily activities: ${dailyResult.message}');
       }
+
+      // Add game tasks
+      if (taskResult.success && taskResult.data != null) {
+        final gameTasks = taskResult.data!
+            .map((task) => ScheduleTask.fromTask(task))
+            .toList();
+        allTasks.addAll(gameTasks);
+        print('Loaded ${gameTasks.length} game tasks');
+      } else {
+        print('Failed to load game tasks: ${taskResult.message}');
+      }
+
+      // Add medication reminders
+      if (medications.isNotEmpty) {
+        print('DEBUG: Processing ${medications.length} medications:');
+        for (var med in medications) {
+          print(
+            'DEBUG: Medication - ${med.medicationName}, Time: ${med.time}, Status: ${med.status}',
+          );
+        }
+        final medicationTasks = medications
+            .map(
+              (medication) => ScheduleTask.fromMedicationReminder(medication),
+            )
+            .toList();
+        allTasks.addAll(medicationTasks);
+        print('Loaded ${medications.length} medication reminders');
+      } else {
+        print('DEBUG: No medications found');
+      }
+
+      // Sort tasks by time
+      allTasks.sort((a, b) {
+        try {
+          final timeA = _parseTimeForSorting(a.time);
+          final timeB = _parseTimeForSorting(b.time);
+          return timeA.compareTo(timeB);
+        } catch (e) {
+          print('Error sorting tasks by time: $e');
+          return 0;
+        }
+      });
+
+      setState(() {
+        tasks = allTasks;
+        _isTasksLoading = false;
+        print('Total tasks loaded: ${tasks.length}');
+      });
     } catch (e) {
       setState(() {
-        _tasksError = 'Failed to load daily activities: $e';
+        _tasksError = 'Failed to load tasks: $e';
         _isTasksLoading = false;
         tasks = [];
       });
+      print('Error loading tasks: $e');
     }
+  }
+
+  // Helper method to parse time for sorting (converts to 24-hour format)
+  int _parseTimeForSorting(String timeStr) {
+    try {
+      // Remove AM/PM and parse
+      String cleanTime = timeStr.replaceAll(RegExp(r'\s*(AM|PM)'), '');
+      final parts = cleanTime.split(':');
+      if (parts.length >= 2) {
+        int hour = int.parse(parts[0]);
+        int minute = int.parse(parts[1]);
+
+        // Convert to 24-hour format for sorting
+        if (timeStr.toUpperCase().contains('PM') && hour != 12) {
+          hour += 12;
+        } else if (timeStr.toUpperCase().contains('AM') && hour == 12) {
+          hour = 0;
+        }
+
+        return hour * 60 + minute; // Convert to minutes for easy comparison
+      }
+    } catch (e) {
+      print('Error parsing time for sorting: $e');
+    }
+    return 0;
   }
 
   void _selectTask(ScheduleTask task) {
@@ -247,8 +424,120 @@ class _ScheduleRoutineScreenState extends State<ScheduleRoutineScreen> {
       if (task.isCompleted) {
         task.isSelected = false; // Deselect when completed
         task.isSkipped = false; // Reset skip status when completed
+        task.skipReason = null; // Clear skip reason when completed
       }
     });
+  }
+
+  // Function to show skip reason popup
+  void _showSkipReasonDialog(ScheduleTask task) {
+    final TextEditingController reasonController = TextEditingController();
+
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Row(
+            children: [
+              Icon(Icons.cancel, color: Colors.red),
+              SizedBox(width: 8),
+              Expanded(
+                child: Text(
+                  'Skip Task: ${task.title}',
+                  style: TextStyle(fontSize: 18),
+                ),
+              ),
+            ],
+          ),
+          content: Container(
+            width: double.maxFinite,
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  'Please provide a reason for skipping this task:',
+                  style: TextStyle(fontSize: 16, color: Colors.grey[700]),
+                ),
+                SizedBox(height: 16),
+
+                // Reason text field
+                TextFormField(
+                  controller: reasonController,
+                  autofocus: true,
+                  maxLines: 3,
+                  decoration: InputDecoration(
+                    labelText: 'Reason for skipping',
+                    hintText: 'Enter reason for skipping this task...',
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                    focusedBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(8),
+                      borderSide: BorderSide(color: Colors.red),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context),
+              child: Text('Cancel', style: TextStyle(color: Colors.grey[600])),
+            ),
+            ElevatedButton(
+              onPressed: () {
+                String finalReason = reasonController.text.trim();
+
+                if (finalReason.isEmpty) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(
+                      content: Text('Please provide a reason for skipping'),
+                      backgroundColor: Colors.red,
+                    ),
+                  );
+                  return;
+                }
+
+                // Skip the task with reason
+                setState(() {
+                  task.isSkipped = true;
+                  task.isSelected = false;
+                  task.skipReason = finalReason;
+                  task.isCompleted =
+                      false; // Ensure it's not marked as completed
+                });
+
+                Navigator.pop(context);
+
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(
+                    content: Text('Task "${task.title}" skipped: $finalReason'),
+                    backgroundColor: Colors.orange,
+                    action: SnackBarAction(
+                      label: 'Undo',
+                      textColor: Colors.white,
+                      onPressed: () {
+                        setState(() {
+                          task.isSkipped = false;
+                          task.skipReason = null;
+                        });
+                      },
+                    ),
+                  ),
+                );
+              },
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Colors.red,
+                foregroundColor: Colors.white,
+              ),
+              child: Text('Skip Task'),
+            ),
+          ],
+        );
+      },
+    );
   }
 
   // Helper methods for task counts
@@ -600,7 +889,7 @@ class _ScheduleRoutineScreenState extends State<ScheduleRoutineScreen> {
               ElevatedButton(
                 onPressed: () {
                   if (_scheduleId != null) {
-                    _fetchDailyActivities(_scheduleId!);
+                    _fetchAllTasks(_scheduleId!);
                   }
                 },
                 child: Text('Retry'),
@@ -753,24 +1042,251 @@ class _ScheduleRoutineScreenState extends State<ScheduleRoutineScreen> {
                       ],
                     ),
 
+                    // Show skip reason for any skipped task (general display)
+                    if (task.isSkipped &&
+                        task.skipReason != null &&
+                        task.skipReason!.isNotEmpty)
+                      Container(
+                        margin: EdgeInsets.only(top: 12),
+                        padding: EdgeInsets.all(12),
+                        decoration: BoxDecoration(
+                          color: Colors.red.shade50,
+                          borderRadius: BorderRadius.circular(8),
+                          border: Border.all(color: Colors.red.shade200),
+                        ),
+                        child: Row(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Container(
+                              padding: EdgeInsets.all(4),
+                              decoration: BoxDecoration(
+                                color: Colors.red.shade100,
+                                borderRadius: BorderRadius.circular(4),
+                              ),
+                              child: Icon(
+                                Icons.cancel,
+                                size: 16,
+                                color: Colors.red.shade600,
+                              ),
+                            ),
+                            SizedBox(width: 12),
+                            Expanded(
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(
+                                    'Task Skipped',
+                                    style: TextStyle(
+                                      fontSize: 14,
+                                      fontWeight: FontWeight.w600,
+                                      color: Colors.red.shade700,
+                                    ),
+                                  ),
+                                  SizedBox(height: 4),
+                                  Text(
+                                    'Reason: ${task.skipReason}',
+                                    style: TextStyle(
+                                      fontSize: 13,
+                                      color: Colors.red.shade600,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+
+                    // Show detailed medication information when selected
+                    if (task.isSelected && task.taskType == 'medication')
+                      Container(
+                        margin: EdgeInsets.only(top: 16),
+                        padding: EdgeInsets.all(16),
+                        decoration: BoxDecoration(
+                          color: Colors.blue.shade50,
+                          borderRadius: BorderRadius.circular(8),
+                          border: Border.all(color: Colors.blue.shade200),
+                        ),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              'Medication Details',
+                              style: TextStyle(
+                                fontSize: 16,
+                                fontWeight: FontWeight.w600,
+                                color: Colors.blue.shade800,
+                              ),
+                            ),
+                            // Status indicator
+                            Container(
+                              margin: EdgeInsets.only(top: 8),
+                              padding: EdgeInsets.symmetric(
+                                horizontal: 8,
+                                vertical: 4,
+                              ),
+                              decoration: BoxDecoration(
+                                color: task.isCompleted
+                                    ? Colors.green.shade100
+                                    : task.isSkipped
+                                    ? Colors.red.shade100
+                                    : Colors.orange.shade100,
+                                borderRadius: BorderRadius.circular(12),
+                                border: Border.all(
+                                  color: task.isCompleted
+                                      ? Colors.green.shade300
+                                      : task.isSkipped
+                                      ? Colors.red.shade300
+                                      : Colors.orange.shade300,
+                                ),
+                              ),
+                              child: Row(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  Icon(
+                                    task.isCompleted
+                                        ? Icons.check_circle
+                                        : task.isSkipped
+                                        ? Icons.cancel
+                                        : Icons.schedule,
+                                    size: 14,
+                                    color: task.isCompleted
+                                        ? Colors.green.shade700
+                                        : task.isSkipped
+                                        ? Colors.red.shade700
+                                        : Colors.orange.shade700,
+                                  ),
+                                  SizedBox(width: 4),
+                                  Text(
+                                    task.isCompleted
+                                        ? 'Taken'
+                                        : task.isSkipped
+                                        ? 'Skipped'
+                                        : 'Pending',
+                                    style: TextStyle(
+                                      fontSize: 12,
+                                      fontWeight: FontWeight.w500,
+                                      color: task.isCompleted
+                                          ? Colors.green.shade700
+                                          : task.isSkipped
+                                          ? Colors.red.shade700
+                                          : Colors.orange.shade700,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+
+                            // Show skip reason if task is skipped and has a reason
+                            if (task.isSkipped &&
+                                task.skipReason != null &&
+                                task.skipReason!.isNotEmpty)
+                              Container(
+                                margin: EdgeInsets.only(top: 8),
+                                padding: EdgeInsets.all(8),
+                                decoration: BoxDecoration(
+                                  color: Colors.red.shade50,
+                                  borderRadius: BorderRadius.circular(8),
+                                  border: Border.all(
+                                    color: Colors.red.shade200,
+                                  ),
+                                ),
+                                child: Row(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Icon(
+                                      Icons.info_outline,
+                                      size: 16,
+                                      color: Colors.red.shade600,
+                                    ),
+                                    SizedBox(width: 8),
+                                    Expanded(
+                                      child: Column(
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.start,
+                                        children: [
+                                          Text(
+                                            'Skip Reason:',
+                                            style: TextStyle(
+                                              fontSize: 12,
+                                              fontWeight: FontWeight.w600,
+                                              color: Colors.red.shade700,
+                                            ),
+                                          ),
+                                          SizedBox(height: 2),
+                                          Text(
+                                            task.skipReason!,
+                                            style: TextStyle(
+                                              fontSize: 12,
+                                              color: Colors.red.shade600,
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+
+                            SizedBox(height: 12),
+                            Row(
+                              children: [
+                                Expanded(
+                                  child: _buildMedicationDetailItem(
+                                    'Medication Name',
+                                    task.title,
+                                    Icons.medication,
+                                  ),
+                                ),
+                                Expanded(
+                                  child: _buildMedicationDetailItem(
+                                    'Dosage',
+                                    task.dosage ?? 'Not specified',
+                                    Icons.local_pharmacy,
+                                  ),
+                                ),
+                              ],
+                            ),
+                            SizedBox(height: 8),
+                            Row(
+                              children: [
+                                Expanded(
+                                  child: _buildMedicationDetailItem(
+                                    'Meal Timing',
+                                    task.mealTiming ?? 'Not specified',
+                                    Icons.restaurant,
+                                  ),
+                                ),
+                                Expanded(
+                                  child: _buildMedicationDetailItem(
+                                    'Rounds',
+                                    '${task.numberOfRounds ?? 1}',
+                                    Icons.repeat,
+                                  ),
+                                ),
+                              ],
+                            ),
+                            if (task.medicationDescription != null &&
+                                task.medicationDescription!.isNotEmpty) ...[
+                              SizedBox(height: 8),
+                              _buildMedicationDetailItem(
+                                'Description',
+                                task.medicationDescription!,
+                                Icons.description,
+                                isFullWidth: true,
+                              ),
+                            ],
+                          ],
+                        ),
+                      ),
+
                     // Skip Task Button (only show when task is selected)
                     if (task.isSelected && !task.isCompleted)
                       Container(
                         margin: EdgeInsets.only(top: 16),
                         width: double.infinity,
                         child: ElevatedButton.icon(
-                          onPressed: () {
-                            setState(() {
-                              task.isSkipped = true;
-                              task.isSelected = false;
-                            });
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              SnackBar(
-                                content: Text('Task "${task.title}" skipped'),
-                                backgroundColor: Colors.red,
-                              ),
-                            );
-                          },
+                          onPressed: () => _showSkipReasonDialog(task),
                           style: ElevatedButton.styleFrom(
                             backgroundColor: Colors.red,
                             foregroundColor: Colors.white,
@@ -829,6 +1345,8 @@ class _ScheduleRoutineScreenState extends State<ScheduleRoutineScreen> {
                                   onPressed: () {
                                     setState(() {
                                       task.isSkipped = false;
+                                      task.skipReason =
+                                          null; // Clear skip reason when undoing skip
                                     });
                                     ScaffoldMessenger.of(context).showSnackBar(
                                       SnackBar(
@@ -862,6 +1380,82 @@ class _ScheduleRoutineScreenState extends State<ScheduleRoutineScreen> {
           ),
         );
       },
+    );
+  }
+
+  Widget _buildMedicationDetailItem(
+    String label,
+    String value,
+    IconData icon, {
+    bool isFullWidth = false,
+  }) {
+    return Container(
+      padding: EdgeInsets.all(8),
+      margin: EdgeInsets.only(bottom: 4),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(6),
+        border: Border.all(color: Colors.grey.shade300),
+      ),
+      child: isFullWidth
+          ? Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  children: [
+                    Icon(icon, size: 16, color: Colors.blue.shade600),
+                    SizedBox(width: 6),
+                    Text(
+                      label,
+                      style: TextStyle(
+                        fontSize: 12,
+                        fontWeight: FontWeight.w500,
+                        color: Colors.grey.shade600,
+                      ),
+                    ),
+                  ],
+                ),
+                SizedBox(height: 4),
+                Text(
+                  value,
+                  style: TextStyle(
+                    fontSize: 14,
+                    fontWeight: FontWeight.w600,
+                    color: Colors.black87,
+                  ),
+                ),
+              ],
+            )
+          : Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  children: [
+                    Icon(icon, size: 14, color: Colors.blue.shade600),
+                    SizedBox(width: 4),
+                    Expanded(
+                      child: Text(
+                        label,
+                        style: TextStyle(
+                          fontSize: 11,
+                          fontWeight: FontWeight.w500,
+                          color: Colors.grey.shade600,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+                SizedBox(height: 2),
+                Text(
+                  value,
+                  style: TextStyle(
+                    fontSize: 13,
+                    fontWeight: FontWeight.w600,
+                    color: Colors.black87,
+                  ),
+                ),
+              ],
+            ),
     );
   }
 

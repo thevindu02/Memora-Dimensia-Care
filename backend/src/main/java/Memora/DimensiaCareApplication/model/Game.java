@@ -1,6 +1,7 @@
 package Memora.DimensiaCareApplication.model;
 
 import jakarta.persistence.*;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import java.util.Set;
 import java.util.HashSet;
 
@@ -20,9 +21,11 @@ public class Game {
     private String description;
 
     @OneToMany(mappedBy = "game", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @JsonIgnore
     private Set<Task> tasks = new HashSet<>();
 
     @OneToMany(mappedBy = "game", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @JsonIgnore
     private Set<GameScore> gameScores = new HashSet<>();
 
     // Default constructor

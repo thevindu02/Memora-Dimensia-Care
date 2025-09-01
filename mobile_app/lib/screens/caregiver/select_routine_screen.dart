@@ -1,11 +1,15 @@
-// Fixed Error Handling System for Flutter Caregiving App
-
 import 'dart:io';
 import 'dart:async';
 import 'package:flutter/material.dart';
 import '../../routes/app_routes.dart';
 import '../../constants/color_constants.dart';
-import '../../services/daily_activity_service.dart';
+import '../../services/daily_activity_service.dart' as DailyActivityAPI;
+import '../../services/game_service.dart' as GameAPI;
+import '../../services/task_service.dart' as TaskAPI;
+import '../../services/medication_service.dart' as MedicationAPI;
+import '../../services/appointment_service.dart';
+import '../../models/medication_reminder.dart';
+import '../../models/api_result.dart' as Models;
 
 // 1. Error Types and Models
 enum ErrorType { network, validation, navigation, storage, permission, unknown }
@@ -454,21 +458,6 @@ class _SelectTypeWithErrorHandlingState
     }
   }
 
-  void _handleNotifications() {
-    try {
-      // Implement notification handling with error checking
-      print('Notifications clicked');
-    } catch (e) {
-      ErrorHandler.handleError(
-        AppError(
-          type: ErrorType.unknown,
-          message: 'Failed to open notifications',
-          details: e.toString(),
-        ),
-      );
-    }
-  }
-
   void _handleRoutineCardPress(RoutineCard card) {
     try {
       // Show popup dialog based on card type
@@ -627,8 +616,8 @@ class _SelectTypeWithErrorHandlingState
                                   '${_selectedTime!.hour.toString().padLeft(2, '0')}:${_selectedTime!.minute.toString().padLeft(2, '0')}';
 
                               // Create request
-                              DailyActivityRequest request =
-                                  DailyActivityRequest(
+                              DailyActivityAPI.DailyActivityRequest request =
+                                  DailyActivityAPI.DailyActivityRequest(
                                     taskName: _taskNameController.text.trim(),
                                     time: timeString,
                                     description:
@@ -640,8 +629,12 @@ class _SelectTypeWithErrorHandlingState
                                   );
 
                               // Make API call
-                              ApiResult<DailyActivity> result =
-                                  await DailyActivityService.addDailyActivity(
+                              DailyActivityAPI.ApiResult<
+                                DailyActivityAPI.DailyActivity
+                              >
+                              result =
+                                  await DailyActivityAPI
+                                      .DailyActivityService.addDailyActivity(
                                     scheduleId,
                                     request,
                                   );
@@ -715,19 +708,40 @@ class _SelectTypeWithErrorHandlingState
     final _descriptionController = TextEditingController();
     String? _selectedGame;
     TimeOfDay? _selectedTime;
+    List<GameAPI.Game> _games = [];
+    bool _loadingGames = true;
+    String? _gamesError;
 
-    // Dementia patient-related games/activities
-    final List<String> _dementiaGames = [
-      'Memory Card Matching',
-      'Photo Recognition',
-      'Simple Puzzle Games',
-    ];
+    // Function to load games from database
+    Future<void> _loadGames() async {
+      try {
+        final result = await GameAPI.GameService.getAllGames();
+        if (result.success && result.data != null) {
+          _games = result.data!;
+          _loadingGames = false;
+          _gamesError = null;
+        } else {
+          _gamesError = result.message;
+          _loadingGames = false;
+        }
+      } catch (e) {
+        _gamesError = 'Failed to load games: $e';
+        _loadingGames = false;
+      }
+    }
 
     showDialog(
       context: context,
       builder: (BuildContext context) {
         return StatefulBuilder(
           builder: (context, setState) {
+            // Load games when dialog opens
+            if (_loadingGames && _games.isEmpty) {
+              _loadGames().then((_) {
+                setState(() {});
+              });
+            }
+
             return Dialog(
               child: Container(
                 width: MediaQuery.of(context).size.width * 0.9,
@@ -780,38 +794,89 @@ class _SelectTypeWithErrorHandlingState
                               SizedBox(height: 12),
 
                               // Game/Activity Dropdown
-                              DropdownButtonFormField<String>(
-                                value: _selectedGame,
-                                decoration: InputDecoration(
-                                  labelText: 'Game/Activity',
-                                  border: OutlineInputBorder(),
-                                  prefixIcon: Icon(Icons.games, size: 20),
-                                  contentPadding: EdgeInsets.symmetric(
-                                    horizontal: 12,
-                                    vertical: 8,
-                                  ),
-                                ),
-                                items: _dementiaGames.map((String game) {
-                                  return DropdownMenuItem<String>(
-                                    value: game,
-                                    child: Text(
-                                      game,
-                                      style: TextStyle(fontSize: 14),
+                              _loadingGames
+                                  ? Container(
+                                      padding: EdgeInsets.all(16),
+                                      child: Row(
+                                        children: [
+                                          SizedBox(
+                                            width: 20,
+                                            height: 20,
+                                            child: CircularProgressIndicator(
+                                              strokeWidth: 2,
+                                            ),
+                                          ),
+                                          SizedBox(width: 12),
+                                          Text('Loading games...'),
+                                        ],
+                                      ),
+                                    )
+                                  : _gamesError != null
+                                  ? Container(
+                                      padding: EdgeInsets.all(16),
+                                      decoration: BoxDecoration(
+                                        color: Colors.red.shade50,
+                                        borderRadius: BorderRadius.circular(8),
+                                        border: Border.all(
+                                          color: Colors.red.shade200,
+                                        ),
+                                      ),
+                                      child: Column(
+                                        children: [
+                                          Text(
+                                            'Failed to load games',
+                                            style: TextStyle(
+                                              color: Colors.red.shade700,
+                                            ),
+                                          ),
+                                          SizedBox(height: 8),
+                                          ElevatedButton(
+                                            onPressed: () {
+                                              setState(() {
+                                                _loadingGames = true;
+                                                _gamesError = null;
+                                              });
+                                              _loadGames().then((_) {
+                                                setState(() {});
+                                              });
+                                            },
+                                            child: Text('Retry'),
+                                          ),
+                                        ],
+                                      ),
+                                    )
+                                  : DropdownButtonFormField<String>(
+                                      value: _selectedGame,
+                                      decoration: InputDecoration(
+                                        labelText: 'Game/Activity',
+                                        border: OutlineInputBorder(),
+                                        prefixIcon: Icon(Icons.games, size: 20),
+                                        contentPadding: EdgeInsets.symmetric(
+                                          horizontal: 12,
+                                          vertical: 8,
+                                        ),
+                                      ),
+                                      items: _games.map((GameAPI.Game game) {
+                                        return DropdownMenuItem<String>(
+                                          value: game.name,
+                                          child: Text(
+                                            game.name,
+                                            style: TextStyle(fontSize: 14),
+                                          ),
+                                        );
+                                      }).toList(),
+                                      onChanged: (String? newValue) {
+                                        setState(() {
+                                          _selectedGame = newValue;
+                                        });
+                                      },
+                                      validator: (value) {
+                                        if (value == null || value.isEmpty) {
+                                          return 'Please select a game/activity';
+                                        }
+                                        return null;
+                                      },
                                     ),
-                                  );
-                                }).toList(),
-                                onChanged: (String? newValue) {
-                                  setState(() {
-                                    _selectedGame = newValue;
-                                  });
-                                },
-                                validator: (value) {
-                                  if (value == null || value.isEmpty) {
-                                    return 'Please select a game/activity';
-                                  }
-                                  return null;
-                                },
-                              ),
                               SizedBox(height: 12),
 
                               // Time Picker
@@ -856,30 +921,6 @@ class _SelectTypeWithErrorHandlingState
                                 ),
                               ),
                               SizedBox(height: 12),
-
-                              // Description Field
-                              TextFormField(
-                                controller: _descriptionController,
-                                decoration: InputDecoration(
-                                  labelText: 'Description',
-                                  border: OutlineInputBorder(),
-                                  prefixIcon: Icon(Icons.description, size: 20),
-                                  hintText: 'Add notes...',
-                                  contentPadding: EdgeInsets.symmetric(
-                                    horizontal: 12,
-                                    vertical: 8,
-                                  ),
-                                ),
-                                maxLines: 2,
-                                maxLength: 100,
-                                style: TextStyle(fontSize: 14),
-                                validator: (value) {
-                                  if (value == null || value.trim().isEmpty) {
-                                    return 'Please add a description';
-                                  }
-                                  return null;
-                                },
-                              ),
                             ],
                           ),
                         ),
@@ -901,7 +942,7 @@ class _SelectTypeWithErrorHandlingState
                           ),
                           SizedBox(width: 8),
                           ElevatedButton(
-                            onPressed: () {
+                            onPressed: () async {
                               if (_formKey.currentState!.validate()) {
                                 if (_selectedTime == null) {
                                   ScaffoldMessenger.of(context).showSnackBar(
@@ -912,26 +953,91 @@ class _SelectTypeWithErrorHandlingState
                                   return;
                                 }
 
-                                // Create the task data
-                                final taskData = {
-                                  'game': _selectedGame!,
-                                  'time': _selectedTime!.format(context),
-                                  'description': _descriptionController.text
-                                      .trim(),
-                                  'type': 'dementia_care_task',
-                                };
+                                if (_selectedGame == null) {
+                                  ScaffoldMessenger.of(context).showSnackBar(
+                                    SnackBar(
+                                      content: Text('Please select a game'),
+                                    ),
+                                  );
+                                  return;
+                                }
 
-                                // Clean up controllers
-                                _descriptionController.dispose();
-
-                                Navigator.pop(context);
-
-                                // Navigate with the collected data
-                                Navigator.pushNamed(
-                                  context,
-                                  Approute.addTask,
-                                  arguments: taskData,
+                                // Show loading indicator
+                                showDialog(
+                                  context: context,
+                                  barrierDismissible: false,
+                                  builder: (BuildContext context) {
+                                    return AlertDialog(
+                                      content: Row(
+                                        children: [
+                                          CircularProgressIndicator(),
+                                          SizedBox(width: 20),
+                                          Text('Creating task...'),
+                                        ],
+                                      ),
+                                    );
+                                  },
                                 );
+
+                                try {
+                                  // Format time as HH:mm for the backend
+                                  String timeString =
+                                      '${_selectedTime!.hour.toString().padLeft(2, '0')}:${_selectedTime!.minute.toString().padLeft(2, '0')}';
+
+                                  // Call the TaskService to create the task
+                                  final result =
+                                      await TaskAPI.TaskService.createTask(
+                                        scheduleId: scheduleId,
+                                        gameName: _selectedGame!,
+                                        time: timeString,
+                                      );
+
+                                  // Close loading dialog
+                                  Navigator.pop(context);
+
+                                  if (result.success) {
+                                    // Clean up controllers
+                                    _descriptionController.dispose();
+
+                                    // Close task creation dialog
+                                    Navigator.pop(context);
+
+                                    // Show success message
+                                    ScaffoldMessenger.of(context).showSnackBar(
+                                      SnackBar(
+                                        content: Text(
+                                          'Task created successfully!',
+                                        ),
+                                        backgroundColor: Colors.green,
+                                      ),
+                                    );
+
+                                    print(
+                                      'Task created: ${result.data?.toJson()}',
+                                    );
+                                  } else {
+                                    // Show error message
+                                    ScaffoldMessenger.of(context).showSnackBar(
+                                      SnackBar(
+                                        content: Text(
+                                          'Failed to create task: ${result.message}',
+                                        ),
+                                        backgroundColor: Colors.red,
+                                      ),
+                                    );
+                                  }
+                                } catch (e) {
+                                  // Close loading dialog
+                                  Navigator.pop(context);
+
+                                  // Show error message
+                                  ScaffoldMessenger.of(context).showSnackBar(
+                                    SnackBar(
+                                      content: Text('Error creating task: $e'),
+                                      backgroundColor: Colors.red,
+                                    ),
+                                  );
+                                }
                               }
                             },
                             child: Text('Add Task'),
@@ -951,12 +1057,19 @@ class _SelectTypeWithErrorHandlingState
 
   void _showMedicationDialog() {
     final _formKey = GlobalKey<FormState>();
-    final _taskNameController = TextEditingController();
     final _medicationNameController = TextEditingController();
-    final _roundsController = TextEditingController();
     final _dosageController = TextEditingController();
     final _descriptionController = TextEditingController();
+
+    // Create dedicated controllers for date fields
+    final _fromDateController = TextEditingController();
+    final _dueDateController = TextEditingController();
+
     String? _selectedMealTiming;
+    TimeOfDay? _selectedTime;
+    DateTime? _fromDate;
+    DateTime? _dueDate;
+    bool _isSubmitting = false;
 
     // Meal timing options
     final List<String> _mealTimings = [
@@ -966,6 +1079,16 @@ class _SelectTypeWithErrorHandlingState
       'Empty Stomach',
       'Anytime',
     ];
+
+    // Helper function to format date
+    String _formatDate(DateTime date) {
+      return '${date.year}-${date.month.toString().padLeft(2, '0')}-${date.day.toString().padLeft(2, '0')}';
+    }
+
+    // Helper function to format date for display
+    String _formatDateDisplay(DateTime date) {
+      return '${date.day.toString().padLeft(2, '0')}/${date.month.toString().padLeft(2, '0')}/${date.year}';
+    }
 
     showDialog(
       context: context,
@@ -1024,29 +1147,7 @@ class _SelectTypeWithErrorHandlingState
                                   color: Colors.grey[600],
                                 ),
                               ),
-                              SizedBox(height: 12),
-
-                              // Task Name Field
-                              TextFormField(
-                                controller: _taskNameController,
-                                decoration: InputDecoration(
-                                  labelText: 'Task Name',
-                                  border: OutlineInputBorder(),
-                                  prefixIcon: Icon(Icons.assignment, size: 20),
-                                  contentPadding: EdgeInsets.symmetric(
-                                    horizontal: 12,
-                                    vertical: 8,
-                                  ),
-                                ),
-                                style: TextStyle(fontSize: 14),
-                                validator: (value) {
-                                  if (value == null || value.trim().isEmpty) {
-                                    return 'Please enter a task name';
-                                  }
-                                  return null;
-                                },
-                              ),
-                              SizedBox(height: 12),
+                              SizedBox(height: 16),
 
                               // Medication Name Field
                               TextFormField(
@@ -1070,33 +1171,6 @@ class _SelectTypeWithErrorHandlingState
                               ),
                               SizedBox(height: 12),
 
-                              // Number of Rounds Field
-                              TextFormField(
-                                controller: _roundsController,
-                                decoration: InputDecoration(
-                                  labelText: 'Number of Rounds (per day)',
-                                  border: OutlineInputBorder(),
-                                  prefixIcon: Icon(Icons.repeat, size: 20),
-                                  contentPadding: EdgeInsets.symmetric(
-                                    horizontal: 12,
-                                    vertical: 8,
-                                  ),
-                                ),
-                                keyboardType: TextInputType.number,
-                                style: TextStyle(fontSize: 14),
-                                validator: (value) {
-                                  if (value == null || value.trim().isEmpty) {
-                                    return 'Please enter number of rounds';
-                                  }
-                                  if (int.tryParse(value) == null ||
-                                      int.parse(value) <= 0) {
-                                    return 'Please enter a valid number';
-                                  }
-                                  return null;
-                                },
-                              ),
-                              SizedBox(height: 12),
-
                               // Dosage Field
                               TextFormField(
                                 controller: _dosageController,
@@ -1113,6 +1187,109 @@ class _SelectTypeWithErrorHandlingState
                                 validator: (value) {
                                   if (value == null || value.trim().isEmpty) {
                                     return 'Please enter dosage';
+                                  }
+                                  return null;
+                                },
+                              ),
+                              SizedBox(height: 12),
+
+                              // From Date Picker
+                              TextFormField(
+                                controller: _fromDateController,
+                                decoration: InputDecoration(
+                                  labelText: 'From Date',
+                                  border: OutlineInputBorder(),
+                                  prefixIcon: Icon(Icons.date_range, size: 20),
+                                  suffixIcon: Icon(
+                                    Icons.calendar_today,
+                                    size: 20,
+                                  ),
+                                  contentPadding: EdgeInsets.symmetric(
+                                    horizontal: 12,
+                                    vertical: 8,
+                                  ),
+                                ),
+                                style: TextStyle(fontSize: 14),
+                                readOnly: true,
+                                onTap: () async {
+                                  final DateTime? picked = await showDatePicker(
+                                    context: context,
+                                    initialDate: _fromDate ?? DateTime.now(),
+                                    firstDate: DateTime.now().subtract(
+                                      Duration(days: 365),
+                                    ),
+                                    lastDate: DateTime.now().add(
+                                      Duration(days: 365 * 2),
+                                    ),
+                                  );
+                                  if (picked != null) {
+                                    setState(() {
+                                      _fromDate = picked;
+                                      _fromDateController.text =
+                                          _formatDateDisplay(picked);
+                                    });
+                                  }
+                                },
+                                validator: (value) {
+                                  if (_fromDate == null) {
+                                    return 'Please select from date';
+                                  }
+                                  return null;
+                                },
+                              ),
+                              SizedBox(height: 12),
+
+                              // Due Date Picker
+                              TextFormField(
+                                controller: _dueDateController,
+                                decoration: InputDecoration(
+                                  labelText: 'Due Date',
+                                  border: OutlineInputBorder(),
+                                  prefixIcon: Icon(Icons.event, size: 20),
+                                  suffixIcon: Icon(
+                                    Icons.calendar_today,
+                                    size: 20,
+                                  ),
+                                  contentPadding: EdgeInsets.symmetric(
+                                    horizontal: 12,
+                                    vertical: 8,
+                                  ),
+                                ),
+                                style: TextStyle(fontSize: 14),
+                                readOnly: true,
+                                onTap: () async {
+                                  DateTime initialDate =
+                                      _dueDate ?? DateTime.now();
+
+                                  // If from date is selected, due date should be after from date
+                                  if (_fromDate != null &&
+                                      initialDate.isBefore(_fromDate!)) {
+                                    initialDate = _fromDate!;
+                                  }
+
+                                  final DateTime? picked = await showDatePicker(
+                                    context: context,
+                                    initialDate: initialDate,
+                                    firstDate: _fromDate ?? DateTime.now(),
+                                    lastDate: DateTime.now().add(
+                                      Duration(days: 365 * 2),
+                                    ),
+                                  );
+                                  if (picked != null) {
+                                    setState(() {
+                                      _dueDate = picked;
+                                      _dueDateController.text =
+                                          _formatDateDisplay(picked);
+                                    });
+                                  }
+                                },
+                                validator: (value) {
+                                  if (_dueDate == null) {
+                                    return 'Please select due date';
+                                  }
+                                  if (_fromDate != null &&
+                                      _dueDate!.isBefore(_fromDate!)) {
+                                    return 'Due date must be after from date';
                                   }
                                   return null;
                                 },
@@ -1148,6 +1325,47 @@ class _SelectTypeWithErrorHandlingState
                                 validator: (value) {
                                   if (value == null || value.isEmpty) {
                                     return 'Please select meal timing';
+                                  }
+                                  return null;
+                                },
+                              ),
+                              SizedBox(height: 12),
+
+                              // Time Picker
+                              TextFormField(
+                                decoration: InputDecoration(
+                                  labelText: 'Time',
+                                  border: OutlineInputBorder(),
+                                  prefixIcon: Icon(Icons.access_time, size: 20),
+                                  suffixIcon: Icon(Icons.schedule, size: 20),
+                                  contentPadding: EdgeInsets.symmetric(
+                                    horizontal: 12,
+                                    vertical: 8,
+                                  ),
+                                ),
+                                style: TextStyle(fontSize: 14),
+                                readOnly: true,
+                                controller: TextEditingController(
+                                  text: _selectedTime != null
+                                      ? _selectedTime!.format(context)
+                                      : '',
+                                ),
+                                onTap: () async {
+                                  final TimeOfDay? picked =
+                                      await showTimePicker(
+                                        context: context,
+                                        initialTime:
+                                            _selectedTime ?? TimeOfDay.now(),
+                                      );
+                                  if (picked != null) {
+                                    setState(() {
+                                      _selectedTime = picked;
+                                    });
+                                  }
+                                },
+                                validator: (value) {
+                                  if (_selectedTime == null) {
+                                    return 'Please select time';
                                   }
                                   return null;
                                 },
@@ -1190,54 +1408,167 @@ class _SelectTypeWithErrorHandlingState
                         mainAxisAlignment: MainAxisAlignment.end,
                         children: [
                           TextButton(
-                            onPressed: () {
-                              _taskNameController.dispose();
-                              _medicationNameController.dispose();
-                              _roundsController.dispose();
-                              _dosageController.dispose();
-                              _descriptionController.dispose();
-                              Navigator.pop(context);
-                            },
+                            onPressed: _isSubmitting
+                                ? null
+                                : () {
+                                    // Dispose controllers
+                                    _medicationNameController.dispose();
+                                    _dosageController.dispose();
+                                    _descriptionController.dispose();
+                                    _fromDateController.dispose();
+                                    _dueDateController.dispose();
+                                    Navigator.pop(context);
+                                  },
                             child: Text('Cancel'),
                           ),
                           SizedBox(width: 8),
                           ElevatedButton(
-                            onPressed: () {
-                              if (_formKey.currentState!.validate()) {
-                                // Create the medication data
-                                final medicationData = {
-                                  'taskName': _taskNameController.text.trim(),
-                                  'medicationName': _medicationNameController
-                                      .text
-                                      .trim(),
-                                  'rounds': int.parse(
-                                    _roundsController.text.trim(),
-                                  ),
-                                  'dosage': _dosageController.text.trim(),
-                                  'mealTiming': _selectedMealTiming!,
-                                  'description': _descriptionController.text
-                                      .trim(),
-                                  'type': 'medication_reminder',
-                                };
+                            onPressed: _isSubmitting
+                                ? null
+                                : () async {
+                                    if (_formKey.currentState!.validate()) {
+                                      setState(() {
+                                        _isSubmitting = true;
+                                      });
 
-                                // Clean up controllers
-                                _taskNameController.dispose();
-                                _medicationNameController.dispose();
-                                _roundsController.dispose();
-                                _dosageController.dispose();
-                                _descriptionController.dispose();
+                                      try {
+                                        // Format time as HH:mm
+                                        String timeString =
+                                            '${_selectedTime!.hour.toString().padLeft(2, '0')}:${_selectedTime!.minute.toString().padLeft(2, '0')}';
 
-                                Navigator.pop(context);
+                                        // Format dates for API (YYYY-MM-DD)
+                                        String fromDateString =
+                                            _fromDate != null
+                                            ? _formatDate(_fromDate!)
+                                            : '';
+                                        String dueDateString = _dueDate != null
+                                            ? _formatDate(_dueDate!)
+                                            : '';
 
-                                // Navigate with the collected data
-                                Navigator.pushNamed(
-                                  context,
-                                  Approute.addMedication,
-                                  arguments: medicationData,
-                                );
-                              }
-                            },
-                            child: Text('Add Medication'),
+                                        print('Medication Data:');
+                                        print(
+                                          'Medication: ${_medicationNameController.text.trim()}',
+                                        );
+                                        print(
+                                          'Dosage: ${_dosageController.text.trim()}',
+                                        );
+                                        print('From Date: $fromDateString');
+                                        print('Due Date: $dueDateString');
+                                        print(
+                                          'Meal Timing: $_selectedMealTiming',
+                                        );
+                                        print('Time: $timeString');
+                                        print(
+                                          'Description: ${_descriptionController.text.trim()}',
+                                        );
+
+                                        int patientId =
+                                            2; // TODO: get from context or user profile
+
+                                        MedicationReminderRequest
+                                        medicationRequest =
+                                            MedicationReminderRequest(
+                                              medicationName:
+                                                  _medicationNameController.text
+                                                      .trim(),
+                                              dosage: _dosageController.text
+                                                  .trim(),
+                                              mealTiming:
+                                                  _selectedMealTiming ?? '',
+                                              description:
+                                                  _descriptionController.text
+                                                      .trim(),
+                                              time: timeString,
+                                              patientId: patientId,
+                                              fromDate: fromDateString,
+                                              dueDate: dueDateString,
+                                            );
+
+                                        Models.ApiResult<MedicationReminder>
+                                        result =
+                                            await MedicationAPI
+                                                .MedicationService.createMedicationReminder(
+                                              scheduleId,
+                                              medicationRequest,
+                                            );
+
+                                        print(
+                                          'API Response: success=${result.success}, message=${result.message}, data=${result.data}',
+                                        );
+
+                                        if (result.success &&
+                                            result.data != null) {
+                                          Navigator.pop(
+                                            context,
+                                          ); // Close dialog
+                                          ScaffoldMessenger.of(
+                                            context,
+                                          ).showSnackBar(
+                                            SnackBar(
+                                              content: Text(
+                                                'Medication reminder added successfully!',
+                                              ),
+                                              backgroundColor: Colors.green,
+                                              behavior:
+                                                  SnackBarBehavior.floating,
+                                            ),
+                                          );
+                                        } else {
+                                          print(
+                                            'DEBUG: Medication API request: ${medicationRequest.toJson()}',
+                                          );
+                                          print(
+                                            'DEBUG: Medication API error message: ${result.message}',
+                                          );
+                                          ScaffoldMessenger.of(
+                                            context,
+                                          ).showSnackBar(
+                                            SnackBar(
+                                              content: Text(
+                                                result.message.isNotEmpty
+                                                    ? result.message
+                                                    : 'Failed to add medication reminder.',
+                                              ),
+                                              backgroundColor: Colors.red,
+                                              behavior:
+                                                  SnackBarBehavior.floating,
+                                            ),
+                                          );
+                                        }
+                                      } catch (e) {
+                                        print('Error adding medication: $e');
+                                        ScaffoldMessenger.of(
+                                          context,
+                                        ).showSnackBar(
+                                          SnackBar(
+                                            content: Text(
+                                              'Failed to add medication reminder. Please try again.',
+                                            ),
+                                            backgroundColor: Colors.red,
+                                            behavior: SnackBarBehavior.floating,
+                                          ),
+                                        );
+                                      } finally {
+                                        if (mounted) {
+                                          setState(() {
+                                            _isSubmitting = false;
+                                          });
+                                        }
+                                      }
+                                    }
+                                  },
+                            child: _isSubmitting
+                                ? SizedBox(
+                                    height: 16,
+                                    width: 16,
+                                    child: CircularProgressIndicator(
+                                      strokeWidth: 2,
+                                      valueColor: AlwaysStoppedAnimation<Color>(
+                                        Colors.white,
+                                      ),
+                                    ),
+                                  )
+                                : Text('Add Medication'),
                           ),
                         ],
                       ),
@@ -1522,7 +1853,7 @@ class _SelectTypeWithErrorHandlingState
                           ),
                           SizedBox(width: 8),
                           ElevatedButton(
-                            onPressed: () {
+                            onPressed: () async {
                               if (_formKey.currentState!.validate()) {
                                 if (_selectedDate == null) {
                                   ScaffoldMessenger.of(context).showSnackBar(
@@ -1541,34 +1872,93 @@ class _SelectTypeWithErrorHandlingState
                                   return;
                                 }
 
-                                // Create the appointment data
-                                final appointmentData = {
-                                  'taskName': _taskNameController.text.trim(),
-                                  'hospital': _hospitalController.text.trim(),
-                                  'doctorName': _doctorNameController.text
-                                      .trim(),
-                                  'date':
-                                      '${_selectedDate!.day}/${_selectedDate!.month}/${_selectedDate!.year}',
-                                  'time': _selectedTime!.format(context),
-                                  'description': _descriptionController.text
-                                      .trim(),
-                                  'type': 'appointment',
-                                };
-
-                                // Clean up controllers
-                                _taskNameController.dispose();
-                                _hospitalController.dispose();
-                                _doctorNameController.dispose();
-                                _descriptionController.dispose();
-
-                                Navigator.pop(context);
-
-                                // Navigate with the collected data
-                                Navigator.pushNamed(
-                                  context,
-                                  Approute.addAppointment,
-                                  arguments: appointmentData,
+                                // Show loading indicator
+                                showDialog(
+                                  context: context,
+                                  barrierDismissible: false,
+                                  builder: (BuildContext context) {
+                                    return Center(
+                                      child: CircularProgressIndicator(),
+                                    );
+                                  },
                                 );
+
+                                try {
+                                  // Format date for backend (YYYY-MM-DD)
+                                  String formattedDate =
+                                      '${_selectedDate!.year}-${_selectedDate!.month.toString().padLeft(2, '0')}-${_selectedDate!.day.toString().padLeft(2, '0')}';
+
+                                  // Format time for backend (HH:MM:SS)
+                                  String formattedTime =
+                                      '${_selectedTime!.hour.toString().padLeft(2, '0')}:${_selectedTime!.minute.toString().padLeft(2, '0')}:00';
+
+                                  // Create appointment
+                                  AppointmentRequest
+                                  appointmentRequest = AppointmentRequest(
+                                    taskName: _taskNameController.text.trim(),
+                                    hospital: _hospitalController.text.trim(),
+                                    doctorName: _doctorNameController.text
+                                        .trim(),
+                                    description: _descriptionController.text
+                                        .trim(),
+                                    date: formattedDate,
+                                    time: formattedTime,
+                                  );
+
+                                  final result =
+                                      await AppointmentService.createAppointment(
+                                        scheduleId,
+                                        appointmentRequest,
+                                      );
+
+                                  // Hide loading indicator
+                                  Navigator.pop(context);
+
+                                  if (result.success) {
+                                    // Clean up controllers
+                                    _taskNameController.dispose();
+                                    _hospitalController.dispose();
+                                    _doctorNameController.dispose();
+                                    _descriptionController.dispose();
+
+                                    // Close dialog
+                                    Navigator.pop(context);
+
+                                    // Show success message
+                                    ScaffoldMessenger.of(context).showSnackBar(
+                                      SnackBar(
+                                        content: Text(
+                                          'Appointment created successfully! Both appointment and care activity tables have been updated.',
+                                        ),
+                                        backgroundColor: Colors.green,
+                                        duration: Duration(seconds: 3),
+                                      ),
+                                    );
+                                  } else {
+                                    // Show error message
+                                    ScaffoldMessenger.of(context).showSnackBar(
+                                      SnackBar(
+                                        content: Text(
+                                          result.message.isNotEmpty
+                                              ? result.message
+                                              : 'Failed to create appointment',
+                                        ),
+                                        backgroundColor: Colors.red,
+                                      ),
+                                    );
+                                  }
+                                } catch (e) {
+                                  // Hide loading indicator
+                                  Navigator.pop(context);
+
+                                  // Show error message
+                                  ScaffoldMessenger.of(context).showSnackBar(
+                                    SnackBar(
+                                      content: Text('Error: $e'),
+                                      backgroundColor: Colors.red,
+                                    ),
+                                  );
+                                }
                               }
                             },
                             child: Text('Add Appointment'),
@@ -1584,111 +1974,6 @@ class _SelectTypeWithErrorHandlingState
         );
       },
     );
-  }
-
-  void _showTodayRoutineDialog() {
-    _showCustomDialog(
-      title: 'Today\'s Routine',
-      content: 'View and manage your routine for today.',
-      icon: Icons.today,
-      iconColor: Color(0xFF6C9BD1),
-      actions: [
-        TextButton(
-          onPressed: () => Navigator.pop(context),
-          child: Text('Close'),
-        ),
-        ElevatedButton(
-          onPressed: () {
-            Navigator.pop(context);
-            // Navigate to today's routine page
-            _safeNavigate('/today-routine');
-          },
-          child: Text('View Routine'),
-        ),
-      ],
-    );
-  }
-
-  void _showCustomDialog({
-    required String title,
-    required String content,
-    required IconData icon,
-    required Color iconColor,
-    required List<Widget> actions,
-  }) {
-    showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return AlertDialog(
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(16),
-          ),
-          title: Row(
-            children: [
-              Container(
-                padding: EdgeInsets.all(8),
-                decoration: BoxDecoration(
-                  color: iconColor.withOpacity(0.1),
-                  borderRadius: BorderRadius.circular(8),
-                ),
-                child: Icon(icon, color: iconColor, size: 24),
-              ),
-              SizedBox(width: 12),
-              Expanded(
-                child: Text(
-                  title,
-                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.w600),
-                ),
-              ),
-            ],
-          ),
-          content: Text(
-            content,
-            style: TextStyle(fontSize: 14, color: Colors.grey[600]),
-          ),
-          actions: actions,
-        );
-      },
-    );
-  }
-
-  void _handleBottomNavigation(int index) {
-    try {
-      if (index == 0) {
-        _safeNavigate(Approute.caregiverDashboard);
-      } else if (index == 2) {
-        _safeNavigate(Approute.viewArticleList);
-      } else if (index == 3) {
-        _safeNavigate(Approute.caregiverProfile);
-      } else {
-        setState(() {
-          _currentIndex = index;
-        });
-      }
-    } catch (e) {
-      ErrorHandler.handleError(
-        AppError(
-          type: ErrorType.navigation,
-          message: 'Failed to navigate to tab',
-          details: e.toString(),
-        ),
-      );
-    }
-  }
-
-  void _safeNavigate(String route) {
-    try {
-      Navigator.pushNamed(context, route);
-    } catch (e) {
-      ErrorHandler.handleError(
-        AppError(
-          type: ErrorType.navigation,
-          message: 'Failed to navigate to $route',
-          details: e.toString(),
-        ),
-      );
-      _showErrorSnackBar('Navigation failed. Please try again.');
-    }
   }
 
   // These methods are now replaced by dialog methods above
@@ -1801,10 +2086,12 @@ class AddMedicationScreen extends StatefulWidget {
 }
 
 class _AddMedicationScreenState extends State<AddMedicationScreen> {
+  int? selectedPatientId;
+  String? selectedFromDate;
+  String? selectedDueDate;
+  String? selectedTime;
   final _formKey = GlobalKey<FormState>();
-  final _taskController = TextEditingController();
   final _medicationController = TextEditingController();
-  final _roundsController = TextEditingController();
   final _dosageController = TextEditingController();
   final _descriptionController = TextEditingController();
 
@@ -1849,18 +2136,6 @@ class _AddMedicationScreenState extends State<AddMedicationScreen> {
                         ),
                       ),
                       SizedBox(height: 16),
-
-                      TextFormField(
-                        controller: _taskController,
-                        decoration: InputDecoration(
-                          labelText: 'Task',
-                          border: OutlineInputBorder(),
-                        ),
-                        validator: (value) =>
-                            FormValidator.validateRequired(value, 'Task'),
-                      ),
-                      SizedBox(height: 16),
-
                       TextFormField(
                         controller: _medicationController,
                         decoration: InputDecoration(
@@ -1870,18 +2145,6 @@ class _AddMedicationScreenState extends State<AddMedicationScreen> {
                         validator: FormValidator.validateMedicationName,
                       ),
                       SizedBox(height: 16),
-
-                      TextFormField(
-                        controller: _roundsController,
-                        decoration: InputDecoration(
-                          labelText: 'No of rounds',
-                          border: OutlineInputBorder(),
-                        ),
-                        keyboardType: TextInputType.number,
-                        validator: FormValidator.validateRounds,
-                      ),
-                      SizedBox(height: 16),
-
                       TextFormField(
                         controller: _dosageController,
                         decoration: InputDecoration(
@@ -1891,7 +2154,6 @@ class _AddMedicationScreenState extends State<AddMedicationScreen> {
                         validator: FormValidator.validateDosage,
                       ),
                       SizedBox(height: 16),
-
                       DropdownButtonFormField<String>(
                         value: _selectedMealTiming,
                         decoration: InputDecoration(
@@ -1917,7 +2179,6 @@ class _AddMedicationScreenState extends State<AddMedicationScreen> {
                         ),
                       ),
                       SizedBox(height: 16),
-
                       TextFormField(
                         controller: _descriptionController,
                         decoration: InputDecoration(
@@ -1926,13 +2187,118 @@ class _AddMedicationScreenState extends State<AddMedicationScreen> {
                         ),
                         maxLines: 3,
                       ),
+                      SizedBox(height: 16),
+                      DropdownButtonFormField<int>(
+                        value: selectedPatientId,
+                        decoration: InputDecoration(
+                          labelText: 'Patient',
+                          border: OutlineInputBorder(),
+                        ),
+                        items: [
+                          DropdownMenuItem(value: 1, child: Text('Patient 1')),
+                          DropdownMenuItem(value: 2, child: Text('Patient 2')),
+                        ],
+                        onChanged: (value) {
+                          setState(() {
+                            selectedPatientId = value;
+                          });
+                        },
+                        validator: (value) =>
+                            value == null ? 'Select a patient' : null,
+                      ),
+                      SizedBox(height: 16),
+                      TextFormField(
+                        readOnly: true,
+                        decoration: InputDecoration(
+                          labelText: 'From Date',
+                          border: OutlineInputBorder(),
+                        ),
+                        controller: TextEditingController(
+                          text: selectedFromDate ?? '',
+                        ),
+                        onTap: () async {
+                          DateTime? picked = await showDatePicker(
+                            context: context,
+                            initialDate: DateTime.now(),
+                            firstDate: DateTime(2020),
+                            lastDate: DateTime(2100),
+                          );
+                          if (picked != null) {
+                            setState(() {
+                              selectedFromDate = picked
+                                  .toIso8601String()
+                                  .substring(0, 10);
+                            });
+                          }
+                        },
+                        validator: (value) =>
+                            (selectedFromDate == null ||
+                                selectedFromDate!.isEmpty)
+                            ? 'Select from date'
+                            : null,
+                      ),
+                      SizedBox(height: 16),
+                      TextFormField(
+                        readOnly: true,
+                        decoration: InputDecoration(
+                          labelText: 'Due Date',
+                          border: OutlineInputBorder(),
+                        ),
+                        controller: TextEditingController(
+                          text: selectedDueDate ?? '',
+                        ),
+                        onTap: () async {
+                          DateTime? picked = await showDatePicker(
+                            context: context,
+                            initialDate: DateTime.now(),
+                            firstDate: DateTime(2020),
+                            lastDate: DateTime(2100),
+                          );
+                          if (picked != null) {
+                            setState(() {
+                              selectedDueDate = picked
+                                  .toIso8601String()
+                                  .substring(0, 10);
+                            });
+                          }
+                        },
+                        validator: (value) =>
+                            (selectedDueDate == null ||
+                                selectedDueDate!.isEmpty)
+                            ? 'Select due date'
+                            : null,
+                      ),
+                      SizedBox(height: 16),
+                      TextFormField(
+                        readOnly: true,
+                        decoration: InputDecoration(
+                          labelText: 'Time',
+                          border: OutlineInputBorder(),
+                        ),
+                        controller: TextEditingController(
+                          text: selectedTime ?? '',
+                        ),
+                        onTap: () async {
+                          TimeOfDay? picked = await showTimePicker(
+                            context: context,
+                            initialTime: TimeOfDay.now(),
+                          );
+                          if (picked != null) {
+                            setState(() {
+                              selectedTime = picked.format(context);
+                            });
+                          }
+                        },
+                        validator: (value) =>
+                            (selectedTime == null || selectedTime!.isEmpty)
+                            ? 'Select time'
+                            : null,
+                      ),
                     ],
                   ),
                 ),
               ),
-
               SizedBox(height: 16),
-
               Row(
                 children: [
                   Expanded(
@@ -1977,19 +2343,84 @@ class _AddMedicationScreenState extends State<AddMedicationScreen> {
 
   void _handleAdd() async {
     if (_formKey.currentState?.validate() ?? false) {
+      // Validate patientId, fromDate, dueDate, and time
+      if ((selectedPatientId ?? 0) == 0) {
+        ErrorHandler.handleError(
+          AppError(
+            type: ErrorType.validation,
+            message: 'Please select a valid patient.',
+          ),
+        );
+        return;
+      }
+      if ((selectedFromDate ?? '').isEmpty) {
+        ErrorHandler.handleError(
+          AppError(
+            type: ErrorType.validation,
+            message: 'Please select a valid from date.',
+          ),
+        );
+        return;
+      }
+      if ((selectedDueDate ?? '').isEmpty) {
+        ErrorHandler.handleError(
+          AppError(
+            type: ErrorType.validation,
+            message: 'Please select a valid due date.',
+          ),
+        );
+        return;
+      }
+      if ((selectedTime ?? '').isEmpty) {
+        ErrorHandler.handleError(
+          AppError(
+            type: ErrorType.validation,
+            message: 'Please select a valid time.',
+          ),
+        );
+        return;
+      }
       setState(() {
         _isLoading = true;
       });
-
       try {
-        await NetworkService.safeApiCall(() async {
-          // Simulate API call
-          await Future.delayed(Duration(seconds: 2));
-
-          // Add your actual API call here
-          print('Adding medication...');
-        });
-
+        // Build MedicationReminderRequest
+        // Format time as HH:mm:ss for backend
+        String formattedTime = '';
+        if (selectedTime != null && selectedTime!.isNotEmpty) {
+          // If selectedTime is already in HH:mm, add :00 for seconds
+          if (RegExp(r'^\d{2}:\d{2}$').hasMatch(selectedTime!)) {
+            formattedTime = selectedTime! + ':00';
+          } else {
+            formattedTime = selectedTime!;
+          }
+        }
+        MedicationReminderRequest request = MedicationReminderRequest(
+          medicationName: _medicationController.text,
+          dosage: _dosageController.text,
+          mealTiming: _selectedMealTiming ?? '',
+          description: _descriptionController.text,
+          time: formattedTime,
+          patientId: selectedPatientId ?? 0,
+          fromDate: selectedFromDate ?? '',
+          dueDate: selectedDueDate ?? '',
+        );
+        // Call your API here
+        final result =
+            await MedicationAPI.MedicationService.createMedicationReminder(
+              1, // TODO: Replace with actual scheduleId
+              request,
+            );
+        if (result.success) {
+          if (mounted) {
+            _showSuccessSnackBar('Medication added successfully!');
+            Navigator.pop(context);
+          }
+        } else {
+          ErrorHandler.handleError(
+            AppError(type: ErrorType.unknown, message: result.message),
+          );
+        }
         if (mounted) {
           _showSuccessSnackBar('Medication added successfully!');
           Navigator.pop(context);
@@ -2066,9 +2497,7 @@ class _AddMedicationScreenState extends State<AddMedicationScreen> {
 
   @override
   void dispose() {
-    _taskController.dispose();
     _medicationController.dispose();
-    _roundsController.dispose();
     _dosageController.dispose();
     _descriptionController.dispose();
     super.dispose();

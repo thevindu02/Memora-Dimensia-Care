@@ -136,10 +136,9 @@ class DailyActivityService {
         '$baseUrl/api/schedules/$scheduleId/daily-activities',
       );
 
-      final response = await http.get(
-        url,
-        headers: {'Content-Type': 'application/json'},
-      );
+      final response = await http
+          .get(url, headers: {'Content-Type': 'application/json'})
+          .timeout(Duration(seconds: 10));
 
       final Map<String, dynamic> responseData = jsonDecode(response.body);
 
