@@ -69,8 +69,16 @@ class _PatientProfileScreenState extends State<PatientProfileScreen> {
 
   void _updateControllers() {
     if (_patientData == null) return;
-    _firstNameController.text = _patientData!['FName'] ?? '';
-    _lastNameController.text = _patientData!['LName'] ?? '';
+    _firstNameController.text =
+      _patientData!['fName'] ??
+      _patientData!['FName'] ??
+      _patientData!['fname'] ??
+      '';
+    _lastNameController.text =
+      _patientData!['lName'] ??
+      _patientData!['LName'] ??
+      _patientData!['lname'] ??
+      '';
     _emailController.text = _patientData!['email'] ?? '';
     _phoneController.text = _patientData!['phoneNumber'] ?? '';
     _genderController.text = _patientData!['gender'] ?? '';
@@ -127,19 +135,28 @@ class _PatientProfileScreenState extends State<PatientProfileScreen> {
         _isLoading = true;
       });
 
-      // TODO: Implement your update logic here (call PatientService.updateProfile)
-      // Example:
-      // final success = await PatientService.updateProfile(...);
-
-      // Simulate success for now:
-      await Future.delayed(Duration(seconds: 1));
-      final success = true;
+      final result = await PatientService.updateProfile(
+        patientId: widget.patientId,
+        fName: _firstNameController.text.trim(),
+        lName: _lastNameController.text.trim(),
+        birthdate: _birthdayController.text.trim(),
+        gender: _genderController.text.trim(),
+        phoneNumber: _phoneController.text.trim(),
+        street: _streetController.text.trim(),
+        city: _cityController.text.trim(),
+        state: _stateController.text.trim(),
+        email: _emailController.text.trim(),
+        dementiaType: _dementiaTypeController.text.trim(),
+        dementiaStage: _dementiaStageController.text.trim(),
+        label: _labelController.text.trim(),
+        profilePic: null, // or your logic
+      );
 
       setState(() {
         _isLoading = false;
       });
 
-      if (success) {
+      if (result.success) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text('Profile updated successfully!'),
@@ -149,12 +166,11 @@ class _PatientProfileScreenState extends State<PatientProfileScreen> {
         setState(() {
           _isEditing = false;
         });
-        // Update originals
-        _updateControllers();
+        _loadPatientProfile(widget.patientId); // reload updated data
       } else {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('Failed to update profile.'),
+            content: Text('Failed to update profile: ${result.message}'),
             backgroundColor: Colors.red,
           ),
         );
