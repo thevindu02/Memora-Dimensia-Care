@@ -9,9 +9,13 @@ import '../../constants/color_constants.dart';
 
 class VolunteerBottomNavigation extends StatelessWidget {
   final String currentPage;
+  final int volunteerId; // <-- Add this
 
-  const VolunteerBottomNavigation({Key? key, required this.currentPage})
-    : super(key: key);
+  const VolunteerBottomNavigation({
+    Key? key,
+    required this.currentPage,
+    required this.volunteerId, // <-- Add this
+  }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -34,7 +38,7 @@ class VolunteerBottomNavigation extends StatelessWidget {
                 Navigator.pushReplacement(
                   context,
                   MaterialPageRoute(
-                    builder: (context) => VolunteerDashboardScreen(),
+                    builder: (context) => VolunteerDashboardScreen(volunteerId: volunteerId), // <-- FIXED
                   ),
                 );
               }
@@ -50,7 +54,7 @@ class VolunteerBottomNavigation extends StatelessWidget {
                 Navigator.pushReplacement(
                   context,
                   MaterialPageRoute(
-                    builder: (context) => VolunteerCreateContentScreen(),
+                    builder: (context) => VolunteerCreateContentScreen(volunteerId: volunteerId), // <-- FIXED
                   ),
                 );
               }
@@ -66,7 +70,7 @@ class VolunteerBottomNavigation extends StatelessWidget {
                 Navigator.pushReplacement(
                   context,
                   MaterialPageRoute(
-                    builder: (context) => VolunteerCommunityScreen(),
+                    builder: (context) => VolunteerCommunityScreen(volunteerId: volunteerId), // <-- Pass volunteerId here
                   ),
                 );
               }
@@ -82,7 +86,7 @@ class VolunteerBottomNavigation extends StatelessWidget {
                 Navigator.pushReplacement(
                   context,
                   MaterialPageRoute(
-                    builder: (context) => VolunteerProfileScreen(),
+                    builder: (context) => VolunteerProfileScreen(volunteerId: volunteerId), // <-- Pass volunteerId here
                   ),
                 );
               }

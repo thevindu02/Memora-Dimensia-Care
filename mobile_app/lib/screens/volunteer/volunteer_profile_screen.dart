@@ -235,12 +235,7 @@ class _VolunteerProfileScreenState extends State<VolunteerProfileScreen> {
         leading: IconButton(
           icon: Icon(Icons.arrow_back, color: AppColors.onSurface),
           onPressed: () {
-            Navigator.push(
-              context,
-              MaterialPageRoute(
-                builder: (context) => VolunteerProfileScreen(volunteerId: widget.volunteerId),
-              ),
-            );
+            Navigator.pushNamed(context, AppRoutes.volunteerDashboard);
           },
         ),
         title: Text(
@@ -473,7 +468,10 @@ class _VolunteerProfileScreenState extends State<VolunteerProfileScreen> {
           ],
         ),
       ),
-      bottomNavigationBar: VolunteerBottomNavigation(currentPage: 'profile'),
+      bottomNavigationBar: VolunteerBottomNavigation(
+        currentPage: 'profile',
+        volunteerId: widget.volunteerId, // <-- Pass volunteerId here
+      ),
     );
   }
 

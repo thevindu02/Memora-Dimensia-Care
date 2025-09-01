@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 
 class VolunteerScheduleSessionScreen extends StatefulWidget {
-  const VolunteerScheduleSessionScreen({Key? key}) : super(key: key);
+  final int volunteerId; // <-- Add this line
+
+  const VolunteerScheduleSessionScreen({Key? key, required this.volunteerId}) : super(key: key); // <-- Update constructor
 
   @override
   State<VolunteerScheduleSessionScreen> createState() =>
@@ -95,6 +97,11 @@ class _VolunteerScheduleSessionScreenState
     ScaffoldMessenger.of(
       context,
     ).showSnackBar(SnackBar(content: Text('Session scheduled successfully!')));
+  }
+
+  void someMethod() {
+    final id = widget.volunteerId;
+    // Use id as needed
   }
 
   @override
