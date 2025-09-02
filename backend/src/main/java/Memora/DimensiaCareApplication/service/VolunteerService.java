@@ -29,7 +29,7 @@ public class VolunteerService {
         resp.setPhoneNumber(user.getPhoneNumber());
         resp.setGender(user.getGender());
         resp.setProfilePic(user.getProfilePic());
-        resp.setVolunteerIdImage(volunteer.getVolunteerIdImage());
+        resp.setVolunteerIdImage(volunteer.getVolunteerIdImage()); // <-- THIS IS IMPORTANT
         return resp;
     }
 }

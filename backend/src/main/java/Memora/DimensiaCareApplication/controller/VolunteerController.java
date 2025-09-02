@@ -15,9 +15,7 @@ public class VolunteerController {
     @GetMapping("/{volunteerId}/profile")
     public ResponseEntity<VolunteerProfileResponse> getVolunteerProfile(@PathVariable Long volunteerId) {
         VolunteerProfileResponse resp = volunteerService.getVolunteerProfile(volunteerId);
-        if (resp == null) {
-            return ResponseEntity.notFound().build();
-        }
+        if (resp == null) return ResponseEntity.notFound().build();
         return ResponseEntity.ok(resp);
     }
 }

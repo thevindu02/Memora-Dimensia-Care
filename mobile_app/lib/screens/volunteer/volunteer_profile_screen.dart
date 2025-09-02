@@ -17,30 +17,22 @@ class VolunteerProfileScreen extends StatefulWidget {
 class _VolunteerProfileScreenState extends State<VolunteerProfileScreen> {
   int _selectedIndex = 3;
   bool _isEditing = false;
-  bool _isLoading = false;
+  bool _isLoading = true;
   File? _profileImage;
   File? _originalProfileImage;
   final ImagePicker _picker = ImagePicker();
 
   // Text editing controllers
-  final TextEditingController _fullNameController = TextEditingController(
-    text: 'John Smith',
-  );
-  final TextEditingController _emailController = TextEditingController(
-    text: 'john.smith@example.com',
-  );
-  final TextEditingController _phoneController = TextEditingController(
-    text: '+1 (555) 123-4567',
-  );
-  final TextEditingController _genderController = TextEditingController(
-    text: 'Male',
-  );
+  final TextEditingController _fullNameController = TextEditingController();
+  final TextEditingController _emailController = TextEditingController();
+  final TextEditingController _phoneController = TextEditingController();
+  final TextEditingController _genderController = TextEditingController();
 
   // Store original values to compare
-  String _originalName = 'John Smith';
-  String _originalEmail = 'john.smith@example.com';
-  String _originalPhone = '+1 (555) 123-4567';
-  String _originalGender = 'Male';
+  String _originalName = '';
+  String _originalEmail = '';
+  String _originalPhone = '';
+  String _originalGender = '';
 
   @override
   void initState() {
@@ -58,15 +50,25 @@ class _VolunteerProfileScreenState extends State<VolunteerProfileScreen> {
   }
 
   Future<void> _loadVolunteerProfile() async {
+    setState(() => _isLoading = true);
     final data = await VolunteerService.getVolunteerProfile(widget.volunteerId);
     if (data != null) {
       setState(() {
-        _fullNameController.text = '${data['FName']} ${data['LName']}';
+        _fullNameController.text =
+          (data['FName'] ?? data['f_name'] ?? data['fname'] ?? '') +
+          ' ' +
+          (data['LName'] ?? data['l_name'] ?? data['lname'] ?? '');
         _emailController.text = data['email'] ?? '';
-        _phoneController.text = data['phoneNumber'] ?? '';
+        _phoneController.text = data['phoneNumber'] ?? data['phone_number'] ?? '';
         _genderController.text = data['gender'] ?? '';
-        // ...other fields...
+        _originalName = _fullNameController.text;
+        _originalEmail = _emailController.text;
+        _originalPhone = _phoneController.text;
+        _originalGender = _genderController.text;
+        _isLoading = false;
       });
+    } else {
+      setState(() => _isLoading = false);
     }
   }
 
@@ -227,6 +229,10 @@ class _VolunteerProfileScreenState extends State<VolunteerProfileScreen> {
 
   @override
   Widget build(BuildContext context) {
+    if (_isLoading) {
+      return const Center(child: CircularProgressIndicator());
+    }
+
     return Scaffold(
       backgroundColor: AppColors.surfaceVariant,
       appBar: AppBar(

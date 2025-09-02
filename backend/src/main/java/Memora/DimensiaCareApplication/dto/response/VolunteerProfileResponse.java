@@ -8,7 +8,7 @@ public class VolunteerProfileResponse {
     private String phoneNumber;
     private String gender;
     private String profilePic;
-    private String volunteerIdImage;
+    private String volunteerIdImage; // <-- THIS IS IMPORTANT
 
     public Long getVolunteerId() {
         return volunteerId;
