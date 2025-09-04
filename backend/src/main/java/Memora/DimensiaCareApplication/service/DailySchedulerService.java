@@ -2,6 +2,8 @@ package Memora.DimensiaCareApplication.service;
 
 import Memora.DimensiaCareApplication.model.*;
 import Memora.DimensiaCareApplication.repository.*;
+import Memora.DimensiaCareApplication.dto.DailyActivityRequest;
+import Memora.DimensiaCareApplication.dto.DailyActivityResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
@@ -123,6 +125,42 @@ public class DailySchedulerService {
     // creation)
     public void createTodaySchedulesManually() {
         createDailySchedulesForAllPatients();
+    }
+
+    /**
+     * Update a daily activity (task name, description, time) for a given
+     * dailyTaskId.
+     * Also updates the associated CareActivity time if provided.
+     */
+    public DailyActivityResponse updateDailyActivity(Long dailyTaskId, DailyActivityRequest request) {
+        DailyTask dailyTask = dailyTaskRepository.findById(dailyTaskId).orElse(null);
+        if (dailyTask == null) {
+            return null;
+        }
+
+        // Update task name and description
+        dailyTask.setDailyTaskName(request.getTaskName());
+        dailyTask.setDescription(request.getDescription());
+
+        // Update time in CareActivity if provided
+        if (request.getTime() != null && !request.getTime().isEmpty()) {
+            CareActivity careActivity = dailyTask.getCareActivity();
+            careActivity.setTime(request.getTimeAsLocalTime());
+            careActivityRepository.save(careActivity);
+        }
+
+        dailyTaskRepository.save(dailyTask);
+
+        // Build response
+        CareActivity careActivity = dailyTask.getCareActivity();
+        String status = careActivity.getStatus() != null ? careActivity.getStatus().name() : "PENDING";
+        return new DailyActivityResponse(
+                careActivity.getCareActivityId(),
+                dailyTask.getDailyTaskId(),
+                dailyTask.getDailyTaskName(),
+                careActivity.getTime() != null ? careActivity.getTime().toString() : null,
+                dailyTask.getDescription(),
+                status);
     }
 
     // Method to create schedules for a specific date (useful for testing)

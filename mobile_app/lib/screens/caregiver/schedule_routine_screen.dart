@@ -17,9 +17,9 @@ class ScheduleRoutine extends StatelessWidget {
 }
 
 class ScheduleTask {
-  final String title;
-  final String description;
-  final String time;
+  String title;
+  String description;
+  String time;
   final IconData icon;
   final Color color;
   bool isSelected;
@@ -196,6 +196,38 @@ class ScheduleRoutineScreen extends StatefulWidget {
 }
 
 class _ScheduleRoutineScreenState extends State<ScheduleRoutineScreen> {
+  List<Map<String, dynamic>> _gameList = [];
+  bool _isGameListLoading = false;
+  String? _gameListError;
+
+  Future<void> _fetchGameList() async {
+    setState(() {
+      _isGameListLoading = true;
+      _gameListError = null;
+    });
+    try {
+      final result = await TaskAPI.TaskService.getGames();
+      if (result.success && result.data != null) {
+        _gameList = (result.data as List<dynamic>)
+            .map(
+              (game) => {
+                'gameId': game['gameid'],
+                'name': game['name'],
+                'description': game['description'],
+              },
+            )
+            .toList();
+      } else {
+        _gameListError = result.message;
+      }
+    } catch (e) {
+      _gameListError = 'Error loading games: $e';
+    }
+    setState(() {
+      _isGameListLoading = false;
+    });
+  }
+
   List<ScheduleTask> tasks = [];
   String selectedTaskTitle = '';
   String? _patientName;
@@ -1460,11 +1492,9 @@ class _ScheduleRoutineScreenState extends State<ScheduleRoutineScreen> {
   }
 
   void _editTask(ScheduleTask task) {
-    // Show edit dialog for the task
-    showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        final _taskNameController = TextEditingController(text: task.title);
+    if (task.taskType == 'game') {
+      _fetchGameList().then((_) {
+        String selectedGameName = task.title;
         final _descriptionController = TextEditingController(
           text: task.description,
         );
@@ -1472,101 +1502,271 @@ class _ScheduleRoutineScreenState extends State<ScheduleRoutineScreen> {
           hour: int.parse(task.time.split(':')[0].split(' ')[0]),
           minute: int.parse(task.time.split(':')[1].split(' ')[0]),
         );
-
-        return StatefulBuilder(
-          builder: (context, setState) {
-            return AlertDialog(
-              title: Row(
-                children: [
-                  Icon(Icons.edit, color: Color(0xFF6B4EE6)),
-                  SizedBox(width: 8),
-                  Text('Edit Task'),
-                ],
-              ),
-              content: Container(
-                width: double.maxFinite,
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    // Task Name Field
-                    TextFormField(
-                      controller: _taskNameController,
-                      decoration: InputDecoration(
-                        labelText: 'Task Name',
-                        border: OutlineInputBorder(),
-                        prefixIcon: Icon(Icons.task_alt),
-                      ),
+        showDialog(
+          context: context,
+          builder: (BuildContext context) {
+            return StatefulBuilder(
+              builder: (context, setState) {
+                return AlertDialog(
+                  title: Row(
+                    children: [
+                      Icon(Icons.edit, color: Color(0xFF6B4EE6)),
+                      SizedBox(width: 8),
+                      Text('Edit Game Task'),
+                    ],
+                  ),
+                  content: Container(
+                    width: double.maxFinite,
+                    child: _isGameListLoading
+                        ? Center(child: CircularProgressIndicator())
+                        : _gameListError != null
+                        ? Text(
+                            _gameListError!,
+                            style: TextStyle(color: Colors.red),
+                          )
+                        : Column(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              DropdownButtonFormField<String>(
+                                value: selectedGameName,
+                                items: _gameList.map((game) {
+                                  return DropdownMenuItem<String>(
+                                    value: game['name'],
+                                    child: Text(game['name']),
+                                  );
+                                }).toList(),
+                                onChanged: (value) {
+                                  setState(() {
+                                    selectedGameName = value!;
+                                  });
+                                },
+                                decoration: InputDecoration(
+                                  labelText: 'Game Name',
+                                  border: OutlineInputBorder(),
+                                  prefixIcon: Icon(Icons.games),
+                                ),
+                              ),
+                              SizedBox(height: 16),
+                              InkWell(
+                                onTap: () async {
+                                  final TimeOfDay? picked =
+                                      await showTimePicker(
+                                        context: context,
+                                        initialTime:
+                                            _selectedTime ?? TimeOfDay.now(),
+                                      );
+                                  if (picked != null) {
+                                    setState(() {
+                                      _selectedTime = picked;
+                                    });
+                                  }
+                                },
+                                child: InputDecorator(
+                                  decoration: InputDecoration(
+                                    labelText: 'Time',
+                                    border: OutlineInputBorder(),
+                                    prefixIcon: Icon(Icons.access_time),
+                                  ),
+                                  child: Text(
+                                    _selectedTime != null
+                                        ? _selectedTime!.format(context)
+                                        : 'Select time',
+                                  ),
+                                ),
+                              ),
+                              SizedBox(height: 16),
+                              TextFormField(
+                                controller: _descriptionController,
+                                decoration: InputDecoration(
+                                  labelText: 'Description',
+                                  border: OutlineInputBorder(),
+                                  prefixIcon: Icon(Icons.description),
+                                ),
+                                maxLines: 3,
+                              ),
+                            ],
+                          ),
+                  ),
+                  actions: [
+                    TextButton(
+                      onPressed: () => Navigator.pop(context),
+                      child: Text('Cancel'),
                     ),
-                    SizedBox(height: 16),
-
-                    // Time Picker
-                    InkWell(
-                      onTap: () async {
-                        final TimeOfDay? picked = await showTimePicker(
-                          context: context,
-                          initialTime: _selectedTime ?? TimeOfDay.now(),
+                    ElevatedButton(
+                      onPressed: () async {
+                        final String formattedTime = _selectedTime != null
+                            ? _selectedTime!.hour.toString().padLeft(2, '0') +
+                                  ':' +
+                                  _selectedTime!.minute.toString().padLeft(
+                                    2,
+                                    '0',
+                                  )
+                            : '';
+                        final result = await TaskAPI.TaskService.editGameTask(
+                          taskId: task.dailyTaskId!,
+                          gameName: selectedGameName,
+                          time: formattedTime,
+                          description: _descriptionController.text.trim(),
                         );
-                        if (picked != null) {
+                        if (result.success) {
                           setState(() {
-                            _selectedTime = picked;
+                            task.title = selectedGameName;
+                            task.description = _descriptionController.text
+                                .trim();
+                            task.time = formattedTime;
                           });
+                          Navigator.pop(context);
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            SnackBar(
+                              content: Text('Game task updated successfully!'),
+                              backgroundColor: Colors.green,
+                            ),
+                          );
+                        } else {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            SnackBar(
+                              content: Text(result.message),
+                              backgroundColor: Colors.red,
+                            ),
+                          );
                         }
                       },
-                      child: InputDecorator(
-                        decoration: InputDecoration(
-                          labelText: 'Time',
-                          border: OutlineInputBorder(),
-                          prefixIcon: Icon(Icons.access_time),
-                        ),
-                        child: Text(
-                          _selectedTime != null
-                              ? _selectedTime!.format(context)
-                              : 'Select time',
-                        ),
-                      ),
-                    ),
-                    SizedBox(height: 16),
-
-                    // Description Field
-                    TextFormField(
-                      controller: _descriptionController,
-                      decoration: InputDecoration(
-                        labelText: 'Description',
-                        border: OutlineInputBorder(),
-                        prefixIcon: Icon(Icons.description),
-                      ),
-                      maxLines: 3,
+                      child: Text('Save'),
                     ),
                   ],
-                ),
-              ),
-              actions: [
-                TextButton(
-                  onPressed: () => Navigator.pop(context),
-                  child: Text('Cancel'),
-                ),
-                ElevatedButton(
-                  onPressed: () {
-                    // Update task locally (you can implement API call here)
-                    setState(() {
-                      // For now, just update the task object
-                      // You can implement the API call to update the task in the database
-                    });
-                    Navigator.pop(context);
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(
-                        content: Text('Task updated successfully!'),
-                        backgroundColor: Colors.green,
-                      ),
-                    );
-                  },
-                  child: Text('Save'),
-                ),
-              ],
+                );
+              },
             );
           },
         );
-      },
-    );
+      });
+    } else {
+      // ...existing code for daily activity edit...
+      showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          final _taskNameController = TextEditingController(text: task.title);
+          final _descriptionController = TextEditingController(
+            text: task.description,
+          );
+          TimeOfDay? _selectedTime = TimeOfDay(
+            hour: int.parse(task.time.split(':')[0].split(' ')[0]),
+            minute: int.parse(task.time.split(':')[1].split(' ')[0]),
+          );
+          return StatefulBuilder(
+            builder: (context, setState) {
+              return AlertDialog(
+                title: Row(
+                  children: [
+                    Icon(Icons.edit, color: Color(0xFF6B4EE6)),
+                    SizedBox(width: 8),
+                    Text('Edit Task'),
+                  ],
+                ),
+                content: Container(
+                  width: double.maxFinite,
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      TextFormField(
+                        controller: _taskNameController,
+                        decoration: InputDecoration(
+                          labelText: 'Task Name',
+                          border: OutlineInputBorder(),
+                          prefixIcon: Icon(Icons.task_alt),
+                        ),
+                      ),
+                      SizedBox(height: 16),
+                      InkWell(
+                        onTap: () async {
+                          final TimeOfDay? picked = await showTimePicker(
+                            context: context,
+                            initialTime: _selectedTime ?? TimeOfDay.now(),
+                          );
+                          if (picked != null) {
+                            setState(() {
+                              _selectedTime = picked;
+                            });
+                          }
+                        },
+                        child: InputDecorator(
+                          decoration: InputDecoration(
+                            labelText: 'Time',
+                            border: OutlineInputBorder(),
+                            prefixIcon: Icon(Icons.access_time),
+                          ),
+                          child: Text(
+                            _selectedTime != null
+                                ? _selectedTime!.format(context)
+                                : 'Select time',
+                          ),
+                        ),
+                      ),
+                      SizedBox(height: 16),
+                      TextFormField(
+                        controller: _descriptionController,
+                        decoration: InputDecoration(
+                          labelText: 'Description',
+                          border: OutlineInputBorder(),
+                          prefixIcon: Icon(Icons.description),
+                        ),
+                        maxLines: 3,
+                      ),
+                    ],
+                  ),
+                ),
+                actions: [
+                  TextButton(
+                    onPressed: () => Navigator.pop(context),
+                    child: Text('Cancel'),
+                  ),
+                  ElevatedButton(
+                    onPressed: () async {
+                      final String formattedTime = _selectedTime != null
+                          ? _selectedTime!.hour.toString().padLeft(2, '0') +
+                                ':' +
+                                _selectedTime!.minute.toString().padLeft(2, '0')
+                          : '';
+                      final request = DailyActivityRequest(
+                        taskName: _taskNameController.text.trim(),
+                        time: formattedTime,
+                        description: _descriptionController.text.trim(),
+                      );
+                      final result =
+                          await DailyActivityService.updateDailyActivity(
+                            task.dailyTaskId!,
+                            request,
+                          );
+                      if (result.success) {
+                        setState(() {
+                          task.title = request.taskName;
+                          task.description = request.description ?? '';
+                          task.time = formattedTime;
+                        });
+                        Navigator.pop(context);
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(
+                            content: Text('Task updated successfully!'),
+                            backgroundColor: Colors.green,
+                          ),
+                        );
+                      } else {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(
+                            content: Text(result.message),
+                            backgroundColor: Colors.red,
+                          ),
+                        );
+                      }
+                    },
+                    child: Text('Save'),
+                  ),
+                ],
+              );
+            },
+          );
+        },
+      );
+    }
   }
 }

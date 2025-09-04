@@ -98,4 +98,24 @@ public class TaskController {
                     .body(Map.of("error", "Failed to delete task: " + e.getMessage()));
         }
     }
+
+    /**
+     * Edit game task (game name, time, description)
+     */
+    @PutMapping("/{taskId}")
+    public ResponseEntity<?> editGameTask(@PathVariable Long taskId, @RequestBody Map<String, Object> request) {
+        try {
+            String gameName = (String) request.get("gameName");
+            String time = (String) request.get("time");
+            String description = (String) request.get("description");
+            if (gameName == null || time == null) {
+                return ResponseEntity.badRequest().body(Map.of("error", "Missing required fields: gameName, time"));
+            }
+            Object result = taskService.editGameTask(taskId, gameName, time, description);
+            return ResponseEntity.ok(result);
+        } catch (Exception e) {
+            return ResponseEntity.internalServerError()
+                    .body(Map.of("error", "Failed to edit game task: " + e.getMessage()));
+        }
+    }
 }

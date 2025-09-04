@@ -63,6 +63,90 @@ class ApiResult<T> {
 
 // Task Service for API calls
 class TaskService {
+  /// Get all games for dropdown
+  static Future<ApiResult<List<Map<String, dynamic>>>> getGames() async {
+    try {
+      final response = await http.get(
+        Uri.parse('$baseUrl/api/games'),
+        headers: {'Content-Type': 'application/json'},
+      );
+      if (response.statusCode == 200) {
+        final List<dynamic> data = jsonDecode(response.body);
+        final List<Map<String, dynamic>> games = data
+            .map<Map<String, dynamic>>(
+              (game) => {
+                'gameid': game['gameid'],
+                'name': game['name'],
+                'description': game['description'],
+              },
+            )
+            .toList();
+        return ApiResult<List<Map<String, dynamic>>>(
+          success: true,
+          data: games,
+          message: 'Games retrieved successfully',
+          statusCode: response.statusCode,
+        );
+      } else {
+        final errorData = jsonDecode(response.body);
+        return ApiResult<List<Map<String, dynamic>>>(
+          success: false,
+          message: errorData['error'] ?? 'Failed to get games',
+          statusCode: response.statusCode,
+        );
+      }
+    } catch (e) {
+      print('TaskService - Error getting games: $e');
+      return ApiResult<List<Map<String, dynamic>>>(
+        success: false,
+        message: 'Network error: ${e.toString()}',
+      );
+    }
+  }
+
+  /// Edit game task (game name, time, description)
+  static Future<ApiResult<Task>> editGameTask({
+    required int taskId,
+    required String gameName,
+    required String time,
+    String? description,
+  }) async {
+    try {
+      final response = await http.put(
+        Uri.parse('$baseUrl/api/tasks/$taskId'),
+        headers: {'Content-Type': 'application/json'},
+        body: jsonEncode({
+          'gameName': gameName,
+          'time': time,
+          'description': description,
+        }),
+      );
+      if (response.statusCode == 200) {
+        final Map<String, dynamic> data = jsonDecode(response.body);
+        final task = Task.fromJson(data);
+        return ApiResult<Task>(
+          success: true,
+          data: task,
+          message: 'Game task updated successfully',
+          statusCode: response.statusCode,
+        );
+      } else {
+        final errorData = jsonDecode(response.body);
+        return ApiResult<Task>(
+          success: false,
+          message: errorData['error'] ?? 'Failed to update game task',
+          statusCode: response.statusCode,
+        );
+      }
+    } catch (e) {
+      print('TaskService - Error editing game task: $e');
+      return ApiResult<Task>(
+        success: false,
+        message: 'Network error: ${e.toString()}',
+      );
+    }
+  }
+
   static const String baseUrl = 'http://192.168.8.166:8080';
 
   /// Create a new task

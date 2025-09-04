@@ -22,6 +22,38 @@ import java.util.stream.Collectors;
 @Service
 @Transactional
 public class TaskService {
+    /**
+     * Edit game task (game name, time, description)
+     */
+    public Map<String, Object> editGameTask(Long taskId, String gameName, String timeString, String description) {
+        try {
+            Task task = taskRepository.findById(taskId.intValue())
+                    .orElseThrow(() -> new RuntimeException("Task not found with ID: " + taskId));
+
+            // Update game
+            Game game = gameRepository.findByName(gameName)
+                    .orElseThrow(() -> new RuntimeException("Game not found with name: " + gameName));
+            task.setGame(game);
+
+            // Update time in CareActivity
+            CareActivity careActivity = task.getCareActivity();
+            careActivity.setTime(LocalTime.parse(timeString));
+
+            // Optionally update description if CareActivity has a description field
+            // If not, you may want to add it to the Task or CareActivity model
+            // Example: careActivity.setDescription(description);
+            // If not present, skip this line
+
+            careActivityRepository.save(careActivity);
+            taskRepository.save(task);
+
+            Map<String, Object> response = convertToResponse(task);
+            response.put("message", "Game task updated successfully");
+            return response;
+        } catch (Exception e) {
+            throw new RuntimeException("Failed to edit game task: " + e.getMessage(), e);
+        }
+    }
 
     @Autowired
     private TaskRepository taskRepository;
