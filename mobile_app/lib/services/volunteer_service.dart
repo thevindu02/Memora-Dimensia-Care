@@ -13,4 +13,13 @@ class VolunteerService {
     }
     return null;
   }
+
+  static Future<bool> updateVolunteerProfile(int volunteerId, Map<String, dynamic> profile) async {
+    final response = await http.put(
+      Uri.parse('${ApiConstants.baseUrl}/api/volunteers/$volunteerId/profile'),
+      headers: {'Content-Type': 'application/json'},
+      body: jsonEncode(profile),
+    );
+    return response.statusCode == 200;
+  }
 }

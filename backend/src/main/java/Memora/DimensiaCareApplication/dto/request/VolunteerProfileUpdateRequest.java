@@ -1,37 +1,29 @@
-package Memora.DimensiaCareApplication.dto.response;
+package Memora.DimensiaCareApplication.dto.request;
 
-public class VolunteerProfileResponse {
-    private Long volunteerId;
+public class VolunteerProfileUpdateRequest {
     private String FName;
     private String LName;
     private String email;
     private String phoneNumber;
     private String gender;
     private String profilePic;
-    private String volunteerIdImage; // <-- THIS IS IMPORTANT
 
-    public Long getVolunteerId() {
-        return volunteerId;
-    }
-
-    public void setVolunteerId(Long volunteerId) {
-        this.volunteerId = volunteerId;
-    }
+    public VolunteerProfileUpdateRequest() {}
 
     public String getFName() {
         return FName;
     }
 
-    public void setFName(String fName) {
-        FName = fName;
+    public void setFName(String FName) {
+        this.FName = FName;
     }
 
     public String getLName() {
         return LName;
     }
 
-    public void setLName(String lName) {
-        LName = lName;
+    public void setLName(String LName) {
+        this.LName = LName;
     }
 
     public String getEmail() {
@@ -65,4 +57,5 @@ public class VolunteerProfileResponse {
     public void setProfilePic(String profilePic) {
         this.profilePic = profilePic;
     }
+
 }
