@@ -42,8 +42,8 @@ public class VolunteerService {
         User user = userRepository.findById(volunteer.getUserId()).orElse(null);
         if (user == null) return false;
 
-        user.setFName(updateRequest.getFName() != null ? updateRequest.getFName() : user.getFName());
-        user.setLName(updateRequest.getLName() != null ? updateRequest.getLName() : user.getLName());
+        user.setFName(updateRequest.getfName() != null ? updateRequest.getfName() : user.getFName());
+        user.setLName(updateRequest.getlName() != null ? updateRequest.getlName() : user.getLName());
         user.setEmail(updateRequest.getEmail());
         user.setPhoneNumber(updateRequest.getPhoneNumber());
         user.setGender(updateRequest.getGender());

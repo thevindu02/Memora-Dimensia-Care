@@ -1,8 +1,8 @@
 package Memora.DimensiaCareApplication.dto.request;
 
 public class VolunteerProfileUpdateRequest {
-    private String FName;
-    private String LName;
+    private String fName;
+    private String lName;
     private String email;
     private String phoneNumber;
     private String gender;
@@ -10,20 +10,20 @@ public class VolunteerProfileUpdateRequest {
 
     public VolunteerProfileUpdateRequest() {}
 
-    public String getFName() {
-        return FName;
+    public String getfName() {
+        return fName;
     }
 
-    public void setFName(String FName) {
-        this.FName = FName;
+    public void setfName(String fName) {
+        this.fName = fName;
     }
 
-    public String getLName() {
-        return LName;
+    public String getlName() {
+        return lName;
     }
 
-    public void setLName(String LName) {
-        this.LName = LName;
+    public void setlName(String lName) {
+        this.lName = lName;
     }
 
     public String getEmail() {

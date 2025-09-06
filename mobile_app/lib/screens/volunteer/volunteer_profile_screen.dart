@@ -170,8 +170,8 @@ class _VolunteerProfileScreenState extends State<VolunteerProfileScreen> {
 
     // Always send non-null values
     final profile = {
-      'FName': fName.isNotEmpty ? fName : _originalName.split(' ').first,
-      'LName': lName.isNotEmpty ? lName : (_originalName.split(' ').length > 1 ? _originalName.split(' ').sublist(1).join(' ') : ''),
+      'fName': fName.isNotEmpty ? fName : _originalName.split(' ').first,
+      'lName': lName.isNotEmpty ? lName : (_originalName.split(' ').length > 1 ? _originalName.split(' ').sublist(1).join(' ') : ''),
       'email': _emailController.text,
       'phoneNumber': _phoneController.text,
       'gender': _genderController.text,
