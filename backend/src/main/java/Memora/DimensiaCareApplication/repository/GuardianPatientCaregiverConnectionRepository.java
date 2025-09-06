@@ -22,4 +22,8 @@ public interface GuardianPatientCaregiverConnectionRepository extends JpaReposit
         Memora.DimensiaCareApplication.model.GuardianPatientCaregiverConnection.ConnectionStatus status, 
         LocalDateTime after
     );
-} 
+
+    List<GuardianPatientCaregiverConnection> findByStatus(
+        Memora.DimensiaCareApplication.model.GuardianPatientCaregiverConnection.ConnectionStatus status
+    );
+}

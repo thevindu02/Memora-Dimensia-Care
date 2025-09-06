@@ -1,6 +1,7 @@
 package Memora.DimensiaCareApplication.controller;
 
 import Memora.DimensiaCareApplication.dto.response.CaregiverDetailsResponse;
+import Memora.DimensiaCareApplication.dto.response.ExpiredCaregiverResponse;
 import Memora.DimensiaCareApplication.service.CaregiverService;
 import Memora.DimensiaCareApplication.model.GuardianPatientCaregiverConnection;
 import Memora.DimensiaCareApplication.repository.GuardianPatientCaregiverConnectionRepository;
@@ -434,5 +435,11 @@ public class CaregiverController {
         } catch (Exception e) {
             return ResponseEntity.badRequest().body("Profile update failed: " + e.getMessage());
         }
+    }
+
+    @GetMapping("/expired-inactive")
+    public ResponseEntity<List<ExpiredCaregiverResponse>> getExpiredInactiveCaregivers() {
+        List<ExpiredCaregiverResponse> caregivers = caregiverService.getExpiredCaregiversWithInactiveUsers();
+        return ResponseEntity.ok(caregivers);
     }
 }

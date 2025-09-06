@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../../constants/color_constants.dart';
+import '../../services/caregiver_service.dart';
 
 class GuardianAddReviewsScreen extends StatefulWidget {
   @override
@@ -8,27 +9,28 @@ class GuardianAddReviewsScreen extends StatefulWidget {
 }
 
 class _GuardianAddReviewsScreenState extends State<GuardianAddReviewsScreen> {
-  // Hardcoded caregivers
-  final List<Map<String, dynamic>> caregivers = [
-    {
-      'id': 1,
-      'name': 'Kamal Perera',
-      'period': 'Jan 2023 - Mar 2024',
-      'patient': 'John Doe',
-    },
-    {
-      'id': 2,
-      'name': 'Nimali Rathnayake',
-      'period': 'May 2022 - Dec 2023',
-      'patient': 'Jane Smith',
-    },
-    {
-      'id': 3,
-      'name': 'David Silva',
-      'period': 'Feb 2021 - Nov 2022',
-      'patient': 'Sophia Lee',
-    },
-  ];
+  List<Map<String, dynamic>> caregivers = [];
+  bool _isLoading = true;
+
+  @override
+  void initState() {
+    super.initState();
+    _fetchCaregivers();
+  }
+
+  Future<void> _fetchCaregivers() async {
+    try {
+      caregivers = await CaregiverService.getExpiredInactiveCaregivers();
+    } catch (e) {
+      caregivers = [];
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Failed to load caregivers'), backgroundColor: Colors.red),
+      );
+    }
+    setState(() {
+      _isLoading = false;
+    });
+  }
 
   void _showReviewDialog(Map<String, dynamic> caregiver) {
     double rating = 0;
@@ -177,66 +179,74 @@ class _GuardianAddReviewsScreenState extends State<GuardianAddReviewsScreen> {
             color: AppColors.onSurface,
           ),
         ),
-        iconTheme: IconThemeData(color: Colors.black), // Make back arrow black
+        iconTheme: IconThemeData(color: Colors.black),
       ),
-      body: ListView.separated(
-        padding: EdgeInsets.all(24),
-        itemCount: caregivers.length,
-        separatorBuilder: (_, __) => SizedBox(height: 16),
-        itemBuilder: (context, index) {
-          final caregiver = caregivers[index];
-          return Material(
-            color: AppColors.primaryLight.withOpacity(0.10),
-            borderRadius: BorderRadius.circular(16),
-            child: InkWell(
-              borderRadius: BorderRadius.circular(16),
-              onTap: () => _showReviewDialog(caregiver),
-              child: Container(
-                padding: EdgeInsets.all(20),
-                child: Row(
-                  children: [
-                    CircleAvatar(
-                      radius: 28,
-                      backgroundColor: Colors.grey[300], // Changed to grey
-                      child: Icon(
-                        Icons.person,
-                        color: AppColors.info,
-                        size: 32,
-                      ),
-                    ),
-                    SizedBox(width: 20),
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            caregiver['name'],
-                                                         style: TextStyle(
-                               fontSize: 16, // Reduced from 18
-                               fontWeight: FontWeight.w700,
-                               color: AppColors.info,
-                             ),
+      body: _isLoading
+          ? Center(child: CircularProgressIndicator())
+          : caregivers.isEmpty
+              ? Center(child: Text('No expired/inactive caregivers found'))
+              : ListView.separated(
+                  padding: EdgeInsets.all(24),
+                  itemCount: caregivers.length,
+                  separatorBuilder: (_, __) => SizedBox(height: 16),
+                  itemBuilder: (context, index) {
+                    final caregiver = caregivers[index];
+                    return Material(
+                      color: AppColors.primaryLight.withOpacity(0.10),
+                      borderRadius: BorderRadius.circular(16),
+                      child: InkWell(
+                        borderRadius: BorderRadius.circular(16),
+                        onTap: () => _showReviewDialog(caregiver),
+                        child: Container(
+                          padding: EdgeInsets.all(20),
+                          child: Row(
+                            children: [
+                              CircleAvatar(
+                                radius: 28,
+                                backgroundColor: Colors.grey[300],
+                                child: Icon(
+                                  Icons.person,
+                                  color: AppColors.info,
+                                  size: 32,
+                                ),
+                              ),
+                              SizedBox(width: 20),
+                              Expanded(
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text(
+                                      '${caregiver['fName']} ${caregiver['lName']}',
+                                      style: TextStyle(
+                                        fontSize: 16,
+                                        fontWeight: FontWeight.w700,
+                                        color: AppColors.info,
+                                      ),
+                                    ),
+                                    SizedBox(height: 4),
+                                    Text(
+                                      'Email: ${caregiver['email']}',
+                                      style: TextStyle(fontSize: 14, color: AppColors.onSurface),
+                                    ),
+                                    Text(
+                                      'Experience: ${caregiver['experience'] ?? ''}',
+                                      style: TextStyle(fontSize: 14, color: AppColors.onSurface),
+                                    ),
+                                    Text(
+                                      'Qualifications: ${caregiver['qualifications'] ?? ''}',
+                                      style: TextStyle(fontSize: 14, color: AppColors.onSurface),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                              Icon(Icons.rate_review, color: AppColors.info),
+                            ],
                           ),
-                          SizedBox(height: 4),
-                                                     Text(
-                             'Worked with: ${caregiver['patient']}',
-                             style: TextStyle(fontSize: 14, color: AppColors.onSurface),
-                           ),
-                                                     Text(
-                             'Period: ${caregiver['period']}',
-                             style: TextStyle(fontSize: 14, color: AppColors.onSurface),
-                           ),
-                        ],
+                        ),
                       ),
-                    ),
-                                         Icon(Icons.rate_review, color: AppColors.info),
-                  ],
+                    );
+                  },
                 ),
-              ),
-            ),
-          );
-        },
-      ),
     );
   }
 }

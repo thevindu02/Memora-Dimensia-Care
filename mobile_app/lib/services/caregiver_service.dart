@@ -222,4 +222,17 @@ class CaregiverService {
     );
     return response.statusCode == 200;
   }
+
+  static Future<List<Map<String, dynamic>>> getExpiredInactiveCaregivers() async {
+    final response = await http.get(
+      Uri.parse('${ApiConstants.baseUrl}/api/caregivers/expired-inactive'),
+      headers: {'Content-Type': 'application/json'},
+    );
+    if (response.statusCode == 200) {
+      final List<dynamic> data = jsonDecode(response.body);
+      return data.cast<Map<String, dynamic>>();
+    } else {
+      throw Exception('Failed to load expired caregivers');
+    }
+  }
 }
