@@ -1,6 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:http/http.dart' as http;
+import 'package:shared_preferences/shared_preferences.dart';
 import '../../constants/color_constants.dart';
 import '../../services/caregiver_service.dart';
+import '../../services/caregiver_review_service.dart';
+import '../../services/guardian_service.dart';
 
 class GuardianAddReviewsScreen extends StatefulWidget {
   @override
@@ -11,11 +15,28 @@ class GuardianAddReviewsScreen extends StatefulWidget {
 class _GuardianAddReviewsScreenState extends State<GuardianAddReviewsScreen> {
   List<Map<String, dynamic>> caregivers = [];
   bool _isLoading = true;
+  int? guardianId;
 
   @override
   void initState() {
     super.initState();
     _fetchCaregivers();
+    _retrieveGuardianId();
+  }
+
+  Future<void> _retrieveGuardianId() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    int? userId = prefs.getInt('userId');
+    if (userId == null) {
+      setState(() {
+        guardianId = null;
+      });
+      return;
+    }
+    final fetchedGuardianId = await GuardianService.getGuardianIdByUserId(userId);
+    setState(() {
+      guardianId = fetchedGuardianId;
+    });
   }
 
   Future<void> _fetchCaregivers() async {
@@ -44,8 +65,7 @@ class _GuardianAddReviewsScreenState extends State<GuardianAddReviewsScreen> {
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(16),
               ),
-              backgroundColor:
-                  AppColors.surface, // Make dialog background lighter
+              backgroundColor: AppColors.surface,
               child: Padding(
                 padding: const EdgeInsets.all(24.0),
                 child: Column(
@@ -61,11 +81,11 @@ class _GuardianAddReviewsScreenState extends State<GuardianAddReviewsScreen> {
                         ),
                         SizedBox(width: 12),
                         Text(
-                          'Review ${caregiver['name']}',
+                          'Review ${caregiver['fName']} ${caregiver['lName']}',
                           style: TextStyle(
                             fontSize: 20,
                             fontWeight: FontWeight.bold,
-                            color: AppColors.info, // Restore previous color
+                            color: AppColors.info,
                           ),
                         ),
                       ],
@@ -86,7 +106,7 @@ class _GuardianAddReviewsScreenState extends State<GuardianAddReviewsScreen> {
                             Icons.star,
                             color: rating > index
                                 ? Colors.amber
-                                : Colors.grey[300], // Yellow if selected
+                                : Colors.grey[300],
                             size: 32,
                           ),
                           onPressed: () {
@@ -105,11 +125,9 @@ class _GuardianAddReviewsScreenState extends State<GuardianAddReviewsScreen> {
                         hintText: 'Write your review...',
                         hintStyle: TextStyle(
                           color: Colors.grey[500],
-                        ), // More grey
+                        ),
                         filled: true,
-                        fillColor: AppColors.primaryLight.withOpacity(
-                          0.05,
-                        ), // Lighter background
+                        fillColor: AppColors.primaryLight.withOpacity(0.05),
                         border: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(10),
                           borderSide: BorderSide(color: AppColors.primaryLight),
@@ -129,20 +147,58 @@ class _GuardianAddReviewsScreenState extends State<GuardianAddReviewsScreen> {
                         ),
                         SizedBox(width: 16),
                         ElevatedButton(
-                          onPressed: () {
-                            Navigator.pop(context);
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              SnackBar(
-                                content: Text('Review submitted!'),
-                                backgroundColor:
-                                    Colors.green, // Make background green
-                              ),
+                          onPressed: () async {
+                            if (guardianId == null) {
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                SnackBar(content: Text('Guardian ID not found. Please log in again.'), backgroundColor: Colors.red),
+                              );
+                              return;
+                            }
+                            if (caregiver['caregiver_id'] == null) {
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                SnackBar(content: Text('Missing caregiver ID'), backgroundColor: Colors.red),
+                              );
+                              return;
+                            }
+                            if (rating == 0) {
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                SnackBar(content: Text('Please select a rating.'), backgroundColor: Colors.red),
+                              );
+                              return;
+                            }
+                            if (reviewController.text.trim().isEmpty) {
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                SnackBar(content: Text('Please enter your review.'), backgroundColor: Colors.red),
+                              );
+                              return;
+                            }
+                            // If backend returns 'caregiver_id'
+                            final success = await CaregiverReviewService.addReview(
+                              guardianId: guardianId!,
+                              caregiverId: int.parse(caregiver['caregiver_id'].toString()), // <-- use 'caregiver_id' if backend returns this
+                              rating: rating.toInt(),
+                              reviewText: reviewController.text,
                             );
+                            Navigator.pop(context);
+                            if (success) {
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                SnackBar(
+                                  content: Text('Review submitted!'),
+                                  backgroundColor: Colors.green,
+                                ),
+                              );
+                            } else {
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                SnackBar(
+                                  content: Text('Failed to submit review'),
+                                  backgroundColor: Colors.red,
+                                ),
+                              );
+                            }
                           },
                           style: ElevatedButton.styleFrom(
-                            backgroundColor:
-                                AppColors.primaryLight, // Button background
-                            foregroundColor: AppColors.info, // Button text
+                            backgroundColor: AppColors.primaryLight,
+                            foregroundColor: AppColors.info,
                             shape: RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(8),
                             ),
@@ -239,7 +295,7 @@ class _GuardianAddReviewsScreenState extends State<GuardianAddReviewsScreen> {
                                   ],
                                 ),
                               ),
-                              Icon(Icons.rate_review, color: AppColors.info),
+                              // Remove IconButton for review, keep card tap only
                             ],
                           ),
                         ),

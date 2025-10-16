@@ -55,11 +55,10 @@ public class GuardianController {
     @GetMapping("/by-user/{userId}")
     public ResponseEntity<Long> getGuardianIdByUserId(@PathVariable Long userId) {
         Guardian guardian = guardianRepository.findByUser_Id(userId);
-        if (guardian != null) {
-            return ResponseEntity.ok(guardian.getGuardianId());
-        } else {
+        if (guardian == null) {
             return ResponseEntity.notFound().build();
         }
+        return ResponseEntity.ok(guardian.getGuardianId());
     }
 
     @GetMapping("/{guardianId}")

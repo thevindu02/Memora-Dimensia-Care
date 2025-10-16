@@ -5,15 +5,12 @@ import 'api_constants.dart';
 class CaregiverService {
   static final String url = '${ApiConstants.baseUrl}/api/caregivers';
 
-  static Future<List<Map<String, dynamic>>> getCaregiversByCity(
-    String city,
-  ) async {
+  static Future<List<Map<String, dynamic>>> getCaregiversByCity(String city) async {
     try {
       final response = await http.get(
         Uri.parse('$url/by-city/$city'),
         headers: {'Content-Type': 'application/json'},
       );
-
       if (response.statusCode == 200) {
         final List<dynamic> data = jsonDecode(response.body);
         return data.cast<Map<String, dynamic>>();
@@ -31,7 +28,6 @@ class CaregiverService {
         Uri.parse('$url/all'),
         headers: {'Content-Type': 'application/json'},
       );
-
       if (response.statusCode == 200) {
         final List<dynamic> data = jsonDecode(response.body);
         // Add 'name' field to each caregiver map
@@ -56,7 +52,6 @@ class CaregiverService {
         Uri.parse('$url/$caregiverId'),
         headers: {'Content-Type': 'application/json'},
       );
-
       if (response.statusCode == 200) {
         return jsonDecode(response.body);
       } else {
@@ -67,9 +62,7 @@ class CaregiverService {
     }
   }
 
-  static Future<List<Map<String, dynamic>>> getPendingRequests(
-    int caregiverId,
-  ) async {
+  static Future<List<Map<String, dynamic>>> getPendingRequests(int caregiverId) async {
     try {
       final response = await http.get(
         Uri.parse('$url/$caregiverId/pending-requests'),
@@ -79,18 +72,14 @@ class CaregiverService {
         final List<dynamic> data = jsonDecode(response.body);
         return data.cast<Map<String, dynamic>>();
       } else {
-        throw Exception(
-          'Failed to load pending requests: \\${response.statusCode}',
-        );
+        throw Exception('Failed to load pending requests: ${response.statusCode}');
       }
     } catch (e) {
       throw Exception('Failed to load pending requests: $e');
     }
   }
 
-  static Future<List<Map<String, dynamic>>> getConnectedRequests(
-    int caregiverId,
-  ) async {
+  static Future<List<Map<String, dynamic>>> getConnectedRequests(int caregiverId) async {
     try {
       final response = await http.get(
         Uri.parse('$url/$caregiverId/connected-requests'),
@@ -100,18 +89,14 @@ class CaregiverService {
         final List<dynamic> data = jsonDecode(response.body);
         return data.cast<Map<String, dynamic>>();
       } else {
-        throw Exception(
-          'Failed to load connected requests: \\${response.statusCode}',
-        );
+        throw Exception('Failed to load connected requests: ${response.statusCode}');
       }
     } catch (e) {
       throw Exception('Failed to load connected requests: $e');
     }
   }
 
-  static Future<List<Map<String, dynamic>>> getAvailableCaregiversForPatient(
-    int patientId,
-  ) async {
+  static Future<List<Map<String, dynamic>>> getAvailableCaregiversForPatient(int patientId) async {
     try {
       final response = await http.get(
         Uri.parse('$url/available-for-patient/$patientId'),
@@ -127,7 +112,7 @@ class CaregiverService {
           return map;
         }).toList();
       } else {
-        throw Exception('Failed to load caregivers: \\${response.statusCode}');
+        throw Exception('Failed to load caregivers: ${response.statusCode}');
       }
     } catch (e) {
       throw Exception('Failed to load caregivers: $e');
@@ -141,6 +126,7 @@ class CaregiverService {
         headers: {'Content-Type': 'application/json'},
       );
       if (response.statusCode == 200) {
+        // If backend returns a number as plain text
         return int.tryParse(response.body);
       } else {
         return null;
@@ -198,8 +184,7 @@ class CaregiverService {
     required String qualifications,
     required List<String> skills,
   }) async {
-    final url = Uri.parse(
-        '${ApiConstants.baseUrl}/api/caregivers/$caregiverId/edit-profile');
+    final url = Uri.parse('${ApiConstants.baseUrl}/api/caregivers/$caregiverId/edit-profile');
     final body = {
       'fName': fName,
       'lName': lName,

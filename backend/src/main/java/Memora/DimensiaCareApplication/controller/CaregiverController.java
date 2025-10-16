@@ -2,6 +2,8 @@ package Memora.DimensiaCareApplication.controller;
 
 import Memora.DimensiaCareApplication.dto.response.CaregiverDetailsResponse;
 import Memora.DimensiaCareApplication.dto.response.ExpiredCaregiverResponse;
+import Memora.DimensiaCareApplication.model.CaregiverReview;
+import Memora.DimensiaCareApplication.service.CaregiverReviewService;
 import Memora.DimensiaCareApplication.service.CaregiverService;
 import Memora.DimensiaCareApplication.model.GuardianPatientCaregiverConnection;
 import Memora.DimensiaCareApplication.repository.GuardianPatientCaregiverConnectionRepository;
@@ -55,6 +57,9 @@ public class CaregiverController {
     @Autowired
     private SkillRepository skillRepository;
 
+    @Autowired
+    private CaregiverReviewService caregiverReviewService;
+
     @GetMapping("/all")
     public ResponseEntity<List<CaregiverDetailsResponse>> getAllCaregivers() {
         List<CaregiverDetailsResponse> caregivers = caregiverService.getAllCaregivers();
@@ -80,7 +85,6 @@ public class CaregiverController {
         resp.setProfilePic(user.getProfilePic());
         resp.setExperience(caregiver.getExperience());
         resp.setQualifications(caregiver.getQualifications());
-        // Add new fields
         resp.setGender(user.getGender());
         resp.setBirthdate(user.getBirthdate() != null ? user.getBirthdate().toString() : null);
         String address = "";
@@ -88,7 +92,6 @@ public class CaregiverController {
         if (user.getCity() != null && !user.getCity().isEmpty()) address += (address.isEmpty() ? "" : ", ") + user.getCity();
         if (user.getState() != null && !user.getState().isEmpty()) address += (address.isEmpty() ? "" : ", ") + user.getState();
         resp.setAddress(address);
-        // Add skills if needed
         List<String> skills = caregiverSkillRepository.findByCaregiverId(caregiver.getCaregiverId()).stream()
             .map(cs -> skillRepository.findById(cs.getSkillId()).map(Skill::getSkillName).orElse(""))
             .collect(Collectors.toList());
@@ -97,8 +100,7 @@ public class CaregiverController {
     }
 
     @GetMapping("/by-user/{userId}")
-    public ResponseEntity<Long> getCaregiverIdByUserId(
-            @org.springframework.web.bind.annotation.PathVariable Long userId) {
+    public ResponseEntity<Long> getCaregiverIdByUserId(@PathVariable Long userId) {
         Caregiver caregiver = caregiverRepository.findByUserId(userId).orElse(null);
         if (caregiver == null) {
             return ResponseEntity.notFound().build();
@@ -107,14 +109,12 @@ public class CaregiverController {
     }
 
     @GetMapping("/{caregiverId}/pending-requests")
-    public ResponseEntity<List<PendingConnectionRequestDetailsDTO>> getPendingRequests(
-            @org.springframework.web.bind.annotation.PathVariable Long caregiverId) {
+    public ResponseEntity<List<PendingConnectionRequestDetailsDTO>> getPendingRequests(@PathVariable Long caregiverId) {
         List<GuardianPatientCaregiverConnection> pendingRequests = connectionRepository.findByCaregiverIdAndStatus(
                 caregiverId, GuardianPatientCaregiverConnection.ConnectionStatus.PENDING);
         List<PendingConnectionRequestDetailsDTO> dtos = pendingRequests.stream().map(conn -> {
             PendingConnectionRequestDetailsDTO dto = new PendingConnectionRequestDetailsDTO();
             dto.setConnectionId(conn.getConnectionId());
-            // Guardian details
             Guardian guardian = guardianRepository.findById(conn.getGuardianId()).orElse(null);
             if (guardian != null && guardian.getUser() != null) {
                 User gUser = guardian.getUser();
@@ -122,7 +122,6 @@ public class CaregiverController {
                 dto.setGuardianEmail(gUser.getEmail());
                 dto.setGuardianPhone(gUser.getPhoneNumber());
             }
-            // Patient details
             Patient patient = patientRepository.findById(conn.getPatientId()).orElse(null);
             if (patient != null && patient.getUser() != null) {
                 User pUser = patient.getUser();
@@ -134,8 +133,7 @@ public class CaregiverController {
                 dto.setDementiaStage(patient.getDementiaStage() != null ? patient.getDementiaStage().name() : null);
                 dto.setRelationship(patient.getRelationship());
             }
-            dto.setDiagnosis(
-                    patient != null && patient.getDementiaType() != null ? patient.getDementiaType().name() : "");
+            dto.setDiagnosis(patient != null && patient.getDementiaType() != null ? patient.getDementiaType().name() : "");
             dto.setStatus(conn.getStatus().name());
             dto.setConnectedDateTime(conn.getConnectedDateTime() != null ? conn.getConnectedDateTime().toString() : "");
             return dto;
@@ -144,47 +142,40 @@ public class CaregiverController {
     }
 
     @GetMapping("/{caregiverId}/connected-requests")
-    public ResponseEntity<List<ConnectedCaregiverRequestDTO>> getConnectedRequests(
-            @org.springframework.web.bind.annotation.PathVariable Long caregiverId) {
+    public ResponseEntity<List<ConnectedCaregiverRequestDTO>> getConnectedRequests(@PathVariable Long caregiverId) {
         List<GuardianPatientCaregiverConnection> connectedRequests = connectionRepository.findByCaregiverIdAndStatus(
                 caregiverId, GuardianPatientCaregiverConnection.ConnectionStatus.ACTIVE);
         List<ConnectedCaregiverRequestDTO> dtos = connectedRequests.stream().map(conn -> {
             ConnectedCaregiverRequestDTO dto = new ConnectedCaregiverRequestDTO();
             dto.setConnectionId(conn.getConnectionId());
-            // Guardian details
             Guardian guardian = guardianRepository.findById(conn.getGuardianId()).orElse(null);
             if (guardian != null && guardian.getUser() != null) {
                 User gUser = guardian.getUser();
                 dto.setGuardianName(gUser.getFName() + " " + gUser.getLName());
                 dto.setGuardianEmail(gUser.getEmail());
             }
-            // Patient details
             Patient patient = patientRepository.findById(conn.getPatientId()).orElse(null);
             if (patient != null && patient.getUser() != null) {
                 dto.setPatientId(patient.getPatientID());
                 User pUser = patient.getUser();
                 dto.setPatientName(pUser.getFName() + " " + pUser.getLName());
                 if (pUser.getBirthdate() != null) {
-                    dto.setPatientAge(
-                            java.time.Period.between(pUser.getBirthdate(), java.time.LocalDate.now()).getYears());
+                    dto.setPatientAge(Period.between(pUser.getBirthdate(), LocalDate.now()).getYears());
                 }
-                // Set dementia type and stage
                 dto.setDementiaType(patient.getDementiaType() != null ? patient.getDementiaType().name() : null);
                 dto.setDementiaStage(patient.getDementiaStage() != null ? patient.getDementiaStage().name() : null);
             }
-            dto.setDiagnosis(
-                    patient != null && patient.getDementiaType() != null ? patient.getDementiaType().name() : "");
+            dto.setDiagnosis(patient != null && patient.getDementiaType() != null ? patient.getDementiaType().name() : "");
             dto.setRelationship(patient != null ? patient.getRelationship() : "");
             dto.setStatus(conn.getStatus().name());
             dto.setConnectedDateTime(conn.getConnectedDateTime() != null ? conn.getConnectedDateTime().toString() : "");
             return dto;
-        }).collect(java.util.stream.Collectors.toList());
+        }).collect(Collectors.toList());
         return ResponseEntity.ok(dtos);
     }
 
     @GetMapping("/available-for-patient/{patientId}")
-    public ResponseEntity<List<CaregiverDetailsResponse>> getAvailableCaregiversForPatient(
-            @PathVariable Long patientId) {
+    public ResponseEntity<List<CaregiverDetailsResponse>> getAvailableCaregiversForPatient(@PathVariable Long patientId) {
         System.out.println("[API] getAvailableCaregiversForPatient called with patientId: " + patientId);
         Patient patient = patientRepository.findById(patientId).orElse(null);
         if (patient == null) {
@@ -207,10 +198,7 @@ public class CaregiverController {
             default:
                 stageScore = 0;
         }
-        
-        // Get timestamp for 2 days ago to filter out recently rejected caregivers
         LocalDateTime twoDaysAgo = LocalDateTime.now().minusDays(2);
-        
         List<Caregiver> caregivers = caregiverRepository.findAll();
         List<CaregiverDetailsResponse> available = caregivers.stream()
                 .filter(cg -> {
@@ -218,8 +206,6 @@ public class CaregiverController {
                     if (score == null)
                         score = 0;
                     boolean eligible = score < 4 && score + stageScore <= 4;
-                    
-                    // Check if this caregiver has rejected a request from this patient in the last 2 days
                     List<GuardianPatientCaregiverConnection> recentRejections = connectionRepository
                         .findByPatientIdAndCaregiverIdAndStatusAndRejectedDateTimeAfter(
                             patientId, 
@@ -227,12 +213,9 @@ public class CaregiverController {
                             GuardianPatientCaregiverConnection.ConnectionStatus.REJECTED, 
                             twoDaysAgo
                         );
-                    
                     boolean notRecentlyRejected = recentRejections.isEmpty();
-                    
                     System.out.println("Caregiver ID: " + cg.getCaregiverId() + ", severityScore: " + score
                             + ", eligible: " + eligible + ", notRecentlyRejected: " + notRecentlyRejected);
-                    
                     return eligible && notRecentlyRejected;
                 })
                 .map(cg -> {
@@ -249,7 +232,6 @@ public class CaregiverController {
                     resp.setProfilePic(user.getProfilePic());
                     resp.setExperience(cg.getExperience());
                     resp.setQualifications(cg.getQualifications());
-                    // Add skills if needed
                     List<String> skills = caregiverSkillRepository.findByCaregiverId(cg.getCaregiverId()).stream()
                             .map(cs -> skillRepository.findById(cs.getSkillId()).map(Skill::getSkillName).orElse(""))
                             .collect(Collectors.toList());
@@ -263,7 +245,6 @@ public class CaregiverController {
     @PostMapping("/register")
     public ResponseEntity<?> registerCaregiver(@RequestBody CaregiverRegistrationRequest request) {
         try {
-            // Debug logging
             System.out.println("=== Caregiver Registration Request ===");
             System.out.println("First Name: " + request.getFName());
             System.out.println("Last Name: " + request.getLName());
@@ -277,7 +258,6 @@ public class CaregiverController {
             System.out.println("Skills: " + request.getSkills());
             System.out.println("=====================================");
 
-            // Validate required fields
             if (request.getFName() == null || request.getFName().trim().isEmpty()) {
                 return ResponseEntity.badRequest().body("First name is required");
             }
@@ -291,7 +271,6 @@ public class CaregiverController {
                 return ResponseEntity.badRequest().body("Password is required");
             }
 
-            // Create User object
             User user = new User();
             user.setFName(request.getFName());
             user.setLName(request.getLName());
@@ -306,7 +285,6 @@ public class CaregiverController {
             user.setRole(User.UserRole.CAREGIVER);
             user.setStatus(User.UserStatus.ACTIVE);
 
-            // Handle birthdate conversion if needed
             if (request.getBirthdate() != null && !request.getBirthdate().trim().isEmpty()) {
                 try {
                     user.setBirthdate(java.time.LocalDate.parse(request.getBirthdate()));
@@ -315,13 +293,11 @@ public class CaregiverController {
                 }
             }
 
-            // Create Caregiver object
             Caregiver caregiver = new Caregiver();
             caregiver.setExperience(request.getExperience());
             caregiver.setQualifications(request.getQualifications());
-            caregiver.setSeverityScore(0); // Start with 0
+            caregiver.setSeverityScore(0);
 
-            // Register caregiver with skills
             caregiverService.registerCaregiver(user, caregiver, request.getSkills());
 
             return ResponseEntity.ok().body("Caregiver registered successfully");
@@ -339,7 +315,6 @@ public class CaregiverController {
         conn.setStatus(GuardianPatientCaregiverConnection.ConnectionStatus.ACTIVE);
         connectionRepository.save(conn);
 
-        // Update caregiver severity_score
         Long caregiverId = conn.getCaregiverId();
         Long patientId = conn.getPatientId();
         Caregiver caregiver = caregiverRepository.findById(caregiverId.intValue()).orElse(null);
@@ -389,9 +364,7 @@ public class CaregiverController {
     }
 
     @PostMapping("/{caregiverId}/edit-profile")
-    public ResponseEntity<?> editCaregiverProfile(
-            @PathVariable Long caregiverId,
-            @RequestBody CaregiverProfileUpdateRequest req) {
+    public ResponseEntity<?> editCaregiverProfile(@PathVariable Long caregiverId, @RequestBody CaregiverProfileUpdateRequest req) {
         try {
             Caregiver caregiver = caregiverRepository.findById(caregiverId.intValue()).orElse(null);
             if (caregiver == null) {
@@ -401,8 +374,6 @@ public class CaregiverController {
             if (user == null) {
                 return ResponseEntity.badRequest().body("Caregiver does not have an associated user.");
             }
-
-            // Update user fields
             user.setFName(req.fName);
             user.setLName(req.lName);
             user.setEmail(req.email);
@@ -415,12 +386,8 @@ public class CaregiverController {
             if (req.birthdate != null && !req.birthdate.isEmpty()) {
                 user.setBirthdate(LocalDate.parse(req.birthdate));
             }
-
-            // Update caregiver fields
             caregiver.setExperience(req.experience);
             caregiver.setQualifications(req.qualifications);
-
-            // Update skills
             if (req.skills != null) {
                 List<Skill> skillEntities = req.skills.stream()
                     .map(skillName -> skillRepository.findBySkillName(skillName).orElse(null))
@@ -428,9 +395,7 @@ public class CaregiverController {
                     .collect(Collectors.toList());
                 caregiver.setSkills(new java.util.HashSet<>(skillEntities));
             }
-
             caregiverRepository.save(caregiver);
-
             return ResponseEntity.ok("Profile updated successfully");
         } catch (Exception e) {
             return ResponseEntity.badRequest().body("Profile update failed: " + e.getMessage());
@@ -441,5 +406,11 @@ public class CaregiverController {
     public ResponseEntity<List<ExpiredCaregiverResponse>> getExpiredInactiveCaregivers() {
         List<ExpiredCaregiverResponse> caregivers = caregiverService.getExpiredCaregiversWithInactiveUsers();
         return ResponseEntity.ok(caregivers);
+    }
+
+    @GetMapping("/{caregiverId}/reviews")
+    public ResponseEntity<List<CaregiverReview>> getCaregiverReviews(@PathVariable Long caregiverId) {
+        List<CaregiverReview> reviews = caregiverReviewService.getReviewsForCaregiver(caregiverId);
+        return ResponseEntity.ok(reviews);
     }
 }
