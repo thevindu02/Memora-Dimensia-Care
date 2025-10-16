@@ -26,16 +26,10 @@ class _GuardianAddReviewsScreenState extends State<GuardianAddReviewsScreen> {
 
   Future<void> _retrieveGuardianId() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
-    int? userId = prefs.getInt('userId');
-    if (userId == null) {
-      setState(() {
-        guardianId = null;
-      });
-      return;
-    }
-    final fetchedGuardianId = await GuardianService.getGuardianIdByUserId(userId);
+    int? storedGuardianId = prefs.getInt('guardianId');
+    print('Retrieved guardianId from prefs: $storedGuardianId');
     setState(() {
-      guardianId = fetchedGuardianId;
+      guardianId = storedGuardianId;
     });
   }
 
@@ -173,6 +167,7 @@ class _GuardianAddReviewsScreenState extends State<GuardianAddReviewsScreen> {
                               return;
                             }
                             // If backend returns 'caregiver_id'
+                            print('Submitting review with guardianId: $guardianId, caregiverId: ${caregiver['caregiver_id']}');
                             final success = await CaregiverReviewService.addReview(
                               guardianId: guardianId!,
                               caregiverId: int.parse(caregiver['caregiver_id'].toString()), // <-- use 'caregiver_id' if backend returns this

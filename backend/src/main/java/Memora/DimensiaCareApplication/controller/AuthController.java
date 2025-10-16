@@ -7,7 +7,9 @@ import Memora.DimensiaCareApplication.dto.request.SignupRequest;
 import Memora.DimensiaCareApplication.dto.request.ForgotPasswordRequest;
 import Memora.DimensiaCareApplication.dto.request.ResetPasswordRequest;
 import Memora.DimensiaCareApplication.model.User;
+import Memora.DimensiaCareApplication.model.Guardian;
 import Memora.DimensiaCareApplication.service.AuthService;
+import Memora.DimensiaCareApplication.repository.GuardianRepository;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -20,11 +22,20 @@ public class AuthController {
     @Autowired
     AuthService authService;
 
+    @Autowired
+    private GuardianRepository guardianRepository;
+
     @PostMapping("/login")
     public ResponseEntity<?> authenticateUser(@Valid @RequestBody LoginRequest loginRequest) {
         try {
             System.out.println("Login attempt for email: " + loginRequest.getEmail());
             JwtResponse jwtResponse = authService.authenticateUser(loginRequest);
+            if ("GUARDIAN".equalsIgnoreCase(jwtResponse.getRole())) {
+                Guardian guardian = guardianRepository.findByUser_Id(jwtResponse.getId());
+                if (guardian != null) {
+                    jwtResponse.setGuardianId(guardian.getGuardianId());
+                }
+            }
             System.out.println("Login successful for user: " + jwtResponse.getEmail());
             return ResponseEntity.ok(jwtResponse);
         } catch (Exception e) {

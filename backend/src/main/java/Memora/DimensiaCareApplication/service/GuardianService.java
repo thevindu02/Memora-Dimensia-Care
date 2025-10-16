@@ -16,6 +16,8 @@ public class GuardianService {
     private PatientRepository patientRepository;
     @Autowired
     private GuardianPatientCaregiverConnectionRepository connectionRepository;
+    @Autowired
+    private GuardianRepository guardianRepository;
 
     public GuardianPatientCaregiverConnection sendCaregiverConnectionRequest(Long guardianId, Long patientId, Long caregiverId) {
         GuardianPatientCaregiverConnection connection = new GuardianPatientCaregiverConnection();
@@ -58,4 +60,10 @@ public class GuardianService {
         
         return savedConnection;
     }
-} 
+
+    public Guardian createGuardianForUser(User user) {
+        Guardian guardian = new Guardian();
+        guardian.setUser(user);
+        return guardianRepository.save(guardian);
+    }
+}

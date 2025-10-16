@@ -82,6 +82,7 @@ class AuthService {
         final String token = responseData['accessToken'];
         final String role = responseData['role'];
         final int id = responseData['id'];
+        final int? guardianId = responseData['guardianId']; // <-- Add this line
         final Map<String, dynamic> userData = {
           'id': id,
           'email': responseData['email'],
@@ -102,6 +103,12 @@ class AuthService {
             SharedPreferences prefs = await SharedPreferences.getInstance();
             await prefs.setInt('current_caregiver_id', caregiverId);
           }
+        }
+
+        // If guardian, save guardianId to SharedPreferences
+        if (role.toLowerCase() == 'guardian' && guardianId != null) {
+          SharedPreferences prefs = await SharedPreferences.getInstance();
+          await prefs.setInt('guardianId', guardianId);
         }
 
         return AuthResult(

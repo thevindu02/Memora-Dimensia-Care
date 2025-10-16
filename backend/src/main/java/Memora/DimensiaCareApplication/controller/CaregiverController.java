@@ -35,6 +35,7 @@ import Memora.DimensiaCareApplication.repository.CaregiverSkillRepository;
 import Memora.DimensiaCareApplication.repository.SkillRepository;
 import Memora.DimensiaCareApplication.model.Skill;
 import Memora.DimensiaCareApplication.dto.response.PendingConnectionRequestDetailsDTO;
+import Memora.DimensiaCareApplication.dto.response.CaregiverReviewResponse;
 
 @RestController
 @RequestMapping("/api/caregivers")
@@ -409,8 +410,8 @@ public class CaregiverController {
     }
 
     @GetMapping("/{caregiverId}/reviews")
-    public ResponseEntity<List<CaregiverReview>> getCaregiverReviews(@PathVariable Long caregiverId) {
-        List<CaregiverReview> reviews = caregiverReviewService.getReviewsForCaregiver(caregiverId);
+    public ResponseEntity<List<CaregiverReviewResponse>> getCaregiverReviews(@PathVariable Long caregiverId) {
+        List<CaregiverReviewResponse> reviews = caregiverReviewService.getReviewResponsesForCaregiver(caregiverId);
         return ResponseEntity.ok(reviews);
     }
 }

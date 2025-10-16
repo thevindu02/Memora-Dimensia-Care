@@ -1,11 +1,12 @@
 package Memora.DimensiaCareApplication.service;
-
 import Memora.DimensiaCareApplication.model.*;
 import Memora.DimensiaCareApplication.repository.*;
 import Memora.DimensiaCareApplication.dto.request.CaregiverReviewRequest;
+import Memora.DimensiaCareApplication.dto.response.CaregiverReviewResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Service
@@ -45,5 +46,24 @@ public class CaregiverReviewService {
 
     public List<CaregiverReview> getReviewsForCaregiver(Long caregiverId) {
         return reviewRepository.findByCaregiver_CaregiverId(caregiverId);
+    }
+
+    public List<CaregiverReviewResponse> getReviewResponsesForCaregiver(Long caregiverId) {
+        List<CaregiverReview> reviews = reviewRepository.findByCaregiver_CaregiverId(caregiverId); // <-- FIXED
+        List<CaregiverReviewResponse> responses = new ArrayList<>();
+        for (CaregiverReview review : reviews) {
+            String guardianName = "";
+            if (review.getGuardian() != null) {
+                guardianName = review.getGuardian().getFName() + " " + review.getGuardian().getLName();
+            }
+            responses.add(new CaregiverReviewResponse(
+                review.getReviewId(),
+                guardianName,
+                review.getRating(),
+                review.getReviewText(),
+                review.getCreatedAt()
+            ));
+        }
+        return responses;
     }
 }
