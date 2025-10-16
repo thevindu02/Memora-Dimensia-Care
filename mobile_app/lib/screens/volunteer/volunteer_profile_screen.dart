@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'volunteer_bottom_navigation_screen.dart';
+import '../../constants/color_constants.dart';
 import '../../routes/app_routes.dart';
 import 'dart:io';
 import 'package:image_picker/image_picker.dart';
@@ -102,9 +103,9 @@ class _VolunteerProfileScreenState extends State<VolunteerProfileScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.white,
+      backgroundColor: AppColors.background,
       appBar: AppBar(
-        backgroundColor: Colors.white,
+        backgroundColor: AppColors.background,
         elevation: 0,
         leading: IconButton(
           icon: const Icon(Icons.arrow_back, color: Colors.black),
@@ -133,7 +134,7 @@ class _VolunteerProfileScreenState extends State<VolunteerProfileScreen> {
               style: TextStyle(
                 fontSize: 16,
                 fontWeight: FontWeight.w500,
-                color: Color(0xFF2B3F99),
+                color: AppColors.textPrimary,
               ),
             ),
           ),
@@ -151,7 +152,7 @@ class _VolunteerProfileScreenState extends State<VolunteerProfileScreen> {
                   children: [
                     CircleAvatar(
                       radius: 30,
-                      backgroundColor: Colors.grey[300],
+                      backgroundColor: AppColors.outline,
                       backgroundImage: _profileImage != null
                           ? FileImage(_profileImage!)
                           : NetworkImage(
@@ -167,10 +168,13 @@ class _VolunteerProfileScreenState extends State<VolunteerProfileScreen> {
                           onTap: _pickProfileImage,
                           child: Container(
                             decoration: BoxDecoration(
-                              color: Colors.white,
+                              color: AppColors.surface,
                               shape: BoxShape.circle,
                               boxShadow: [
-                                BoxShadow(color: Colors.black26, blurRadius: 4),
+                                BoxShadow(
+                                  color: AppColors.shadow,
+                                  blurRadius: 4,
+                                ),
                               ],
                             ),
                             padding: EdgeInsets.all(4),
@@ -193,13 +197,16 @@ class _VolunteerProfileScreenState extends State<VolunteerProfileScreen> {
                       style: TextStyle(
                         fontSize: 20,
                         fontWeight: FontWeight.bold,
-                        color: Colors.black,
+                        color: AppColors.onSurface,
                       ),
                     ),
                     SizedBox(height: 4),
                     Text(
                       'Volunteer',
-                      style: TextStyle(fontSize: 14, color: Colors.grey[600]),
+                      style: TextStyle(
+                        fontSize: 14,
+                        color: AppColors.onSurfaceVariant,
+                      ),
                     ),
                   ],
                 ),
@@ -213,7 +220,7 @@ class _VolunteerProfileScreenState extends State<VolunteerProfileScreen> {
               style: TextStyle(
                 fontSize: 18,
                 fontWeight: FontWeight.w600,
-                color: Colors.black,
+                color: AppColors.onSurface,
               ),
             ),
             SizedBox(height: 24),
@@ -268,23 +275,23 @@ class _VolunteerProfileScreenState extends State<VolunteerProfileScreen> {
           style: TextStyle(
             fontSize: 14,
             fontWeight: FontWeight.bold,
-            color: Colors.black,
+            color: AppColors.onSurface,
           ),
         ),
         SizedBox(height: 8),
         Container(
           padding: EdgeInsets.symmetric(horizontal: 16, vertical: 12),
           decoration: BoxDecoration(
-            color: Colors.grey[100],
+            color: AppColors.surfaceVariant,
             borderRadius: BorderRadius.circular(8),
             border: Border.all(
-              color: isEditMode ? Color(0xFF2B3F99) : Colors.grey[300]!,
+              color: isEditMode ? AppColors.info : AppColors.outline,
               width: isEditMode ? 2 : 1,
             ),
           ),
           child: Row(
             children: [
-              Icon(icon, color: Colors.grey[500], size: 20),
+              Icon(icon, color: AppColors.onSurfaceVariant, size: 20),
               SizedBox(width: 12),
               Expanded(
                 child: isEditMode

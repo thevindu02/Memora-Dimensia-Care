@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../../routes/app_routes.dart';
 import '../../services/guardian_service.dart';
+import '../../constants/color_constants.dart';
 
 class GuardianAddKnownCaregiverScreen extends StatefulWidget {
   @override
@@ -72,14 +73,14 @@ class _GuardianAddKnownCaregiverScreenState
                   height: 80,
                   decoration: BoxDecoration(
                     color: isSuccess
-                        ? Colors.green.withOpacity(0.1)
-                        : Colors.red.withOpacity(0.1),
+                        ? AppColors.success.withOpacity(0.1)
+                        : AppColors.error.withOpacity(0.1),
                     shape: BoxShape.circle,
                   ),
                   child: Icon(
                     isSuccess ? Icons.check_circle : Icons.error,
                     size: 50,
-                    color: isSuccess ? Colors.green : Colors.red,
+                    color: isSuccess ? AppColors.success : AppColors.error,
                   ),
                 ),
                 SizedBox(height: 20),
@@ -100,7 +101,7 @@ class _GuardianAddKnownCaregiverScreenState
                       : 'No caregiver found with this email address. Please check the email and try again. Make sure the caregiver is registered in our system.',
                   style: TextStyle(
                     fontSize: 14,
-                    color: Colors.grey[600],
+                    color: AppColors.onSurfaceVariant,
                     height: 1.4,
                   ),
                   textAlign: TextAlign.center,
@@ -125,8 +126,8 @@ class _GuardianAddKnownCaregiverScreenState
                     },
                     style: ElevatedButton.styleFrom(
                       backgroundColor: isSuccess
-                          ? Colors.green
-                          : Color(0xFF2B3F99),
+                          ? AppColors.success
+                          : AppColors.info,
                       foregroundColor: Colors.white,
                       padding: EdgeInsets.symmetric(vertical: 16),
                       shape: RoundedRectangleBorder(
@@ -157,7 +158,7 @@ class _GuardianAddKnownCaregiverScreenState
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text('Please enter the caregiver\'s email address'),
-          backgroundColor: Colors.red,
+          backgroundColor: AppColors.error,
         ),
       );
       return;
@@ -167,7 +168,7 @@ class _GuardianAddKnownCaregiverScreenState
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text('Please enter a valid email address'),
-          backgroundColor: Colors.red,
+          backgroundColor: AppColors.error,
         ),
       );
       return;
@@ -254,21 +255,21 @@ class _GuardianAddKnownCaregiverScreenState
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.grey[50],
+      backgroundColor: AppColors.surfaceVariant,
       appBar: AppBar(
-        backgroundColor: Colors.white,
+        backgroundColor: AppColors.surface,
         elevation: 0,
         title: Text(
           'Add Known Caregiver',
           style: TextStyle(
-            fontSize: 24,
-            fontWeight: FontWeight.bold,
+            fontSize: 20,
+            fontWeight: FontWeight.w600,
             color: Colors.black87,
           ),
         ),
         centerTitle: false,
         leading: IconButton(
-          icon: Icon(Icons.arrow_back, color: Colors.black87),
+          icon: Icon(Icons.arrow_back, color: Colors.black),
           onPressed: () => Navigator.pop(context),
         ),
       ),
@@ -283,21 +284,22 @@ class _GuardianAddKnownCaregiverScreenState
                 margin: EdgeInsets.only(bottom: 32),
                 padding: EdgeInsets.all(16),
                 decoration: BoxDecoration(
-                  color: Color(0xFFA0C4FD).withOpacity(0.1),
+                  color: AppColors.primaryLight.withOpacity(0.1),
                   borderRadius: BorderRadius.circular(12),
-                  border: Border.all(color: Color(0xFFA0C4FD).withOpacity(0.3)),
+                  border: Border.all(
+                    color: AppColors.primaryLight.withOpacity(0.3),
+                  ),
                 ),
                 child: Row(
                   children: [
-                    Icon(
-                      Icons.info_outline,
-                      color: Color(0xFF2B3F99),
-                      size: 20,
-                    ),
+                    Icon(Icons.info_outline, color: AppColors.info, size: 20),
                     SizedBox(width: 8),
                     Text(
                       'Adding caregiver for: ',
-                      style: TextStyle(fontSize: 14, color: Colors.grey[700]),
+                      style: TextStyle(
+                        fontSize: 14,
+                        color: AppColors.onSurfaceVariant,
+                      ),
                     ),
                     Text(
                       (selectedPatient?['name'] ??
@@ -317,7 +319,7 @@ class _GuardianAddKnownCaregiverScreenState
                       style: TextStyle(
                         fontSize: 14,
                         fontWeight: FontWeight.w600,
-                        color: Color(0xFF2B3F99),
+                        color: AppColors.info,
                       ),
                     ),
                   ],
@@ -338,7 +340,7 @@ class _GuardianAddKnownCaregiverScreenState
               'Please enter the email address of the caregiver you want to add. This will search for the caregiver in our system and connect them to your patient.',
               style: TextStyle(
                 fontSize: 16,
-                color: Colors.grey[600],
+                color: AppColors.onSurfaceVariant,
                 height: 1.4,
               ),
             ),
@@ -347,17 +349,17 @@ class _GuardianAddKnownCaregiverScreenState
             // Email input section
             Container(
               decoration: BoxDecoration(
-                color: Colors.white,
+                color: AppColors.surface,
                 borderRadius: BorderRadius.circular(12),
                 border: Border.all(
                   color: emailController.text.isNotEmpty
-                      ? Color(0xFF2B3F99)
-                      : Colors.grey.withOpacity(0.3),
+                      ? AppColors.info
+                      : AppColors.outline,
                   width: emailController.text.isNotEmpty ? 2 : 1,
                 ),
                 boxShadow: [
                   BoxShadow(
-                    color: Colors.grey.withOpacity(0.1),
+                    color: AppColors.shadow,
                     spreadRadius: 1,
                     blurRadius: 4,
                     offset: Offset(0, 2),
@@ -368,10 +370,13 @@ class _GuardianAddKnownCaregiverScreenState
                 controller: emailController,
                 focusNode: emailFocusNode,
                 keyboardType: TextInputType.emailAddress,
-                style: TextStyle(fontSize: 16, color: Colors.black87),
+                style: TextStyle(fontSize: 16, color: AppColors.onSurface),
                 decoration: InputDecoration(
                   hintText: 'Enter caregiver email address',
-                  hintStyle: TextStyle(color: Colors.grey[500], fontSize: 16),
+                  hintStyle: TextStyle(
+                    color: AppColors.onSurfaceVariant,
+                    fontSize: 16,
+                  ),
                   border: InputBorder.none,
                   contentPadding: EdgeInsets.symmetric(
                     horizontal: 20,
@@ -379,7 +384,7 @@ class _GuardianAddKnownCaregiverScreenState
                   ),
                   prefixIcon: Icon(
                     Icons.email_outlined,
-                    color: Colors.grey[600],
+                    color: AppColors.onSurfaceVariant,
                   ),
                 ),
                 onChanged: (value) {
@@ -396,7 +401,7 @@ class _GuardianAddKnownCaregiverScreenState
                 child: Text(
                   'Clear Email',
                   style: TextStyle(
-                    color: Colors.grey[600],
+                    color: AppColors.onSurfaceVariant,
                     fontWeight: FontWeight.w500,
                   ),
                 ),
@@ -414,8 +419,8 @@ class _GuardianAddKnownCaregiverScreenState
                     fontSize: 16,
                     fontWeight: FontWeight.w600,
                     color: resultMessage!.contains('successfully')
-                        ? Colors.green
-                        : Colors.red,
+                        ? AppColors.success
+                        : AppColors.error,
                   ),
                   textAlign: TextAlign.center,
                 ),
@@ -431,8 +436,8 @@ class _GuardianAddKnownCaregiverScreenState
               ? null
               : _verifyEmail,
           style: ElevatedButton.styleFrom(
-            backgroundColor: Color(0xFFA0C4FD),
-            foregroundColor: Color(0xFF2B3F99),
+            backgroundColor: AppColors.primaryLight,
+            foregroundColor: AppColors.info,
             padding: EdgeInsets.symmetric(vertical: 16),
             shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(12),
@@ -443,7 +448,7 @@ class _GuardianAddKnownCaregiverScreenState
                   height: 20,
                   width: 20,
                   child: CircularProgressIndicator(
-                    color: Color(0xFF2B3F99),
+                    color: AppColors.info,
                     strokeWidth: 2,
                   ),
                 )

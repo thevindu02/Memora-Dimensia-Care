@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import '../../routes/app_routes.dart';
 import '../../constants/color_constants.dart';
-import 'games/memory_match/memory_match_game.dart';
 
 class PatientGamesScreen extends StatelessWidget {
   const PatientGamesScreen({super.key});
@@ -25,7 +24,10 @@ class PatientGamesScreen extends StatelessWidget {
         centerTitle: true,
         actions: [
           IconButton(
-            icon: const Icon(Icons.notifications_outlined, color: PatientColors.onSurface),
+            icon: const Icon(
+              Icons.notifications_outlined,
+              color: PatientColors.onSurface,
+            ),
             onPressed: () {
               // Handle notification tap
             },
@@ -53,9 +55,23 @@ class PatientGamesScreen extends StatelessWidget {
                     context: context,
                     icon: _buildBrainIcon(),
                     title: 'Memory Match',
-                    description: 'Find matching pairs.\nGreat for memory exercise.',
+                    description:
+                        'Find matching pairs.\nGreat for memory exercise.',
                     onTap: () {
-                      Navigator.of(context).pushNamed(AppRoutes.patientMemoryMatch);
+                      Navigator.of(
+                        context,
+                      ).pushNamed(AppRoutes.patientMemoryMatch);
+                    },
+                  ),
+                  const SizedBox(height: 16),
+                  _buildGameCard(
+                    context: context,
+                    icon: _buildSudokuIcon(),
+                    title: 'Sudoku',
+                    description:
+                        'Fill the grid with numbers.\nA classic puzzle game.',
+                    onTap: () {
+                      Navigator.of(context).pushNamed(AppRoutes.patientSudoku);
                     },
                   ),
                   const SizedBox(height: 16),
@@ -63,7 +79,8 @@ class PatientGamesScreen extends StatelessWidget {
                     context: context,
                     icon: _buildRainbowIcon(),
                     title: 'Color Match',
-                    description: 'Find matching pairs.\nGreat for memory exercise.',
+                    description:
+                        'Find matching pairs.\nGreat for memory exercise.',
                     onTap: () {
                       // Placeholder for Color Match game navigation
                     },
@@ -137,10 +154,7 @@ class PatientGamesScreen extends StatelessWidget {
                 ),
                 child: const Text(
                   'Start Playing',
-                  style: TextStyle(
-                    fontSize: 16,
-                    fontWeight: FontWeight.w600,
-                  ),
+                  style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
                 ),
               ),
             ),
@@ -183,6 +197,23 @@ class PatientGamesScreen extends StatelessWidget {
       ),
     );
   }
+
+  Widget _buildSudokuIcon() {
+    return Container(
+      width: 60,
+      height: 60,
+      decoration: BoxDecoration(
+        color: PatientColors.activityPhysical,
+        borderRadius: BorderRadius.circular(30),
+      ),
+      child: Center(
+        child: CustomPaint(
+          size: const Size(40, 40),
+          painter: SudokuIconPainter(),
+        ),
+      ),
+    );
+  }
 }
 
 class BrainIconPainter extends CustomPainter {
@@ -197,19 +228,54 @@ class BrainIconPainter extends CustomPainter {
 
     // Draw brain outline
     path.moveTo(size.width * 0.3, size.height * 0.2);
-    path.quadraticBezierTo(size.width * 0.1, size.height * 0.1, size.width * 0.2, size.height * 0.4);
-    path.quadraticBezierTo(size.width * 0.1, size.height * 0.6, size.width * 0.3, size.height * 0.8);
-    path.quadraticBezierTo(size.width * 0.5, size.height * 0.9, size.width * 0.7, size.height * 0.8);
-    path.quadraticBezierTo(size.width * 0.9, size.height * 0.6, size.width * 0.8, size.height * 0.4);
-    path.quadraticBezierTo(size.width * 0.9, size.height * 0.1, size.width * 0.7, size.height * 0.2);
-    path.quadraticBezierTo(size.width * 0.5, size.height * 0.1, size.width * 0.3, size.height * 0.2);
+    path.quadraticBezierTo(
+      size.width * 0.1,
+      size.height * 0.1,
+      size.width * 0.2,
+      size.height * 0.4,
+    );
+    path.quadraticBezierTo(
+      size.width * 0.1,
+      size.height * 0.6,
+      size.width * 0.3,
+      size.height * 0.8,
+    );
+    path.quadraticBezierTo(
+      size.width * 0.5,
+      size.height * 0.9,
+      size.width * 0.7,
+      size.height * 0.8,
+    );
+    path.quadraticBezierTo(
+      size.width * 0.9,
+      size.height * 0.6,
+      size.width * 0.8,
+      size.height * 0.4,
+    );
+    path.quadraticBezierTo(
+      size.width * 0.9,
+      size.height * 0.1,
+      size.width * 0.7,
+      size.height * 0.2,
+    );
+    path.quadraticBezierTo(
+      size.width * 0.5,
+      size.height * 0.1,
+      size.width * 0.3,
+      size.height * 0.2,
+    );
 
     canvas.drawPath(path, paint);
 
     // Draw brain divisions
     final divisionPath = Path();
     divisionPath.moveTo(size.width * 0.5, size.height * 0.15);
-    divisionPath.quadraticBezierTo(size.width * 0.45, size.height * 0.5, size.width * 0.5, size.height * 0.85);
+    divisionPath.quadraticBezierTo(
+      size.width * 0.45,
+      size.height * 0.5,
+      size.width * 0.5,
+      size.height * 0.85,
+    );
 
     canvas.drawPath(divisionPath, paint);
 
@@ -221,22 +287,50 @@ class BrainIconPainter extends CustomPainter {
 
     // Left side folds
     canvas.drawArc(
-        Rect.fromCenter(center: Offset(size.width * 0.35, size.height * 0.35), width: 10, height: 8),
-        0, 3.14, false, foldPaint
+      Rect.fromCenter(
+        center: Offset(size.width * 0.35, size.height * 0.35),
+        width: 10,
+        height: 8,
+      ),
+      0,
+      3.14,
+      false,
+      foldPaint,
     );
     canvas.drawArc(
-        Rect.fromCenter(center: Offset(size.width * 0.3, size.height * 0.55), width: 8, height: 6),
-        0, 3.14, false, foldPaint
+      Rect.fromCenter(
+        center: Offset(size.width * 0.3, size.height * 0.55),
+        width: 8,
+        height: 6,
+      ),
+      0,
+      3.14,
+      false,
+      foldPaint,
     );
 
     // Right side folds
     canvas.drawArc(
-        Rect.fromCenter(center: Offset(size.width * 0.65, size.height * 0.35), width: 10, height: 8),
-        0, 3.14, false, foldPaint
+      Rect.fromCenter(
+        center: Offset(size.width * 0.65, size.height * 0.35),
+        width: 10,
+        height: 8,
+      ),
+      0,
+      3.14,
+      false,
+      foldPaint,
     );
     canvas.drawArc(
-        Rect.fromCenter(center: Offset(size.width * 0.7, size.height * 0.55), width: 8, height: 6),
-        0, 3.14, false, foldPaint
+      Rect.fromCenter(
+        center: Offset(size.width * 0.7, size.height * 0.55),
+        width: 8,
+        height: 6,
+      ),
+      0,
+      3.14,
+      false,
+      foldPaint,
     );
   }
 
@@ -275,6 +369,88 @@ class RainbowIconPainter extends CustomPainter {
         false,
         paint,
       );
+    }
+  }
+
+  @override
+  bool shouldRepaint(covariant CustomPainter oldDelegate) => false;
+}
+
+class SudokuIconPainter extends CustomPainter {
+  @override
+  void paint(Canvas canvas, Size size) {
+    // Draw the 9x9 grid
+    final gridSize = size.width * 0.9;
+    final cellSize = gridSize / 9;
+    final startX = (size.width - gridSize) / 2;
+    final startY = (size.height - gridSize) / 2;
+
+    // Draw vertical lines
+    for (int i = 0; i <= 9; i++) {
+      final x = startX + (i * cellSize);
+      final strokeWidth = (i % 3 == 0) ? 3.0 : 1.0;
+      final linePaint = Paint()
+        ..color = PatientColors.primaryDark
+        ..style = PaintingStyle.stroke
+        ..strokeWidth = strokeWidth;
+
+      canvas.drawLine(
+        Offset(x, startY),
+        Offset(x, startY + gridSize),
+        linePaint,
+      );
+    }
+
+    // Draw horizontal lines
+    for (int i = 0; i <= 9; i++) {
+      final y = startY + (i * cellSize);
+      final strokeWidth = (i % 3 == 0) ? 3.0 : 1.0;
+      final linePaint = Paint()
+        ..color = PatientColors.primaryDark
+        ..style = PaintingStyle.stroke
+        ..strokeWidth = strokeWidth;
+
+      canvas.drawLine(
+        Offset(startX, y),
+        Offset(startX + gridSize, y),
+        linePaint,
+      );
+    }
+
+    // Draw some sample numbers in the grid
+    final textPainter = TextPainter(textDirection: TextDirection.ltr);
+
+    final numbers = [
+      {'number': '5', 'row': 0, 'col': 0},
+      {'number': '3', 'row': 0, 'col': 2},
+      {'number': '7', 'row': 1, 'col': 1},
+      {'number': '2', 'row': 2, 'col': 2},
+      {'number': '8', 'row': 2, 'col': 0},
+      {'number': '1', 'row': 1, 'col': 0},
+    ];
+
+    for (final numData in numbers) {
+      final row = numData['row'] as int;
+      final col = numData['col'] as int;
+      final number = numData['number'] as String;
+
+      textPainter.text = TextSpan(
+        text: number,
+        style: TextStyle(
+          color: PatientColors.primaryDark,
+          fontSize: cellSize * 0.6,
+          fontWeight: FontWeight.bold,
+        ),
+      );
+
+      textPainter.layout();
+
+      final centerX =
+          startX + (col * cellSize) + (cellSize / 2) - (textPainter.width / 2);
+      final centerY =
+          startY + (row * cellSize) + (cellSize / 2) - (textPainter.height / 2);
+
+      textPainter.paint(canvas, Offset(centerX, centerY));
     }
   }
 

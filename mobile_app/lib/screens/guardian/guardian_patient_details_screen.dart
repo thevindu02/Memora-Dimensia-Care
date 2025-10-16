@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../../routes/app_routes.dart';
+import '../../constants/color_constants.dart';
 
 class GuardianPatientDetailsScreen extends StatefulWidget {
   final Map<String, dynamic>? patient;
@@ -20,40 +21,31 @@ class _GuardianPatientDetailsScreenState
   Widget _buildInfoRow(String label, String value) {
     return Container(
       margin: EdgeInsets.only(bottom: 12),
-      padding: EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: Colors.grey[200]!),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.02),
-            blurRadius: 4,
-            offset: Offset(0, 1),
-          ),
-        ],
-      ),
-      child: Row(
+      child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          SizedBox(
-            width: 100,
-            child: Text(
-              label,
-              style: TextStyle(
-                fontSize: 14,
-                fontWeight: FontWeight.w600,
-                color: Color(0xFF2B3F99),
-              ),
+          Text(
+            label,
+            style: TextStyle(
+              fontSize: 14,
+              fontWeight: FontWeight.w600,
+              color: AppColors.onSurface,
             ),
           ),
-          SizedBox(width: 12),
-          Expanded(
+          SizedBox(height: 6),
+          Container(
+            width: double.infinity,
+            padding: EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+            decoration: BoxDecoration(
+              color: AppColors.surface,
+              borderRadius: BorderRadius.circular(6),
+              border: Border.all(color: AppColors.outline.withOpacity(0.5)),
+            ),
             child: Text(
               value,
               style: TextStyle(
                 fontSize: 14,
-                color: Colors.black87,
+                color: AppColors.onSurface,
                 fontWeight: FontWeight.w400,
               ),
             ),
@@ -104,12 +96,12 @@ class _GuardianPatientDetailsScreenState
     // Show loading if patient data is not yet available
     if (patientData == null) {
       return Scaffold(
-        backgroundColor: Colors.white,
+        backgroundColor: AppColors.surfaceVariant,
         appBar: AppBar(
-          backgroundColor: Colors.white,
+          backgroundColor: AppColors.surface,
           elevation: 0,
           leading: IconButton(
-            icon: Icon(Icons.arrow_back, color: Color(0xFF2B3F99)),
+            icon: Icon(Icons.arrow_back, color: AppColors.onSurface),
             onPressed: () => Navigator.pop(context),
           ),
           title: Text(
@@ -117,7 +109,7 @@ class _GuardianPatientDetailsScreenState
             style: TextStyle(
               fontSize: 20,
               fontWeight: FontWeight.w600,
-              color: Color(0xFF2B3F99),
+              color: AppColors.onSurface,
             ),
           ),
           centerTitle: false,
@@ -127,12 +119,12 @@ class _GuardianPatientDetailsScreenState
     }
 
     return Scaffold(
-      backgroundColor: Colors.white,
+      backgroundColor: AppColors.surfaceVariant,
       appBar: AppBar(
-        backgroundColor: Colors.white,
+        backgroundColor: AppColors.surface,
         elevation: 0,
         leading: IconButton(
-          icon: Icon(Icons.arrow_back, color: Color(0xFF2B3F99)),
+          icon: Icon(Icons.arrow_back, color: AppColors.onSurface),
           onPressed: () => Navigator.pop(context),
         ),
         title: Text(
@@ -140,89 +132,60 @@ class _GuardianPatientDetailsScreenState
           style: TextStyle(
             fontSize: 20,
             fontWeight: FontWeight.w600,
-            color: Color(0xFF2B3F99),
+            color: AppColors.onSurface,
           ),
         ),
         centerTitle: false,
       ),
       body: SingleChildScrollView(
-        padding: EdgeInsets.all(20),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // Patient header section
+            // Patient Header
             Container(
-              width: double.infinity,
+              color: AppColors.surface,
               padding: EdgeInsets.all(20),
-              decoration: BoxDecoration(
-                gradient: LinearGradient(
-                  begin: Alignment.topLeft,
-                  end: Alignment.bottomRight,
-                  colors: [
-                    Color(0xFFA0C4FD).withOpacity(0.1),
-                    Color(0xFFA0C4FD).withOpacity(0.2),
-                  ],
-                ),
-                borderRadius: BorderRadius.circular(20),
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.black.withOpacity(0.05),
-                    blurRadius: 10,
-                    offset: Offset(0, 2),
-                  ),
-                ],
-              ),
               child: Row(
                 children: [
-                  Container(
-                    decoration: BoxDecoration(
-                      shape: BoxShape.circle,
-                      boxShadow: [
-                        BoxShadow(
-                          color: Colors.black.withOpacity(0.1),
-                          blurRadius: 8,
-                          offset: Offset(0, 2),
-                        ),
-                      ],
-                    ),
-                    child: CircleAvatar(
-                      radius: 35,
-                      backgroundColor: Color(0xFF2B3F99),
-                      child: Icon(
-                        Icons.person,
-                        color: Colors.white,
-                        size: 35,
-                      ),
+                  CircleAvatar(
+                    radius: 30,
+                    backgroundColor: AppColors.info,
+                    child: Icon(
+                      Icons.person,
+                      color: AppColors.onInfo,
+                      size: 35,
                     ),
                   ),
                   SizedBox(width: 16),
                   Expanded(
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
-                      mainAxisSize: MainAxisSize.min,
                       children: [
                         Text(
                           '${patientData!['fName'] ?? patientData!['FName'] ?? patientData!['fname'] ?? ''} ${patientData!['lName'] ?? patientData!['LName'] ?? patientData!['lname'] ?? ''}',
                           style: TextStyle(
                             fontSize: 20,
-                            fontWeight: FontWeight.bold,
-                            color: Color(0xFF2B3F99),
+                            fontWeight: FontWeight.w600,
+                            color: AppColors.onSurface,
                           ),
                           maxLines: 2,
                           overflow: TextOverflow.ellipsis,
                         ),
                         SizedBox(height: 4),
                         Container(
-                          padding: EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                          padding: EdgeInsets.symmetric(
+                            horizontal: 8,
+                            vertical: 2,
+                          ),
                           decoration: BoxDecoration(
-                            color: Color(0xFFA0C4FD).withOpacity(0.2),
+                            color: AppColors.primaryLight.withOpacity(0.2),
                             borderRadius: BorderRadius.circular(12),
                           ),
                           child: Text(
                             patientData!['label'] ?? 'Patient',
                             style: TextStyle(
                               fontSize: 12,
-                              color: Color(0xFF2B3F99),
+                              color: AppColors.info,
                               fontWeight: FontWeight.w500,
                             ),
                           ),
@@ -234,62 +197,92 @@ class _GuardianPatientDetailsScreenState
               ),
             ),
 
-            SizedBox(height: 32),
+            SizedBox(height: 16),
 
-            // Patient details section
-            _buildInfoRow('Date of Birth', patientData!['birthdate'] ?? 'N/A'),
-            _buildInfoRow(
-              'Contact Number',
-              patientData!['phoneNumber'] ?? 'N/A',
-            ),
-            _buildInfoRow(
-              'Address',
-              '${patientData!['street'] ?? ''}, ${patientData!['city'] ?? ''}, ${patientData!['state'] ?? ''}',
-            ),
-            _buildInfoRow(
-              'Dementia Stage',
-              patientData!['dementiaStage'] ?? 'N/A',
-            ),
-            _buildInfoRow(
-              'Dementia Type',
-              patientData!['dementiaType'] ?? 'N/A',
-            ),
-            _buildInfoRow('Email', patientData!['email'] ?? 'N/A'),
-            _buildInfoRow('Gender', patientData!['gender'] ?? 'N/A'),
-
-            SizedBox(height: 40),
-
-            // Action buttons
+            // Patient Information
             Container(
-              width: double.infinity,
-              height: 50,
-              child: ElevatedButton.icon(
-                onPressed: _editPatient,
-                icon: Icon(
-                  Icons.edit,
-                  color: Colors.white,
-                  size: 18,
-                ),
-                label: Text(
-                  'Edit Patient Details',
-                  style: TextStyle(
-                    fontSize: 16,
-                    fontWeight: FontWeight.w600,
-                    color: Colors.white,
+              color: AppColors.surface,
+              padding: EdgeInsets.all(16),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    'Personal Information',
+                    style: TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.w600,
+                      color: AppColors.onSurface,
+                    ),
                   ),
-                ),
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: Color(0xFF2B3F99),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(12),
+                  SizedBox(height: 16),
+
+                  _buildInfoRow(
+                    'Date of Birth',
+                    patientData!['birthdate'] ?? 'N/A',
                   ),
-                  elevation: 2,
-                  shadowColor: Color(0xFF2B3F99).withOpacity(0.3),
-                ),
+                  _buildInfoRow(
+                    'Contact Number',
+                    patientData!['phoneNumber'] ?? 'N/A',
+                  ),
+                  _buildInfoRow(
+                    'Address',
+                    '${patientData!['street'] ?? ''}, ${patientData!['city'] ?? ''}, ${patientData!['state'] ?? ''}',
+                  ),
+                  _buildInfoRow('Email', patientData!['email'] ?? 'N/A'),
+                  _buildInfoRow('Gender', patientData!['gender'] ?? 'N/A'),
+
+                  SizedBox(height: 16),
+
+                  Text(
+                    'Diseases Information',
+                    style: TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.w600,
+                      color: AppColors.onSurface,
+                    ),
+                  ),
+                  SizedBox(height: 16),
+
+                  _buildInfoRow(
+                    'Dementia Type',
+                    patientData!['dementiaType'] ?? 'N/A',
+                  ),
+                  _buildInfoRow(
+                    'Dementia Stage',
+                    patientData!['dementiaStage'] ?? 'N/A',
+                  ),
+
+                  SizedBox(height: 16),
+
+                  // Edit Button
+                  Container(
+                    width: double.infinity,
+                    child: ElevatedButton.icon(
+                      onPressed: _editPatient,
+                      icon: Icon(Icons.edit, color: AppColors.info, size: 16),
+                      label: Text(
+                        'Edit Patient Details',
+                        style: TextStyle(
+                          fontSize: 14,
+                          fontWeight: FontWeight.w600,
+                          color: AppColors.info,
+                        ),
+                      ),
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: AppColors.primaryLight,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(6),
+                        ),
+                        padding: EdgeInsets.symmetric(vertical: 12),
+                        elevation: 0,
+                      ),
+                    ),
+                  ),
+                ],
               ),
             ),
 
-            SizedBox(height: 20),
+            SizedBox(height: 16),
           ],
         ),
       ),

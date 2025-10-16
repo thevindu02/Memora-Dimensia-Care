@@ -8,11 +8,21 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 @Repository
-public interface GuardianPatientCaregiverConnectionRepository extends JpaRepository<GuardianPatientCaregiverConnection, Long> {
+public interface GuardianPatientCaregiverConnectionRepository
+        extends JpaRepository<GuardianPatientCaregiverConnection, Long> {
     // Custom query methods if needed
-    boolean existsByGuardianIdAndPatientIdAndCaregiverIdAndStatus(Long guardianId, Long patientId, Long caregiverId, Memora.DimensiaCareApplication.model.GuardianPatientCaregiverConnection.ConnectionStatus status);
-    java.util.List<GuardianPatientCaregiverConnection> findByCaregiverIdAndStatus(Long caregiverId, Memora.DimensiaCareApplication.model.GuardianPatientCaregiverConnection.ConnectionStatus status);
+    boolean existsByGuardianIdAndPatientIdAndCaregiverIdAndStatus(Long guardianId, Long patientId, Long caregiverId,
+            Memora.DimensiaCareApplication.model.GuardianPatientCaregiverConnection.ConnectionStatus status);
 
-    List<GuardianPatientCaregiverConnection> findByStatusAndConnectedDateTimeBefore(Memora.DimensiaCareApplication.model.GuardianPatientCaregiverConnection.ConnectionStatus status, LocalDateTime before);
+    java.util.List<GuardianPatientCaregiverConnection> findByCaregiverIdAndStatus(Long caregiverId,
+            Memora.DimensiaCareApplication.model.GuardianPatientCaregiverConnection.ConnectionStatus status);
+
+    List<GuardianPatientCaregiverConnection> findByStatusAndConnectedDateTimeBefore(
+            Memora.DimensiaCareApplication.model.GuardianPatientCaregiverConnection.ConnectionStatus status,
+            LocalDateTime before);
+
     List<GuardianPatientCaregiverConnection> findByPatientId(Long patientId);
-} 
+
+    List<GuardianPatientCaregiverConnection> findByPatientIdAndStatus(Long patientId,
+            Memora.DimensiaCareApplication.model.GuardianPatientCaregiverConnection.ConnectionStatus status);
+}

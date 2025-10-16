@@ -91,6 +91,12 @@ class GuardianRoutes {
           builder: (_) => GuardianQAForumsScreen(),
           settings: settings,
         );
+      case AppRoutes.guardianArticleDetail:
+        final arguments = settings.arguments as Map<String, dynamic>?;
+        return MaterialPageRoute(
+          builder: (_) => GuardianSingleArticleScreen(articleData: arguments),
+          settings: settings,
+        );
       case AppRoutes.guardianProfile:
         return MaterialPageRoute(
           builder: (_) => GuardianProfileScreen(),

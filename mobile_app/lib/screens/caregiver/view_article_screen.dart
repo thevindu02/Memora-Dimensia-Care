@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import '../../constants/color_constants.dart';
+import '../../routes/app_routes.dart';
 
 class ViewArticleScreen extends StatefulWidget {
   @override
@@ -8,6 +10,7 @@ class ViewArticleScreen extends StatefulWidget {
 class _ViewArticleScreenState extends State<ViewArticleScreen>
     with SingleTickerProviderStateMixin {
   late TabController _tabController;
+  int _currentIndex = 2; // Set to 2 since this is the Community/Articles tab
 
   @override
   void initState() {
@@ -30,13 +33,17 @@ class _ViewArticleScreenState extends State<ViewArticleScreen>
         elevation: 0,
         title: Text(
           'Articles & Q&A Forum',
-          style: TextStyle(color: Colors.black, fontSize: 20),
+          style: TextStyle(
+            color: Colors.black,
+            fontSize: 20,
+            fontWeight: FontWeight.w600,
+          ),
         ),
         bottom: TabBar(
           controller: _tabController,
-          labelColor: Color(0xFF2B3F99),
-          unselectedLabelColor: Colors.grey,
-          indicatorColor: Color(0xFF2B3F99),
+          labelColor: AppColors.primary,
+          unselectedLabelColor: AppColors.primary,
+          indicatorColor: AppColors.primary,
           tabs: [
             Tab(text: 'Articles'),
             Tab(text: 'Q&A Forum'),
@@ -46,6 +53,60 @@ class _ViewArticleScreenState extends State<ViewArticleScreen>
       body: TabBarView(
         controller: _tabController,
         children: [CaregiverArticlesTab(), CaregiverQATab()],
+      ),
+      bottomNavigationBar: BottomNavigationBar(
+        currentIndex: _currentIndex,
+        onTap: (index) {
+          if (index == 0) {
+            // Home tab
+            Navigator.pushReplacementNamed(
+              context,
+              AppRoutes.caregiverDashboard,
+            );
+          } else if (index == 1) {
+            // Patients tab
+            Navigator.pushNamed(context, AppRoutes.caregiverPatients);
+          } else if (index == 2) {
+            // Community tab - already here, do nothing
+            setState(() {
+              _currentIndex = index;
+            });
+          } else if (index == 3) {
+            // Profile tab
+            Navigator.pushNamed(context, AppRoutes.caregiverProfile);
+          }
+        },
+        type: BottomNavigationBarType.fixed,
+        selectedItemColor: Color(0xFF2B3F99),
+        unselectedItemColor: Color(0xFF2B3F99),
+        selectedLabelStyle: TextStyle(
+          fontSize: 12,
+          fontWeight: FontWeight.w500,
+        ),
+        unselectedLabelStyle: TextStyle(
+          fontSize: 12,
+          fontWeight: FontWeight.w400,
+        ),
+        selectedIconTheme: IconThemeData(size: 24),
+        unselectedIconTheme: IconThemeData(size: 24),
+        items: const [
+          BottomNavigationBarItem(
+            icon: Icon(Icons.home_outlined),
+            label: 'Home',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.people_outlined),
+            label: 'Patients',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.article),
+            label: 'Community',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.person_outlined),
+            label: 'Profile',
+          ),
+        ],
       ),
     );
   }
@@ -66,8 +127,8 @@ class _CaregiverArticlesTabState extends State<CaregiverArticlesTab> {
       'id': 1,
       'title': 'Understanding Dementia',
       'description': 'Discussion on symptoms and care',
-      'category': 'Caregiver Tips',
-      'author': 'Anonymous Guardian',
+      'category': 'Volunteer',
+      'author': 'Mr. Kamali Rathnayaka',
       'imageUrl':
           'https://images.unsplash.com/photo-1559757148-5c350d0d3c56?w=300&h=200&fit=crop',
       'comments': 15,
@@ -80,8 +141,8 @@ class _CaregiverArticlesTabState extends State<CaregiverArticlesTab> {
       'id': 2,
       'title': 'Caregiver Support',
       'description': 'Share your experiences',
-      'category': 'Caregiver Tips',
-      'author': 'Anonymous Guardian',
+      'category': 'Volunteer',
+      'author': 'Mr. Kamali Rathnayaka',
       'imageUrl':
           'https://images.unsplash.com/photo-1582750433449-648ed127bb54?w=300&h=200&fit=crop',
       'comments': 8,
@@ -147,7 +208,11 @@ class _CaregiverArticlesTabState extends State<CaregiverArticlesTab> {
               Flexible(
                 child: Text(
                   _searchQuery.isEmpty ? 'Recent Articles' : 'Search Results',
-                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.w600),
+                  style: TextStyle(
+                    fontSize: 18,
+                    fontWeight: FontWeight.w600,
+                    color: Colors.black,
+                  ),
                   overflow: TextOverflow.ellipsis,
                 ),
               ),
@@ -155,7 +220,7 @@ class _CaregiverArticlesTabState extends State<CaregiverArticlesTab> {
               if (_searchQuery.isNotEmpty)
                 Text(
                   '${filteredArticles.length} results',
-                  style: TextStyle(color: Colors.grey[600]),
+                  style: TextStyle(color: Colors.black),
                 ),
             ],
           ),
@@ -163,7 +228,12 @@ class _CaregiverArticlesTabState extends State<CaregiverArticlesTab> {
         SizedBox(height: 16),
         Expanded(
           child: filteredArticles.isEmpty
-              ? Center(child: Text('No articles found'))
+              ? Center(
+                  child: Text(
+                    'No articles found',
+                    style: TextStyle(color: Colors.black),
+                  ),
+                )
               : ListView.builder(
                   padding: EdgeInsets.only(bottom: 16),
                   itemCount: filteredArticles.length,
@@ -233,6 +303,7 @@ class _CaregiverArticlesTabState extends State<CaregiverArticlesTab> {
                       style: TextStyle(
                         fontSize: 16,
                         fontWeight: FontWeight.w600,
+                        color: Colors.black,
                       ),
                       maxLines: 2,
                       overflow: TextOverflow.ellipsis,
@@ -242,7 +313,7 @@ class _CaregiverArticlesTabState extends State<CaregiverArticlesTab> {
                       article['description'],
                       maxLines: 2,
                       overflow: TextOverflow.ellipsis,
-                      style: TextStyle(color: Colors.grey[600]),
+                      style: TextStyle(color: Colors.black),
                     ),
                     SizedBox(height: 8),
                     Flexible(
@@ -255,7 +326,7 @@ class _CaregiverArticlesTabState extends State<CaregiverArticlesTab> {
                               article['author'],
                               style: TextStyle(
                                 fontSize: 12,
-                                color: Colors.grey[500],
+                                color: Colors.black,
                               ),
                               overflow: TextOverflow.ellipsis,
                             ),
@@ -268,14 +339,14 @@ class _CaregiverArticlesTabState extends State<CaregiverArticlesTab> {
                                 vertical: 2,
                               ),
                               decoration: BoxDecoration(
-                                color: Color(0xFFA0C4FD),
+                                color: Colors.green[100],
                                 borderRadius: BorderRadius.circular(10),
                               ),
                               child: Text(
                                 article['category'],
                                 style: TextStyle(
                                   fontSize: 12,
-                                  color: Color(0xFF2B3F99),
+                                  color: Colors.green[700],
                                 ),
                                 overflow: TextOverflow.ellipsis,
                               ),
@@ -287,7 +358,7 @@ class _CaregiverArticlesTabState extends State<CaregiverArticlesTab> {
                     SizedBox(height: 8),
                     Text(
                       '${article['comments']} comments · ${article['likes']} likes',
-                      style: TextStyle(fontSize: 12, color: Colors.grey[500]),
+                      style: TextStyle(fontSize: 12, color: Colors.black),
                       overflow: TextOverflow.ellipsis,
                     ),
                   ],
@@ -331,6 +402,7 @@ class _CaregiverArticleDetailPageState
       {
         'id': 1,
         'author': 'Sarah M.',
+        'authorType': 'Guardian',
         'content':
             'This article is very helpful. My mother was recently diagnosed with dementia...',
         'timestamp': '2 hours ago',
@@ -338,6 +410,7 @@ class _CaregiverArticleDetailPageState
       {
         'id': 2,
         'author': 'James T.',
+        'authorType': 'Guardian',
         'content':
             'What are the early warning signs I should watch for? My father is 78...',
         'timestamp': '4 hours ago',
@@ -358,11 +431,13 @@ class _CaregiverArticleDetailPageState
       _comments.insert(0, {
         'id': DateTime.now().millisecondsSinceEpoch,
         'author': 'You',
+        'authorType': 'Caregiver',
         'content': _commentController.text.trim(),
         'timestamp': 'Just now',
       });
     });
     _commentController.clear();
+    FocusScope.of(context).unfocus();
   }
 
   @override
@@ -412,6 +487,7 @@ class _CaregiverArticleDetailPageState
                           style: TextStyle(
                             fontSize: 24,
                             fontWeight: FontWeight.bold,
+                            color: Colors.black,
                           ),
                         ),
                         SizedBox(height: 8),
@@ -423,7 +499,13 @@ class _CaregiverArticleDetailPageState
                               color: Colors.grey[600],
                             ),
                             SizedBox(width: 4),
-                            Text(widget.article['author']),
+                            Text(
+                              widget.article['author'],
+                              style: TextStyle(
+                                fontSize: 14,
+                                color: Colors.grey[600],
+                              ),
+                            ),
                             SizedBox(width: 12),
                             Container(
                               padding: EdgeInsets.symmetric(
@@ -431,13 +513,14 @@ class _CaregiverArticleDetailPageState
                                 vertical: 4,
                               ),
                               decoration: BoxDecoration(
-                                color: Colors.blue[100],
+                                color: Colors.green[100],
                                 borderRadius: BorderRadius.circular(12),
                               ),
                               child: Text(
-                                widget.article['category'],
+                                widget.article['category'] ?? 'Volunteer',
                                 style: TextStyle(
-                                  color: Colors.blue[900],
+                                  fontSize: 12,
+                                  color: Colors.green[700],
                                   fontWeight: FontWeight.w500,
                                 ),
                               ),
@@ -457,7 +540,7 @@ class _CaregiverArticleDetailPageState
                                         : Icons.thumb_up_outlined,
                                     size: 20,
                                     color: _isLiked
-                                        ? Color(0xFF2B3F99)
+                                        ? AppColors.primary
                                         : Colors.grey[600],
                                   ),
                                   SizedBox(width: 4),
@@ -465,8 +548,8 @@ class _CaregiverArticleDetailPageState
                                     '$_likeCount likes',
                                     style: TextStyle(
                                       color: _isLiked
-                                          ? Color(0xFF2B3F99)
-                                          : Colors.grey[600],
+                                          ? AppColors.primary
+                                          : Colors.black,
                                     ),
                                   ),
                                 ],
@@ -481,7 +564,7 @@ class _CaregiverArticleDetailPageState
                             SizedBox(width: 4),
                             Text(
                               '${_comments.length} comments',
-                              style: TextStyle(color: Colors.grey[600]),
+                              style: TextStyle(color: Colors.black),
                             ),
                           ],
                         ),
@@ -499,12 +582,17 @@ class _CaregiverArticleDetailPageState
                           style: TextStyle(
                             fontSize: 18,
                             fontWeight: FontWeight.w600,
+                            color: Colors.black,
                           ),
                         ),
                         SizedBox(height: 12),
                         Text(
                           widget.article['content'],
-                          style: TextStyle(fontSize: 16, height: 1.6),
+                          style: TextStyle(
+                            fontSize: 16,
+                            height: 1.6,
+                            color: Colors.black,
+                          ),
                         ),
                       ],
                     ),
@@ -520,6 +608,7 @@ class _CaregiverArticleDetailPageState
                           style: TextStyle(
                             fontSize: 18,
                             fontWeight: FontWeight.w600,
+                            color: Colors.black,
                           ),
                         ),
                         SizedBox(height: 16),
@@ -547,37 +636,96 @@ class _CaregiverArticleDetailPageState
                                     children: [
                                       CircleAvatar(
                                         radius: 20,
-                                        backgroundColor: Colors.blue[100],
+                                        backgroundColor:
+                                            comment['authorType'] == 'Volunteer'
+                                            ? Colors.green[100]
+                                            : AppColors.primaryLight
+                                                  .withOpacity(0.35),
                                         child: Icon(
                                           Icons.person,
                                           size: 20,
-                                          color: Colors.blue[800],
+                                          color:
+                                              comment['authorType'] ==
+                                                  'Volunteer'
+                                              ? Colors.green[700]
+                                              : AppColors.primary,
                                         ),
                                       ),
                                       SizedBox(width: 12),
-                                      Column(
-                                        crossAxisAlignment:
-                                            CrossAxisAlignment.start,
-                                        children: [
-                                          Text(
-                                            comment['author'],
-                                            style: TextStyle(
-                                              fontWeight: FontWeight.w600,
+                                      Expanded(
+                                        child: Column(
+                                          crossAxisAlignment:
+                                              CrossAxisAlignment.start,
+                                          children: [
+                                            Row(
+                                              children: [
+                                                Text(
+                                                  comment['author'],
+                                                  style: TextStyle(
+                                                    fontSize: 14,
+                                                    fontWeight: FontWeight.w600,
+                                                    color: Colors.black87,
+                                                  ),
+                                                ),
+                                                SizedBox(width: 8),
+                                                Container(
+                                                  padding: EdgeInsets.symmetric(
+                                                    horizontal: 6,
+                                                    vertical: 2,
+                                                  ),
+                                                  decoration: BoxDecoration(
+                                                    color:
+                                                        comment['authorType'] ==
+                                                            'Volunteer'
+                                                        ? Colors.green[100]
+                                                        : AppColors.primaryLight
+                                                              .withOpacity(
+                                                                0.35,
+                                                              ),
+                                                    borderRadius:
+                                                        BorderRadius.circular(
+                                                          8,
+                                                        ),
+                                                  ),
+                                                  child: Text(
+                                                    comment['authorType'] ??
+                                                        'Caregiver',
+                                                    style: TextStyle(
+                                                      fontSize: 10,
+                                                      color:
+                                                          comment['authorType'] ==
+                                                              'Volunteer'
+                                                          ? Colors.green[700]
+                                                          : AppColors.primary,
+                                                      fontWeight:
+                                                          FontWeight.w500,
+                                                    ),
+                                                  ),
+                                                ),
+                                              ],
                                             ),
-                                          ),
-                                          Text(
-                                            comment['timestamp'],
-                                            style: TextStyle(
-                                              fontSize: 12,
-                                              color: Colors.grey[600],
+                                            SizedBox(height: 2),
+                                            Text(
+                                              comment['timestamp'],
+                                              style: TextStyle(
+                                                fontSize: 12,
+                                                color: Colors.grey[500],
+                                              ),
                                             ),
-                                          ),
-                                        ],
+                                          ],
+                                        ),
                                       ),
                                     ],
                                   ),
                                   SizedBox(height: 12),
-                                  Text(comment['content']),
+                                  Text(
+                                    comment['content'],
+                                    style: TextStyle(
+                                      fontSize: 14,
+                                      color: Colors.black87,
+                                      height: 1.4,
+                                    ),
+                                  ),
                                 ],
                               ),
                             );
@@ -586,6 +734,9 @@ class _CaregiverArticleDetailPageState
                       ],
                     ),
                   ),
+
+                  // Comments section
+                  SizedBox(height: 100), // Space for comment input
                 ],
               ),
             ),
@@ -607,7 +758,7 @@ class _CaregiverArticleDetailPageState
                     child: TextField(
                       controller: _commentController,
                       decoration: InputDecoration(
-                        hintText: 'Add a comment...',
+                        hintText: 'Reply to comments...',
                         border: InputBorder.none,
                         contentPadding: EdgeInsets.symmetric(
                           horizontal: 16,
@@ -619,9 +770,9 @@ class _CaregiverArticleDetailPageState
                 ),
                 SizedBox(width: 8),
                 CircleAvatar(
-                  backgroundColor: Color(0xFF2B3F99),
+                  backgroundColor: AppColors.primaryLight,
                   child: IconButton(
-                    icon: Icon(Icons.send, color: Colors.white),
+                    icon: Icon(Icons.send, color: AppColors.primary),
                     onPressed: _addComment,
                   ),
                 ),
@@ -704,7 +855,7 @@ class _CaregiverQATabState extends State<CaregiverQATab> {
       label: Text(
         filter,
         style: TextStyle(
-          color: isSelected ? Color(0xFF2B3F99) : Color(0xFF2B3F99),
+          color: isSelected ? AppColors.primary : AppColors.primary,
           fontSize: 12,
           fontWeight: FontWeight.w500,
         ),
@@ -716,12 +867,12 @@ class _CaregiverQATabState extends State<CaregiverQATab> {
         });
       },
       backgroundColor: Colors.white,
-      selectedColor: Color(0xFFA0C4FD),
-      checkmarkColor: Color(0xFF2B3F99),
+      selectedColor: AppColors.primaryLight,
+      checkmarkColor: AppColors.primary,
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(20),
         side: BorderSide(
-          color: isSelected ? Color(0xFFA0C4FD) : Colors.grey[300]!,
+          color: isSelected ? AppColors.primaryLight : Colors.grey[300]!,
         ),
       ),
     );
@@ -783,7 +934,7 @@ class _CaregiverQATabState extends State<CaregiverQATab> {
                   Spacer(),
                   Text(
                     question['timeAgo'],
-                    style: TextStyle(fontSize: 12, color: Colors.grey[600]),
+                    style: TextStyle(fontSize: 12, color: Colors.black),
                   ),
                 ],
               ),
@@ -805,7 +956,7 @@ class _CaregiverQATabState extends State<CaregiverQATab> {
                 question['content'],
                 style: TextStyle(
                   fontSize: 14,
-                  color: Colors.grey[700],
+                  color: Colors.black,
                   height: 1.4,
                 ),
                 maxLines: 2,
@@ -821,14 +972,14 @@ class _CaregiverQATabState extends State<CaregiverQATab> {
                   return Container(
                     padding: EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                     decoration: BoxDecoration(
-                      color: Color(0xFFA0C4FD).withOpacity(0.2),
+                      color: AppColors.primaryLight.withOpacity(0.2),
                       borderRadius: BorderRadius.circular(12),
                     ),
                     child: Text(
                       tag,
                       style: TextStyle(
                         fontSize: 11,
-                        color: Color(0xFF2B3F99),
+                        color: AppColors.primary,
                         fontWeight: FontWeight.w500,
                       ),
                     ),
@@ -844,14 +995,14 @@ class _CaregiverQATabState extends State<CaregiverQATab> {
                   SizedBox(width: 4),
                   Text(
                     '${question['views']} views',
-                    style: TextStyle(fontSize: 12, color: Colors.grey[600]),
+                    style: TextStyle(fontSize: 12, color: Colors.black),
                   ),
                   SizedBox(width: 16),
                   Icon(Icons.comment, size: 16, color: Colors.grey[600]),
                   SizedBox(width: 4),
                   Text(
                     '${question['replies']} replies',
-                    style: TextStyle(fontSize: 12, color: Colors.grey[600]),
+                    style: TextStyle(fontSize: 12, color: Colors.black),
                   ),
                   Spacer(),
                   Text(
@@ -909,7 +1060,7 @@ class _CaregiverQATabState extends State<CaregiverQATab> {
                   ),
                   focusedBorder: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(8),
-                    borderSide: BorderSide(color: Color(0xFFA0C4FD)),
+                    borderSide: BorderSide(color: AppColors.primaryLight),
                   ),
                 ),
               ),
@@ -924,7 +1075,7 @@ class _CaregiverQATabState extends State<CaregiverQATab> {
                   ),
                   focusedBorder: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(8),
-                    borderSide: BorderSide(color: Color(0xFFA0C4FD)),
+                    borderSide: BorderSide(color: AppColors.primaryLight),
                   ),
                 ),
               ),
@@ -939,7 +1090,7 @@ class _CaregiverQATabState extends State<CaregiverQATab> {
                   ),
                   focusedBorder: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(8),
-                    borderSide: BorderSide(color: Color(0xFFA0C4FD)),
+                    borderSide: BorderSide(color: AppColors.primaryLight),
                   ),
                 ),
               ),
@@ -993,8 +1144,8 @@ class _CaregiverQATabState extends State<CaregiverQATab> {
                       );
                     },
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: Color(0xFFA0C4FD),
-                      foregroundColor: Color(0xFF2B3F99),
+                      backgroundColor: AppColors.primaryLight,
+                      foregroundColor: AppColors.primary,
                     ),
                     child: Text('Post Question'),
                   ),
@@ -1046,7 +1197,7 @@ class _CaregiverQATabState extends State<CaregiverQATab> {
                     ),
                     focusedBorder: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(8),
-                      borderSide: BorderSide(color: Color(0xFFA0C4FD)),
+                      borderSide: BorderSide(color: AppColors.primaryLight),
                     ),
                   ),
                 ),
@@ -1061,7 +1212,7 @@ class _CaregiverQATabState extends State<CaregiverQATab> {
                     ),
                     focusedBorder: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(8),
-                      borderSide: BorderSide(color: Color(0xFFA0C4FD)),
+                      borderSide: BorderSide(color: AppColors.primaryLight),
                     ),
                   ),
                 ),
@@ -1076,7 +1227,7 @@ class _CaregiverQATabState extends State<CaregiverQATab> {
                     ),
                     focusedBorder: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(8),
-                      borderSide: BorderSide(color: Color(0xFFA0C4FD)),
+                      borderSide: BorderSide(color: AppColors.primaryLight),
                     ),
                   ),
                 ),
@@ -1129,8 +1280,8 @@ class _CaregiverQATabState extends State<CaregiverQATab> {
                         );
                       },
                       style: ElevatedButton.styleFrom(
-                        backgroundColor: Color(0xFFA0C4FD),
-                        foregroundColor: Color(0xFF2B3F99),
+                        backgroundColor: AppColors.primaryLight,
+                        foregroundColor: AppColors.primary,
                       ),
                       child: Text('Post Question'),
                     ),
@@ -1200,8 +1351,8 @@ class _CaregiverQATabState extends State<CaregiverQATab> {
           right: 24,
           child: FloatingActionButton(
             onPressed: _showAddQuestionDialog,
-            backgroundColor: Color(0xFFA0C4FD),
-            child: Icon(Icons.add, color: Color(0xFF2B3F99)),
+            backgroundColor: AppColors.primaryLight,
+            child: Icon(Icons.add, color: AppColors.primary),
             tooltip: 'Ask a Question',
           ),
         ),
@@ -1268,11 +1419,11 @@ class _QuestionDetailScreenState extends State<QuestionDetailScreen> {
             children: [
               CircleAvatar(
                 radius: 16,
-                backgroundColor: Color(0xFFA0C4FD),
+                backgroundColor: AppColors.primaryLight,
                 child: Text(
                   reply['author'][0],
                   style: TextStyle(
-                    color: Color(0xFF2B3F99),
+                    color: AppColors.primary,
                     fontWeight: FontWeight.bold,
                     fontSize: 14,
                   ),
@@ -1458,14 +1609,14 @@ class _QuestionDetailScreenState extends State<QuestionDetailScreen> {
                                 vertical: 6,
                               ),
                               decoration: BoxDecoration(
-                                color: Color(0xFFA0C4FD).withOpacity(0.2),
+                                color: AppColors.primaryLight.withOpacity(0.2),
                                 borderRadius: BorderRadius.circular(16),
                               ),
                               child: Text(
                                 tag,
                                 style: TextStyle(
                                   fontSize: 12,
-                                  color: Color(0xFF2B3F99),
+                                  color: AppColors.primary,
                                   fontWeight: FontWeight.w500,
                                 ),
                               ),

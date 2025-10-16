@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:mobile_app/screens/patient/games/memory_match/memory_match_game.dart';
 import 'package:mobile_app/screens/patient/games/memory_match/ui/pages/memory_match_page.dart';
 import 'package:mobile_app/screens/patient/games/memory_match/ui/pages/game_controls_page.dart';
+import 'package:mobile_app/screens/patient/games/sudoku/main.dart'
+    show HomePage;
 import 'package:mobile_app/screens/patient/patient_email_verification_screen.dart';
 import 'package:mobile_app/screens/patient/patient_games_screen.dart';
 import 'package:mobile_app/screens/patient/patient_main_screen.dart';
@@ -78,6 +80,11 @@ class PatientRoutes {
       case AppRoutes.patientMemoryMatch:
         return MaterialPageRoute(
           builder: (_) => MemoryMatchGame(),
+          settings: settings,
+        );
+      case AppRoutes.patientSudoku:
+        return MaterialPageRoute(
+          builder: (_) => HomePage(),
           settings: settings,
         );
       case AppRoutes.patientMemoryMatchLevel4:

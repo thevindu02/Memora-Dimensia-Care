@@ -24,13 +24,13 @@ class AppRoutes {
   static const String patientMemoryMatchLevel4 = '/patient/memory_match/level/4';
   static const String patientMemoryMatchLevel6 = '/patient/memory_match/level/6';
   static const String patientMemoryMatchLevel8 = '/patient/memory_match/level/8';
+  static const String patientSudoku = '/patient/sudoku';
   static const String patientMemoryMatchQuit = '/patient/memory_match/quit';
   static const String patientMemoryMatchControls = '/patient/memory_match/controls';
   static const String patientSettings = '/patient/settings';
   static const String patientSettingsPrivacy = '/patient/settings/privacy';
   static const String patientSettingsHelpSupport = '/patient/settings/help_support';
 
-      
   // Guardian routes
   static const String guardianSignup = '/guardian/signup';
   static const String guardianDashboard = '/guardian/dashboard';
@@ -98,5 +98,4 @@ class AppRoutes {
   static const String volunteerDraft = '/volunteer/draft';
   static const String viewArticle = '/volunteer/viewarticle';
   static const String volunteerArticlesTab = '/volunteer/viewarticle';
-  
 }

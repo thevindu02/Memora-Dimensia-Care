@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../../routes/app_routes.dart';
+import '../../constants/color_constants.dart';
 
 class MainScreen extends StatefulWidget {
   const MainScreen({super.key});
@@ -72,15 +73,27 @@ class HomeScreen extends StatelessWidget {
       appBar: AppBar(
         backgroundColor: Colors.white,
         elevation: 0,
-        title: Text(
-          'Dashboard',
-          style: TextStyle(
-            fontSize: 24, // Increased to match guardian's screen
-            fontWeight: FontWeight.w600,
-            color: Colors.black87,
-          ),
-        ),
         centerTitle: false,
+        title: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Image.asset(
+              'assets/images/light_logo.png',
+              height: 32,
+              width: 32,
+              fit: BoxFit.contain,
+            ),
+            const SizedBox(width: 8),
+            const Text(
+              'Memora',
+              style: TextStyle(
+                color: Colors.black,
+                fontWeight: FontWeight.w600,
+                fontSize: 18,
+              ),
+            ),
+          ],
+        ),
         automaticallyImplyLeading: false,
         actions: [
           IconButton(
@@ -136,16 +149,16 @@ class HomeScreen extends StatelessWidget {
         decoration: BoxDecoration(
           gradient: LinearGradient(
             colors: [
-              Color(
-                0xFFA0C4FD,
-              ).withOpacity(0.08), // Light Sky Blue, more transparent
-              Color(0xFFA0C4FD).withOpacity(0.06),
+              AppColors.primaryLight.withOpacity(
+                0.08,
+              ), // Light Sky Blue, more transparent
+              AppColors.primaryLight.withOpacity(0.06),
             ],
             begin: Alignment.topLeft,
             end: Alignment.bottomRight,
           ),
           border: Border.all(
-            color: Color(0xFFA0C4FD).withOpacity(0.10),
+            color: AppColors.primaryLight.withOpacity(0.10),
             width: 1,
           ),
           borderRadius: BorderRadius.circular(16),
@@ -157,19 +170,19 @@ class HomeScreen extends StatelessWidget {
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  _buildStatItem('3', 'Patients', Color(0xFF2B3F99)),
-                  _buildStatItem('12', 'Tasks', Color(0xFF2B3F99)),
-                  _buildStatItem('2', 'Urgent', Color(0xFF2B3F99)),
-                  _buildStatItem('1', 'Missed', Color(0xFF2B3F99)),
+                  _buildStatItem('3', 'Patients', AppColors.primaryDark),
+                  _buildStatItem('12', 'Tasks', AppColors.primaryDark),
+                  _buildStatItem('2', 'Urgent', AppColors.primaryDark),
+                  _buildStatItem('1', 'Missed', AppColors.primaryDark),
                 ],
               ),
               const SizedBox(height: 12),
               LinearProgressIndicator(
                 value: 0.75,
-                backgroundColor: Color(
-                  0xFFA0C4FD,
-                ).withOpacity(0.10), // Lighter accent
-                valueColor: AlwaysStoppedAnimation<Color>(Color(0xFF2B3F99)),
+                backgroundColor: AppColors.primaryLight.withOpacity(
+                  0.10,
+                ), // Lighter accent
+                valueColor: AlwaysStoppedAnimation<Color>(Colors.green),
                 minHeight: 10,
                 borderRadius: BorderRadius.circular(5),
               ),
@@ -208,7 +221,7 @@ class HomeScreen extends StatelessWidget {
         'title': 'Medication Due Soon',
         'subtitle': 'John - Morning pills in 15 minutes',
         'icon': Icons.warning_amber,
-        'iconColor': Color(0xFF390797),
+        'iconColor': AppColors.primaryDark,
       },
       // Add more tasks here if needed
     ];
@@ -228,9 +241,9 @@ class HomeScreen extends StatelessWidget {
           (task) => Container(
             margin: EdgeInsets.only(bottom: 16),
             decoration: BoxDecoration(
-              color: Color(
-                0xFFA0C4FD,
-              ).withOpacity(0.13), // Light Sky Blue background with low opacity
+              color: AppColors.primaryLight.withOpacity(
+                0.13,
+              ), // Light Sky Blue background with low opacity
               borderRadius: BorderRadius.circular(16),
               boxShadow: [
                 BoxShadow(
@@ -261,7 +274,7 @@ class HomeScreen extends StatelessWidget {
                           style: TextStyle(
                             fontWeight: FontWeight.bold,
                             fontSize: 16,
-                            color: task['iconColor'] as Color,
+                            color: AppColors.primaryDark,
                           ),
                         ),
                         SizedBox(height: 4),
@@ -296,147 +309,66 @@ class HomeScreen extends StatelessWidget {
           ),
         ),
         const SizedBox(height: 8),
-        SizedBox(
-          height: 90, // Match height with other cards
-          child: InkWell(
-            borderRadius: BorderRadius.circular(16),
-            onTap: () {
-              Navigator.pushNamed(
-                context,
-                AppRoutes.caregiverConnectionRequests,
-              );
-            },
-            child: Card(
-              elevation: 2,
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(16),
-              ),
-              margin: EdgeInsets.zero,
-              child: Container(
-                decoration: BoxDecoration(
-                  gradient: LinearGradient(
-                    colors: [
-                      Color(0xFFA0C4FD).withOpacity(0.08),
-                      Color(0xFFA0C4FD).withOpacity(0.06),
-                    ],
-                    begin: Alignment.topLeft,
-                    end: Alignment.bottomRight,
-                  ),
-                  border: Border.all(
-                    color: Color(0xFFA0C4FD).withOpacity(0.10),
-                    width: 1,
-                  ),
-                  borderRadius: BorderRadius.circular(16),
-                ),
-                child: Padding(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 20,
-                    vertical: 18,
-                  ),
-                  child: Row(
-                    children: [
-                      Icon(Icons.person, color: Color(0xFF2B3F99)),
-                      SizedBox(width: 16),
-                      Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            Text(
-                              'New Requests from Guardians',
-                              style: TextStyle(
-                                fontWeight: FontWeight.bold,
-                                fontSize: 16,
-                                color: Color(0xFF2B3F99),
-                              ),
-                            ),
-                            SizedBox(height: 4),
-                            Text(
-                              'Request to connect with a patient',
-                              style: TextStyle(
-                                fontSize: 14,
-                                color: Colors
-                                    .black87, // Use black for better contrast
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                      Icon(Icons.chevron_right),
-                    ],
-                  ),
-                ),
-              ),
-            ),
-          ),
-        ),
-      ],
-    );
-  }
-
-  Widget _buildForumSection(BuildContext context) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(
-          'Caregiver Forum',
-          style: TextStyle(
-            fontSize: 18,
-            fontWeight: FontWeight.w600,
-            color: Colors.black87,
-          ),
-        ),
-        const SizedBox(height: 8),
-        SizedBox(
-          height: 90, // Match height with other cards
+        InkWell(
+          borderRadius: BorderRadius.circular(16),
+          onTap: () {
+            Navigator.pushNamed(context, AppRoutes.caregiverConnectionRequests);
+          },
           child: Card(
             elevation: 2,
             shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(16),
             ),
             margin: EdgeInsets.zero,
-            child: InkWell(
-              borderRadius: BorderRadius.circular(16),
-              onTap: () {
-                // Navigate to forum
-              },
-              child: Container(
-                decoration: BoxDecoration(
-                  gradient: LinearGradient(
-                    colors: [
-                      Color(0xFFC3B1E1).withOpacity(0.08),
-                      Color(0xFFC3B1E1).withOpacity(0.06),
-                    ],
-                    begin: Alignment.topLeft,
-                    end: Alignment.bottomRight,
-                  ),
-                  borderRadius: BorderRadius.circular(16),
+            child: Container(
+              decoration: BoxDecoration(
+                gradient: LinearGradient(
+                  colors: [
+                    AppColors.primaryLight.withOpacity(0.08),
+                    AppColors.primaryLight.withOpacity(0.06),
+                  ],
+                  begin: Alignment.topLeft,
+                  end: Alignment.bottomRight,
                 ),
-                padding: EdgeInsets.symmetric(horizontal: 20, vertical: 18),
+                border: Border.all(
+                  color: AppColors.primaryLight.withOpacity(0.10),
+                  width: 1,
+                ),
+                borderRadius: BorderRadius.circular(16),
+              ),
+              child: Padding(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 20,
+                  vertical: 16,
+                ),
                 child: Row(
                   children: [
-                    Icon(Icons.forum, color: Color(0xFF390797), size: 32),
+                    Icon(Icons.person, color: Color(0xFF2B3F99)),
                     SizedBox(width: 16),
                     Expanded(
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
-                        mainAxisAlignment: MainAxisAlignment.center,
+                        mainAxisSize: MainAxisSize.min,
                         children: [
                           Text(
-                            'Caregiver Forum',
+                            'New Requests from Guardians',
                             style: TextStyle(
                               fontWeight: FontWeight.bold,
-                              fontSize: 16,
-                              color: Color(0xFF390797),
+                              fontSize: 14,
+                              color: AppColors.primaryDark,
                             ),
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
                           ),
                           SizedBox(height: 4),
                           Text(
-                            'Join discussions, ask questions, and connect with other caregivers.',
+                            'Request to connect with a patient',
                             style: TextStyle(
-                              fontSize: 14,
+                              fontSize: 12,
                               color: Colors.black87,
                             ),
+                            maxLines: 2,
+                            overflow: TextOverflow.ellipsis,
                           ),
                         ],
                       ),
@@ -449,31 +381,6 @@ class HomeScreen extends StatelessWidget {
           ),
         ),
       ],
-    );
-  }
-
-  Widget _buildForumTopic(BuildContext context) {
-    return Card(
-      elevation: 2,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-      color: Colors.purple[100],
-      child: ListTile(
-        leading: const Icon(
-          Icons.local_fire_department,
-          color: Colors.deepPurple,
-        ),
-        title: const Text(
-          'Trending Topic: Managing Caregiver Stress',
-          style: TextStyle(fontWeight: FontWeight.bold),
-        ),
-        subtitle: const Text(
-          'Share your tips and experiences for handling stress as a caregiver.',
-        ),
-        onTap: () {
-          // Optionally, navigate to a specific topic or forum thread
-          Navigator.pushNamed(context, AppRoutes.volunteerForum);
-        },
-      ),
     );
   }
 
@@ -504,7 +411,7 @@ class HomeScreen extends StatelessWidget {
               context,
               'Hospital Hotline',
               Icons.local_hospital,
-              Color(0xFFA0C4FD),
+              AppColors.primaryLight,
             ),
             _buildContactChip(
               context,
@@ -512,13 +419,6 @@ class HomeScreen extends StatelessWidget {
               Icons.psychology,
               Color(0xFF390797),
             ),
-            _buildContactChip(
-              context,
-              'Fire & Rescue',
-              Icons.local_fire_department,
-              Colors.deepOrange,
-            ),
-            // Removed Family and Support chips
           ],
         ),
       ],
@@ -537,7 +437,10 @@ class HomeScreen extends StatelessWidget {
       bgColor = Color(0xFFFF5252).withOpacity(0.08);
       textColor = Color(0xFFFF5252);
     } else if (label == 'Doctor') {
-      bgColor = Color(0xFFA0C4FD).withOpacity(0.08);
+      bgColor = AppColors.primaryLight.withOpacity(0.08);
+      textColor = Color(0xFF2B3F99).withOpacity(0.7);
+    } else if (label == 'Hospital Hotline') {
+      bgColor = AppColors.primaryLight.withOpacity(0.28);
       textColor = Color(0xFF2B3F99).withOpacity(0.7);
     } else if (label == 'Family') {
       bgColor = Color(0xFFC3B1E1).withOpacity(0.08);
@@ -545,6 +448,9 @@ class HomeScreen extends StatelessWidget {
     } else if (label == 'Support') {
       bgColor = Color(0xFF390797).withOpacity(0.08);
       textColor = Color(0xFF390797).withOpacity(0.7);
+    } else if (label == 'Mental Health Crisis') {
+      bgColor = AppColors.primaryLight.withOpacity(0.28);
+      textColor = AppColors.primaryDark;
     }
     return ActionChip(
       avatar: Icon(icon, size: 20, color: textColor),

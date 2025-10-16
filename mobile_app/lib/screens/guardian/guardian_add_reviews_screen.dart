@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../../constants/color_constants.dart';
 
 class GuardianAddReviewsScreen extends StatefulWidget {
   @override
@@ -41,7 +42,8 @@ class _GuardianAddReviewsScreenState extends State<GuardianAddReviewsScreen> {
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(16),
               ),
-              backgroundColor: Colors.white, // Make dialog background lighter
+              backgroundColor:
+                  AppColors.surface, // Make dialog background lighter
               child: Padding(
                 padding: const EdgeInsets.all(24.0),
                 child: Column(
@@ -52,7 +54,7 @@ class _GuardianAddReviewsScreenState extends State<GuardianAddReviewsScreen> {
                       children: [
                         Icon(
                           Icons.reviews_outlined,
-                          color: Color(0xFF390797),
+                          color: AppColors.info,
                           size: 28,
                         ),
                         SizedBox(width: 12),
@@ -61,7 +63,7 @@ class _GuardianAddReviewsScreenState extends State<GuardianAddReviewsScreen> {
                           style: TextStyle(
                             fontSize: 20,
                             fontWeight: FontWeight.bold,
-                            color: Color(0xFF2B3F99), // Restore previous color
+                            color: AppColors.info, // Restore previous color
                           ),
                         ),
                       ],
@@ -71,7 +73,7 @@ class _GuardianAddReviewsScreenState extends State<GuardianAddReviewsScreen> {
                       'Your Rating:',
                       style: TextStyle(
                         fontWeight: FontWeight.w600,
-                        color: Color(0xFF2B3F99),
+                        color: AppColors.info,
                       ),
                     ),
                     SizedBox(height: 8),
@@ -103,12 +105,12 @@ class _GuardianAddReviewsScreenState extends State<GuardianAddReviewsScreen> {
                           color: Colors.grey[500],
                         ), // More grey
                         filled: true,
-                        fillColor: Color(
-                          0xFFA0C4FD,
-                        ).withOpacity(0.05), // Lighter background
+                        fillColor: AppColors.primaryLight.withOpacity(
+                          0.05,
+                        ), // Lighter background
                         border: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(10),
-                          borderSide: BorderSide(color: Color(0xFFA0C4FD)),
+                          borderSide: BorderSide(color: AppColors.primaryLight),
                         ),
                       ),
                     ),
@@ -120,7 +122,7 @@ class _GuardianAddReviewsScreenState extends State<GuardianAddReviewsScreen> {
                           onPressed: () => Navigator.pop(context),
                           child: Text(
                             'Cancel',
-                            style: TextStyle(color: Colors.grey[600]),
+                            style: TextStyle(color: AppColors.onSurfaceVariant),
                           ),
                         ),
                         SizedBox(width: 16),
@@ -136,10 +138,9 @@ class _GuardianAddReviewsScreenState extends State<GuardianAddReviewsScreen> {
                             );
                           },
                           style: ElevatedButton.styleFrom(
-                            backgroundColor: Color(
-                              0xFFA0C4FD,
-                            ), // Button background
-                            foregroundColor: Color(0xFF2B3F99), // Button text
+                            backgroundColor:
+                                AppColors.primaryLight, // Button background
+                            foregroundColor: AppColors.info, // Button text
                             shape: RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(8),
                             ),
@@ -164,13 +165,17 @@ class _GuardianAddReviewsScreenState extends State<GuardianAddReviewsScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.white,
+      backgroundColor: AppColors.surfaceVariant,
       appBar: AppBar(
-        backgroundColor: Colors.white,
+        backgroundColor: AppColors.surface,
         elevation: 0,
         title: Text(
           'Add Reviews',
-          style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold),
+          style: TextStyle(
+            fontSize: 20,
+            fontWeight: FontWeight.w600,
+            color: AppColors.onSurface,
+          ),
         ),
         iconTheme: IconThemeData(color: Colors.black), // Make back arrow black
       ),
@@ -181,7 +186,7 @@ class _GuardianAddReviewsScreenState extends State<GuardianAddReviewsScreen> {
         itemBuilder: (context, index) {
           final caregiver = caregivers[index];
           return Material(
-            color: Color(0xFFA0C4FD).withOpacity(0.10),
+            color: AppColors.primaryLight.withOpacity(0.10),
             borderRadius: BorderRadius.circular(16),
             child: InkWell(
               borderRadius: BorderRadius.circular(16),
@@ -195,7 +200,7 @@ class _GuardianAddReviewsScreenState extends State<GuardianAddReviewsScreen> {
                       backgroundColor: Colors.grey[300], // Changed to grey
                       child: Icon(
                         Icons.person,
-                        color: Color(0xFF2B3F99),
+                        color: AppColors.info,
                         size: 32,
                       ),
                     ),
@@ -206,25 +211,25 @@ class _GuardianAddReviewsScreenState extends State<GuardianAddReviewsScreen> {
                         children: [
                           Text(
                             caregiver['name'],
-                            style: TextStyle(
-                              fontSize: 16, // Reduced from 18
-                              fontWeight: FontWeight.w700,
-                              color: Color(0xFF2B3F99),
-                            ),
+                                                         style: TextStyle(
+                               fontSize: 16, // Reduced from 18
+                               fontWeight: FontWeight.w700,
+                               color: AppColors.info,
+                             ),
                           ),
                           SizedBox(height: 4),
-                          Text(
-                            'Worked with: ${caregiver['patient']}',
-                            style: TextStyle(fontSize: 14, color: Colors.black),
-                          ),
-                          Text(
-                            'Period: ${caregiver['period']}',
-                            style: TextStyle(fontSize: 14, color: Colors.black),
-                          ),
+                                                     Text(
+                             'Worked with: ${caregiver['patient']}',
+                             style: TextStyle(fontSize: 14, color: AppColors.onSurface),
+                           ),
+                                                     Text(
+                             'Period: ${caregiver['period']}',
+                             style: TextStyle(fontSize: 14, color: AppColors.onSurface),
+                           ),
                         ],
                       ),
                     ),
-                    Icon(Icons.rate_review, color: Color(0xFF390797)),
+                                         Icon(Icons.rate_review, color: AppColors.info),
                   ],
                 ),
               ),

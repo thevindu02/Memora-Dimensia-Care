@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../../constants/color_constants.dart';
 
 class GuardianSettingsHelpSupportScreen extends StatefulWidget {
   @override
@@ -23,31 +24,31 @@ class _HelpSupportScreenState extends State<GuardianSettingsHelpSupportScreen> {
     required VoidCallback onTap,
   }) {
     return Container(
-      color: Colors.white,
+      color: AppColors.surface,
       child: ListTile(
         leading: Container(
           width: 40,
           height: 40,
           decoration: BoxDecoration(
-            color: Color(0xFFA0C4FD).withOpacity(0.35),
+            color: AppColors.primaryLight.withOpacity(0.35),
             shape: BoxShape.circle,
           ),
           alignment: Alignment.center,
-          child: Icon(icon, color: Color(0xFF2B3F99), size: 22),
+          child: Icon(icon, color: AppColors.info, size: 22),
         ),
         title: Text(
           title,
           style: TextStyle(
             fontSize: 16,
             fontWeight: FontWeight.w500,
-            color: Colors.black87,
+            color: AppColors.onSurface,
           ),
         ),
         subtitle: Text(
           subtitle,
-          style: TextStyle(fontSize: 14, color: Colors.grey[600]),
+          style: TextStyle(fontSize: 14, color: AppColors.onSurfaceVariant),
         ),
-        trailing: Icon(Icons.chevron_right, color: Colors.grey[600]),
+        trailing: Icon(Icons.chevron_right, color: AppColors.onSurfaceVariant),
         onTap: onTap,
         contentPadding: EdgeInsets.symmetric(horizontal: 20, vertical: 8),
       ),
@@ -221,12 +222,12 @@ class _HelpSupportScreenState extends State<GuardianSettingsHelpSupportScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.grey[50],
+      backgroundColor: AppColors.surfaceVariant,
       appBar: AppBar(
-        backgroundColor: Colors.white,
+        backgroundColor: AppColors.surface,
         elevation: 0,
         leading: IconButton(
-          icon: Icon(Icons.arrow_back, color: Colors.black87),
+          icon: Icon(Icons.arrow_back, color: Colors.black),
           onPressed: () => Navigator.pop(context),
         ),
         title: Text(
@@ -234,7 +235,7 @@ class _HelpSupportScreenState extends State<GuardianSettingsHelpSupportScreen> {
           style: TextStyle(
             fontSize: 20,
             fontWeight: FontWeight.w600,
-            color: Colors.black87,
+            color: AppColors.onSurface,
           ),
         ),
         centerTitle: false,

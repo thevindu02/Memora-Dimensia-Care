@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'volunteer_bottom_navigation_screen.dart';
 import 'volunteer_help_support_screen.dart';
 import 'volunteer_privacy_screen.dart';
+import '../../constants/color_constants.dart';
 
 class VolunteerSettingsScreen extends StatefulWidget {
   const VolunteerSettingsScreen({Key? key}) : super(key: key);
@@ -18,9 +19,9 @@ class _VolunteerSettingsScreenState extends State<VolunteerSettingsScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.white,
+      backgroundColor: AppColors.background,
       appBar: AppBar(
-        backgroundColor: Colors.white,
+        backgroundColor: AppColors.background,
         elevation: 0,
         leading: IconButton(
           icon: const Icon(Icons.arrow_back, color: Colors.black),
@@ -33,7 +34,7 @@ class _VolunteerSettingsScreenState extends State<VolunteerSettingsScreen> {
           style: TextStyle(
             fontSize: 20,
             fontWeight: FontWeight.w600,
-            color: Colors.black,
+            color: AppColors.onSurface,
           ),
         ),
         centerTitle: false,
@@ -62,9 +63,9 @@ class _VolunteerSettingsScreenState extends State<VolunteerSettingsScreen> {
                         receiveNotifications = value;
                       });
                     },
-                    activeColor: Color(0xFF2B3F99), // calm navy
-                    activeTrackColor: Color(
-                      0x59A0C4FD,
+                    activeColor: AppColors.info, // calm navy
+                    activeTrackColor: AppColors.primaryLight.withOpacity(
+                      0.35,
                     ), // light sky blue with 35% opacity
                   ),
                 ),
@@ -82,11 +83,14 @@ class _VolunteerSettingsScreenState extends State<VolunteerSettingsScreen> {
                   ),
                   subtitle: Text(
                     selectedLanguage,
-                    style: TextStyle(fontSize: 14, color: Colors.black54),
+                    style: TextStyle(
+                      fontSize: 14,
+                      color: AppColors.onSurfaceVariant,
+                    ),
                   ),
                   trailing: Icon(
                     Icons.keyboard_arrow_right,
-                    color: Colors.grey[500],
+                    color: AppColors.onSurfaceVariant,
                   ),
                   onTap: () async {
                     final lang = await showModalBottomSheet<String>(
@@ -115,10 +119,7 @@ class _VolunteerSettingsScreenState extends State<VolunteerSettingsScreen> {
                                   style: TextStyle(fontWeight: FontWeight.bold),
                                 ),
                                 trailing: selectedLanguage == langOption
-                                    ? Icon(
-                                        Icons.check,
-                                        color: Color(0xFF2B3F99),
-                                      )
+                                    ? Icon(Icons.check, color: AppColors.info)
                                     : null,
                                 onTap: () => Navigator.pop(context, langOption),
                               ),
@@ -149,11 +150,14 @@ class _VolunteerSettingsScreenState extends State<VolunteerSettingsScreen> {
                   ),
                   subtitle: Text(
                     'Manage your data',
-                    style: TextStyle(fontSize: 14, color: Colors.black54),
+                    style: TextStyle(
+                      fontSize: 14,
+                      color: AppColors.onSurfaceVariant,
+                    ),
                   ),
                   trailing: Icon(
                     Icons.keyboard_arrow_right,
-                    color: Colors.grey[500],
+                    color: AppColors.onSurfaceVariant,
                   ),
                   onTap: () {
                     Navigator.push(
@@ -178,11 +182,14 @@ class _VolunteerSettingsScreenState extends State<VolunteerSettingsScreen> {
                   ),
                   subtitle: Text(
                     'FAQs & support',
-                    style: TextStyle(fontSize: 14, color: Colors.black54),
+                    style: TextStyle(
+                      fontSize: 14,
+                      color: AppColors.onSurfaceVariant,
+                    ),
                   ),
                   trailing: Icon(
                     Icons.keyboard_arrow_right,
-                    color: Colors.grey[500],
+                    color: AppColors.onSurfaceVariant,
                   ),
                   onTap: () {
                     Navigator.push(

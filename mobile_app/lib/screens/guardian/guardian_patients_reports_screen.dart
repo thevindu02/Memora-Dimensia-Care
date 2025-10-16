@@ -3,6 +3,7 @@ import '../../routes/app_routes.dart';
 import '../../services/patient_service.dart';
 import '../../services/auth_service.dart';
 import '../../services/guardian_service.dart'; // Add this import if not present
+import '../../constants/color_constants.dart';
 
 class GuardianPatientsReportsScreen extends StatefulWidget {
   @override
@@ -96,11 +97,11 @@ class _GuardianPatientsReportsScreenState
           margin: EdgeInsets.only(bottom: 16),
           padding: EdgeInsets.all(20),
           decoration: BoxDecoration(
-            color: Colors.white,
+            color: AppColors.surface,
             borderRadius: BorderRadius.circular(12),
             boxShadow: [
               BoxShadow(
-                color: Colors.grey.withOpacity(0.1),
+                color: AppColors.shadow,
                 spreadRadius: 1,
                 blurRadius: 4,
                 offset: Offset(0, 2),
@@ -112,7 +113,11 @@ class _GuardianPatientsReportsScreenState
               CircleAvatar(
                 radius: 30,
                 backgroundColor: Colors.grey[300],
-                child: Icon(Icons.person, color: Colors.grey[600], size: 35),
+                child: Icon(
+                  Icons.person,
+                  color: AppColors.onSurfaceVariant,
+                  size: 35,
+                ),
               ),
               SizedBox(width: 16),
               Expanded(
@@ -124,26 +129,29 @@ class _GuardianPatientsReportsScreenState
                       style: TextStyle(
                         fontSize: 18,
                         fontWeight: FontWeight.w600,
-                        color: Colors.black87,
+                        color: AppColors.onSurface,
                       ),
                     ),
                     SizedBox(height: 4),
                     Text(
                       patient['label'],
-                      style: TextStyle(fontSize: 14, color: Colors.grey[600]),
+                      style: TextStyle(
+                        fontSize: 14,
+                        color: AppColors.onSurfaceVariant,
+                      ),
                     ),
                     SizedBox(height: 8),
                     Container(
                       padding: EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                       decoration: BoxDecoration(
-                        color: Color(0xFFA0C4FD).withOpacity(0.2),
+                        color: AppColors.primaryLight.withOpacity(0.2),
                         borderRadius: BorderRadius.circular(6),
                       ),
                       child: Text(
                         '${patient['totalReports']} reports available',
                         style: TextStyle(
                           fontSize: 12,
-                          color: Color(0xFF2B3F99),
+                          color: AppColors.info,
                           fontWeight: FontWeight.w500,
                         ),
                       ),
@@ -156,7 +164,10 @@ class _GuardianPatientsReportsScreenState
                 children: [
                   Text(
                     'Last Report',
-                    style: TextStyle(fontSize: 12, color: Colors.grey[600]),
+                    style: TextStyle(
+                      fontSize: 12,
+                      color: AppColors.onSurfaceVariant,
+                    ),
                   ),
                   SizedBox(height: 4),
                   Text(
@@ -164,13 +175,13 @@ class _GuardianPatientsReportsScreenState
                     style: TextStyle(
                       fontSize: 14,
                       fontWeight: FontWeight.w500,
-                      color: Colors.black87,
+                      color: AppColors.onSurface,
                     ),
                   ),
                   SizedBox(height: 12),
                   Icon(
                     Icons.arrow_forward_ios,
-                    color: Colors.grey[400],
+                    color: AppColors.onSurfaceVariant,
                     size: 16,
                   ),
                 ],
@@ -185,21 +196,21 @@ class _GuardianPatientsReportsScreenState
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.grey[50],
+      backgroundColor: AppColors.surfaceVariant,
       appBar: AppBar(
-        backgroundColor: Colors.white,
+        backgroundColor: AppColors.surface,
         elevation: 0,
         leading: IconButton(
-          icon: Icon(Icons.arrow_back, color: Colors.black87),
+          icon: Icon(Icons.arrow_back, color: Colors.black),
           onPressed: () => Navigator.pop(context),
         ),
         // Removed reload icon
         title: Text(
           'Patient Reports',
           style: TextStyle(
-            fontSize: 24,
-            fontWeight: FontWeight.bold,
-            color: Colors.black87,
+            fontSize: 20,
+            fontWeight: FontWeight.w600,
+            color: AppColors.onSurface,
           ),
         ),
         centerTitle: false,
@@ -222,13 +233,13 @@ class _GuardianPatientsReportsScreenState
                       width: 50,
                       height: 50,
                       decoration: BoxDecoration(
-                        color: Color(0xFFA0C4FD).withOpacity(0.35),
+                        color: AppColors.primaryLight.withOpacity(0.35),
                         shape: BoxShape.circle,
                       ),
                       child: Icon(
                         Icons.assessment,
                         size: 24,
-                        color: Color(0xFF2B3F99),
+                        color: AppColors.info,
                       ),
                     ),
                     SizedBox(width: 16),
@@ -241,7 +252,7 @@ class _GuardianPatientsReportsScreenState
                             style: TextStyle(
                               fontSize: 20,
                               fontWeight: FontWeight.w600,
-                              color: Colors.black87,
+                              color: AppColors.onSurface,
                             ),
                           ),
                           SizedBox(height: 4),
@@ -249,7 +260,7 @@ class _GuardianPatientsReportsScreenState
                             'Select a patient to view their daily reports',
                             style: TextStyle(
                               fontSize: 14,
-                              color: Colors.grey[600],
+                              color: AppColors.onSurfaceVariant,
                             ),
                           ),
                         ],
@@ -266,7 +277,7 @@ class _GuardianPatientsReportsScreenState
                 style: TextStyle(
                   fontSize: 18,
                   fontWeight: FontWeight.w600,
-                  color: Colors.black87,
+                  color: AppColors.onSurface,
                 ),
               ),
               SizedBox(height: 16),
@@ -277,11 +288,11 @@ class _GuardianPatientsReportsScreenState
                 Container(
                   padding: EdgeInsets.all(40),
                   decoration: BoxDecoration(
-                    color: Colors.white,
+                    color: AppColors.surface,
                     borderRadius: BorderRadius.circular(12),
                     boxShadow: [
                       BoxShadow(
-                        color: Colors.grey.withOpacity(0.1),
+                        color: AppColors.shadow,
                         spreadRadius: 1,
                         blurRadius: 4,
                         offset: Offset(0, 2),
@@ -312,11 +323,11 @@ class _GuardianPatientsReportsScreenState
                 Container(
                   padding: EdgeInsets.all(40),
                   decoration: BoxDecoration(
-                    color: Colors.white,
+                    color: AppColors.surface,
                     borderRadius: BorderRadius.circular(12),
                     boxShadow: [
                       BoxShadow(
-                        color: Colors.grey.withOpacity(0.1),
+                        color: AppColors.shadow,
                         spreadRadius: 1,
                         blurRadius: 4,
                         offset: Offset(0, 2),
@@ -328,7 +339,7 @@ class _GuardianPatientsReportsScreenState
                       Icon(
                         Icons.people_outline,
                         size: 48,
-                        color: Colors.grey[400],
+                        color: AppColors.onSurfaceVariant,
                       ),
                       SizedBox(height: 16),
                       Text(
@@ -336,13 +347,16 @@ class _GuardianPatientsReportsScreenState
                         style: TextStyle(
                           fontSize: 16,
                           fontWeight: FontWeight.w500,
-                          color: Colors.grey[600],
+                          color: AppColors.onSurfaceVariant,
                         ),
                       ),
                       SizedBox(height: 8),
                       Text(
                         'Add patients to view their daily reports',
-                        style: TextStyle(fontSize: 14, color: Colors.grey[500]),
+                        style: TextStyle(
+                          fontSize: 14,
+                          color: AppColors.onSurfaceVariant,
+                        ),
                         textAlign: TextAlign.center,
                       ),
                     ],
