@@ -77,4 +77,77 @@ class GuardianService {
       return 'Network error: $e';
     }
   }
+
+  /// Sends a guardian connection email to the patient. Returns true if successful, false otherwise.
+  static Future<Map<String, dynamic>> sendGuardianConnectionEmail({
+    required String patientEmail,
+    required String patientName,
+    required String guardianName,
+    required String guardianEmail,
+    required String relationship,
+  }) async {
+    final url = Uri.parse('$baseUrl/send-guardian-connection-email');
+    
+    try {
+      final response = await http.post(
+        url,
+        headers: {'Content-Type': 'application/json'},
+        body: jsonEncode({
+          'patientEmail': patientEmail,
+          'patientName': patientName,
+          'guardianName': guardianName,
+          'guardianEmail': guardianEmail,
+          'relationship': relationship,
+        }),
+      );
+
+      if (response.statusCode == 200) {
+        final responseData = jsonDecode(response.body) as Map<String, dynamic>;
+        return {
+          'success': true,
+          'message': responseData['message'] ?? 'Email sent successfully',
+          'connectionToken': responseData['connectionToken'],
+        };
+      } else {
+        final errorData = jsonDecode(response.body) as Map<String, dynamic>;
+        return {
+          'success': false,
+          'message': errorData['message'] ?? 'Failed to send email',
+        };
+      }
+    } catch (e) {
+      return {
+        'success': false,
+        'message': 'Network error: $e',
+      };
+    }
+  }
+
+  /// Gets guardian connection details by token for the patient guardian request screen
+  static Future<Map<String, dynamic>> getGuardianConnectionDetails(String token) async {
+    final url = Uri.parse('$baseUrl/connection-request/$token');
+    
+    try {
+      final response = await http.get(url);
+
+      if (response.statusCode == 200) {
+        final responseData = jsonDecode(response.body) as Map<String, dynamic>;
+        return {
+          'success': true,
+          'data': responseData,
+        };
+      } else {
+        final errorData = jsonDecode(response.body);
+        return {
+          'success': false,
+          'message': errorData is String ? errorData : errorData['message'] ?? 'Failed to get connection details',
+        };
+      }
+    } catch (e) {
+      return {
+        'success': false,
+        'message': 'Network error: $e',
+      };
+    }
+  }
 }

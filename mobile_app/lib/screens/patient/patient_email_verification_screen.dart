@@ -1,180 +1,175 @@
 import 'package:flutter/material.dart';
 import '../../routes/app_routes.dart';
+import '../../services/auth_service.dart';
 
 class PatientEmailVerificationScreen extends StatefulWidget {
-  const PatientEmailVerificationScreen({Key? key}) : super(key: key);
+  final String? email; // Pre-filled email from guardian request
+  
+  const PatientEmailVerificationScreen({Key? key, this.email}) : super(key: key);
 
   @override
   State<PatientEmailVerificationScreen> createState() => _PatientEmailVerificationScreenState();
 }
 
 class _PatientEmailVerificationScreenState extends State<PatientEmailVerificationScreen> {
-  final TextEditingController _emailController = TextEditingController();
-
+  final _emailController = TextEditingController();
+  bool _isLoading = false;
+  String? _errorMessage;
+  
   @override
   void initState() {
     super.initState();
-    // Pre-fill with placeholder email
-    _emailController.text = 'patient@email.com';
+    // Pre-fill email if passed from guardian request
+    if (widget.email != null) {
+      _emailController.text = widget.email!;
+    }
   }
-
+  
   @override
   void dispose() {
     _emailController.dispose();
     super.dispose();
   }
-
-  void _sendVerificationCode() {
-    // Navigate to the next screen (replace with your actual route)
-    Navigator.push(
-      context,
-      MaterialPageRoute(
-        builder: (context) => const VerificationCodeScreen(),
+  
+  Future<void> _sendVerificationCode() async {
+    final email = _emailController.text.trim();
+    
+    if (email.isEmpty) {
+      setState(() {
+        _errorMessage = 'Please enter your email address';
+      });
+      return;
+    }
+    
+    setState(() {
+      _isLoading = true;
+      _errorMessage = null;
+    });
+    
+    try {
+      final result = await AuthService.sendPatientVerificationCode(email);
+      
+      if (result.success) {
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text(result.message),
+              backgroundColor: Colors.green,
+            ),
+          );
+          
+          // Navigate to verify code screen
+          Navigator.of(context).pushReplacementNamed(
+            AppRoutes.patientVerifyCode,
+            arguments: {'email': email},
+          );
+        }
+      } else {
+        setState(() {
+          _isLoading = false;
+          _errorMessage = result.message;
+        });
+        
+        if (result.locked == true) {
+          _showErrorDialog(
+            'Account Locked',
+            'Too many failed attempts. Please try again in ${result.minutesRemaining} minutes.',
+          );
+        } else if (result.cooldown == true) {
+          _showErrorDialog(
+            'Please Wait',
+            'Please wait ${result.secondsRemaining} seconds before requesting a new code.',
+          );
+        } else {
+          _showErrorDialog('Error', result.message);
+        }
+      }
+    } catch (e) {
+      setState(() {
+        _isLoading = false;
+        _errorMessage = e.toString();
+      });
+      _showErrorDialog('Error', 'Failed to send verification code: $e');
+    }
+  }
+  
+  void _showErrorDialog(String title, String message) {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: Text(title),
+        content: Text(message),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(),
+            child: const Text('OK'),
+          ),
+        ],
       ),
     );
   }
-
+  
   @override
   Widget build(BuildContext context) {
+    // ...existing UI code...
+    // Add the email input field and send button
+    // Call _sendVerificationCode() when button is pressed
     return Scaffold(
-      backgroundColor: Colors.white,
       appBar: AppBar(
-        backgroundColor: Colors.white,
-        elevation: 0,
-        leading: IconButton(
-          icon: const Icon(
-            Icons.arrow_back,
-            color: Colors.black,
-          ),
-          onPressed: () => Navigator.pop(context),
-        ),
+        title: const Text('Patient Login'),
+        centerTitle: true,
       ),
       body: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 24.0),
+        padding: const EdgeInsets.all(24.0),
         child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
+          mainAxisAlignment: MainAxisAlignment.center,
+          crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            const SizedBox(height: 40),
-            // Welcome Back Title
-            const Center(
-              child: Text(
-                'Welcome Back',
-                style: TextStyle(
-                  fontSize: 32,
-                  fontWeight: FontWeight.bold,
-                  color: Colors.black,
-                ),
-              ),
+            const Icon(Icons.email, size: 80, color: Colors.blue),
+            const SizedBox(height: 24),
+            const Text(
+              'Enter Your Email',
+              textAlign: TextAlign.center,
+              style: TextStyle(fontSize: 28, fontWeight: FontWeight.bold),
             ),
             const SizedBox(height: 8),
-            // Subtitle
-            const Center(
-              child: Text(
-                'Sign in to continue',
-                style: TextStyle(
-                  fontSize: 16,
-                  color: Colors.grey,
-                ),
-              ),
-            ),
-            const SizedBox(height: 60),
-            // Email Address Label
             const Text(
-              'Email Address',
-              style: TextStyle(
-                fontSize: 16,
-                fontWeight: FontWeight.w500,
-                color: Colors.black,
-              ),
-            ),
-            const SizedBox(height: 12),
-            // Email Input Field
-            Container(
-              decoration: BoxDecoration(
-                color: Colors.grey[100],
-                borderRadius: BorderRadius.circular(12),
-              ),
-              child: TextFormField(
-                controller: _emailController,
-                keyboardType: TextInputType.emailAddress,
-                style: const TextStyle(
-                  fontSize: 16,
-                  color: Colors.grey,
-                ),
-                decoration: const InputDecoration(
-                  border: InputBorder.none,
-                  contentPadding: EdgeInsets.symmetric(
-                    horizontal: 16,
-                    vertical: 16,
-                  ),
-                  hintText: 'Enter your email address',
-                  hintStyle: TextStyle(color: Colors.grey),
-                ),
-              ),
+              'We\'ll send you a verification code',
+              textAlign: TextAlign.center,
+              style: TextStyle(fontSize: 16, color: Colors.grey),
             ),
             const SizedBox(height: 40),
-            // Send Verification Code Button
-            SizedBox(
-              width: double.infinity,
-              height: 56,
-              child: ElevatedButton(
-                //onPressed: _sendVerificationCode,
-                onPressed: () {
-                  // Handle accept connection
-                  //_handleAcceptConnection(context);
-                  Navigator.of(context).pushNamed(AppRoutes.patientVerifyCode);
-                },
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: const Color(0xFFA0C4FD),
-                  foregroundColor: const Color(0xFF2B3F99),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                  elevation: 0,
-                ),
-                child: const Text(
-                  'Send Verification Code',
-                  style: TextStyle(
-                    fontSize: 16,
-                    fontWeight: FontWeight.w600,
-                    color: Color(0xFF2B3F99),
-                  ),
-                ),
+            
+            TextField(
+              controller: _emailController,
+              keyboardType: TextInputType.emailAddress,
+              decoration: InputDecoration(
+                labelText: 'Email Address',
+                prefixIcon: const Icon(Icons.email),
+                border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+                errorText: _errorMessage,
               ),
             ),
-            const SizedBox(height: 16),
-            // Description Text
-            const Center(
-              child: Text(
-                "We'll send a code to verify your identity",
-                style: TextStyle(
-                  fontSize: 14,
-                  color: Colors.grey,
-                ),
+            const SizedBox(height: 24),
+            
+            ElevatedButton(
+              onPressed: _isLoading ? null : _sendVerificationCode,
+              style: ElevatedButton.styleFrom(
+                padding: const EdgeInsets.symmetric(vertical: 16),
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
               ),
+              child: _isLoading
+                  ? const SizedBox(
+                      height: 20,
+                      width: 20,
+                      child: CircularProgressIndicator(
+                        strokeWidth: 2,
+                        valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                      ),
+                    )
+                  : const Text('Send Verification Code', style: TextStyle(fontSize: 16)),
             ),
           ],
-        ),
-      ),
-    );
-  }
-}
-
-// Placeholder for the next screen - replace with your actual verification code screen
-class VerificationCodeScreen extends StatelessWidget {
-  const VerificationCodeScreen({Key? key}) : super(key: key);
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text('Verification Code'),
-      ),
-      body: const Center(
-        child: Text(
-          'Verification Code Screen\n(Replace with your actual implementation)',
-          textAlign: TextAlign.center,
-          style: TextStyle(fontSize: 18),
         ),
       ),
     );

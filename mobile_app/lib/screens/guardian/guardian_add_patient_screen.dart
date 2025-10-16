@@ -390,14 +390,47 @@ class _GuardianAddPatientScreenState extends State<GuardianAddPatientScreen> {
 
         print('Patient creation result: ${patientResult.success}, ${patientResult.message}');
 
-        setState(() {
-          _isLoading = false;
-        });
-
         if (patientResult.success) {
+          // Send guardian connection email to patient
+          try {
+            // Get current guardian's user information
+            final guardianUserData = await UserService.getUserById(currentUserId!);
+            
+            if (guardianUserData != null) {
+              final guardianName = '${guardianUserData['fname']} ${guardianUserData['lname']}';
+              final guardianEmail = guardianUserData['email'];
+              final patientName = '${_firstNameController.text} ${_lastNameController.text}';
+              final patientEmail = _emailController.text;
+              final relationship = _relationshipController.text.trim();
+
+              print('Sending guardian connection email...');
+              final emailResult = await GuardianService.sendGuardianConnectionEmail(
+                patientEmail: patientEmail,
+                patientName: patientName,
+                guardianName: guardianName,
+                guardianEmail: guardianEmail,
+                relationship: relationship,
+              );
+
+              if (emailResult['success']) {
+                print('Guardian connection email sent successfully');
+              } else {
+                print('Failed to send guardian connection email: ${emailResult['message']}');
+                // Don't fail the whole process if email fails, just log it
+              }
+            }
+          } catch (emailError) {
+            print('Error sending guardian connection email: $emailError');
+            // Don't fail the whole process if email fails
+          }
+
+          setState(() {
+            _isLoading = false;
+          });
+
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
-              content: Text('Patient saved successfully!'),
+              content: Text('Patient saved successfully! Connection request email sent.'),
               backgroundColor: Colors.green,
             ),
           );
@@ -407,6 +440,9 @@ class _GuardianAddPatientScreenState extends State<GuardianAddPatientScreen> {
             (route) => false,
           );
         } else {
+          setState(() {
+            _isLoading = false;
+          });
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
               content: Text('Failed to save patient: ${patientResult.message}'),

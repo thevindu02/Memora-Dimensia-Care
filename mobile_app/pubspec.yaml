@@ -41,6 +41,8 @@ dependencies:
   confetti: ^0.7.0
   network_info_plus: ^5.0.0
   connectivity_plus: ^6.0.0
+  app_links: ^6.3.2
+  flutter_secure_storage: ^9.0.0
 
 
 dev_dependencies:

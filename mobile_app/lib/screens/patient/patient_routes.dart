@@ -30,18 +30,24 @@ class PatientRoutes {
           settings: settings,
         );
       case AppRoutes.patientEmailVerification:
+        final arguments = settings.arguments as Map<String, dynamic>?;
+        final email = arguments?['email'] as String?;
         return MaterialPageRoute(
-          builder: (_) => PatientEmailVerificationScreen(),
+          builder: (_) => PatientEmailVerificationScreen(email: email),
           settings: settings,
         );
       case AppRoutes.patientVerifyCode:
+        final arguments = settings.arguments as Map<String, dynamic>?;
+        final email = arguments?['email'] as String?;
         return MaterialPageRoute(
-          builder: (_) => PatientVerifyCodeScreen(),
+          builder: (_) => PatientVerifyCodeScreen(email: email),
           settings: settings,
         );
       case AppRoutes.patientGuardianRequest:
+        final arguments = settings.arguments as Map<String, dynamic>?;
+        final token = arguments?['token'] as String?;
         return MaterialPageRoute(
-          builder: (_) => PatientGuardianRequestScreen(),
+          builder: (_) => PatientGuardianRequestScreen(token: token),
           settings: settings,
         );
       case AppRoutes.patientWelcome:

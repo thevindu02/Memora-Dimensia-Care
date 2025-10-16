@@ -11,6 +11,7 @@ class PatientProfileScreen extends StatelessWidget {
       backgroundColor: PatientColors.background,
       appBar: AppBar(
         backgroundColor: PatientColors.surface,
+        automaticallyImplyLeading: false,
         elevation: 0,
         centerTitle: true,
         title: const Text(
