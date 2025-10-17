@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import '../../routes/app_routes.dart';
 import 'guardian_bottom_nav_bar.dart';
 import '../../constants/color_constants.dart';
+import '../../services/forum_question_service.dart';
 
 class GuardianQAForumsScreen extends StatefulWidget {
   @override
@@ -12,6 +13,8 @@ class _GuardianQAForumsScreenState extends State<GuardianQAForumsScreen> {
   int _selectedIndex = 2; // Q&A Forums is index 2
   String _selectedFilter = 'All';
   final List<String> _filters = ['All', 'Unanswered', 'Recent', 'Most Replies'];
+  bool _isLoading = true;
+  String? _errorMessage;
 
   void _onBottomNavTap(int index) {
     if (index == 2) {
@@ -38,69 +41,131 @@ class _GuardianQAForumsScreenState extends State<GuardianQAForumsScreen> {
     );
   }
 
-  // Mock data for forum questions
-  List<Map<String, dynamic>> questions = [
-    {
-      'id': 1,
-      'title': 'How to manage medication schedules for elderly patients?',
-      'content':
-          'I\'m struggling to keep track of multiple medications for my elderly parent. What are some effective strategies or tools that can help?',
-      'tags': ['Medication', 'Elderly Care', 'Scheduling'],
-      'askedBy': 'Anonymous Guardian',
-      'timeAgo': '2 hours ago',
-      'replies': 5,
-      'views': 23,
-      'isAnswered': true,
-    },
-    {
-      'id': 2,
-      'title': 'Best practices for emergency preparedness?',
-      'content':
-          'What should I include in an emergency kit for someone with chronic conditions? Are there specific items I should prioritize?',
-      'tags': ['Emergency', 'Preparedness', 'Chronic Conditions'],
-      'askedBy': 'Anonymous Guardian',
-      'timeAgo': '5 hours ago',
-      'replies': 2,
-      'views': 15,
-      'isAnswered': false,
-    },
-    {
-      'id': 3,
-      'title': 'How to encourage physical activity in seniors?',
-      'content':
-          'My parent is reluctant to exercise. What are some gentle ways to encourage physical activity that won\'t overwhelm them?',
-      'tags': ['Exercise', 'Seniors', 'Motivation'],
-      'askedBy': 'Anonymous Guardian',
-      'timeAgo': '1 day ago',
-      'replies': 8,
-      'views': 42,
-      'isAnswered': true,
-    },
-    {
-      'id': 4,
-      'title': 'Nutrition guidelines for diabetic patients?',
-      'content':
-          'I need help understanding what foods are safe and beneficial for someone with diabetes. Any meal planning tips?',
-      'tags': ['Nutrition', 'Diabetes', 'Meal Planning'],
-      'askedBy': 'Anonymous Guardian',
-      'timeAgo': '3 days ago',
-      'replies': 0,
-      'views': 8,
-      'isAnswered': false,
-    },
-  ];
+  // Questions list - will be fetched from API
+  List<Map<String, dynamic>> questions = [];
+
+  @override
+  void initState() {
+    super.initState();
+    _loadQuestions();
+  }
+
+  /// Load questions from the API based on selected filter
+  Future<void> _loadQuestions() async {
+    setState(() {
+      _isLoading = true;
+      _errorMessage = null;
+    });
+
+    try {
+      List<Map<String, dynamic>> fetchedQuestions;
+
+      // Use backend filtering based on selected filter
+      switch (_selectedFilter) {
+        case 'Unanswered':
+          fetchedQuestions =
+              await ForumQuestionService.getUnansweredQuestions();
+          break;
+        case 'Recent':
+          fetchedQuestions = await ForumQuestionService.getRecentQuestions();
+          break;
+        case 'Most Replies':
+          fetchedQuestions =
+              await ForumQuestionService.getMostRepliedQuestions();
+          break;
+        default: // 'All'
+          fetchedQuestions = await ForumQuestionService.getAllQuestions();
+      }
+
+      setState(() {
+        questions = fetchedQuestions.map((q) => _convertQuestion(q)).toList();
+        _isLoading = false;
+      });
+    } catch (e) {
+      setState(() {
+        _errorMessage = 'Failed to load questions: $e';
+        _isLoading = false;
+      });
+    }
+  }
+
+  /// Convert API question to UI format
+  Map<String, dynamic> _convertQuestion(Map<String, dynamic> apiQuestion) {
+    return {
+      'questionId': apiQuestion['questionId'],
+      'id': apiQuestion['questionId'], // For compatibility
+      'guardianId': apiQuestion['guardianId'],
+      'title': apiQuestion['title'],
+      'content': apiQuestion['content'],
+      'tags': apiQuestion['tags'] ?? [],
+      'askedBy': apiQuestion['guardianName'] ?? 'Anonymous Guardian',
+      'timeAgo': _formatTimeAgo(apiQuestion['createdAt']),
+      'replies': apiQuestion['replies'] ?? 0,
+      'views': apiQuestion['views'] ?? 0,
+      'isAnswered': apiQuestion['isAnswered'] ?? false,
+    };
+  }
+
+  /// Format timestamp to "X hours ago" format
+  String _formatTimeAgo(dynamic timestamp) {
+    if (timestamp == null) return 'Just now';
+
+    try {
+      // Debug: Print timestamp format
+      print('Timestamp received: $timestamp (Type: ${timestamp.runtimeType})');
+
+      // Handle various timestamp formats
+      DateTime dateTime;
+
+      if (timestamp is int) {
+        // Handle epoch milliseconds (most common from backend)
+        dateTime = DateTime.fromMillisecondsSinceEpoch(timestamp);
+      } else if (timestamp is Map && timestamp.containsKey('_seconds')) {
+        // Handle Firestore timestamp format with underscore
+        dateTime = DateTime.fromMillisecondsSinceEpoch(
+          timestamp['_seconds'] * 1000,
+        );
+      } else if (timestamp is Map && timestamp.containsKey('seconds')) {
+        // Handle Firebase Timestamp format without underscore
+        dateTime = DateTime.fromMillisecondsSinceEpoch(
+          timestamp['seconds'] * 1000,
+        );
+      } else if (timestamp is String) {
+        // Handle ISO 8601 string format
+        dateTime = DateTime.parse(timestamp);
+      } else {
+        print('Unknown timestamp format: $timestamp');
+        return 'Just now';
+      }
+
+      print('Parsed DateTime: $dateTime');
+      final difference = DateTime.now().difference(dateTime);
+      print('Time difference: ${difference.inMinutes} minutes');
+
+      if (difference.inSeconds < 60) {
+        return 'Just now';
+      } else if (difference.inMinutes < 60) {
+        return '${difference.inMinutes} ${difference.inMinutes == 1 ? 'minute' : 'minutes'} ago';
+      } else if (difference.inHours < 24) {
+        return '${difference.inHours} ${difference.inHours == 1 ? 'hour' : 'hours'} ago';
+      } else if (difference.inDays < 7) {
+        return '${difference.inDays} ${difference.inDays == 1 ? 'day' : 'days'} ago';
+      } else if (difference.inDays < 30) {
+        final weeks = (difference.inDays / 7).floor();
+        return '$weeks ${weeks == 1 ? 'week' : 'weeks'} ago';
+      } else {
+        final months = (difference.inDays / 30).floor();
+        return '$months ${months == 1 ? 'month' : 'months'} ago';
+      }
+    } catch (e) {
+      return 'Just now';
+    }
+  }
 
   List<Map<String, dynamic>> get filteredQuestions {
-    switch (_selectedFilter) {
-      case 'Unanswered':
-        return questions.where((q) => !q['isAnswered']).toList();
-      case 'Recent':
-        return questions.where((q) => q['timeAgo'].contains('hour')).toList();
-      case 'Most Replies':
-        return questions..sort((a, b) => b['replies'].compareTo(a['replies']));
-      default:
-        return questions;
-    }
+    // Backend filtering is now handled in _loadQuestions()
+    // Just return all questions as they're already filtered
+    return questions;
   }
 
   Widget _buildFilterChip(String filter) {
@@ -119,6 +184,8 @@ class _GuardianQAForumsScreenState extends State<GuardianQAForumsScreen> {
         setState(() {
           _selectedFilter = filter;
         });
+        // Reload questions with new filter from backend
+        _loadQuestions();
       },
       backgroundColor: AppColors.surface,
       selectedColor: AppColors.primaryLight,
@@ -136,13 +203,19 @@ class _GuardianQAForumsScreenState extends State<GuardianQAForumsScreen> {
     return Material(
       color: Colors.transparent,
       child: InkWell(
-        onTap: () {
-          Navigator.push(
+        onTap: () async {
+          // Navigate to detail screen and wait for result
+          final result = await Navigator.push(
             context,
             MaterialPageRoute(
               builder: (context) => QuestionDetailScreen(question: question),
             ),
           );
+
+          // If views were incremented, reload questions to update the list
+          if (result == true) {
+            _loadQuestions();
+          }
         },
         borderRadius: BorderRadius.circular(12),
         child: Container(
@@ -364,7 +437,7 @@ class _GuardianQAForumsScreenState extends State<GuardianQAForumsScreen> {
                   ),
                   SizedBox(width: 12),
                   ElevatedButton(
-                    onPressed: () {
+                    onPressed: () async {
                       if (titleController.text.trim().isEmpty ||
                           contentController.text.trim().isEmpty) {
                         ScaffoldMessenger.of(context).showSnackBar(
@@ -376,32 +449,116 @@ class _GuardianQAForumsScreenState extends State<GuardianQAForumsScreen> {
                         return;
                       }
 
-                      // Add new question to the list
-                      setState(() {
-                        questions.insert(0, {
-                          'id': questions.length + 1,
-                          'title': titleController.text.trim(),
-                          'content': contentController.text.trim(),
-                          'tags': tagsController.text
-                              .trim()
-                              .split(',')
-                              .map((tag) => tag.trim())
-                              .toList(),
-                          'askedBy': 'Anonymous Guardian',
-                          'timeAgo': 'Just now',
-                          'replies': 0,
-                          'views': 0,
-                          'isAnswered': false,
-                        });
-                      });
-
+                      // Close dialog first
                       Navigator.pop(context);
+
+                      // Show loading indicator with green background
                       ScaffoldMessenger.of(context).showSnackBar(
                         SnackBar(
-                          content: Text('Question posted successfully!'),
-                          backgroundColor: Colors.green,
+                          content: Row(
+                            children: [
+                              SizedBox(
+                                width: 20,
+                                height: 20,
+                                child: CircularProgressIndicator(
+                                  strokeWidth: 2,
+                                  valueColor: AlwaysStoppedAnimation<Color>(
+                                    Colors.white,
+                                  ),
+                                ),
+                              ),
+                              SizedBox(width: 16),
+                              Text('Posting question...'),
+                            ],
+                          ),
+                          backgroundColor: Colors.green[700],
+                          duration: Duration(seconds: 30),
                         ),
                       );
+
+                      // Parse tags
+                      List<String> tags = tagsController.text
+                          .trim()
+                          .split(',')
+                          .map((tag) => tag.trim())
+                          .where((tag) => tag.isNotEmpty)
+                          .toList();
+
+                      try {
+                        // Call API to create question
+                        // TODO: Get actual guardianId from current user session
+                        final result =
+                            await ForumQuestionService.createQuestion(
+                              guardianId: 1, // Replace with actual guardian ID
+                              title: titleController.text.trim(),
+                              content: contentController.text.trim(),
+                              tags: tags,
+                            );
+
+                        // Hide loading indicator
+                        ScaffoldMessenger.of(context).hideCurrentSnackBar();
+
+                        if (result != null) {
+                          // Reload questions to get the new one
+                          await _loadQuestions();
+
+                          // Show success message
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            SnackBar(
+                              content: Row(
+                                children: [
+                                  Icon(Icons.check_circle, color: Colors.white),
+                                  SizedBox(width: 12),
+                                  Expanded(
+                                    child: Text(
+                                      'Question posted successfully!',
+                                    ),
+                                  ),
+                                ],
+                              ),
+                              backgroundColor: Colors.green,
+                              duration: Duration(seconds: 3),
+                            ),
+                          );
+                        } else {
+                          // Show error message
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            SnackBar(
+                              content: Row(
+                                children: [
+                                  Icon(Icons.error, color: Colors.white),
+                                  SizedBox(width: 12),
+                                  Expanded(
+                                    child: Text(
+                                      'Failed to post question. Please try again.',
+                                    ),
+                                  ),
+                                ],
+                              ),
+                              backgroundColor: Colors.red,
+                              duration: Duration(seconds: 4),
+                            ),
+                          );
+                        }
+                      } catch (e) {
+                        // Hide loading indicator
+                        ScaffoldMessenger.of(context).hideCurrentSnackBar();
+
+                        // Show error message
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(
+                            content: Row(
+                              children: [
+                                Icon(Icons.error, color: Colors.white),
+                                SizedBox(width: 12),
+                                Expanded(child: Text('Error: ${e.toString()}')),
+                              ],
+                            ),
+                            backgroundColor: Colors.red,
+                            duration: Duration(seconds: 4),
+                          ),
+                        );
+                      }
                     },
                     style: ElevatedButton.styleFrom(
                       backgroundColor: Color(0xFFA0C4FD),
@@ -482,13 +639,79 @@ class _GuardianQAForumsScreenState extends State<GuardianQAForumsScreen> {
 
             // Questions list
             Expanded(
-              child: ListView.builder(
-                padding: EdgeInsets.all(16),
-                itemCount: filteredQuestions.length,
-                itemBuilder: (context, index) {
-                  return _buildQuestionCard(filteredQuestions[index]);
-                },
-              ),
+              child: _isLoading
+                  ? Center(
+                      child: CircularProgressIndicator(
+                        color: AppColors.primaryLight,
+                      ),
+                    )
+                  : _errorMessage != null
+                  ? Center(
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Icon(
+                            Icons.error_outline,
+                            size: 64,
+                            color: Colors.red[300],
+                          ),
+                          SizedBox(height: 16),
+                          Text(
+                            _errorMessage!,
+                            textAlign: TextAlign.center,
+                            style: TextStyle(
+                              color: Colors.red[700],
+                              fontSize: 14,
+                            ),
+                          ),
+                          SizedBox(height: 16),
+                          ElevatedButton(
+                            onPressed: _loadQuestions,
+                            child: Text('Retry'),
+                          ),
+                        ],
+                      ),
+                    )
+                  : filteredQuestions.isEmpty
+                  ? Center(
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Icon(
+                            Icons.forum_outlined,
+                            size: 64,
+                            color: Colors.grey[400],
+                          ),
+                          SizedBox(height: 16),
+                          Text(
+                            'No questions yet',
+                            style: TextStyle(
+                              fontSize: 18,
+                              fontWeight: FontWeight.w600,
+                              color: Colors.grey[600],
+                            ),
+                          ),
+                          SizedBox(height: 8),
+                          Text(
+                            'Be the first to ask a question!',
+                            style: TextStyle(
+                              fontSize: 14,
+                              color: Colors.grey[600],
+                            ),
+                          ),
+                        ],
+                      ),
+                    )
+                  : RefreshIndicator(
+                      onRefresh: _loadQuestions,
+                      child: ListView.builder(
+                        padding: EdgeInsets.all(16),
+                        itemCount: filteredQuestions.length,
+                        itemBuilder: (context, index) {
+                          return _buildQuestionCard(filteredQuestions[index]);
+                        },
+                      ),
+                    ),
             ),
           ],
         ),
@@ -518,29 +741,52 @@ class QuestionDetailScreen extends StatefulWidget {
 }
 
 class _QuestionDetailScreenState extends State<QuestionDetailScreen> {
-  final TextEditingController _replyController = TextEditingController();
+  // Replies list - will be fetched from API
+  List<Map<String, dynamic>> replies = [];
+  bool _viewIncremented = false;
+  late Map<String, dynamic> _currentQuestion;
 
-  // Mock replies data
-  List<Map<String, dynamic>> replies = [
-    {
-      'id': 1,
-      'content':
-          'I recommend using a pill organizer with multiple compartments. Also, setting phone reminders can be very helpful. Many pharmacies offer blister packing services which can simplify medication management.',
-      'author': 'Dr. Sarah Johnson',
-      'authorType': 'Medical Professional',
-      'timeAgo': '1 hour ago',
-      'likes': 5,
-    },
-    {
-      'id': 2,
-      'content':
-          'We use a medication app that sends notifications. It has been a game changer for our family. The app also tracks when medications are taken and can send alerts to family members.',
-      'author': 'Mike Chen',
-      'authorType': 'Volunteer Caregiver',
-      'timeAgo': '3 hours ago',
-      'likes': 3,
-    },
-  ];
+  @override
+  void initState() {
+    super.initState();
+    _currentQuestion = Map<String, dynamic>.from(widget.question);
+    _incrementViewCount();
+  }
+
+  /// Increment view count when question is opened
+  Future<void> _incrementViewCount() async {
+    try {
+      final questionId = widget.question['questionId'] ?? widget.question['id'];
+      if (questionId != null) {
+        print('Incrementing view count for question: $questionId');
+
+        // Call the API which automatically increments the view count
+        final updatedQuestion = await ForumQuestionService.getQuestionById(
+          questionId.toString(),
+        );
+
+        if (updatedQuestion != null) {
+          setState(() {
+            // Update the local question data with new view count
+            _currentQuestion['views'] =
+                updatedQuestion['views'] ?? _currentQuestion['views'];
+            _viewIncremented = true;
+          });
+          print(
+            'View count incremented successfully. New count: ${updatedQuestion['views']}',
+          );
+        }
+      }
+    } catch (e) {
+      print('Error incrementing view count: $e');
+    }
+  }
+
+  @override
+  void dispose() {
+    // Return true to indicate views were updated
+    super.dispose();
+  }
 
   Widget _buildReplyCard(Map<String, dynamic> reply) {
     return Container(
@@ -652,243 +898,252 @@ class _QuestionDetailScreenState extends State<QuestionDetailScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: AppColors.surfaceVariant,
-      appBar: AppBar(
-        backgroundColor: AppColors.surface,
-        elevation: 0,
-        leading: IconButton(
-          icon: Icon(Icons.arrow_back, color: Colors.black),
-          onPressed: () => Navigator.pop(context),
-        ),
-        title: Text(
-          'Question Details',
-          style: TextStyle(
-            fontSize: 20,
-            fontWeight: FontWeight.bold,
-            color: AppColors.onSurface,
+    return WillPopScope(
+      onWillPop: () async {
+        // Return true to indicate views were updated
+        Navigator.pop(context, _viewIncremented);
+        return false;
+      },
+      child: Scaffold(
+        backgroundColor: AppColors.surfaceVariant,
+        appBar: AppBar(
+          backgroundColor: AppColors.surface,
+          elevation: 0,
+          leading: IconButton(
+            icon: Icon(Icons.arrow_back, color: Colors.black),
+            onPressed: () => Navigator.pop(context, _viewIncremented),
           ),
-        ),
-      ),
-      body: Column(
-        children: [
-          Expanded(
-            child: SingleChildScrollView(
-              padding: EdgeInsets.all(16),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  // Question details
-                  Container(
-                    padding: EdgeInsets.all(16),
-                    decoration: BoxDecoration(
-                      color: Colors.white,
-                      borderRadius: BorderRadius.circular(12),
-                      boxShadow: [
-                        BoxShadow(
-                          color: Colors.grey.withOpacity(0.1),
-                          spreadRadius: 1,
-                          blurRadius: 4,
-                          offset: Offset(0, 2),
-                        ),
-                      ],
-                    ),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Row(
-                          children: [
-                            Container(
-                              padding: EdgeInsets.symmetric(
-                                horizontal: 8,
-                                vertical: 4,
-                              ),
-                              decoration: BoxDecoration(
-                                color: widget.question['isAnswered']
-                                    ? Colors.green.withOpacity(0.1)
-                                    : Colors.orange.withOpacity(0.1),
-                                borderRadius: BorderRadius.circular(12),
-                              ),
-                              child: Text(
-                                widget.question['isAnswered']
-                                    ? 'Answered'
-                                    : 'Unanswered',
-                                style: TextStyle(
-                                  fontSize: 10,
-                                  color: widget.question['isAnswered']
-                                      ? Colors.green[700]
-                                      : Colors.orange[700],
-                                  fontWeight: FontWeight.w600,
-                                ),
-                              ),
-                            ),
-                            Spacer(),
-                            Text(
-                              widget.question['timeAgo'],
-                              style: TextStyle(
-                                fontSize: 12,
-                                color: Colors.grey[600],
-                              ),
-                            ),
-                          ],
-                        ),
-                        SizedBox(height: 16),
-                        Text(
-                          widget.question['title'],
-                          style: TextStyle(
-                            fontSize: 20,
-                            fontWeight: FontWeight.bold,
-                            color: Colors.black87,
-                          ),
-                        ),
-                        SizedBox(height: 12),
-                        Text(
-                          widget.question['content'],
-                          style: TextStyle(
-                            fontSize: 16,
-                            color: Colors.grey[700],
-                            height: 1.4,
-                          ),
-                        ),
-                        SizedBox(height: 16),
-                        Wrap(
-                          spacing: 8,
-                          runSpacing: 8,
-                          children: widget.question['tags'].map<Widget>((tag) {
-                            return Container(
-                              padding: EdgeInsets.symmetric(
-                                horizontal: 12,
-                                vertical: 6,
-                              ),
-                              decoration: BoxDecoration(
-                                color: Color(0xFFA0C4FD).withOpacity(0.2),
-                                borderRadius: BorderRadius.circular(16),
-                              ),
-                              child: Text(
-                                tag,
-                                style: TextStyle(
-                                  fontSize: 12,
-                                  color: Color(0xFF2B3F99),
-                                  fontWeight: FontWeight.w500,
-                                ),
-                              ),
-                            );
-                          }).toList(),
-                        ),
-                        SizedBox(height: 12),
-                        Row(
-                          children: [
-                            Icon(
-                              Icons.visibility,
-                              size: 16,
-                              color: Colors.grey[600],
-                            ),
-                            SizedBox(width: 4),
-                            Text(
-                              '${widget.question['views']} views',
-                              style: TextStyle(
-                                fontSize: 12,
-                                color: Colors.grey[600],
-                              ),
-                            ),
-                            Spacer(),
-                            Text(
-                              'Asked by ${widget.question['askedBy']}',
-                              style: TextStyle(
-                                fontSize: 12,
-                                color: Colors.grey[600],
-                                fontStyle: FontStyle.italic,
-                              ),
-                            ),
-                          ],
-                        ),
-                      ],
-                    ),
-                  ),
-                  SizedBox(height: 24),
-
-                  // Replies section
-                  Text(
-                    'Replies (${replies.length})',
-                    style: TextStyle(
-                      fontSize: 18,
-                      fontWeight: FontWeight.w600,
-                      color: Colors.black87,
-                    ),
-                  ),
-                  SizedBox(height: 16),
-
-                  // Replies list
-                  for (var reply in replies) _buildReplyCard(reply),
-                ],
-              ),
+          title: Text(
+            'Question Details',
+            style: TextStyle(
+              fontSize: 20,
+              fontWeight: FontWeight.bold,
+              color: AppColors.onSurface,
             ),
           ),
+        ),
+        body: Column(
+          children: [
+            Expanded(
+              child: SingleChildScrollView(
+                padding: EdgeInsets.all(16),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    // Question details
+                    Container(
+                      padding: EdgeInsets.all(16),
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: BorderRadius.circular(12),
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.grey.withOpacity(0.1),
+                            spreadRadius: 1,
+                            blurRadius: 4,
+                            offset: Offset(0, 2),
+                          ),
+                        ],
+                      ),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Row(
+                            children: [
+                              Container(
+                                padding: EdgeInsets.symmetric(
+                                  horizontal: 8,
+                                  vertical: 4,
+                                ),
+                                decoration: BoxDecoration(
+                                  color: _currentQuestion['isAnswered']
+                                      ? Colors.green.withOpacity(0.1)
+                                      : Colors.orange.withOpacity(0.1),
+                                  borderRadius: BorderRadius.circular(12),
+                                ),
+                                child: Text(
+                                  _currentQuestion['isAnswered']
+                                      ? 'Answered'
+                                      : 'Unanswered',
+                                  style: TextStyle(
+                                    fontSize: 10,
+                                    color: _currentQuestion['isAnswered']
+                                        ? Colors.green[700]
+                                        : Colors.orange[700],
+                                    fontWeight: FontWeight.w600,
+                                  ),
+                                ),
+                              ),
+                              Spacer(),
+                              Text(
+                                _currentQuestion['timeAgo'],
+                                style: TextStyle(
+                                  fontSize: 12,
+                                  color: Colors.grey[600],
+                                ),
+                              ),
+                            ],
+                          ),
+                          SizedBox(height: 16),
+                          Text(
+                            _currentQuestion['title'],
+                            style: TextStyle(
+                              fontSize: 20,
+                              fontWeight: FontWeight.bold,
+                              color: Colors.black87,
+                            ),
+                          ),
+                          SizedBox(height: 12),
+                          Text(
+                            _currentQuestion['content'],
+                            style: TextStyle(
+                              fontSize: 16,
+                              color: Colors.grey[700],
+                              height: 1.4,
+                            ),
+                          ),
+                          SizedBox(height: 16),
+                          Wrap(
+                            spacing: 8,
+                            runSpacing: 8,
+                            children: (_currentQuestion['tags'] as List)
+                                .map<Widget>((tag) {
+                                  return Container(
+                                    padding: EdgeInsets.symmetric(
+                                      horizontal: 12,
+                                      vertical: 6,
+                                    ),
+                                    decoration: BoxDecoration(
+                                      color: Color(0xFFA0C4FD).withOpacity(0.2),
+                                      borderRadius: BorderRadius.circular(16),
+                                    ),
+                                    child: Text(
+                                      tag,
+                                      style: TextStyle(
+                                        fontSize: 12,
+                                        color: Color(0xFF2B3F99),
+                                        fontWeight: FontWeight.w500,
+                                      ),
+                                    ),
+                                  );
+                                })
+                                .toList(),
+                          ),
+                          SizedBox(height: 12),
+                          Row(
+                            children: [
+                              Icon(
+                                Icons.visibility,
+                                size: 16,
+                                color: Colors.grey[600],
+                              ),
+                              SizedBox(width: 4),
+                              Text(
+                                '${_currentQuestion['views']} views',
+                                style: TextStyle(
+                                  fontSize: 12,
+                                  color: Colors.grey[600],
+                                ),
+                              ),
+                              Spacer(),
+                              Text(
+                                'Asked by ${_currentQuestion['askedBy']}',
+                                style: TextStyle(
+                                  fontSize: 12,
+                                  color: Colors.grey[600],
+                                  fontStyle: FontStyle.italic,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ],
+                      ),
+                    ),
+                    SizedBox(height: 24),
 
-          // Reply input (only for volunteers)
-          // Container(
-          //   padding: EdgeInsets.all(16),
-          //   decoration: BoxDecoration(
-          //     color: Colors.white,
-          //     boxShadow: [
-          //       BoxShadow(
-          //         color: Colors.grey.withOpacity(0.1),
-          //         spreadRadius: 1,
-          //         blurRadius: 4,
-          //         offset: Offset(0, -2),
-          //       ),
-          //     ],
-          //   ),
-          //   child: Row(
-          //     children: [
-          //       Expanded(
-          //         child: TextField(
-          //           controller: _replyController,
-          //           maxLines: null,
-          //           decoration: InputDecoration(
-          //             hintText: 'Write your reply...',
-          //             border: OutlineInputBorder(
-          //               borderRadius: BorderRadius.circular(24),
-          //               borderSide: BorderSide(color: Colors.grey[300]!),
-          //             ),
-          //             focusedBorder: OutlineInputBorder(
-          //               borderRadius: BorderRadius.circular(24),
-          //               borderSide: BorderSide(color: Color(0xFFA0C4FD)),
-          //             ),
-          //             contentPadding: EdgeInsets.symmetric(
-          //               horizontal: 16,
-          //               vertical: 12,
-          //             ),
-          //           ),
-          //         ),
-          //       ),
-          //       SizedBox(width: 12),
-          //       CircleAvatar(
-          //         radius: 24,
-          //         backgroundColor: Color(0xFFA0C4FD),
-          //         child: IconButton(
-          //           icon: Icon(Icons.send, color: Color(0xFF2B3F99)),
-          //           onPressed: () {
-          //             if (_replyController.text.trim().isNotEmpty) {
-          //               setState(() {
-          //                 replies.add({
-          //                   'id': replies.length + 1,
-          //                   'content': _replyController.text.trim(),
-          //                   'author': 'Current User', // This would be dynamic
-          //                   'authorType': 'Volunteer',
-          //                   'timeAgo': 'Just now',
-          //                   'likes': 0,
-          //                 });
-          //               });
-          //               _replyController.clear();
-          //             }
-          //           },
-          //         ),
-          //       ),
-          //     ],
-          //   ),
-          // ),
-        ],
+                    // Replies section
+                    Text(
+                      'Replies (${replies.length})',
+                      style: TextStyle(
+                        fontSize: 18,
+                        fontWeight: FontWeight.w600,
+                        color: Colors.black87,
+                      ),
+                    ),
+                    SizedBox(height: 16),
+
+                    // Replies list
+                    for (var reply in replies) _buildReplyCard(reply),
+                  ],
+                ),
+              ),
+            ),
+
+            // Reply input (only for volunteers)
+            // Container(
+            //   padding: EdgeInsets.all(16),
+            //   decoration: BoxDecoration(
+            //     color: Colors.white,
+            //     boxShadow: [
+            //       BoxShadow(
+            //         color: Colors.grey.withOpacity(0.1),
+            //         spreadRadius: 1,
+            //         blurRadius: 4,
+            //         offset: Offset(0, -2),
+            //       ),
+            //     ],
+            //   ),
+            //   child: Row(
+            //     children: [
+            //       Expanded(
+            //         child: TextField(
+            //           controller: _replyController,
+            //           maxLines: null,
+            //           decoration: InputDecoration(
+            //             hintText: 'Write your reply...',
+            //             border: OutlineInputBorder(
+            //               borderRadius: BorderRadius.circular(24),
+            //               borderSide: BorderSide(color: Colors.grey[300]!),
+            //             ),
+            //             focusedBorder: OutlineInputBorder(
+            //               borderRadius: BorderRadius.circular(24),
+            //               borderSide: BorderSide(color: Color(0xFFA0C4FD)),
+            //             ),
+            //             contentPadding: EdgeInsets.symmetric(
+            //               horizontal: 16,
+            //               vertical: 12,
+            //             ),
+            //           ),
+            //         ),
+            //       ),
+            //       SizedBox(width: 12),
+            //       CircleAvatar(
+            //         radius: 24,
+            //         backgroundColor: Color(0xFFA0C4FD),
+            //         child: IconButton(
+            //           icon: Icon(Icons.send, color: Color(0xFF2B3F99)),
+            //           onPressed: () {
+            //             if (_replyController.text.trim().isNotEmpty) {
+            //               setState(() {
+            //                 replies.add({
+            //                   'id': replies.length + 1,
+            //                   'content': _replyController.text.trim(),
+            //                   'author': 'Current User', // This would be dynamic
+            //                   'authorType': 'Volunteer',
+            //                   'timeAgo': 'Just now',
+            //                   'likes': 0,
+            //                 });
+            //               });
+            //               _replyController.clear();
+            //             }
+            //           },
+            //         ),
+            //       ),
+            //     ],
+            //   ),
+            // ),
+          ],
+        ),
       ),
     );
   }
