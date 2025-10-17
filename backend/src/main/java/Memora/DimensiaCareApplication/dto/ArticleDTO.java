@@ -10,13 +10,13 @@ public class ArticleDTO {
     private String summary;
     private String content;
     private String articleImg;
+    private Long created_at; // timestamp
 
     public ArticleDTO() {
     }
 
     public ArticleDTO(String articleId, Long volunteerId, Integer categoryId, Boolean draft, String status,
-            String title,
-            String summary, String content, String articleImg) {
+            String title, String summary, String content, String articleImg, Long created_at) {
         this.articleId = articleId;
         this.volunteerId = volunteerId;
         this.categoryId = categoryId;
@@ -26,6 +26,7 @@ public class ArticleDTO {
         this.summary = summary;
         this.content = content;
         this.articleImg = articleImg;
+        this.created_at = created_at;
     }
 
     public String getArticleId() {
@@ -98,5 +99,13 @@ public class ArticleDTO {
 
     public void setArticleImg(String articleImg) {
         this.articleImg = articleImg;
+    }
+
+    public Long getCreated_at() {
+        return created_at;
+    }
+
+    public void setCreated_at(Long created_at) {
+        this.created_at = created_at;
     }
 }

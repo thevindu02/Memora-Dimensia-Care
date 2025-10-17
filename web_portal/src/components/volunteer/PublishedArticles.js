@@ -1,5 +1,5 @@
 // src/components/volunteers/PublishedArticles.js
-import React, { useState  } from "react";
+import React, { useState, useEffect } from "react";
 import { useNavigate } from 'react-router-dom';
 
 import {
@@ -11,9 +11,10 @@ import {
   IconButton,
   Badge,
   Stack,
+  CircularProgress,
+  Alert,
 } from "@mui/material";
 
-import EditIcon from "@mui/icons-material/Edit";
 import DeleteIcon from "@mui/icons-material/Delete";
 import CalendarTodayIcon from "@mui/icons-material/CalendarToday";
 import VisibilityIcon from "@mui/icons-material/Visibility";
@@ -21,6 +22,8 @@ import VisibilityIcon from "@mui/icons-material/Visibility";
 import SideBar from "./SideBar";
 import VolunteerNav from "./VolunteerNav";
 import Footer from "../home/Footer";
+import AuthService from "../../services/authService";
+import articleService from "../../services/articleService";
 
 const colors = {
   softLavender: "#C3B1E1",
@@ -31,38 +34,39 @@ const colors = {
   fallbackGray: "#f0f0f0",
 };
 
-// Dummy published articles by the logged-in volunteer (static data)
-const publishedArticlesData = [
-  {
-    id: 101,
-    title: "Understanding Dementia Care Basics",
-    excerpt:
-      "An introductory overview of dementia care, its challenges and how volunteers can help caregivers at home.",
-    thumbnail:
-      "https://images.unsplash.com/photo-1506744038136-46273834b3fb?auto=format&fit=crop&w=600&q=80",
-    publishedDate: "2025-08-01",
-  },
-  {
-    id: 102,
-    title: "5 Tips For Volunteers",
-    excerpt:
-      "Practical ways to provide meaningful support and communicate effectively with dementia patients.",
-    thumbnail: "", // No image, fallback illustration will show
-    publishedDate: "2025-07-26",
-  },
-  {
-    id: 103,
-    title: "Healthy Nutrition for Dementia",
-    excerpt:
-      "A guide to balanced diets and food types that can help improve overall wellbeing for dementia patients.",
-    thumbnail:
-      "https://images.unsplash.com/photo-1526045612212-70caf35c14df?auto=format&fit=crop&w=600&q=80",
-    publishedDate: "2025-07-15",
-  },
-];
+// Format timestamp to readable date
+const formatDate = (timestamp) => {
+  if (!timestamp) return "Unknown date";
+  
+  try {
+    const date = new Date(timestamp);
+    return date.toLocaleDateString('en-US', {
+      year: 'numeric',
+      month: 'long',
+      day: 'numeric'
+    });
+  } catch (error) {
+    return "Unknown date";
+  }
+};
+
+// Generate excerpt from content
+const generateExcerpt = (content, summary) => {
+  if (summary && summary.trim() !== '') {
+    return summary.length > 150 ? summary.substring(0, 150) + '...' : summary;
+  }
+  
+  if (content && content.trim() !== '') {
+    // Remove HTML tags and get first 150 characters
+    const cleanContent = content.replace(/<[^>]*>/g, '').trim();
+    return cleanContent.length > 150 ? cleanContent.substring(0, 150) + '...' : cleanContent;
+  }
+  
+  return "No content available";
+};
 
 function ArticleCard({ article }) {
-  const navigate = useNavigate(); // Add this line
+  const navigate = useNavigate();
 
   const fallbackImage =
     "https://images.unsplash.com/photo-1515377905703-c4788e51af15?auto=format&fit=crop&w=600&q=80";
@@ -79,6 +83,9 @@ function ArticleCard({ article }) {
         display: "flex",
         flexDirection: "column",
         height: "100%",
+        width: "100%",
+        minHeight: 450,
+        maxWidth: "100%",
         cursor: "pointer",
         boxShadow: `0 2px 8px ${colors.softLavender}AA`,
         transition: "box-shadow 0.3s ease",
@@ -91,42 +98,45 @@ function ArticleCard({ article }) {
           outline: `2px solid ${colors.lightSkyBlue}`,
         },
       }}
-      onClick={() => navigate(`/ViewArticle/${article.id}`)} // Change here
+      onClick={() => navigate(`/ViewArticle/${article.articleId}`)}
       onKeyDown={(e) => {
         if (e.key === "Enter" || e.key === " ") {
           e.preventDefault();
-          navigate(`/ViewArticle/${article.id}`); // Change here
+          navigate(`/ViewArticle/${article.articleId}`);
         }
       }}
     >
       <Box
         component="img"
-        src={article.thumbnail || fallbackImage}
-        alt={article.thumbnail ? `Thumbnail of ${article.title}` : "Fallback illustration"}
+        src={article.articleImg || fallbackImage}
+        alt={article.articleImg ? `Thumbnail of ${article.title}` : "Fallback illustration"}
         loading="lazy"
         sx={{
           width: "100%",
-          height: 160,
+          height: 200,
           objectFit: "cover",
           backgroundColor: colors.fallbackGray,
+          flexShrink: 0,
         }}
       />
-      <Box sx={{ p: 2, flexGrow: 1, display: "flex", flexDirection: "column" }}>
+      <Box sx={{ p: 2.5, flexGrow: 1, display: "flex", flexDirection: "column", minHeight: 0 }}>
         <Typography
           variant="h6"
           sx={{
             fontWeight: 700,
             color: colors.deepPurple,
-            mb: 1,
+            mb: 1.5,
             overflow: "hidden",
             textOverflow: "ellipsis",
             display: "-webkit-box",
             WebkitLineClamp: 2,
             WebkitBoxOrient: "vertical",
             userSelect: "text",
+            minHeight: "3.6em",
+            lineHeight: 1.4,
           }}
         >
-          {article.title}
+          {article.title || "Untitled Article"}
         </Typography>
         <Typography
           variant="body2"
@@ -140,40 +150,27 @@ function ArticleCard({ article }) {
             WebkitLineClamp: 3,
             WebkitBoxOrient: "vertical",
             userSelect: "text",
+            minHeight: "4.5em",
+            lineHeight: 1.5,
           }}
         >
-          {article.excerpt}
+          {generateExcerpt(article.content, article.summary)}
         </Typography>
 
         <Stack
           direction="row"
           justifyContent="space-between"
           alignItems="center"
-          sx={{ fontSize: 12, userSelect: "none", color: colors.calmNavy }}
+          sx={{ fontSize: 12, userSelect: "none", color: colors.calmNavy, mt: "auto" }}
         >
           <Stack direction="row" alignItems="center" spacing={0.5}>
             <CalendarTodayIcon fontSize="small" sx={{ color: colors.lightSkyBlue }} />
-            <time dateTime={article.publishedDate}>
-              {new Date(article.publishedDate).toLocaleDateString(undefined, {
-                year: "numeric",
-                month: "short",
-                day: "numeric",
-              })}
+            <time dateTime={article.created_at}>
+              {formatDate(article.created_at)}
             </time>
           </Stack>
 
           <Stack direction="row" spacing={1}>
-            <IconButton
-              aria-label={`Edit article titled ${article.title}`}
-              size="small"
-              onClick={(e) => {
-                e.stopPropagation();
-                alert(`Edit article: ${article.title} (dummy)`);
-              }}
-            >
-              <EditIcon sx={{ color: colors.deepPurple }} fontSize="small" />
-            </IconButton>
-
             <IconButton
               aria-label={`Delete article titled ${article.title}`}
               size="small"
@@ -184,6 +181,9 @@ function ArticleCard({ article }) {
                   alert(`Deleted article: ${article.title} (dummy)`);
                 }
               }}
+              sx={{
+                padding: "6px",
+              }}
             >
               <DeleteIcon sx={{ color: "#E04848" }} fontSize="small" />
             </IconButton>
@@ -193,7 +193,10 @@ function ArticleCard({ article }) {
               size="small"
               onClick={(e) => {
                 e.stopPropagation();
-                alert(`View full article: ${article.title} (dummy)`);
+                navigate(`/ViewArticle/${article.articleId}`);
+              }}
+              sx={{
+                padding: "6px",
               }}
             >
               <VisibilityIcon sx={{ color: colors.calmNavy }} fontSize="small" />
@@ -206,12 +209,50 @@ function ArticleCard({ article }) {
 }
 
 export default function PublishedArticles() {
-  const navigate = useNavigate(); // Add this line
-  const [articles, setArticles] = useState(publishedArticlesData);
+  const navigate = useNavigate();
+  const [articles, setArticles] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+  const [currentUser, setCurrentUser] = useState(null);
 
   const articlesCount = articles.length;
- 
 
+  // Fetch published articles
+  const fetchPublishedArticles = async () => {
+    try {
+      setLoading(true);
+      setError(null);
+
+      const user = AuthService.getCurrentUser();
+      if (!user || !user.id) {
+        setError("User not authenticated. Please log in again.");
+        return;
+      }
+
+      setCurrentUser(user);
+      console.log("Fetching published articles for volunteer ID:", user.id);
+
+      const response = await articleService.getPublishedArticles(user.id);
+      
+      if (response.success) {
+        console.log("Published articles fetched:", response.data);
+        setArticles(response.data || []);
+      } else {
+        setError(response.message || "Failed to fetch published articles");
+      }
+
+    } catch (error) {
+      console.error("Error fetching published articles:", error);
+      setError("Failed to load published articles. Please try again.");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Load published articles on component mount
+  useEffect(() => {
+    fetchPublishedArticles();
+  }, []);
 
   return (
     <>
@@ -233,7 +274,7 @@ export default function PublishedArticles() {
 
       {/* Fixed Sidebar */}
       <SideBar
-        volunteerName="Alex Morgan"
+        volunteerName={currentUser?.firstName ? `${currentUser.firstName} ${currentUser.lastName}` : "Alex Morgan"}
         profileImage="https://randomuser.me/api/portraits/women/44.jpg"
         onNavigate={(page) => alert(`Navigate to ${page} (dummy)`)}
       />
@@ -304,11 +345,32 @@ export default function PublishedArticles() {
           </Button>
         </Box>
 
-        {/* Articles grid or empty state */}
-        {articlesCount > 0 ? (
-          <Grid container spacing={4} maxWidth={1200} sx={{ mx: "auto" }}>
+        {/* Error Alert */}
+        {error && (
+          <Alert severity="error" sx={{ mb: 3, maxWidth: 1200, mx: "auto" }}>
+            {error}
+          </Alert>
+        )}
+
+        {/* Loading State */}
+        {loading ? (
+          <Box display="flex" justifyContent="center" alignItems="center" py={8}>
+            <CircularProgress color="primary" />
+            <Typography variant="body1" sx={{ ml: 2 }}>
+              Loading your published articles...
+            </Typography>
+          </Box>
+        ) : articlesCount > 0 ? (
+          <Grid container spacing={3} maxWidth={1200} sx={{ mx: "auto" }}>
             {articles.map((article) => (
-              <Grid item xs={12} sm={6} md={4} key={article.id}>
+              <Grid 
+                item 
+                xs={12} 
+                sm={6} 
+                md={4} 
+                key={article.articleId}
+                sx={{ display: "flex" }}
+              >
                 <ArticleCard article={article} />
               </Grid>
             ))}
@@ -336,9 +398,9 @@ export default function PublishedArticles() {
         )}
       </Box>
 
-        <Box sx={{ pl: { md: "260px" } }}>
-            <Footer />
-        </Box>
+      <Box sx={{ pl: { md: "260px" } }}>
+        <Footer />
+      </Box>
     </>
   );
 }
