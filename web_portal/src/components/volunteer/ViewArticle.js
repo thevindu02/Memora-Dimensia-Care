@@ -1,5 +1,5 @@
 // src/components/volunteers/ViewArticle.js
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useParams } from "react-router-dom";
 import {
   Box,
@@ -11,6 +11,8 @@ import {
   TextField,
   Tooltip,
   Container,
+  CircularProgress,
+  Alert,
 } from "@mui/material";
 
 import {
@@ -23,7 +25,7 @@ import {
   IoImageOutline,
 } from "react-icons/io5";
 
-// Remove SideBar, VolunteerNav, Footer imports
+import articleService from "../../services/articleService";
 
 // Brand colors
 const colors = {
@@ -33,59 +35,72 @@ const colors = {
   calmNavy: "#2B3F99",
 };
 
-// Hardcoded sample article
-const article = {
-  title: "Understanding Dementia Care Basics",
-  author: "Dr. Sarah Johnson",
-  authorAvatar: "https://randomuser.me/api/portraits/women/44.jpg",
-  category: "Awareness",
-  imageUrl:
-    "https://images.unsplash.com/photo-1506744038136-46273834b3fb?auto=format&fit=crop&w=1000&q=80",
-  content: `Dementia is a complex condition affecting millions worldwide. Early signs often include memory loss, difficulty completing familiar tasks, confusion with time or place, and changes in mood or personality.
-
-Volunteers can make a meaningful difference to caregivers and patients by understanding these basics and providing compassionate support.
-
-This article provides a comprehensive overview of dementia care principles, practical tips for volunteers, and advice for families navigating this challenging journey.`,
-
-  stats: {
-    likes: 56,
-    comments: 14,
+// Sample comments (keeping as static for now since comments are not implemented yet)
+const sampleComments = [
+  {
+    id: 1,
+    author: "Emily Rogers",
+    avatar: "https://randomuser.me/api/portraits/women/68.jpg",
+    timestamp: "2 hours ago",
+    content:
+      "Thank you for this detailed guide! It helped me better understand how to assist my neighbor living with dementia.",
   },
-
-  comments: [
-    {
-      id: 1,
-      author: "Emily Rogers",
-      avatar: "https://randomuser.me/api/portraits/women/68.jpg",
-      timestamp: "2 hours ago",
-      content:
-        "Thank you for this detailed guide! It helped me better understand how to assist my neighbor living with dementia.",
-    },
-    {
-      id: 2,
-      author: "James Thompson",
-      avatar: "", // No avatar, should show placeholder
-      timestamp: "5 hours ago",
-      content:
-        "Great tips on patience and communication. I found the caregiver advice especially useful.",
-    },
-  ],
-};
+  {
+    id: 2,
+    author: "James Thompson",
+    avatar: "",
+    timestamp: "5 hours ago",
+    content:
+      "Great tips on patience and communication. I found the caregiver advice especially useful.",
+  },
+];
 
 export default function ViewArticle() {
   const { id } = useParams(); // Get the article ID from the URL
 
-  // TODO: Fetch or filter the article data using the id
-  // For now, you can log it:
-  console.log("Viewing article with ID:", id);
-
+  // State management
+  const [article, setArticle] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+  
   // Like button state
   const [liked, setLiked] = useState(false);
-  const [likesCount, setLikesCount] = useState(article.stats.likes);
+  const [likesCount, setLikesCount] = useState(56); // Hardcoded for now
 
   // Comment input state
   const [commentText, setCommentText] = useState("");
-  const [comments, setComments] = useState(article.comments);
+  const [comments, setComments] = useState(sampleComments);
+
+  // Fetch article data
+  useEffect(() => {
+    const fetchArticle = async () => {
+      try {
+        setLoading(true);
+        setError(null);
+
+        console.log("Fetching article with ID:", id);
+        const response = await articleService.getArticleDetail(id);
+
+        if (response.success) {
+          console.log("Article fetched successfully:", response.data);
+          console.log("Article image URL:", response.data.articleImg);
+          console.log("Article image type:", typeof response.data.articleImg);
+          setArticle(response.data);
+        } else {
+          setError(response.message || "Failed to load article");
+        }
+      } catch (err) {
+        console.error("Error fetching article:", err);
+        setError("Failed to load article. Please try again.");
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    if (id) {
+      fetchArticle();
+    }
+  }, [id]);
 
   const toggleLike = () => {
     setLiked((prev) => !prev);
@@ -104,6 +119,34 @@ export default function ViewArticle() {
     setComments([newComment, ...comments]);
     setCommentText("");
   };
+
+  // Show loading state
+  if (loading) {
+    return (
+      <Box sx={{ minHeight: "100vh", bgcolor: "#F8F9FB", display: "flex", alignItems: "center", justifyContent: "center" }}>
+        <CircularProgress color="primary" />
+        <Typography variant="body1" sx={{ ml: 2 }}>
+          Loading article...
+        </Typography>
+      </Box>
+    );
+  }
+
+  // Show error state
+  if (error || !article) {
+    return (
+      <Box sx={{ minHeight: "100vh", bgcolor: "#F8F9FB", p: 4 }}>
+        <Container maxWidth="md">
+          <Alert severity="error" sx={{ mb: 3 }}>
+            {error || "Article not found"}
+          </Alert>
+          <IconButton onClick={() => window.history.back()}>
+            <IoArrowBackSharp size={24} />
+          </IconButton>
+        </Container>
+      </Box>
+    );
+  }
 
   return (
     <Box sx={{ minHeight: "100vh", bgcolor: "#F8F9FB" }}>
@@ -149,7 +192,7 @@ export default function ViewArticle() {
               px: 1,
             }}
           >
-            {article.title}
+            {article.title || "Untitled Article"}
           </Typography>
         </Box>
 
@@ -162,8 +205,8 @@ export default function ViewArticle() {
         >
           <Stack direction="row" alignItems="center" spacing={1} sx={{ flexShrink: 0 }}>
             <Avatar
-              src={article.authorAvatar}
-              alt={article.author}
+              src={article.authorProfilePic || ""}
+              alt={article.authorName || "Unknown Author"}
               sx={{ width: 44, height: 44, border: `2px solid ${colors.deepPurple}` }}
             >
               <IoPersonOutline size={24} />
@@ -175,30 +218,32 @@ export default function ViewArticle() {
                 component="div"
                 sx={{ fontWeight: 600, color: colors.calmNavy }}
               >
-                {article.author}
+                {article.authorName || "Unknown Author"}
               </Typography>
             </Box>
           </Stack>
 
-          <Box
-            sx={{
-              bgcolor: colors.lightSkyBlue,
-              px: 2,
-              py: 0.5,
-              borderRadius: "16px",
-              userSelect: "none",
-            }}
-          >
-            <Typography
-              variant="caption"
-              sx={{ fontWeight: 600, color: colors.calmNavy, letterSpacing: 0.9 }}
+          {article.categoryName && (
+            <Box
+              sx={{
+                bgcolor: colors.lightSkyBlue,
+                px: 2,
+                py: 0.5,
+                borderRadius: "16px",
+                userSelect: "none",
+              }}
             >
-              {article.category}
-            </Typography>
-          </Box>
+              <Typography
+                variant="caption"
+                sx={{ fontWeight: 600, color: colors.calmNavy, letterSpacing: 0.9 }}
+              >
+                {article.categoryName}
+              </Typography>
+            </Box>
+          )}
         </Stack>
 
-        {/* Banner Image Section */}
+        {/* Banner Image Section - Always show */}
         <Box
           sx={{
             position: "relative",
@@ -207,35 +252,38 @@ export default function ViewArticle() {
             borderRadius: 3,
             overflow: "hidden",
             mb: 4,
-            bgcolor: colors.softLavender,
+            bgcolor: "#F0F0F0",
             display: "flex",
             alignItems: "center",
             justifyContent: "center",
             userSelect: "none",
+            border: `2px solid ${colors.softLavender}`,
           }}
         >
-          <img
-            src={article.imageUrl}
-            alt={`Banner for ${article.title}`}
-            style={{
-              width: "100%",
-              height: "100%",
-              objectFit: "cover",
-              borderRadius: 12,
-              display: "block",
-              userSelect: "none",
-            }}
-            onError={(e) => {
-              e.target.onerror = null;
-              e.target.style.display = "none";
-              const placeholder = document.getElementById("imgPlaceholder");
-              if (placeholder) placeholder.style.display = "flex";
-            }}
-          />
+          {article.articleImg && article.articleImg.trim() !== "" ? (
+            <img
+              src={article.articleImg}
+              alt={`Banner for ${article.title || "Article"}`}
+              style={{
+                width: "100%",
+                height: "100%",
+                objectFit: "cover",
+                borderRadius: 12,
+                display: "block",
+                userSelect: "none",
+              }}
+              onError={(e) => {
+                e.target.onerror = null;
+                e.target.style.display = "none";
+                const placeholder = document.getElementById("imgPlaceholder");
+                if (placeholder) placeholder.style.display = "flex";
+              }}
+            />
+          ) : null}
           <Box
             id="imgPlaceholder"
             sx={{
-              display: "none",
+              display: !article.articleImg || article.articleImg.trim() === "" ? "flex" : "none",
               flexDirection: "column",
               alignItems: "center",
               justifyContent: "center",
@@ -251,7 +299,9 @@ export default function ViewArticle() {
             }}
           >
             <IoImageOutline size={48} />
-            Image not available
+            <Typography variant="body1" sx={{ color: colors.calmNavy }}>
+              Image not available
+            </Typography>
           </Box>
         </Box>
 

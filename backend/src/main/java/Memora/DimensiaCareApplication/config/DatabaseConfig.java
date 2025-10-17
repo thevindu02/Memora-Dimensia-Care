@@ -6,7 +6,7 @@ import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 import org.springframework.transaction.annotation.EnableTransactionManagement;
 
 @Configuration
-@EnableJpaRepositories(basePackages = "com.dementiacare.repository")
+@EnableJpaRepositories(basePackages = "Memora.DimensiaCareApplication.repository")
 @EnableJpaAuditing
 @EnableTransactionManagement
 public class DatabaseConfig {

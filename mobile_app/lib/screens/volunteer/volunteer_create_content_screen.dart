@@ -1,9 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'volunteer_articles_screen.dart';
 import 'volunteer_bottom_navigation_screen.dart';
 import '../../routes/app_routes.dart';
 import '../../constants/color_constants.dart';
+import 'package:http/http.dart' as http;
+import 'dart:convert';
+import '../../services/api_constants.dart';
+import '../../services/auth_service.dart';
+import '../../services/article_service.dart';
 
 class VolunteerCreateContentScreen extends StatelessWidget {
   const VolunteerCreateContentScreen({Key? key}) : super(key: key);
@@ -155,7 +159,7 @@ class VolunteerCreateContentScreen extends StatelessWidget {
   void _navigateToArticleCreation(BuildContext context) {
     Navigator.push(
       context,
-      MaterialPageRoute(builder: (context) => VolunteerArticlesScreen()),
+      MaterialPageRoute(builder: (context) => CreateArticleScreen()),
     );
   }
 
@@ -267,8 +271,150 @@ class VolunteerCreateContentScreen extends StatelessWidget {
   }
 }
 
-// Enhanced Article Creation Screen
-class CreateArticleScreen extends StatelessWidget {
+// Article Creation Form Screen
+class CreateArticleScreen extends StatefulWidget {
+  @override
+  _CreateArticleScreenState createState() => _CreateArticleScreenState();
+}
+
+class _CreateArticleScreenState extends State<CreateArticleScreen> {
+  final _formKey = GlobalKey<FormState>();
+  final TextEditingController _titleController = TextEditingController();
+  final TextEditingController _summaryController = TextEditingController();
+  final TextEditingController _contentController = TextEditingController();
+  final TextEditingController _tagsController = TextEditingController();
+
+  List<String> _categories = [
+    'General',
+    'Caregiver Tips',
+    'Technology',
+    'Medication',
+    'Activities',
+    'Nutrition',
+  ];
+  List<int> _categoryIds = [1, 2, 3, 4, 5, 6];
+  int? _selectedCategoryId = 1;
+  bool _isLoading = false;
+
+  @override
+  void dispose() {
+    _titleController.dispose();
+    _summaryController.dispose();
+    _contentController.dispose();
+    _tagsController.dispose();
+    super.dispose();
+  }
+
+  void _saveDraft() async {
+    if (!_formKey.currentState!.validate()) return;
+
+    setState(() {
+      _isLoading = true;
+    });
+
+    try {
+      // Call the article service to save as draft
+      final result = await ArticleService.createArticle(
+        title: _titleController.text.trim(),
+        summary: _summaryController.text.trim(),
+        content: _contentController.text.trim(),
+        categoryId: _selectedCategoryId!,
+        isDraft: true, // This is a draft
+        tags: _tagsController.text.trim().isNotEmpty
+            ? _tagsController.text.trim()
+            : null,
+      );
+
+      if (result['success'] == true) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(result['message']),
+            backgroundColor: Colors.green,
+          ),
+        );
+
+        // Clear form after successful save
+        _titleController.clear();
+        _summaryController.clear();
+        _contentController.clear();
+        _tagsController.clear();
+        setState(() {
+          _selectedCategoryId = 1;
+        });
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(result['message']),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Error saving draft: $e'),
+          backgroundColor: Colors.red,
+        ),
+      );
+    } finally {
+      setState(() {
+        _isLoading = false;
+      });
+    }
+  }
+
+  void _publishArticle() async {
+    if (!_formKey.currentState!.validate()) return;
+
+    setState(() {
+      _isLoading = true;
+    });
+
+    try {
+      // Call the article service to publish article
+      final result = await ArticleService.createArticle(
+        title: _titleController.text.trim(),
+        summary: _summaryController.text.trim(),
+        content: _contentController.text.trim(),
+        categoryId: _selectedCategoryId!,
+        isDraft: false, // This is not a draft, it's for publishing
+        tags: _tagsController.text.trim().isNotEmpty
+            ? _tagsController.text.trim()
+            : null,
+      );
+
+      if (result['success'] == true) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(result['message']),
+            backgroundColor: Colors.green,
+          ),
+        );
+
+        // Navigate back after successful publish
+        Navigator.pop(context);
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(result['message']),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Error publishing article: $e'),
+          backgroundColor: Colors.red,
+        ),
+      );
+    } finally {
+      setState(() {
+        _isLoading = false;
+      });
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -291,59 +437,190 @@ class CreateArticleScreen extends StatelessWidget {
           'Create Article',
           style: TextStyle(
             color: AppColors.textPrimary,
-            fontSize: 24,
+            fontSize: 20,
             fontWeight: FontWeight.bold,
           ),
         ),
-        centerTitle: true,
+        centerTitle: false,
       ),
-      body: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Container(
-              padding: EdgeInsets.all(32),
-              decoration: BoxDecoration(
-                color: AppColors.primaryLight.withOpacity(0.2),
-                borderRadius: BorderRadius.circular(30),
-                boxShadow: [
-                  BoxShadow(
-                    color: AppColors.info.withOpacity(0.2),
-                    blurRadius: 12,
-                    offset: Offset(0, 4),
+      body: Stack(
+        children: [
+          Form(
+            key: _formKey,
+            child: SingleChildScrollView(
+              padding: EdgeInsets.all(16),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  // Category Dropdown
+                  Text(
+                    'Category',
+                    style: TextStyle(fontWeight: FontWeight.w600, fontSize: 16),
                   ),
+                  SizedBox(height: 8),
+                  DropdownButtonFormField<int>(
+                    value: _selectedCategoryId,
+                    items: List.generate(_categories.length, (index) {
+                      return DropdownMenuItem(
+                        value: _categoryIds[index],
+                        child: Text(_categories[index]),
+                      );
+                    }),
+                    onChanged: (val) =>
+                        setState(() => _selectedCategoryId = val),
+                    decoration: InputDecoration(
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      contentPadding: EdgeInsets.symmetric(
+                        horizontal: 16,
+                        vertical: 16,
+                      ),
+                    ),
+                    validator: (val) =>
+                        val == null ? 'Please select a category' : null,
+                  ),
+                  SizedBox(height: 16),
+
+                  // Title Field
+                  Text(
+                    'Title',
+                    style: TextStyle(fontWeight: FontWeight.w600, fontSize: 16),
+                  ),
+                  SizedBox(height: 8),
+                  TextFormField(
+                    controller: _titleController,
+                    decoration: InputDecoration(
+                      hintText: 'Enter article title',
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      contentPadding: EdgeInsets.all(16),
+                    ),
+                    validator: (val) =>
+                        val == null || val.isEmpty ? 'Title is required' : null,
+                  ),
+                  SizedBox(height: 16),
+
+                  // Summary Field
+                  Text(
+                    'Summary',
+                    style: TextStyle(fontWeight: FontWeight.w600, fontSize: 16),
+                  ),
+                  SizedBox(height: 8),
+                  TextFormField(
+                    controller: _summaryController,
+                    maxLines: 3,
+                    decoration: InputDecoration(
+                      hintText: 'Enter a brief summary of your article',
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      contentPadding: EdgeInsets.all(16),
+                    ),
+                    validator: (val) => val == null || val.isEmpty
+                        ? 'Summary is required'
+                        : null,
+                  ),
+                  SizedBox(height: 16),
+
+                  // Content Field
+                  Text(
+                    'Content',
+                    style: TextStyle(fontWeight: FontWeight.w600, fontSize: 16),
+                  ),
+                  SizedBox(height: 8),
+                  TextFormField(
+                    controller: _contentController,
+                    maxLines: 8,
+                    decoration: InputDecoration(
+                      hintText: 'Write your article content here...',
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      contentPadding: EdgeInsets.all(16),
+                    ),
+                    validator: (val) => val == null || val.isEmpty
+                        ? 'Content is required'
+                        : null,
+                  ),
+                  SizedBox(height: 16),
+
+                  // Tags Field
+                  Text(
+                    'Tags',
+                    style: TextStyle(fontWeight: FontWeight.w600, fontSize: 16),
+                  ),
+                  SizedBox(height: 8),
+                  TextFormField(
+                    controller: _tagsController,
+                    decoration: InputDecoration(
+                      hintText: 'Enter tags (comma separated)',
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      contentPadding: EdgeInsets.all(16),
+                    ),
+                  ),
+                  SizedBox(height: 32),
+
+                  // Action Buttons
+                  Row(
+                    children: [
+                      Expanded(
+                        child: ElevatedButton(
+                          onPressed: _isLoading ? null : _saveDraft,
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: Color(0xFF87CEEB), // Sky blue
+                            foregroundColor: Colors.black,
+                            padding: EdgeInsets.symmetric(vertical: 16),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(12),
+                            ),
+                          ),
+                          child: Text(
+                            'Save Draft',
+                            style: TextStyle(
+                              fontWeight: FontWeight.w600,
+                              fontSize: 16,
+                            ),
+                          ),
+                        ),
+                      ),
+                      SizedBox(width: 16),
+                      Expanded(
+                        child: ElevatedButton(
+                          onPressed: _isLoading ? null : _publishArticle,
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: AppColors.info,
+                            foregroundColor: Colors.white,
+                            padding: EdgeInsets.symmetric(vertical: 16),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(12),
+                            ),
+                          ),
+                          child: Text(
+                            'Publish',
+                            style: TextStyle(
+                              fontWeight: FontWeight.w600,
+                              fontSize: 16,
+                            ),
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                  SizedBox(height: 32),
                 ],
               ),
-              child: Icon(
-                Icons.article_rounded,
-                size: 80,
-                color: AppColors.info,
-              ),
             ),
-            SizedBox(height: 24),
-            Text(
-              'Article Creation',
-              style: TextStyle(
-                fontSize: 24,
-                fontWeight: FontWeight.bold,
-                color: AppColors.textPrimary,
-              ),
+          ),
+          if (_isLoading)
+            Container(
+              color: Colors.black.withOpacity(0.3),
+              child: Center(child: CircularProgressIndicator()),
             ),
-            SizedBox(height: 12),
-            Padding(
-              padding: EdgeInsets.symmetric(horizontal: 40),
-              child: Text(
-                'This screen will contain comprehensive article creation features with rich text editing capabilities',
-                style: TextStyle(
-                  fontSize: 16,
-                  color: AppColors.onSurfaceVariant,
-                  height: 1.5,
-                ),
-                textAlign: TextAlign.center,
-              ),
-            ),
-          ],
-        ),
+        ],
       ),
     );
   }
