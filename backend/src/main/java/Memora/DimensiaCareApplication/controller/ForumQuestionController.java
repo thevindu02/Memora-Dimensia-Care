@@ -35,8 +35,8 @@ public class ForumQuestionController {
             if (request.getContent() == null || request.getContent().trim().isEmpty()) {
                 return ResponseEntity.badRequest().body(createErrorResponse("Content is required"));
             }
-            if (request.getGuardianId() == null) {
-                return ResponseEntity.badRequest().body(createErrorResponse("Guardian ID is required"));
+            if (request.getUserId() == null) {
+                return ResponseEntity.badRequest().body(createErrorResponse("User ID is required"));
             }
 
             ForumQuestionDTO question = forumQuestionService.createQuestion(request);
@@ -85,13 +85,31 @@ public class ForumQuestionController {
     }
 
     /**
-     * Get questions by guardian ID
-     * GET /api/forum/questions/guardian/{guardianId}
+     * Get questions by user ID (guardian or caregiver)
+     * GET /api/forum/questions/user/{userId}
      */
+    @GetMapping("/user/{userId}")
+    public ResponseEntity<?> getQuestionsByUserId(@PathVariable Long userId) {
+        try {
+            List<ForumQuestionDTO> questions = forumQuestionService.getQuestionsByUserId(userId);
+            return ResponseEntity.ok(questions);
+        } catch (ExecutionException | InterruptedException e) {
+            e.printStackTrace();
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(createErrorResponse("Failed to retrieve questions: " + e.getMessage()));
+        }
+    }
+
+    /**
+     * Get questions by guardian ID (deprecated - use /user/{userId} instead)
+     * GET /api/forum/questions/guardian/{guardianId}
+     * @deprecated Use /user/{userId} endpoint instead
+     */
+    @Deprecated
     @GetMapping("/guardian/{guardianId}")
     public ResponseEntity<?> getQuestionsByGuardianId(@PathVariable Long guardianId) {
         try {
-            List<ForumQuestionDTO> questions = forumQuestionService.getQuestionsByGuardianId(guardianId);
+            List<ForumQuestionDTO> questions = forumQuestionService.getQuestionsByUserId(guardianId);
             return ResponseEntity.ok(questions);
         } catch (ExecutionException | InterruptedException e) {
             e.printStackTrace();
@@ -186,6 +204,25 @@ public class ForumQuestionController {
             e.printStackTrace();
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                     .body(createErrorResponse("Failed to retrieve filtered questions: " + e.getMessage()));
+        }
+    }
+
+    /**
+     * Migration endpoint: Update all existing questions to fix anonymous names
+     * POST /api/forum/questions/migrate
+     * This should be called once after updating the code to fix old questions
+     */
+    @PostMapping("/migrate")
+    public ResponseEntity<?> migrateExistingQuestions() {
+        try {
+            String result = forumQuestionService.migrateExistingQuestions();
+            Map<String, String> response = new HashMap<>();
+            response.put("message", result);
+            return ResponseEntity.ok(response);
+        } catch (ExecutionException | InterruptedException e) {
+            e.printStackTrace();
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(createErrorResponse("Migration failed: " + e.getMessage()));
         }
     }
 

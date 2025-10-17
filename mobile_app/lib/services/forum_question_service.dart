@@ -149,7 +149,8 @@ class ForumQuestionService {
 
   /// Create a new question
   static Future<Map<String, dynamic>?> createQuestion({
-    required int guardianId,
+    required int
+    userId, // Changed from guardianId - can be guardian or caregiver
     required String title,
     required String content,
     required List<String> tags,
@@ -157,12 +158,12 @@ class ForumQuestionService {
     try {
       print('Creating question...');
       print('URL: $baseUrl');
-      print('Guardian ID: $guardianId');
+      print('User ID: $userId');
       print('Title: $title');
 
       final url = Uri.parse(baseUrl);
       final requestBody = jsonEncode({
-        'guardianId': guardianId,
+        'userId': userId, // Backend will determine role from users table
         'title': title,
         'content': content,
         'tags': tags,

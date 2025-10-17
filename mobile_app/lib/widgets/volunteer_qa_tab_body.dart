@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import '../services/forum_question_service.dart';
+import '../services/forum_answer_service.dart';
 
 class VolunteerQATabBody extends StatefulWidget {
   const VolunteerQATabBody({Key? key}) : super(key: key);
@@ -13,19 +15,90 @@ class _VolunteerQATabBodyState extends State<VolunteerQATabBody> {
 
   // Questions list - will be fetched from API
   List<Map<String, dynamic>> questions = [];
+  bool _isLoading = true;
 
-  List<Map<String, dynamic>> get filteredQuestions {
-    switch (_selectedFilter) {
-      case 'Unanswered':
-        return questions.where((q) => !q['isAnswered']).toList();
-      case 'Recent':
-        return questions.where((q) => q['timeAgo'].contains('hour')).toList();
-      case 'Most Replies':
-        final sorted = List<Map<String, dynamic>>.from(questions);
-        sorted.sort((a, b) => b['replies'].compareTo(a['replies']));
-        return sorted;
-      default:
-        return questions;
+  @override
+  void initState() {
+    super.initState();
+    _loadQuestions();
+  }
+
+  /// Load questions from database based on selected filter
+  Future<void> _loadQuestions() async {
+    setState(() {
+      _isLoading = true;
+    });
+
+    try {
+      List<Map<String, dynamic>> loadedQuestions;
+
+      switch (_selectedFilter) {
+        case 'Unanswered':
+          loadedQuestions = await ForumQuestionService.getUnansweredQuestions();
+          break;
+        case 'Recent':
+          loadedQuestions = await ForumQuestionService.getRecentQuestions();
+          break;
+        case 'Most Replies':
+          loadedQuestions =
+              await ForumQuestionService.getMostRepliedQuestions();
+          break;
+        default:
+          loadedQuestions = await ForumQuestionService.getAllQuestions();
+      }
+
+      setState(() {
+        questions = loadedQuestions.map((question) {
+          return {
+            ...question,
+            'timeAgo': _formatTimeAgo(question['createdAt']),
+            'repliesList': [], // Will be loaded when detail screen opens
+          };
+        }).toList();
+        _isLoading = false;
+      });
+    } catch (e) {
+      print('Error loading questions: $e');
+      setState(() {
+        _isLoading = false;
+      });
+    }
+  }
+
+  /// Format timestamp to "time ago" format
+  String _formatTimeAgo(dynamic timestamp) {
+    if (timestamp == null) return 'Unknown time';
+
+    try {
+      DateTime dateTime;
+      if (timestamp is int) {
+        dateTime = DateTime.fromMillisecondsSinceEpoch(timestamp);
+      } else if (timestamp is String) {
+        dateTime = DateTime.parse(timestamp);
+      } else {
+        return 'Unknown time';
+      }
+
+      final now = DateTime.now();
+      final difference = now.difference(dateTime);
+
+      if (difference.inDays > 365) {
+        final years = (difference.inDays / 365).floor();
+        return '$years ${years == 1 ? 'year' : 'years'} ago';
+      } else if (difference.inDays > 30) {
+        final months = (difference.inDays / 30).floor();
+        return '$months ${months == 1 ? 'month' : 'months'} ago';
+      } else if (difference.inDays > 0) {
+        return '${difference.inDays} ${difference.inDays == 1 ? 'day' : 'days'} ago';
+      } else if (difference.inHours > 0) {
+        return '${difference.inHours} ${difference.inHours == 1 ? 'hour' : 'hours'} ago';
+      } else if (difference.inMinutes > 0) {
+        return '${difference.inMinutes} ${difference.inMinutes == 1 ? 'minute' : 'minutes'} ago';
+      } else {
+        return 'Just now';
+      }
+    } catch (e) {
+      return 'Unknown time';
     }
   }
 
@@ -45,6 +118,7 @@ class _VolunteerQATabBodyState extends State<VolunteerQATabBody> {
         setState(() {
           _selectedFilter = filter;
         });
+        _loadQuestions(); // Reload questions with new filter
       },
       backgroundColor: Colors.white,
       selectedColor: Color(0xFFA0C4FD),
@@ -74,12 +148,17 @@ class _VolunteerQATabBodyState extends State<VolunteerQATabBody> {
               ),
             ),
           );
+
+          // Update local question with fresh data from detail screen
           if (updatedReplies != null) {
             setState(() {
               question['repliesList'] = updatedReplies;
               question['replies'] = updatedReplies.length;
             });
           }
+
+          // Reload questions to refresh view counts and other data
+          _loadQuestions();
         },
         borderRadius: BorderRadius.circular(12),
         child: Container(
@@ -185,24 +264,15 @@ class _VolunteerQATabBodyState extends State<VolunteerQATabBody> {
                   Icon(Icons.visibility, size: 16, color: Colors.grey[600]),
                   SizedBox(width: 4),
                   Text(
-                    '${question['views']} views',
+                    '${question['views']} ${question['views'] == 1 ? 'view' : 'views'}',
                     style: TextStyle(fontSize: 12, color: Colors.grey[600]),
                   ),
                   SizedBox(width: 16),
                   Icon(Icons.comment, size: 16, color: Colors.grey[600]),
                   SizedBox(width: 4),
                   Text(
-                    '${question['replies']} replies',
+                    '${question['replies']} ${question['replies'] == 1 ? 'reply' : 'replies'}',
                     style: TextStyle(fontSize: 12, color: Colors.grey[600]),
-                  ),
-                  Spacer(),
-                  Text(
-                    'by ${question['askedBy']}',
-                    style: TextStyle(
-                      fontSize: 12,
-                      color: Colors.grey[600],
-                      fontStyle: FontStyle.italic,
-                    ),
                   ),
                 ],
               ),
@@ -252,13 +322,35 @@ class _VolunteerQATabBodyState extends State<VolunteerQATabBody> {
 
         // Questions list
         Expanded(
-          child: ListView.builder(
-            padding: EdgeInsets.all(16),
-            itemCount: filteredQuestions.length,
-            itemBuilder: (context, index) {
-              return _buildQuestionCard(filteredQuestions[index]);
-            },
-          ),
+          child: _isLoading
+              ? Center(
+                  child: CircularProgressIndicator(color: Color(0xFF2B3F99)),
+                )
+              : questions.isEmpty
+              ? Center(
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Icon(
+                        Icons.question_answer_outlined,
+                        size: 64,
+                        color: Colors.grey[400],
+                      ),
+                      SizedBox(height: 16),
+                      Text(
+                        'No questions yet',
+                        style: TextStyle(fontSize: 16, color: Colors.grey[600]),
+                      ),
+                    ],
+                  ),
+                )
+              : ListView.builder(
+                  padding: EdgeInsets.all(16),
+                  itemCount: questions.length,
+                  itemBuilder: (context, index) {
+                    return _buildQuestionCard(questions[index]);
+                  },
+                ),
         ),
         // Floating action button is not included here; should be added in parent if needed.
       ],
@@ -283,13 +375,119 @@ class VolunteerQuestionDetailScreen extends StatefulWidget {
 
 class _VolunteerQuestionDetailScreenState
     extends State<VolunteerQuestionDetailScreen> {
-  late List<Map<String, dynamic>> replies;
+  List<Map<String, dynamic>> replies = [];
   final TextEditingController _replyController = TextEditingController();
+  bool _loadingReplies = true;
+  late Map<String, dynamic> _currentQuestion;
 
   @override
   void initState() {
     super.initState();
-    replies = List<Map<String, dynamic>>.from(widget.initialReplies);
+    _currentQuestion = Map<String, dynamic>.from(widget.question);
+    _incrementViewCount();
+    _loadReplies();
+  }
+
+  /// Increment view count when question is opened
+  Future<void> _incrementViewCount() async {
+    try {
+      final questionId = widget.question['questionId'] ?? widget.question['id'];
+      if (questionId != null) {
+        print('Incrementing view count for question: $questionId');
+
+        final updatedQuestion = await ForumQuestionService.getQuestionById(
+          questionId.toString(),
+        );
+
+        if (updatedQuestion != null) {
+          setState(() {
+            _currentQuestion['views'] =
+                updatedQuestion['views'] ?? _currentQuestion['views'];
+          });
+          print(
+            'View count incremented successfully. New count: ${updatedQuestion['views']}',
+          );
+        }
+      }
+    } catch (e) {
+      print('Error incrementing view count: $e');
+    }
+  }
+
+  /// Load replies from database
+  Future<void> _loadReplies() async {
+    try {
+      final questionId = widget.question['questionId'] ?? widget.question['id'];
+      if (questionId != null) {
+        print('Loading replies for question: $questionId');
+
+        // Note: userId can be guardian, volunteer, or caregiver
+        // TODO: Replace with actual user session ID
+        final loadedReplies = await ForumAnswerService.getAnswersByQuestionId(
+          questionId.toString(),
+          userId: 13, // Using same ID as in like/unlike operations
+        );
+
+        setState(() {
+          replies = loadedReplies.map((reply) {
+            return {
+              'id': reply['answerId'],
+              'content': reply['content'],
+              'author': reply['volunteerName'] ?? 'Unknown Volunteer',
+              'authorType': reply['volunteerRole'] ?? 'Volunteer',
+              'timeAgo': _formatTimeAgo(reply['createdAt']),
+              'likes': reply['likes'] ?? 0,
+              'isLiked': reply['isLikedByCurrentUser'] ?? false,
+            };
+          }).toList();
+          _loadingReplies = false;
+        });
+
+        print('Loaded ${replies.length} replies successfully');
+      }
+    } catch (e) {
+      print('Error loading replies: $e');
+      setState(() {
+        _loadingReplies = false;
+      });
+    }
+  }
+
+  /// Format timestamp to "time ago" format
+  String _formatTimeAgo(dynamic timestamp) {
+    if (timestamp == null) return 'Unknown time';
+
+    try {
+      DateTime dateTime;
+      if (timestamp is int) {
+        dateTime = DateTime.fromMillisecondsSinceEpoch(timestamp);
+      } else if (timestamp is String) {
+        dateTime = DateTime.parse(timestamp);
+      } else {
+        return 'Unknown time';
+      }
+
+      final now = DateTime.now();
+      final difference = now.difference(dateTime);
+
+      if (difference.inDays > 365) {
+        final years = (difference.inDays / 365).floor();
+        return '$years ${years == 1 ? 'year' : 'years'} ago';
+      } else if (difference.inDays > 30) {
+        final months = (difference.inDays / 30).floor();
+        return '$months ${months == 1 ? 'month' : 'months'} ago';
+      } else if (difference.inDays > 0) {
+        return '${difference.inDays} ${difference.inDays == 1 ? 'day' : 'days'} ago';
+      } else if (difference.inHours > 0) {
+        return '${difference.inHours} ${difference.inHours == 1 ? 'hour' : 'hours'} ago';
+      } else if (difference.inMinutes > 0) {
+        return '${difference.inMinutes} ${difference.inMinutes == 1 ? 'minute' : 'minutes'} ago';
+      } else {
+        return 'Just now';
+      }
+    } catch (e) {
+      return 'Unknown time';
+    }
   }
 
   Widget _buildReplyCard(Map<String, dynamic> reply) {
@@ -366,24 +564,108 @@ class _VolunteerQuestionDetailScreenState
           Row(
             children: [
               InkWell(
-                onTap: () {
-                  // Handle like functionality
+                onTap: () async {
+                  try {
+                    final answerId = reply['id'];
+                    final isLiked = reply['isLiked'] ?? false;
+                    final currentLikes = reply['likes'] ?? 0;
+
+                    bool success;
+                    if (isLiked) {
+                      // Unlike - decrement like count
+                      success = await ForumAnswerService.unlikeAnswer(
+                        answerId.toString(),
+                        13, // TODO: Replace with actual volunteer ID from session
+                      );
+
+                      if (success) {
+                        setState(() {
+                          reply['isLiked'] = false;
+                          reply['likes'] = currentLikes > 0
+                              ? currentLikes - 1
+                              : 0;
+                        });
+
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(
+                            content: Text('Like removed'),
+                            backgroundColor: Colors.grey[700],
+                            duration: Duration(seconds: 1),
+                          ),
+                        );
+                      }
+                    } else {
+                      // Like - increment like count
+                      success = await ForumAnswerService.likeAnswer(
+                        answerId.toString(),
+                        13, // TODO: Replace with actual volunteer ID from session
+                      );
+
+                      if (success) {
+                        setState(() {
+                          reply['isLiked'] = true;
+                          reply['likes'] = currentLikes + 1;
+                        });
+
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(
+                            content: Text('Liked successfully!'),
+                            backgroundColor: Colors.green,
+                            duration: Duration(seconds: 1),
+                          ),
+                        );
+                      }
+                    }
+
+                    if (!success) {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(
+                          content: Text('Failed to update like'),
+                          backgroundColor: Colors.red,
+                          duration: Duration(seconds: 2),
+                        ),
+                      );
+                    }
+                  } catch (e) {
+                    print('Error toggling like: $e');
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(
+                        content: Text('Failed to update like'),
+                        backgroundColor: Colors.red,
+                      ),
+                    );
+                  }
                 },
                 borderRadius: BorderRadius.circular(20),
                 child: Container(
                   padding: EdgeInsets.symmetric(horizontal: 12, vertical: 6),
                   decoration: BoxDecoration(
-                    color: Colors.grey[100],
+                    color: (reply['isLiked'] ?? false)
+                        ? Color(0xFF2B3F99).withOpacity(0.1)
+                        : Colors.grey[100],
                     borderRadius: BorderRadius.circular(20),
                   ),
                   child: Row(
                     mainAxisSize: MainAxisSize.min,
                     children: [
-                      Icon(Icons.thumb_up, size: 16, color: Colors.grey[600]),
+                      Icon(
+                        (reply['isLiked'] ?? false)
+                            ? Icons.thumb_up
+                            : Icons.thumb_up_outlined,
+                        size: 16,
+                        color: (reply['isLiked'] ?? false)
+                            ? Color(0xFF2B3F99)
+                            : Colors.grey[600],
+                      ),
                       SizedBox(width: 4),
                       Text(
                         '${reply['likes'] ?? 0}',
-                        style: TextStyle(fontSize: 12, color: Colors.grey[600]),
+                        style: TextStyle(
+                          fontSize: 12,
+                          color: (reply['isLiked'] ?? false)
+                              ? Color(0xFF2B3F99)
+                              : Colors.grey[600],
+                        ),
                       ),
                     ],
                   ),
@@ -450,18 +732,18 @@ class _VolunteerQuestionDetailScreenState
                                 vertical: 4,
                               ),
                               decoration: BoxDecoration(
-                                color: widget.question['isAnswered']
+                                color: _currentQuestion['isAnswered']
                                     ? Colors.green.withOpacity(0.1)
                                     : Colors.orange.withOpacity(0.1),
                                 borderRadius: BorderRadius.circular(12),
                               ),
                               child: Text(
-                                widget.question['isAnswered']
+                                _currentQuestion['isAnswered']
                                     ? 'Answered'
                                     : 'Unanswered',
                                 style: TextStyle(
                                   fontSize: 10,
-                                  color: widget.question['isAnswered']
+                                  color: _currentQuestion['isAnswered']
                                       ? Colors.green[700]
                                       : Colors.orange[700],
                                   fontWeight: FontWeight.w600,
@@ -470,7 +752,7 @@ class _VolunteerQuestionDetailScreenState
                             ),
                             Spacer(),
                             Text(
-                              widget.question['timeAgo'],
+                              _currentQuestion['timeAgo'],
                               style: TextStyle(
                                 fontSize: 12,
                                 color: Colors.grey[600],
@@ -480,7 +762,7 @@ class _VolunteerQuestionDetailScreenState
                         ),
                         SizedBox(height: 16),
                         Text(
-                          widget.question['title'],
+                          _currentQuestion['title'],
                           style: TextStyle(
                             fontSize: 20,
                             fontWeight: FontWeight.bold,
@@ -489,7 +771,7 @@ class _VolunteerQuestionDetailScreenState
                         ),
                         SizedBox(height: 12),
                         Text(
-                          widget.question['content'],
+                          _currentQuestion['content'],
                           style: TextStyle(
                             fontSize: 16,
                             color: Colors.grey[700],
@@ -500,7 +782,7 @@ class _VolunteerQuestionDetailScreenState
                         Wrap(
                           spacing: 8,
                           runSpacing: 8,
-                          children: widget.question['tags'].map<Widget>((tag) {
+                          children: _currentQuestion['tags'].map<Widget>((tag) {
                             return Container(
                               padding: EdgeInsets.symmetric(
                                 horizontal: 12,
@@ -531,19 +813,10 @@ class _VolunteerQuestionDetailScreenState
                             ),
                             SizedBox(width: 4),
                             Text(
-                              '${widget.question['views']} views',
+                              '${_currentQuestion['views']} ${_currentQuestion['views'] == 1 ? 'view' : 'views'}',
                               style: TextStyle(
                                 fontSize: 12,
                                 color: Colors.grey[600],
-                              ),
-                            ),
-                            Spacer(),
-                            Text(
-                              'Asked by ${widget.question['askedBy']}',
-                              style: TextStyle(
-                                fontSize: 12,
-                                color: Colors.grey[600],
-                                fontStyle: FontStyle.italic,
                               ),
                             ),
                           ],
@@ -555,7 +828,7 @@ class _VolunteerQuestionDetailScreenState
 
                   // Replies section
                   Text(
-                    'Replies ( ${replies.length})',
+                    'Replies (${replies.length})',
                     style: TextStyle(
                       fontSize: 18,
                       fontWeight: FontWeight.w600,
@@ -564,8 +837,31 @@ class _VolunteerQuestionDetailScreenState
                   ),
                   SizedBox(height: 16),
 
-                  // Replies list
-                  for (var reply in replies) _buildReplyCard(reply),
+                  // Replies list with loading state
+                  if (_loadingReplies)
+                    Center(
+                      child: Padding(
+                        padding: EdgeInsets.all(20),
+                        child: CircularProgressIndicator(
+                          color: Color(0xFF2B3F99),
+                        ),
+                      ),
+                    )
+                  else if (replies.isEmpty)
+                    Center(
+                      child: Padding(
+                        padding: EdgeInsets.all(20),
+                        child: Text(
+                          'No replies yet. Be the first to reply!',
+                          style: TextStyle(
+                            fontSize: 14,
+                            color: Colors.grey[600],
+                          ),
+                        ),
+                      ),
+                    )
+                  else
+                    for (var reply in replies) _buildReplyCard(reply),
                 ],
               ),
             ),
@@ -614,19 +910,100 @@ class _VolunteerQuestionDetailScreenState
                   backgroundColor: Color(0xFFA0C4FD),
                   child: IconButton(
                     icon: Icon(Icons.send, color: Color(0xFF2B3F99)),
-                    onPressed: () {
+                    onPressed: () async {
                       if (_replyController.text.trim().isNotEmpty) {
-                        setState(() {
-                          replies.add({
-                            'id': replies.length + 1,
-                            'content': _replyController.text.trim(),
-                            'author': 'Current User', // This would be dynamic
-                            'authorType': 'Volunteer',
-                            'timeAgo': 'Just now',
-                            'likes': 0,
-                          });
-                        });
-                        _replyController.clear();
+                        try {
+                          final questionId =
+                              widget.question['questionId'] ??
+                              widget.question['id'];
+
+                          // Show loading indicator
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            SnackBar(
+                              content: Row(
+                                children: [
+                                  SizedBox(
+                                    width: 16,
+                                    height: 16,
+                                    child: CircularProgressIndicator(
+                                      strokeWidth: 2,
+                                      color: Colors.white,
+                                    ),
+                                  ),
+                                  SizedBox(width: 16),
+                                  Text('Posting reply...'),
+                                ],
+                              ),
+                              backgroundColor: Colors.green,
+                              duration: Duration(seconds: 2),
+                            ),
+                          );
+
+                          // Post reply to backend
+                          final newReply = await ForumAnswerService.createAnswer(
+                            questionId: questionId.toString(),
+                            volunteerId:
+                                13, // TODO: Replace with actual volunteer ID from session
+                            content: _replyController.text.trim(),
+                          );
+
+                          // Add to local list if reply was created successfully
+                          if (newReply != null) {
+                            setState(() {
+                              replies.insert(0, {
+                                'id': newReply['answerId'],
+                                'content': newReply['content'],
+                                'author':
+                                    newReply['volunteerName'] ?? 'Current User',
+                                'authorType':
+                                    newReply['volunteerRole'] ?? 'Volunteer',
+                                'timeAgo': 'Just now',
+                                'likes': newReply['likes'] ?? 0,
+                                'isLiked': false,
+                              });
+
+                              // Update question reply count and mark as answered
+                              final previousReplyCount =
+                                  _currentQuestion['replies'] ?? 0;
+                              _currentQuestion['replies'] =
+                                  previousReplyCount + 1;
+
+                              // Mark as answered when first reply is added
+                              if (previousReplyCount == 0) {
+                                _currentQuestion['isAnswered'] = true;
+                              }
+                            });
+
+                            _replyController.clear();
+
+                            // Show success message
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              SnackBar(
+                                content: Row(
+                                  children: [
+                                    Icon(
+                                      Icons.check_circle,
+                                      color: Colors.white,
+                                    ),
+                                    SizedBox(width: 16),
+                                    Text('Reply posted successfully!'),
+                                  ],
+                                ),
+                                backgroundColor: Colors.green,
+                                duration: Duration(seconds: 2),
+                              ),
+                            );
+                          }
+                        } catch (e) {
+                          print('Error posting reply: $e');
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            SnackBar(
+                              content: Text('Failed to post reply: $e'),
+                              backgroundColor: Colors.red,
+                              duration: Duration(seconds: 3),
+                            ),
+                          );
+                        }
                       }
                     },
                   ),

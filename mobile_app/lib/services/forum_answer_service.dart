@@ -3,17 +3,17 @@ import 'package:http/http.dart' as http;
 import 'api_constants.dart';
 
 class ForumAnswerService {
-  static const String baseUrl = '${ApiConstants.baseUrl}/forum/answers';
+  static const String baseUrl = '${ApiConstants.baseUrl}/api/forum/answers';
 
   /// Fetch all answers for a specific question
   static Future<List<Map<String, dynamic>>> getAnswersByQuestionId(
     String questionId, {
-    int? guardianId,
+    int? userId,
   }) async {
     try {
       String url = '$baseUrl/question/$questionId';
-      if (guardianId != null) {
-        url += '?guardianId=$guardianId';
+      if (userId != null) {
+        url += '?userId=$userId';
       }
 
       final response = await http.get(Uri.parse(url));
@@ -32,9 +32,9 @@ class ForumAnswerService {
   }
 
   /// Like an answer
-  static Future<bool> likeAnswer(String answerId, int guardianId) async {
+  static Future<bool> likeAnswer(String answerId, int userId) async {
     try {
-      final url = Uri.parse('$baseUrl/$answerId/like?guardianId=$guardianId');
+      final url = Uri.parse('$baseUrl/$answerId/like?userId=$userId');
       final response = await http.post(url);
 
       if (response.statusCode == 200) {
@@ -50,9 +50,9 @@ class ForumAnswerService {
   }
 
   /// Unlike an answer
-  static Future<bool> unlikeAnswer(String answerId, int guardianId) async {
+  static Future<bool> unlikeAnswer(String answerId, int userId) async {
     try {
-      final url = Uri.parse('$baseUrl/$answerId/like?guardianId=$guardianId');
+      final url = Uri.parse('$baseUrl/$answerId/like?userId=$userId');
       final response = await http.delete(url);
 
       if (response.statusCode == 200) {

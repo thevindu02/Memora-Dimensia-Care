@@ -73,7 +73,7 @@ class _CaregiverQAForumsScreenState extends State<CaregiverQAForumsScreen> {
       'title': apiQuestion['title'],
       'content': apiQuestion['content'],
       'tags': apiQuestion['tags'] ?? [],
-      'askedBy': apiQuestion['guardianName'] ?? 'Anonymous User',
+      'askedBy': apiQuestion['askedBy'] ?? 'Anonymous User',
       'timeAgo': _formatTimeAgo(apiQuestion['createdAt']),
       'replies': apiQuestion['replies'] ?? 0,
       'views': apiQuestion['views'] ?? 0,
@@ -259,20 +259,6 @@ class _CaregiverQAForumsScreenState extends State<CaregiverQAForumsScreen> {
               // Meta information
               Row(
                 children: [
-                  Icon(
-                    Icons.person_outline,
-                    size: 16,
-                    color: AppColors.textSecondary,
-                  ),
-                  SizedBox(width: 4),
-                  Text(
-                    question['askedBy'] ?? 'Anonymous',
-                    style: TextStyle(
-                      fontSize: 12,
-                      color: AppColors.textSecondary,
-                    ),
-                  ),
-                  SizedBox(width: 16),
                   Icon(
                     Icons.access_time,
                     size: 16,
@@ -476,10 +462,10 @@ class _CaregiverQAForumsScreenState extends State<CaregiverQAForumsScreen> {
                     );
 
                     try {
-                      // TODO: Change caregiverId to actual logged-in caregiver ID
+                      // TODO: Change userId to actual logged-in caregiver ID
                       await ForumQuestionService.createQuestion(
-                        guardianId:
-                            1, // Temporary - replace with actual caregiver ID
+                        userId:
+                            2, // Temporary - replace with actual caregiver user ID from session
                         title: titleController.text.trim(),
                         content: contentController.text.trim(),
                         tags: tags,
@@ -773,20 +759,6 @@ class _QuestionDetailScreenState extends State<QuestionDetailScreen> {
               // Meta information
               Row(
                 children: [
-                  Icon(
-                    Icons.person_outline,
-                    size: 16,
-                    color: AppColors.textSecondary,
-                  ),
-                  SizedBox(width: 4),
-                  Text(
-                    question['askedBy'] ?? 'Anonymous',
-                    style: TextStyle(
-                      fontSize: 14,
-                      color: AppColors.textSecondary,
-                    ),
-                  ),
-                  SizedBox(width: 16),
                   Icon(
                     Icons.access_time,
                     size: 16,

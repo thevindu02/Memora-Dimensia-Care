@@ -64,14 +64,14 @@ public class ForumAnswerController {
     /**
      * Get all answers for a specific question
      * GET /api/forum/answers/question/{questionId}
-     * Optional query parameter: guardianId (to check if liked by current user)
+     * Optional query parameter: userId (to check if liked by current user)
      */
     @GetMapping("/question/{questionId}")
     public ResponseEntity<?> getAnswersByQuestionId(
             @PathVariable String questionId,
-            @RequestParam(required = false) Long guardianId) {
+            @RequestParam(required = false) Long userId) {
         try {
-            List<ForumAnswerDTO> answers = forumAnswerService.getAnswersByQuestionId(questionId, guardianId);
+            List<ForumAnswerDTO> answers = forumAnswerService.getAnswersByQuestionId(questionId, userId);
             return ResponseEntity.ok(answers);
         } catch (Exception e) {
             e.printStackTrace();
@@ -88,15 +88,15 @@ public class ForumAnswerController {
     @PostMapping("/{answerId}/like")
     public ResponseEntity<?> likeAnswer(
             @PathVariable String answerId,
-            @RequestParam Long guardianId) {
+            @RequestParam Long userId) {
         try {
-            if (guardianId == null) {
+            if (userId == null) {
                 Map<String, String> error = new HashMap<>();
-                error.put("error", "Guardian ID is required");
+                error.put("error", "User ID is required");
                 return ResponseEntity.badRequest().body(error);
             }
             
-            boolean success = forumAnswerService.likeAnswer(answerId, guardianId);
+            boolean success = forumAnswerService.likeAnswer(answerId, userId);
             
             if (success) {
                 Map<String, String> response = new HashMap<>();
@@ -123,15 +123,15 @@ public class ForumAnswerController {
     @DeleteMapping("/{answerId}/like")
     public ResponseEntity<?> unlikeAnswer(
             @PathVariable String answerId,
-            @RequestParam Long guardianId) {
+            @RequestParam Long userId) {
         try {
-            if (guardianId == null) {
+            if (userId == null) {
                 Map<String, String> error = new HashMap<>();
-                error.put("error", "Guardian ID is required");
+                error.put("error", "User ID is required");
                 return ResponseEntity.badRequest().body(error);
             }
             
-            boolean success = forumAnswerService.unlikeAnswer(answerId, guardianId);
+            boolean success = forumAnswerService.unlikeAnswer(answerId, userId);
             
             if (success) {
                 Map<String, String> response = new HashMap<>();

@@ -1,12 +1,13 @@
 package Memora.DimensiaCareApplication.dto.response;
 
 import com.google.cloud.Timestamp;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import java.util.List;
 
 public class ForumQuestionDTO {
     private String questionId;
-    private Long guardianId;
-    private String guardianName;
+    private Long userId; // Changed from guardianId
+    private String guardianName; // Still keeping this name internally, but exposed as "askedBy"
     private String title;
     private String content;
     private List<String> tags;
@@ -19,11 +20,11 @@ public class ForumQuestionDTO {
     // Constructors
     public ForumQuestionDTO() {}
 
-    public ForumQuestionDTO(String questionId, Long guardianId, String guardianName, String title, 
+    public ForumQuestionDTO(String questionId, Long userId, String guardianName, String title, 
                            String content, List<String> tags, Long views, Long replies, 
                            Boolean isAnswered, Timestamp createdAt, Timestamp updatedAt) {
         this.questionId = questionId;
-        this.guardianId = guardianId;
+        this.userId = userId;
         this.guardianName = guardianName;
         this.title = title;
         this.content = content;
@@ -44,14 +45,15 @@ public class ForumQuestionDTO {
         this.questionId = questionId;
     }
 
-    public Long getGuardianId() {
-        return guardianId;
+    public Long getUserId() {
+        return userId;
     }
 
-    public void setGuardianId(Long guardianId) {
-        this.guardianId = guardianId;
+    public void setUserId(Long userId) {
+        this.userId = userId;
     }
 
+    @JsonProperty("askedBy")
     public String getGuardianName() {
         return guardianName;
     }

@@ -3,6 +3,7 @@ import '../../routes/app_routes.dart';
 import 'guardian_bottom_nav_bar.dart';
 import '../../constants/color_constants.dart';
 import '../../services/forum_question_service.dart';
+import '../../services/forum_answer_service.dart';
 
 class GuardianQAForumsScreen extends StatefulWidget {
   @override
@@ -98,7 +99,7 @@ class _GuardianQAForumsScreenState extends State<GuardianQAForumsScreen> {
       'title': apiQuestion['title'],
       'content': apiQuestion['content'],
       'tags': apiQuestion['tags'] ?? [],
-      'askedBy': apiQuestion['guardianName'] ?? 'Anonymous Guardian',
+      'askedBy': apiQuestion['askedBy'] ?? 'Anonymous Guardian',
       'timeAgo': _formatTimeAgo(apiQuestion['createdAt']),
       'replies': apiQuestion['replies'] ?? 0,
       'views': apiQuestion['views'] ?? 0,
@@ -212,9 +213,19 @@ class _GuardianQAForumsScreenState extends State<GuardianQAForumsScreen> {
             ),
           );
 
-          // If views were incremented, reload questions to update the list
-          if (result == true) {
-            _loadQuestions();
+          // If question data was returned, update it in the list
+          if (result != null && result is Map<String, dynamic>) {
+            setState(() {
+              // Find and update the question in the list
+              final questionId = result['questionId'] ?? result['id'];
+              final index = questions.indexWhere(
+                (q) => (q['questionId'] ?? q['id']) == questionId,
+              );
+              if (index != -1) {
+                questions[index]['views'] = result['views'];
+                questions[index]['replies'] = result['replies'];
+              }
+            });
           }
         },
         borderRadius: BorderRadius.circular(12),
@@ -324,24 +335,15 @@ class _GuardianQAForumsScreenState extends State<GuardianQAForumsScreen> {
                   Icon(Icons.visibility, size: 16, color: Colors.grey[600]),
                   SizedBox(width: 4),
                   Text(
-                    '${question['views']} views',
+                    '${question['views']} ${question['views'] == 1 ? 'view' : 'views'}',
                     style: TextStyle(fontSize: 12, color: Colors.grey[600]),
                   ),
                   SizedBox(width: 16),
                   Icon(Icons.comment, size: 16, color: Colors.grey[600]),
                   SizedBox(width: 4),
                   Text(
-                    '${question['replies']} replies',
+                    '${question['replies']} ${question['replies'] == 1 ? 'reply' : 'replies'}',
                     style: TextStyle(fontSize: 12, color: Colors.grey[600]),
-                  ),
-                  Spacer(),
-                  Text(
-                    'by ${question['askedBy']}',
-                    style: TextStyle(
-                      fontSize: 12,
-                      color: Colors.grey[600],
-                      fontStyle: FontStyle.italic,
-                    ),
                   ),
                 ],
               ),
@@ -449,11 +451,14 @@ class _GuardianQAForumsScreenState extends State<GuardianQAForumsScreen> {
                         return;
                       }
 
+                      // Capture the ScaffoldMessenger BEFORE closing dialog
+                      final scaffoldMessenger = ScaffoldMessenger.of(context);
+
                       // Close dialog first
                       Navigator.pop(context);
 
                       // Show loading indicator with green background
-                      ScaffoldMessenger.of(context).showSnackBar(
+                      scaffoldMessenger.showSnackBar(
                         SnackBar(
                           content: Row(
                             children: [
@@ -486,24 +491,41 @@ class _GuardianQAForumsScreenState extends State<GuardianQAForumsScreen> {
 
                       try {
                         // Call API to create question
-                        // TODO: Get actual guardianId from current user session
+                        // TODO: Get actual userId from current user session
                         final result =
                             await ForumQuestionService.createQuestion(
-                              guardianId: 1, // Replace with actual guardian ID
+                              userId:
+                                  1, // Replace with actual user ID from session
                               title: titleController.text.trim(),
                               content: contentController.text.trim(),
                               tags: tags,
                             );
 
                         // Hide loading indicator
-                        ScaffoldMessenger.of(context).hideCurrentSnackBar();
+                        scaffoldMessenger.hideCurrentSnackBar();
 
                         if (result != null) {
-                          // Reload questions to get the new one
-                          await _loadQuestions();
+                          print(
+                            'Question created successfully: ${result['questionId']}',
+                          );
+
+                          // Add the new question to the list immediately for instant feedback
+                          // Only add if we're on "All" filter to avoid inconsistency
+                          if (_selectedFilter == 'All') {
+                            setState(() {
+                              final newQuestion = _convertQuestion(result);
+                              questions.insert(0, newQuestion);
+                            });
+                          } else {
+                            // For other filters, reload from backend
+                            await _loadQuestions();
+                          }
+
+                          // Small delay to ensure the loading snackbar is dismissed before showing success
+                          await Future.delayed(Duration(milliseconds: 100));
 
                           // Show success message
-                          ScaffoldMessenger.of(context).showSnackBar(
+                          scaffoldMessenger.showSnackBar(
                             SnackBar(
                               content: Row(
                                 children: [
@@ -511,7 +533,8 @@ class _GuardianQAForumsScreenState extends State<GuardianQAForumsScreen> {
                                   SizedBox(width: 12),
                                   Expanded(
                                     child: Text(
-                                      'Question posted successfully!',
+                                      'Posted successfully',
+                                      style: TextStyle(color: Colors.white),
                                     ),
                                   ),
                                 ],
@@ -522,7 +545,7 @@ class _GuardianQAForumsScreenState extends State<GuardianQAForumsScreen> {
                           );
                         } else {
                           // Show error message
-                          ScaffoldMessenger.of(context).showSnackBar(
+                          scaffoldMessenger.showSnackBar(
                             SnackBar(
                               content: Row(
                                 children: [
@@ -542,10 +565,10 @@ class _GuardianQAForumsScreenState extends State<GuardianQAForumsScreen> {
                         }
                       } catch (e) {
                         // Hide loading indicator
-                        ScaffoldMessenger.of(context).hideCurrentSnackBar();
+                        scaffoldMessenger.hideCurrentSnackBar();
 
                         // Show error message
-                        ScaffoldMessenger.of(context).showSnackBar(
+                        scaffoldMessenger.showSnackBar(
                           SnackBar(
                             content: Row(
                               children: [
@@ -743,7 +766,7 @@ class QuestionDetailScreen extends StatefulWidget {
 class _QuestionDetailScreenState extends State<QuestionDetailScreen> {
   // Replies list - will be fetched from API
   List<Map<String, dynamic>> replies = [];
-  bool _viewIncremented = false;
+  bool _loadingReplies = true;
   late Map<String, dynamic> _currentQuestion;
 
   @override
@@ -751,6 +774,84 @@ class _QuestionDetailScreenState extends State<QuestionDetailScreen> {
     super.initState();
     _currentQuestion = Map<String, dynamic>.from(widget.question);
     _incrementViewCount();
+    _loadReplies();
+  }
+
+  /// Load replies from database
+  Future<void> _loadReplies() async {
+    try {
+      final questionId = widget.question['questionId'] ?? widget.question['id'];
+      if (questionId != null) {
+        print('Loading replies for question: $questionId');
+
+        final loadedReplies = await ForumAnswerService.getAnswersByQuestionId(
+          questionId.toString(),
+          userId: 1, // TODO: Replace with actual guardian session ID
+        );
+
+        setState(() {
+          replies = loadedReplies.map((reply) {
+            return {
+              'id': reply['answerId'],
+              'content': reply['content'],
+              'author': reply['volunteerName'] ?? 'Unknown Volunteer',
+              'authorType': reply['volunteerRole'] ?? 'Volunteer',
+              'timeAgo': _formatTimeAgo(reply['createdAt']),
+              'likes': reply['likes'] ?? 0,
+              'isLiked': reply['isLikedByCurrentUser'] ?? false,
+            };
+          }).toList();
+          _loadingReplies = false;
+
+          // Update reply count in current question
+          _currentQuestion['replies'] = replies.length;
+        });
+
+        print('Loaded ${replies.length} replies successfully');
+      }
+    } catch (e) {
+      print('Error loading replies: $e');
+      setState(() {
+        _loadingReplies = false;
+      });
+    }
+  }
+
+  /// Format timestamp to "time ago" format
+  String _formatTimeAgo(dynamic timestamp) {
+    if (timestamp == null) return 'Unknown time';
+
+    try {
+      DateTime dateTime;
+      if (timestamp is int) {
+        dateTime = DateTime.fromMillisecondsSinceEpoch(timestamp);
+      } else if (timestamp is String) {
+        dateTime = DateTime.parse(timestamp);
+      } else {
+        return 'Unknown time';
+      }
+
+      final now = DateTime.now();
+      final difference = now.difference(dateTime);
+
+      if (difference.inDays > 365) {
+        final years = (difference.inDays / 365).floor();
+        return '$years ${years == 1 ? 'year' : 'years'} ago';
+      } else if (difference.inDays > 30) {
+        final months = (difference.inDays / 30).floor();
+        return '$months ${months == 1 ? 'month' : 'months'} ago';
+      } else if (difference.inDays > 0) {
+        return '${difference.inDays} ${difference.inDays == 1 ? 'day' : 'days'} ago';
+      } else if (difference.inHours > 0) {
+        return '${difference.inHours} ${difference.inHours == 1 ? 'hour' : 'hours'} ago';
+      } else if (difference.inMinutes > 0) {
+        return '${difference.inMinutes} ${difference.inMinutes == 1 ? 'minute' : 'minutes'} ago';
+      } else {
+        return 'Just now';
+      }
+    } catch (e) {
+      return 'Unknown time';
+    }
   }
 
   /// Increment view count when question is opened
@@ -770,7 +871,6 @@ class _QuestionDetailScreenState extends State<QuestionDetailScreen> {
             // Update the local question data with new view count
             _currentQuestion['views'] =
                 updatedQuestion['views'] ?? _currentQuestion['views'];
-            _viewIncremented = true;
           });
           print(
             'View count incremented successfully. New count: ${updatedQuestion['views']}',
@@ -866,24 +966,92 @@ class _QuestionDetailScreenState extends State<QuestionDetailScreen> {
           Row(
             children: [
               InkWell(
-                onTap: () {
-                  // Handle like functionality
+                onTap: () async {
+                  try {
+                    final answerId = reply['id'];
+                    final isLiked = reply['isLiked'] ?? false;
+                    final currentLikes = reply['likes'] ?? 0;
+
+                    // Once liked, cannot unlike (permanent like)
+                    if (isLiked) {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(
+                          content: Text('You have already liked this reply'),
+                          backgroundColor: Colors.orange,
+                          duration: Duration(seconds: 2),
+                        ),
+                      );
+                      return;
+                    }
+
+                    // Like - increment like count
+                    final success = await ForumAnswerService.likeAnswer(
+                      answerId.toString(),
+                      1, // TODO: Replace with actual guardian ID from session
+                    );
+
+                    if (success) {
+                      setState(() {
+                        reply['isLiked'] = true;
+                        reply['likes'] = currentLikes + 1;
+                      });
+
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(
+                          content: Text('Liked successfully!'),
+                          backgroundColor: Colors.green,
+                          duration: Duration(seconds: 1),
+                        ),
+                      );
+                    } else {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(
+                          content: Text('You have already liked this reply'),
+                          backgroundColor: Colors.orange,
+                          duration: Duration(seconds: 2),
+                        ),
+                      );
+                    }
+                  } catch (e) {
+                    print('Error toggling like: $e');
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(
+                        content: Text('Failed to update like'),
+                        backgroundColor: Colors.red,
+                      ),
+                    );
+                  }
                 },
                 borderRadius: BorderRadius.circular(20),
                 child: Container(
                   padding: EdgeInsets.symmetric(horizontal: 12, vertical: 6),
                   decoration: BoxDecoration(
-                    color: Colors.grey[100],
+                    color: (reply['isLiked'] ?? false)
+                        ? AppColors.primary.withOpacity(0.1)
+                        : Colors.grey[100],
                     borderRadius: BorderRadius.circular(20),
                   ),
                   child: Row(
                     mainAxisSize: MainAxisSize.min,
                     children: [
-                      Icon(Icons.thumb_up, size: 16, color: Colors.grey[600]),
+                      Icon(
+                        (reply['isLiked'] ?? false)
+                            ? Icons.thumb_up
+                            : Icons.thumb_up_outlined,
+                        size: 16,
+                        color: (reply['isLiked'] ?? false)
+                            ? AppColors.primary
+                            : Colors.grey[600],
+                      ),
                       SizedBox(width: 4),
                       Text(
                         '${reply['likes']}',
-                        style: TextStyle(fontSize: 12, color: Colors.grey[600]),
+                        style: TextStyle(
+                          fontSize: 12,
+                          color: (reply['isLiked'] ?? false)
+                              ? AppColors.primary
+                              : Colors.grey[600],
+                        ),
                       ),
                     ],
                   ),
@@ -900,8 +1068,8 @@ class _QuestionDetailScreenState extends State<QuestionDetailScreen> {
   Widget build(BuildContext context) {
     return WillPopScope(
       onWillPop: () async {
-        // Return true to indicate views were updated
-        Navigator.pop(context, _viewIncremented);
+        // Return updated question data
+        Navigator.pop(context, _currentQuestion);
         return false;
       },
       child: Scaffold(
@@ -911,7 +1079,7 @@ class _QuestionDetailScreenState extends State<QuestionDetailScreen> {
           elevation: 0,
           leading: IconButton(
             icon: Icon(Icons.arrow_back, color: Colors.black),
-            onPressed: () => Navigator.pop(context, _viewIncremented),
+            onPressed: () => Navigator.pop(context, _currentQuestion),
           ),
           title: Text(
             'Question Details',
@@ -1039,19 +1207,10 @@ class _QuestionDetailScreenState extends State<QuestionDetailScreen> {
                               ),
                               SizedBox(width: 4),
                               Text(
-                                '${_currentQuestion['views']} views',
+                                '${_currentQuestion['views']} ${_currentQuestion['views'] == 1 ? 'view' : 'views'}',
                                 style: TextStyle(
                                   fontSize: 12,
                                   color: Colors.grey[600],
-                                ),
-                              ),
-                              Spacer(),
-                              Text(
-                                'Asked by ${_currentQuestion['askedBy']}',
-                                style: TextStyle(
-                                  fontSize: 12,
-                                  color: Colors.grey[600],
-                                  fontStyle: FontStyle.italic,
                                 ),
                               ),
                             ],
@@ -1072,8 +1231,31 @@ class _QuestionDetailScreenState extends State<QuestionDetailScreen> {
                     ),
                     SizedBox(height: 16),
 
-                    // Replies list
-                    for (var reply in replies) _buildReplyCard(reply),
+                    // Loading or replies list
+                    if (_loadingReplies)
+                      Center(
+                        child: Padding(
+                          padding: EdgeInsets.all(32),
+                          child: CircularProgressIndicator(
+                            color: AppColors.primary,
+                          ),
+                        ),
+                      )
+                    else if (replies.isEmpty)
+                      Center(
+                        child: Padding(
+                          padding: EdgeInsets.all(32),
+                          child: Text(
+                            'No replies yet.',
+                            style: TextStyle(
+                              color: Colors.grey[600],
+                              fontSize: 14,
+                            ),
+                          ),
+                        ),
+                      )
+                    else
+                      for (var reply in replies) _buildReplyCard(reply),
                   ],
                 ),
               ),

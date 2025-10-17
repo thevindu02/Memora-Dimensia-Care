@@ -2,10 +2,14 @@ package Memora.DimensiaCareApplication.service;
 
 import Memora.DimensiaCareApplication.dto.request.CreateForumQuestionDTO;
 import Memora.DimensiaCareApplication.dto.response.ForumQuestionDTO;
+import Memora.DimensiaCareApplication.model.User;
+import Memora.DimensiaCareApplication.model.User.UserRole;
+import Memora.DimensiaCareApplication.repository.UserRepository;
 import com.google.api.core.ApiFuture;
 import com.google.cloud.Timestamp;
 import com.google.cloud.firestore.*;
 import com.google.firebase.cloud.FirestoreClient;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
@@ -15,7 +19,46 @@ import java.util.concurrent.ExecutionException;
 public class ForumQuestionService {
 
     private static final String COLLECTION_NAME = "forum_questions";
-    private static final String GUARDIAN_NAME = "Anonymous Guardian";
+
+    @Autowired
+    private UserRepository userRepository;
+
+    /**
+     * Get anonymous name based on user role from database
+     */
+    private String getAnonymousNameFromRole(Long userId) {
+        if (userId == null) {
+            System.out.println("WARNING: userId is null, returning default anonymous name");
+            return "Anonymous User";
+        }
+        
+        System.out.println("Looking up user role for userId: " + userId);
+        Optional<User> userOptional = userRepository.findById(userId);
+        
+        if (userOptional.isPresent()) {
+            User user = userOptional.get();
+            UserRole role = user.getRole();
+            System.out.println("Found user with role: " + role);
+            
+            if (role == UserRole.CAREGIVER) {
+                return "Anonymous Caregiver";
+            } else if (role == UserRole.GUARDIAN) {
+                return "Anonymous Guardian";
+            } else if (role == UserRole.VOLUNTEER) {
+                return "Anonymous Volunteer";
+            } else if (role == UserRole.ADMIN) {
+                return "Anonymous Admin";
+            } else {
+                System.out.println("WARNING: Unrecognized role: " + role);
+                return "Anonymous User";
+            }
+        } else {
+            System.out.println("WARNING: User not found in database for userId: " + userId);
+        }
+        
+        // Default fallback
+        return "Anonymous User";
+    }
 
     /**
      * Create a new forum question
@@ -27,11 +70,14 @@ public class ForumQuestionService {
         DocumentReference docRef = db.collection(COLLECTION_NAME).document();
         String questionId = docRef.getId();
         
+        // Determine anonymous name based on user role from database
+        String anonymousName = getAnonymousNameFromRole(request.getUserId());
+        
         // Prepare data
         Map<String, Object> data = new HashMap<>();
         data.put("questionId", questionId);
-        data.put("guardianId", request.getGuardianId());
-        data.put("guardianName", GUARDIAN_NAME); // Always anonymous
+        data.put("userId", request.getUserId()); // Changed from guardianId
+        data.put("guardianName", anonymousName); // Set based on user role
         data.put("title", request.getTitle());
         data.put("content", request.getContent());
         data.put("tags", request.getTags() != null ? request.getTags() : new ArrayList<>());
@@ -48,8 +94,8 @@ public class ForumQuestionService {
         // Return the created question
         ForumQuestionDTO questionDTO = new ForumQuestionDTO();
         questionDTO.setQuestionId(questionId);
-        questionDTO.setGuardianId(request.getGuardianId());
-        questionDTO.setGuardianName(GUARDIAN_NAME);
+        questionDTO.setUserId(request.getUserId());
+        questionDTO.setGuardianName(anonymousName);
         questionDTO.setTitle(request.getTitle());
         questionDTO.setContent(request.getContent());
         questionDTO.setTags(request.getTags());
@@ -135,13 +181,14 @@ public class ForumQuestionService {
     }
 
     /**
-     * Get questions by guardian ID
+     * Get questions by user ID (guardian or caregiver)
      */
-    public List<ForumQuestionDTO> getQuestionsByGuardianId(Long guardianId) throws ExecutionException, InterruptedException {
+    public List<ForumQuestionDTO> getQuestionsByUserId(Long userId) throws ExecutionException, InterruptedException {
         Firestore db = FirestoreClient.getFirestore();
         
+        // Try querying with new userId field first
         Query query = db.collection(COLLECTION_NAME)
-                .whereEqualTo("guardianId", guardianId)
+                .whereEqualTo("userId", userId)
                 .orderBy("createdAt", Query.Direction.DESCENDING);
         
         ApiFuture<QuerySnapshot> future = query.get();
@@ -155,7 +202,33 @@ public class ForumQuestionService {
             }
         }
         
+        // If no results, try old guardianId field for backward compatibility
+        if (questions.isEmpty()) {
+            query = db.collection(COLLECTION_NAME)
+                    .whereEqualTo("guardianId", userId)
+                    .orderBy("createdAt", Query.Direction.DESCENDING);
+            
+            future = query.get();
+            documents = future.get();
+            
+            for (DocumentSnapshot document : documents) {
+                if (document.exists()) {
+                    ForumQuestionDTO question = documentToDTO(document);
+                    questions.add(question);
+                }
+            }
+        }
+        
         return questions;
+    }
+
+    /**
+     * Get questions by guardian ID
+     * @deprecated Use getQuestionsByUserId instead
+     */
+    @Deprecated
+    public List<ForumQuestionDTO> getQuestionsByGuardianId(Long guardianId) throws ExecutionException, InterruptedException {
+        return getQuestionsByUserId(guardianId);
     }
 
     /**
@@ -195,21 +268,52 @@ public class ForumQuestionService {
     }
 
     /**
+     * Helper method to update question's answered status in Firestore
+     */
+    private void updateQuestionAnsweredStatus(String questionId, boolean isAnswered) {
+        try {
+            Firestore db = FirestoreClient.getFirestore();
+            DocumentReference docRef = db.collection(COLLECTION_NAME).document(questionId);
+            
+            Map<String, Object> updates = new HashMap<>();
+            updates.put("isAnswered", isAnswered);
+            updates.put("updatedAt", Timestamp.now());
+            
+            docRef.update(updates);
+            System.out.println("Updated question " + questionId + " isAnswered status to: " + isAnswered);
+        } catch (Exception e) {
+            System.err.println("Error updating question answered status: " + e.getMessage());
+        }
+    }
+
+    /**
      * Helper method to convert Firestore document to DTO
      */
     private ForumQuestionDTO documentToDTO(DocumentSnapshot document) {
         ForumQuestionDTO dto = new ForumQuestionDTO();
         dto.setQuestionId(document.getId());
         
-        // Handle guardianId as Long
-        Object guardianIdObj = document.get("guardianId");
-        if (guardianIdObj != null) {
-            if (guardianIdObj instanceof Long) {
-                dto.setGuardianId((Long) guardianIdObj);
-            } else if (guardianIdObj instanceof Integer) {
-                dto.setGuardianId(((Integer) guardianIdObj).longValue());
-            } else if (guardianIdObj instanceof String) {
-                dto.setGuardianId(Long.parseLong((String) guardianIdObj));
+        // Handle userId (changed from guardianId) as Long
+        Object userIdObj = document.get("userId");
+        if (userIdObj != null) {
+            if (userIdObj instanceof Long) {
+                dto.setUserId((Long) userIdObj);
+            } else if (userIdObj instanceof Integer) {
+                dto.setUserId(((Integer) userIdObj).longValue());
+            } else if (userIdObj instanceof String) {
+                dto.setUserId(Long.parseLong((String) userIdObj));
+            }
+        } else {
+            // Fallback: try to get old guardianId field for backward compatibility
+            Object guardianIdObj = document.get("guardianId");
+            if (guardianIdObj != null) {
+                if (guardianIdObj instanceof Long) {
+                    dto.setUserId((Long) guardianIdObj);
+                } else if (guardianIdObj instanceof Integer) {
+                    dto.setUserId(((Integer) guardianIdObj).longValue());
+                } else if (guardianIdObj instanceof String) {
+                    dto.setUserId(Long.parseLong((String) guardianIdObj));
+                }
             }
         }
         
@@ -228,16 +332,49 @@ public class ForumQuestionService {
         }
         
         dto.setViews(document.getLong("views"));
-        dto.setReplies(document.getLong("replies"));
         
-        // Handle isAnswered - default to false if null
+        // Get actual reply count from forum_answers collection
+        Long actualReplyCount = getActualReplyCount(document.getId());
+        dto.setReplies(actualReplyCount);
+        
+        // Handle isAnswered - if question has replies, it should be marked as answered
         Boolean isAnswered = document.getBoolean("isAnswered");
-        dto.setIsAnswered(isAnswered != null ? isAnswered : false);
+        if (isAnswered == null || !isAnswered) {
+            // If isAnswered is null/false but question has replies, mark as answered
+            if (actualReplyCount != null && actualReplyCount > 0) {
+                dto.setIsAnswered(true);
+                // Also update Firestore to fix the data
+                updateQuestionAnsweredStatus(document.getId(), true);
+            } else {
+                dto.setIsAnswered(false);
+            }
+        } else {
+            dto.setIsAnswered(true);
+        }
         
         dto.setCreatedAt(document.getTimestamp("createdAt"));
         dto.setUpdatedAt(document.getTimestamp("updatedAt"));
         
         return dto;
+    }
+
+    /**
+     * Get actual reply count from forum_answers collection
+     */
+    private Long getActualReplyCount(String questionId) {
+        try {
+            Firestore db = FirestoreClient.getFirestore();
+            Query query = db.collection("forum_answers")
+                    .whereEqualTo("questionId", questionId);
+            
+            ApiFuture<QuerySnapshot> future = query.get();
+            QuerySnapshot snapshot = future.get();
+            
+            return (long) snapshot.size();
+        } catch (Exception e) {
+            System.err.println("Error getting reply count for question " + questionId + ": " + e.getMessage());
+            return 0L;
+        }
     }
 
     /**
@@ -275,14 +412,14 @@ public class ForumQuestionService {
     }
 
     /**
-     * Get recent questions (posted within the last 24 hours)
+     * Get recent questions (posted within the last 1 hour)
      */
     public List<ForumQuestionDTO> getRecentQuestions() throws ExecutionException, InterruptedException {
         Firestore db = FirestoreClient.getFirestore();
         
-        // Calculate timestamp for 24 hours ago
-        long twentyFourHoursAgo = System.currentTimeMillis() - (24 * 60 * 60 * 1000);
-        Timestamp cutoffTime = Timestamp.ofTimeMicroseconds(twentyFourHoursAgo * 1000);
+        // Calculate timestamp for 1 hour ago
+        long oneHourAgo = System.currentTimeMillis() - (60 * 60 * 1000);
+        Timestamp cutoffTime = Timestamp.ofTimeMicroseconds(oneHourAgo * 1000);
         
         Query query = db.collection(COLLECTION_NAME)
                 .whereGreaterThan("createdAt", cutoffTime)
@@ -303,14 +440,13 @@ public class ForumQuestionService {
     }
 
     /**
-     * Get questions sorted by most replies (highest to lowest)
+     * Get top 5 questions sorted by most replies (highest to lowest)
      */
     public List<ForumQuestionDTO> getMostRepliedQuestions() throws ExecutionException, InterruptedException {
         Firestore db = FirestoreClient.getFirestore();
         
-        Query query = db.collection(COLLECTION_NAME)
-                .orderBy("replies", Query.Direction.DESCENDING)
-                .orderBy("createdAt", Query.Direction.DESCENDING);
+        // Fetch all questions first
+        Query query = db.collection(COLLECTION_NAME);
         
         ApiFuture<QuerySnapshot> future = query.get();
         QuerySnapshot documents = future.get();
@@ -320,10 +456,44 @@ public class ForumQuestionService {
             if (document.exists()) {
                 ForumQuestionDTO question = documentToDTO(document);
                 questions.add(question);
+                
+                // Debug logging
+                System.out.println("Question: " + question.getTitle() + 
+                                 " | Replies: " + question.getReplies() + 
+                                 " | Created: " + question.getCreatedAt());
             }
         }
         
-        return questions;
+        System.out.println("Total questions fetched: " + questions.size());
+        
+        // Sort by replies (descending) in Java
+        questions.sort((a, b) -> {
+            Long repliesA = a.getReplies() != null ? a.getReplies() : 0L;
+            Long repliesB = b.getReplies() != null ? b.getReplies() : 0L;
+            
+            // First compare by reply count (descending)
+            int replyComparison = repliesB.compareTo(repliesA);
+            if (replyComparison != 0) {
+                return replyComparison;
+            }
+            
+            // If same reply count, sort by creation date (newest first)
+            if (b.getCreatedAt() == null) return -1;
+            if (a.getCreatedAt() == null) return 1;
+            return b.getCreatedAt().compareTo(a.getCreatedAt());
+        });
+        
+        // Return top 5
+        List<ForumQuestionDTO> topQuestions = questions.stream()
+                .limit(5)
+                .collect(java.util.stream.Collectors.toList());
+        
+        System.out.println("Returning top " + topQuestions.size() + " questions with most replies");
+        for (ForumQuestionDTO q : topQuestions) {
+            System.out.println("  - " + q.getTitle() + " (" + q.getReplies() + " replies)");
+        }
+        
+        return topQuestions;
     }
 
     /**
@@ -347,5 +517,81 @@ public class ForumQuestionService {
             default:
                 return getAllQuestions();
         }
+    }
+
+    /**
+     * Migration utility: Update all existing questions to use userId and recalculate guardianName
+     * This should be called once to fix old questions
+     */
+    public String migrateExistingQuestions() throws ExecutionException, InterruptedException {
+        Firestore db = FirestoreClient.getFirestore();
+        
+        // Get all questions
+        Query query = db.collection(COLLECTION_NAME);
+        ApiFuture<QuerySnapshot> future = query.get();
+        QuerySnapshot documents = future.get();
+        
+        int updated = 0;
+        int skipped = 0;
+        int failed = 0;
+        
+        for (DocumentSnapshot document : documents) {
+            if (!document.exists()) continue;
+            
+            try {
+                // Check if userId already exists
+                Object userIdObj = document.get("userId");
+                Long userId = null;
+                
+                if (userIdObj != null) {
+                    // userId exists, just update guardianName
+                    if (userIdObj instanceof Long) {
+                        userId = (Long) userIdObj;
+                    } else if (userIdObj instanceof Integer) {
+                        userId = ((Integer) userIdObj).longValue();
+                    }
+                } else {
+                    // Try to get userId from old guardianId field
+                    Object guardianIdObj = document.get("guardianId");
+                    if (guardianIdObj != null) {
+                        if (guardianIdObj instanceof Long) {
+                            userId = (Long) guardianIdObj;
+                        } else if (guardianIdObj instanceof Integer) {
+                            userId = ((Integer) guardianIdObj).longValue();
+                        }
+                    }
+                }
+                
+                if (userId != null) {
+                    // Get the correct anonymous name from database
+                    String correctName = getAnonymousNameFromRole(userId);
+                    
+                    // Update the document
+                    Map<String, Object> updates = new HashMap<>();
+                    updates.put("userId", userId);
+                    updates.put("guardianName", correctName);
+                    updates.put("updatedAt", Timestamp.now());
+                    
+                    ApiFuture<WriteResult> updateFuture = document.getReference().update(updates);
+                    updateFuture.get();
+                    
+                    updated++;
+                    System.out.println("Updated question " + document.getId() + " with userId=" + userId + ", name=" + correctName);
+                } else {
+                    skipped++;
+                    System.out.println("Skipped question " + document.getId() + " - no userId or guardianId found");
+                }
+            } catch (Exception e) {
+                failed++;
+                System.err.println("Failed to update question " + document.getId() + ": " + e.getMessage());
+            }
+        }
+        
+        String result = String.format(
+            "Migration complete: %d updated, %d skipped, %d failed",
+            updated, skipped, failed
+        );
+        System.out.println(result);
+        return result;
     }
 }

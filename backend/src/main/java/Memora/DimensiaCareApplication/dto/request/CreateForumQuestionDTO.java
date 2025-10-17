@@ -3,7 +3,7 @@ package Memora.DimensiaCareApplication.dto.request;
 import java.util.List;
 
 public class CreateForumQuestionDTO {
-    private Long guardianId;
+    private Long userId; // Changed from guardianId - can be guardian or caregiver
     private String title;
     private String content;
     private List<String> tags;
@@ -11,20 +11,20 @@ public class CreateForumQuestionDTO {
     // Constructors
     public CreateForumQuestionDTO() {}
 
-    public CreateForumQuestionDTO(Long guardianId, String title, String content, List<String> tags) {
-        this.guardianId = guardianId;
+    public CreateForumQuestionDTO(Long userId, String title, String content, List<String> tags) {
+        this.userId = userId;
         this.title = title;
         this.content = content;
         this.tags = tags;
     }
 
     // Getters and Setters
-    public Long getGuardianId() {
-        return guardianId;
+    public Long getUserId() {
+        return userId;
     }
 
-    public void setGuardianId(Long guardianId) {
-        this.guardianId = guardianId;
+    public void setUserId(Long userId) {
+        this.userId = userId;
     }
 
     public String getTitle() {

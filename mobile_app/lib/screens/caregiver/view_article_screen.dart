@@ -753,7 +753,7 @@ class _CaregiverQATabState extends State<CaregiverQATab> {
       'title': apiQuestion['title'],
       'content': apiQuestion['content'],
       'tags': apiQuestion['tags'] ?? [],
-      'askedBy': apiQuestion['guardianName'] ?? 'Anonymous User',
+      'askedBy': apiQuestion['askedBy'] ?? 'Anonymous User',
       'timeAgo': _formatTimeAgo(apiQuestion['createdAt']),
       'replies': apiQuestion['replies'] ?? 0,
       'views': apiQuestion['views'] ?? 0,
@@ -844,13 +844,18 @@ class _CaregiverQATabState extends State<CaregiverQATab> {
     return Material(
       color: Colors.transparent,
       child: InkWell(
-        onTap: () {
-          Navigator.push(
+        onTap: () async {
+          final result = await Navigator.push(
             context,
             MaterialPageRoute(
               builder: (context) => QuestionDetailScreen(question: question),
             ),
           );
+
+          // Reload questions if view count was updated
+          if (result == true) {
+            _loadQuestions();
+          }
         },
         borderRadius: BorderRadius.circular(12),
         child: Container(
@@ -956,24 +961,15 @@ class _CaregiverQATabState extends State<CaregiverQATab> {
                   Icon(Icons.visibility, size: 16, color: Colors.grey[600]),
                   SizedBox(width: 4),
                   Text(
-                    '${question['views']} views',
+                    '${question['views']} ${(question['views'] ?? 0) == 1 ? 'view' : 'views'}',
                     style: TextStyle(fontSize: 12, color: Colors.grey[600]),
                   ),
                   SizedBox(width: 16),
                   Icon(Icons.comment, size: 16, color: Colors.grey[600]),
                   SizedBox(width: 4),
                   Text(
-                    '${question['replies']} replies',
+                    '${question['replies']} ${(question['replies'] ?? 0) == 1 ? 'reply' : 'replies'}',
                     style: TextStyle(fontSize: 12, color: Colors.grey[600]),
-                  ),
-                  Spacer(),
-                  Text(
-                    'by ${question['askedBy']}',
-                    style: TextStyle(
-                      fontSize: 12,
-                      color: Colors.grey[600],
-                      fontStyle: FontStyle.italic,
-                    ),
                   ),
                 ],
               ),
@@ -1217,10 +1213,13 @@ class _CaregiverQATabState extends State<CaregiverQATab> {
                           return;
                         }
 
+                        // Capture the ScaffoldMessenger BEFORE closing dialog
+                        final scaffoldMessenger = ScaffoldMessenger.of(context);
+
                         Navigator.pop(context);
 
                         // Show loading notification
-                        ScaffoldMessenger.of(context).showSnackBar(
+                        scaffoldMessenger.showSnackBar(
                           SnackBar(
                             content: Row(
                               children: [
@@ -1244,33 +1243,52 @@ class _CaregiverQATabState extends State<CaregiverQATab> {
                               .toList();
 
                           // Post to database
-                          await ForumQuestionService.createQuestion(
-                            guardianId:
-                                1, // TODO: Replace with actual caregiver ID
+                          final result = await ForumQuestionService.createQuestion(
+                            userId:
+                                2, // TODO: Replace with actual caregiver user ID from session
                             title: titleController.text.trim(),
                             content: contentController.text.trim(),
                             tags: tags,
                           );
 
-                          // Show success notification
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            SnackBar(
-                              content: Row(
-                                children: [
-                                  Icon(Icons.check_circle, color: Colors.white),
-                                  SizedBox(width: 16),
-                                  Text('Question posted successfully!'),
-                                ],
-                              ),
-                              backgroundColor: Colors.green[700],
-                              duration: Duration(seconds: 2),
-                            ),
-                          );
+                          if (result != null) {
+                            // Hide loading indicator
+                            scaffoldMessenger.hideCurrentSnackBar();
 
-                          // Reload questions
-                          await _loadQuestions();
+                            // Add the new question to the list immediately
+                            setState(() {
+                              questions.insert(0, _convertQuestion(result));
+                            });
+
+                            // Small delay to ensure the loading snackbar is dismissed
+                            await Future.delayed(Duration(milliseconds: 100));
+
+                            // Show success notification
+                            scaffoldMessenger.showSnackBar(
+                              SnackBar(
+                                content: Row(
+                                  children: [
+                                    Icon(
+                                      Icons.check_circle,
+                                      color: Colors.white,
+                                    ),
+                                    SizedBox(width: 16),
+                                    Text(
+                                      'Posted successfully',
+                                      style: TextStyle(color: Colors.white),
+                                    ),
+                                  ],
+                                ),
+                                backgroundColor: Colors.green,
+                                duration: Duration(seconds: 3),
+                              ),
+                            );
+                          } else {
+                            throw Exception('Failed to create question');
+                          }
                         } catch (e) {
-                          ScaffoldMessenger.of(context).showSnackBar(
+                          scaffoldMessenger.hideCurrentSnackBar();
+                          scaffoldMessenger.showSnackBar(
                             SnackBar(
                               content: Text('Failed to post question: $e'),
                               backgroundColor: Colors.red,
@@ -1403,10 +1421,13 @@ class _CaregiverQATabState extends State<CaregiverQATab> {
           Positioned(
             bottom: 24,
             right: 24,
-            child: FloatingActionButton(
+            child: FloatingActionButton.extended(
               onPressed: _showAddQuestionDialog,
               backgroundColor: AppColors.primaryLight,
-              child: Icon(Icons.add, color: AppColors.primary),
+              label: Text(
+                'Ask Question',
+                style: TextStyle(color: AppColors.primary),
+              ),
               tooltip: 'Ask a Question',
             ),
           ),
@@ -1430,7 +1451,6 @@ class _QuestionDetailScreenState extends State<QuestionDetailScreen> {
   final TextEditingController _replyController = TextEditingController();
 
   List<Map<String, dynamic>> replies = [];
-  bool _viewIncremented = false;
   bool _loadingReplies = true;
   late Map<String, dynamic> _currentQuestion;
 
@@ -1459,7 +1479,6 @@ class _QuestionDetailScreenState extends State<QuestionDetailScreen> {
             // Update the local question data with new view count
             _currentQuestion['views'] =
                 updatedQuestion['views'] ?? _currentQuestion['views'];
-            _viewIncremented = true;
           });
           print(
             'View count incremented successfully. New count: ${updatedQuestion['views']}',
@@ -1478,10 +1497,10 @@ class _QuestionDetailScreenState extends State<QuestionDetailScreen> {
       if (questionId != null) {
         print('Loading replies for question: $questionId');
 
-        // For caregivers, pass caregiverId as 1 (hardcoded for now)
+        // For caregivers, pass userId (caregiver ID)
         final loadedReplies = await ForumAnswerService.getAnswersByQuestionId(
           questionId.toString(),
-          guardianId: 1, // TODO: Replace with actual caregiver session ID
+          userId: 2, // Caregiver user ID (different from guardian ID 1)
         );
 
         setState(() {
@@ -1528,15 +1547,17 @@ class _QuestionDetailScreenState extends State<QuestionDetailScreen> {
       final difference = now.difference(dateTime);
 
       if (difference.inDays > 365) {
-        return '${(difference.inDays / 365).floor()} years ago';
+        final years = (difference.inDays / 365).floor();
+        return '$years ${years == 1 ? 'year' : 'years'} ago';
       } else if (difference.inDays > 30) {
-        return '${(difference.inDays / 30).floor()} months ago';
+        final months = (difference.inDays / 30).floor();
+        return '$months ${months == 1 ? 'month' : 'months'} ago';
       } else if (difference.inDays > 0) {
-        return '${difference.inDays} days ago';
+        return '${difference.inDays} ${difference.inDays == 1 ? 'day' : 'days'} ago';
       } else if (difference.inHours > 0) {
-        return '${difference.inHours} hours ago';
+        return '${difference.inHours} ${difference.inHours == 1 ? 'hour' : 'hours'} ago';
       } else if (difference.inMinutes > 0) {
-        return '${difference.inMinutes} minutes ago';
+        return '${difference.inMinutes} ${difference.inMinutes == 1 ? 'minute' : 'minutes'} ago';
       } else {
         return 'Just now';
       }
@@ -1550,7 +1571,8 @@ class _QuestionDetailScreenState extends State<QuestionDetailScreen> {
     try {
       final answerId = reply['id'].toString();
       final isLiked = reply['isLiked'] ?? false;
-      final caregiverId = 1; // TODO: Replace with actual caregiver session ID
+      final caregiverId =
+          2; // Caregiver user ID (must match the ID used when loading replies)
 
       bool success;
       if (isLiked) {
@@ -1648,7 +1670,7 @@ class _QuestionDetailScreenState extends State<QuestionDetailScreen> {
                   padding: EdgeInsets.symmetric(horizontal: 12, vertical: 6),
                   decoration: BoxDecoration(
                     color: (reply['isLiked'] ?? false)
-                        ? AppColors.primaryLight
+                        ? AppColors.primary.withOpacity(0.1)
                         : Colors.grey[100],
                     borderRadius: BorderRadius.circular(20),
                   ),
@@ -1689,8 +1711,8 @@ class _QuestionDetailScreenState extends State<QuestionDetailScreen> {
   Widget build(BuildContext context) {
     return WillPopScope(
       onWillPop: () async {
-        // Return true to indicate views were updated
-        Navigator.pop(context, _viewIncremented);
+        // Always return true to reload questions when going back
+        Navigator.pop(context, true);
         return false;
       },
       child: Scaffold(
@@ -1700,7 +1722,7 @@ class _QuestionDetailScreenState extends State<QuestionDetailScreen> {
           elevation: 0,
           leading: IconButton(
             icon: Icon(Icons.arrow_back, color: Colors.black87),
-            onPressed: () => Navigator.pop(context, _viewIncremented),
+            onPressed: () => Navigator.pop(context, true),
           ),
           title: Text(
             'Question Details',
@@ -1878,7 +1900,7 @@ class _QuestionDetailScreenState extends State<QuestionDetailScreen> {
                         child: Padding(
                           padding: EdgeInsets.all(20),
                           child: Text(
-                            'No replies yet',
+                            'No replies yet.',
                             style: TextStyle(
                               fontSize: 14,
                               color: Colors.grey[600],
