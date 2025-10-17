@@ -1,6 +1,15 @@
 import 'package:flutter/material.dart';
+import '../../services/article_service.dart';
+import '../../services/comment_service.dart';
+import '../../services/auth_service.dart';
+import 'dart:async';
 
 class VolunteerSingleArticleScreen extends StatefulWidget {
+  final String articleId;
+
+  const VolunteerSingleArticleScreen({Key? key, required this.articleId})
+    : super(key: key);
+
   @override
   _VolunteerSingleArticleScreenState createState() =>
       _VolunteerSingleArticleScreenState();
@@ -10,82 +19,132 @@ class _VolunteerSingleArticleScreenState
     extends State<VolunteerSingleArticleScreen> {
   TextEditingController _commentController = TextEditingController();
   bool _isLiked = false;
-  int _likeCount = 24;
+  int _likeCount = 0;
   List<Map<String, dynamic>> _comments = [];
+  Map<String, List<Map<String, dynamic>>> _replies =
+      {}; // Store replies by comment ID
 
-  // Article author information - this should come from the article data passed to this screen
-  String articleAuthor = 'Dr. Sarah Johnson';
+  // Article data
+  Map<String, dynamic>? articleData;
+  bool isLoading = true;
+  String? errorMessage;
+
+  // Article author information
+  String articleAuthor = 'Loading...';
   String articleAuthorType = 'Volunteer';
+  String articleTitle = '';
+  String articleContent = '';
+  String articleImage = '';
 
-  // Current user information - this should come from your authentication system
-  String currentUser = 'You'; // Replace with actual current user
-  String currentUserType = 'Volunteer'; // Volunteer can reply to any comment
+  // Current user information
+  int? currentUserId;
+  String currentUserName = 'Loading...';
+  String currentUserType = 'Volunteer';
 
-  int? _replyingToCommentId;
+  String? _replyingToCommentId;
   TextEditingController _replyController = TextEditingController();
+
+  // Stream subscriptions
+  StreamSubscription? _commentsSubscription;
+  Map<String, StreamSubscription> _repliesSubscriptions = {};
+
+  bool isPostingComment = false;
 
   @override
   void initState() {
     super.initState();
-    _loadComments();
+    _loadCurrentUser();
+    _loadArticleData();
+    _subscribeToComments();
   }
 
-  void _loadComments() {
-    _comments = [
-      {
-        'id': 1,
-        'author': 'Sarah M.',
-        'authorType': 'Guardian',
-        'content':
-            'This article is very helpful. My mother was recently diagnosed with dementia and I\'ve been struggling to understand the condition. The explanations here are clear and practical.',
-        'timestamp': '2 hours ago',
-        'replies': [
-          {
-            'id': 101,
-            'author': 'Dr. Sarah Johnson',
-            'authorType': 'Volunteer',
-            'content':
-                'I\'m glad you found it helpful, Sarah. Remember that early intervention and understanding can make a significant difference in care quality. Feel free to ask if you have specific questions.',
-            'timestamp': '1 hour ago',
+  Future<void> _loadArticleData() async {
+    try {
+      setState(() {
+        isLoading = true;
+        errorMessage = null;
+      });
+
+      final article = await ArticleService.getArticleDetail(widget.articleId);
+
+      if (article != null) {
+        setState(() {
+          articleData = article;
+          articleTitle = article['title'] ?? 'Untitled';
+          articleContent = article['content'] ?? 'No content available';
+          articleImage =
+              article['articleImg'] ??
+              'https://images.unsplash.com/photo-1434030216411-0b793f4b4173?w=400&h=200&fit=crop';
+          articleAuthor = article['authorName'] ?? 'Unknown Author';
+          articleAuthorType = 'Volunteer';
+          isLoading = false;
+        });
+      } else {
+        setState(() {
+          errorMessage = 'Failed to load article';
+          isLoading = false;
+        });
+      }
+    } catch (e) {
+      setState(() {
+        errorMessage = 'Error loading article: $e';
+        isLoading = false;
+      });
+      print('Error loading article: $e');
+    }
+  }
+
+  Future<void> _loadCurrentUser() async {
+    try {
+      final user = await AuthService.getCurrentUser();
+      if (user != null) {
+        setState(() {
+          currentUserId = user['id'];
+          currentUserName = '${user['fName'] ?? ''} ${user['lName'] ?? ''}'
+              .trim();
+          if (currentUserName.isEmpty) {
+            currentUserName = user['email'] ?? 'User';
+          }
+          // Get user type from role
+          String role = user['role']?.toString().toLowerCase() ?? 'volunteer';
+          currentUserType =
+              role.substring(0, 1).toUpperCase() + role.substring(1);
+        });
+      }
+    } catch (e) {
+      print('Error loading current user: $e');
+    }
+  }
+
+  void _subscribeToComments() {
+    // Subscribe to comments stream
+    _commentsSubscription = CommentService.getCommentsStream(widget.articleId)
+        .listen(
+          (comments) {
+            setState(() {
+              _comments = comments;
+            });
+
+            // Subscribe to replies for each comment
+            for (var comment in comments) {
+              final commentId = comment['id'];
+              if (commentId != null &&
+                  !_repliesSubscriptions.containsKey(commentId)) {
+                _repliesSubscriptions[commentId] =
+                    CommentService.getRepliesStream(commentId).listen((
+                      replies,
+                    ) {
+                      setState(() {
+                        _replies[commentId] = replies;
+                      });
+                    });
+              }
+            }
           },
-          {
-            'id': 102,
-            'author': 'Dr. Sarah Johnson',
-            'authorType': 'Volunteer',
-            'content':
-                'Sarah, you\'re not alone in this journey. Many of us have been where you are now. The community here is very supportive, so don\'t hesitate to reach out.',
-            'timestamp': '45 minutes ago',
+          onError: (error) {
+            print('Error loading comments: $error');
           },
-        ],
-      },
-      {
-        'id': 2,
-        'author': 'James T.',
-        'authorType': 'Guardian',
-        'content':
-            'What are the early warning signs I should watch for? My father is 78 and sometimes seems confused about recent events.',
-        'timestamp': '4 hours ago',
-        'replies': [
-          {
-            'id': 201,
-            'author': 'Dr. Sarah Johnson',
-            'authorType': 'Volunteer',
-            'content':
-                'Great question, James. Early signs include memory loss that disrupts daily life, difficulty with familiar tasks, confusion with time or place, and changes in mood or personality. I recommend consulting with his doctor for a proper assessment.',
-            'timestamp': '3 hours ago',
-          },
-        ],
-      },
-      {
-        'id': 3,
-        'author': 'Linda K.',
-        'authorType': 'Guardian',
-        'content':
-            'Thank you for sharing this information. The section about different types of dementia was particularly enlightening.',
-        'timestamp': '6 hours ago',
-        'replies': [],
-      },
-    ];
+        );
   }
 
   void _toggleLike() {
@@ -95,57 +154,99 @@ class _VolunteerSingleArticleScreenState
     });
   }
 
-  void _addComment() {
+  Future<void> _addComment() async {
     if (_commentController.text.trim().isEmpty) return;
-    setState(() {
-      _comments.insert(0, {
-        'id': DateTime.now().millisecondsSinceEpoch,
-        'author': currentUser,
-        'authorType': currentUserType,
-        'content': _commentController.text.trim(),
-        'timestamp': 'Just now',
-        'replies': [],
-      });
-    });
-    _commentController.clear();
-    FocusScope.of(context).unfocus();
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text('Comment added successfully'),
-        backgroundColor: Colors.green,
-        duration: Duration(seconds: 2),
-      ),
-    );
-  }
-
-  void _addReply(int commentId, String replyContent) {
-    if (replyContent.trim().isEmpty) return;
-    setState(() {
-      final commentIndex = _comments.indexWhere(
-        (comment) => comment['id'] == commentId,
+    if (currentUserId == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Please sign in to comment'),
+          backgroundColor: Colors.red,
+        ),
       );
-      if (commentIndex != -1) {
-        _comments[commentIndex]['replies'].add({
-          'id': DateTime.now().millisecondsSinceEpoch,
-          'author': currentUser,
-          'authorType': currentUserType,
-          'content': replyContent.trim(),
-          'timestamp': 'Just now',
-        });
-      }
-      _replyingToCommentId = null;
-      _replyController.clear();
+      return;
+    }
+
+    setState(() {
+      isPostingComment = true;
     });
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text('Reply added successfully'),
-        backgroundColor: Colors.green,
-        duration: Duration(seconds: 2),
-      ),
+
+    final result = await CommentService.addComment(
+      articleId: widget.articleId,
+      userId: currentUserId!,
+      userName: currentUserName,
+      userType: currentUserType,
+      content: _commentController.text.trim(),
     );
+
+    setState(() {
+      isPostingComment = false;
+    });
+
+    if (result['success']) {
+      _commentController.clear();
+      FocusScope.of(context).unfocus();
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Comment added successfully'),
+          backgroundColor: Colors.green,
+          duration: Duration(seconds: 2),
+        ),
+      );
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(result['message'] ?? 'Failed to add comment'),
+          backgroundColor: Colors.red,
+        ),
+      );
+    }
   }
 
-  Widget _buildReplyInput(int commentId) {
+  Future<void> _addReply(String commentId, String replyContent) async {
+    if (replyContent.trim().isEmpty) return;
+    if (currentUserId == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Please sign in to reply'),
+          backgroundColor: Colors.red,
+        ),
+      );
+      return;
+    }
+
+    final result = await CommentService.addReply(
+      articleId: widget.articleId,
+      parentCommentId: commentId,
+      userId: currentUserId!,
+      userName: currentUserName,
+      userType: currentUserType,
+      content: replyContent.trim(),
+    );
+
+    if (result['success']) {
+      setState(() {
+        _replyingToCommentId = null;
+        _replyController.clear();
+      });
+      FocusScope.of(context).unfocus();
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Reply added successfully'),
+          backgroundColor: Colors.green,
+          duration: Duration(seconds: 2),
+        ),
+      );
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(result['message'] ?? 'Failed to add reply'),
+          backgroundColor: Colors.red,
+        ),
+      );
+    }
+  }
+
+  Widget _buildReplyInput(String commentId) {
     return Container(
       margin: EdgeInsets.only(top: 12, left: 16),
       padding: EdgeInsets.all(12),
@@ -239,6 +340,9 @@ class _VolunteerSingleArticleScreenState
   }
 
   Widget _buildCommentCard(Map<String, dynamic> comment) {
+    final commentId = comment['id'];
+    final replies = _replies[commentId] ?? [];
+
     return Container(
       margin: EdgeInsets.symmetric(horizontal: 20, vertical: 8),
       padding: EdgeInsets.all(16),
@@ -261,13 +365,13 @@ class _VolunteerSingleArticleScreenState
             children: [
               CircleAvatar(
                 radius: 20,
-                backgroundColor: comment['authorType'] == 'Volunteer'
+                backgroundColor: comment['userType'] == 'Volunteer'
                     ? Colors.green[100]
                     : Color(0xFFA0C4FD).withOpacity(0.35),
                 child: Icon(
                   Icons.person,
                   size: 20,
-                  color: comment['authorType'] == 'Volunteer'
+                  color: comment['userType'] == 'Volunteer'
                       ? Colors.green[700]
                       : Color(0xFF2B3F99),
                 ),
@@ -280,7 +384,7 @@ class _VolunteerSingleArticleScreenState
                     Row(
                       children: [
                         Text(
-                          comment['author'],
+                          comment['userName'] ?? 'Anonymous',
                           style: TextStyle(
                             fontSize: 14,
                             fontWeight: FontWeight.w600,
@@ -294,16 +398,16 @@ class _VolunteerSingleArticleScreenState
                             vertical: 2,
                           ),
                           decoration: BoxDecoration(
-                            color: comment['authorType'] == 'Volunteer'
+                            color: comment['userType'] == 'Volunteer'
                                 ? Colors.green[100]
                                 : Color(0xFFA0C4FD).withOpacity(0.35),
                             borderRadius: BorderRadius.circular(8),
                           ),
                           child: Text(
-                            comment['authorType'],
+                            comment['userType'] ?? 'User',
                             style: TextStyle(
                               fontSize: 10,
-                              color: comment['authorType'] == 'Volunteer'
+                              color: comment['userType'] == 'Volunteer'
                                   ? Colors.green[700]
                                   : Color(0xFF2B3F99),
                               fontWeight: FontWeight.w500,
@@ -314,7 +418,7 @@ class _VolunteerSingleArticleScreenState
                     ),
                     SizedBox(height: 2),
                     Text(
-                      comment['timestamp'],
+                      CommentService.formatTimestamp(comment['createdAt']),
                       style: TextStyle(fontSize: 12, color: Colors.grey[500]),
                     ),
                   ],
@@ -324,7 +428,7 @@ class _VolunteerSingleArticleScreenState
           ),
           SizedBox(height: 12),
           Text(
-            comment['content'],
+            comment['content'] ?? '',
             style: TextStyle(fontSize: 14, color: Colors.black87, height: 1.4),
           ),
           // Reply button for volunteers
@@ -338,7 +442,7 @@ class _VolunteerSingleArticleScreenState
             ),
             onPressed: () {
               setState(() {
-                _replyingToCommentId = comment['id'];
+                _replyingToCommentId = commentId;
                 _replyController.clear();
               });
             },
@@ -357,15 +461,14 @@ class _VolunteerSingleArticleScreenState
               ],
             ),
           ),
-          if (_replyingToCommentId == comment['id'])
-            _buildReplyInput(comment['id']),
+          if (_replyingToCommentId == commentId) _buildReplyInput(commentId),
           // Replies section
-          if (comment['replies'] != null && comment['replies'].isNotEmpty) ...[
+          if (replies.isNotEmpty) ...[
             SizedBox(height: 16),
             Container(
               padding: EdgeInsets.only(left: 16),
               child: Column(
-                children: comment['replies'].map<Widget>((reply) {
+                children: replies.map<Widget>((reply) {
                   return Container(
                     margin: EdgeInsets.only(bottom: 12),
                     padding: EdgeInsets.all(12),
@@ -381,14 +484,13 @@ class _VolunteerSingleArticleScreenState
                           children: [
                             CircleAvatar(
                               radius: 16,
-                              backgroundColor:
-                                  reply['authorType'] == 'Volunteer'
+                              backgroundColor: reply['userType'] == 'Volunteer'
                                   ? Colors.green[100]
                                   : Color(0xFFA0C4FD).withOpacity(0.35),
                               child: Icon(
                                 Icons.person,
                                 size: 16,
-                                color: reply['authorType'] == 'Volunteer'
+                                color: reply['userType'] == 'Volunteer'
                                     ? Colors.green[700]
                                     : Color(0xFF2B3F99),
                               ),
@@ -401,7 +503,7 @@ class _VolunteerSingleArticleScreenState
                                   Row(
                                     children: [
                                       Text(
-                                        reply['author'],
+                                        reply['userName'] ?? 'Anonymous',
                                         style: TextStyle(
                                           fontSize: 12,
                                           fontWeight: FontWeight.w600,
@@ -416,7 +518,7 @@ class _VolunteerSingleArticleScreenState
                                         ),
                                         decoration: BoxDecoration(
                                           color:
-                                              reply['authorType'] == 'Volunteer'
+                                              reply['userType'] == 'Volunteer'
                                               ? Colors.green[100]
                                               : Color(
                                                   0xFFA0C4FD,
@@ -426,12 +528,11 @@ class _VolunteerSingleArticleScreenState
                                           ),
                                         ),
                                         child: Text(
-                                          reply['authorType'],
+                                          reply['userType'] ?? 'User',
                                           style: TextStyle(
                                             fontSize: 8,
                                             color:
-                                                reply['authorType'] ==
-                                                    'Volunteer'
+                                                reply['userType'] == 'Volunteer'
                                                 ? Colors.green[700]
                                                 : Color(0xFF2B3F99),
                                             fontWeight: FontWeight.w500,
@@ -441,7 +542,9 @@ class _VolunteerSingleArticleScreenState
                                     ],
                                   ),
                                   Text(
-                                    reply['timestamp'],
+                                    CommentService.formatTimestamp(
+                                      reply['createdAt'],
+                                    ),
                                     style: TextStyle(
                                       fontSize: 10,
                                       color: Colors.grey[500],
@@ -454,7 +557,7 @@ class _VolunteerSingleArticleScreenState
                         ),
                         SizedBox(height: 8),
                         Text(
-                          reply['content'],
+                          reply['content'] ?? '',
                           style: TextStyle(
                             fontSize: 13,
                             color: Colors.black87,
@@ -477,6 +580,10 @@ class _VolunteerSingleArticleScreenState
   void dispose() {
     _commentController.dispose();
     _replyController.dispose();
+    _commentsSubscription?.cancel();
+    for (var subscription in _repliesSubscriptions.values) {
+      subscription.cancel();
+    }
     super.dispose();
   }
 
@@ -501,37 +608,63 @@ class _VolunteerSingleArticleScreenState
         ),
         centerTitle: false,
       ),
-      body: Column(
-        children: [
-          Expanded(
-            child: SingleChildScrollView(
+      body: isLoading
+          ? Center(child: CircularProgressIndicator())
+          : errorMessage != null
+          ? Center(
               child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  _buildArticleHeader(),
-                  _buildArticleContent(),
-                  // Comments section
-                  Container(
-                    padding: EdgeInsets.symmetric(horizontal: 20, vertical: 16),
-                    child: Text(
-                      'Comments (${_comments.length})',
-                      style: TextStyle(
-                        fontSize: 18,
-                        fontWeight: FontWeight.w600,
-                        color: Colors.black87,
-                      ),
-                    ),
+                  Icon(Icons.error_outline, size: 64, color: Colors.grey[400]),
+                  SizedBox(height: 16),
+                  Text(
+                    errorMessage!,
+                    style: TextStyle(fontSize: 16, color: Colors.grey[600]),
+                    textAlign: TextAlign.center,
                   ),
-                  // Comments list
-                  for (var comment in _comments) _buildCommentCard(comment),
-                  SizedBox(height: 100), // Space for comment input
+                  SizedBox(height: 16),
+                  ElevatedButton(
+                    onPressed: _loadArticleData,
+                    child: Text('Retry'),
+                  ),
                 ],
               ),
+            )
+          : Column(
+              children: [
+                Expanded(
+                  child: SingleChildScrollView(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        _buildArticleHeader(),
+                        _buildArticleContent(),
+                        // Comments section
+                        Container(
+                          padding: EdgeInsets.symmetric(
+                            horizontal: 20,
+                            vertical: 16,
+                          ),
+                          child: Text(
+                            'Comments (${_comments.length})',
+                            style: TextStyle(
+                              fontSize: 18,
+                              fontWeight: FontWeight.w600,
+                              color: Colors.black87,
+                            ),
+                          ),
+                        ),
+                        // Comments list
+                        for (var comment in _comments)
+                          _buildCommentCard(comment),
+                        SizedBox(height: 100), // Space for comment input
+                      ],
+                    ),
+                  ),
+                ),
+                _buildCommentInput(),
+              ],
             ),
-          ),
-          _buildCommentInput(),
-        ],
-      ),
     );
   }
 
@@ -544,15 +677,23 @@ class _VolunteerSingleArticleScreenState
           ClipRRect(
             borderRadius: BorderRadius.circular(12),
             child: Image.network(
-              'https://images.unsplash.com/photo-1559757148-5c350d0d3c56?w=400&h=200&fit=crop',
+              articleImage,
               width: double.infinity,
               height: 200,
               fit: BoxFit.cover,
+              errorBuilder: (context, error, stackTrace) {
+                return Container(
+                  width: double.infinity,
+                  height: 200,
+                  color: Colors.grey[300],
+                  child: Icon(Icons.image, size: 64, color: Colors.grey[600]),
+                );
+              },
             ),
           ),
           SizedBox(height: 16),
           Text(
-            'Understanding Dementia',
+            articleTitle,
             style: TextStyle(
               fontSize: 24,
               fontWeight: FontWeight.bold,
@@ -648,7 +789,7 @@ class _VolunteerSingleArticleScreenState
           ),
           SizedBox(height: 12),
           Text(
-            'Dementia is a complex condition that affects millions of people worldwide. Understanding its symptoms and progression is crucial for providing effective care.\n\nThis comprehensive guide covers the basics of dementia, including early warning signs, different types, and practical tips for caregivers. By educating ourselves about this condition, we can better support our loved ones and improve their quality of life.\n\nEarly signs of dementia include:\n• Memory loss that disrupts daily life\n• Difficulty completing familiar tasks\n• Confusion with time or place\n• Trouble understanding visual images\n• Problems with words in speaking or writing\n• Misplacing things and losing the ability to retrace steps\n• Decreased or poor judgment\n• Withdrawal from work or social activities\n• Changes in mood and personality\n\nIt\'s important to note that experiencing one or more of these signs doesn\'t necessarily mean someone has dementia. However, if you notice several of these symptoms, it\'s recommended to consult with a healthcare professional for proper evaluation.\n\nRemember, early detection and intervention can make a significant difference in managing the condition and maintaining quality of life.',
+            articleContent,
             style: TextStyle(fontSize: 16, color: Colors.black87, height: 1.6),
           ),
           SizedBox(height: 24),
@@ -708,7 +849,7 @@ class _VolunteerSingleArticleScreenState
               ),
               SizedBox(width: 8),
               ElevatedButton(
-                onPressed: _addComment,
+                onPressed: isPostingComment ? null : _addComment,
                 style: ElevatedButton.styleFrom(
                   backgroundColor: Color(0xFFA0C4FD),
                   foregroundColor: Color(0xFF2B3F99),
@@ -716,7 +857,18 @@ class _VolunteerSingleArticleScreenState
                     borderRadius: BorderRadius.circular(8),
                   ),
                 ),
-                child: Text('Post Comment'),
+                child: isPostingComment
+                    ? SizedBox(
+                        width: 20,
+                        height: 20,
+                        child: CircularProgressIndicator(
+                          strokeWidth: 2,
+                          valueColor: AlwaysStoppedAnimation<Color>(
+                            Color(0xFF2B3F99),
+                          ),
+                        ),
+                      )
+                    : Text('Post Comment'),
               ),
             ],
           ),

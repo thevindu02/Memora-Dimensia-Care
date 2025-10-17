@@ -28,6 +28,9 @@ import CancelIcon from "@mui/icons-material/Cancel";
 import CheckCircleOutlineIcon from "@mui/icons-material/CheckCircleOutline";
 import InfoOutlinedIcon from "@mui/icons-material/InfoOutlined";
 
+import VolunteerService from "../../services/volunteerService";
+import CONFIG from "../../config/api";
+
 const colors = {
   softLavender: "#C3B1E1",
   deepPurple: "#390797",
@@ -43,7 +46,8 @@ export default function VolunteerSignup({ open, onClose }) {
     email: "",
     phone: "",
     gender: "",
-    volunteerIDImage: null, // File or base64
+    volunteerIDImage: null, // File object or base64
+    volunteerIDImageFile: null, // Actual file object for upload
   });
 
   // Validation errors
@@ -59,27 +63,68 @@ export default function VolunteerSignup({ open, onClose }) {
   const fileInputRef = useRef(null);
   const navigate = useNavigate();
 
-  // Handle input change
+  // Handle input change with real-time validation
   const handleChange = (field) => (event) => {
     const value = event.target.value;
     setForm((prev) => ({ ...prev, [field]: value }));
-    setErrors((prev) => ({ ...prev, [field]: null }));
+    
+    // Real-time validation feedback
+    if (errors[field]) {
+      let isValid = false;
+      switch (field) {
+        case 'firstName':
+        case 'lastName':
+          isValid = validateName(value.trim()) && value.trim().length <= 50;
+          break;
+        case 'email':
+          isValid = validateEmail(value.trim()) && value.trim().length <= 100;
+          break;
+        case 'phone':
+          isValid = validatePhone(value.trim());
+          break;
+        case 'gender':
+          isValid = !!value;
+          break;
+        default:
+          isValid = true;
+      }
+      
+      if (isValid) {
+        setErrors((prev) => ({ ...prev, [field]: null }));
+      }
+    }
   };
 
   // Handle image upload change
   const handleImageChange = (event) => {
     const file = event.target.files?.[0];
     if (file) {
-      if (!file.type.startsWith("image/")) {
+      // Validate file type
+      if (!CONFIG.UPLOAD_SETTINGS.ALLOWED_FILE_TYPES.includes(file.type)) {
         setErrors((prev) => ({
           ...prev,
-          volunteerIDImage: "Please upload a valid image file",
+          volunteerIDImage: "Please upload a valid image file (JPEG, JPG, PNG, GIF)",
         }));
         return;
       }
+
+      // Validate file size
+      if (file.size > CONFIG.UPLOAD_SETTINGS.MAX_FILE_SIZE) {
+        setErrors((prev) => ({
+          ...prev,
+          volunteerIDImage: "File size too large. Please upload an image smaller than 5MB",
+        }));
+        return;
+      }
+      
+      // Store both the file and preview
       const reader = new FileReader();
       reader.onloadend = () => {
-        setForm((prev) => ({ ...prev, volunteerIDImage: reader.result }));
+        setForm((prev) => ({ 
+          ...prev, 
+          volunteerIDImage: reader.result,
+          volunteerIDImageFile: file
+        }));
         setErrors((prev) => ({ ...prev, volunteerIDImage: null }));
       };
       reader.readAsDataURL(file);
@@ -92,31 +137,73 @@ export default function VolunteerSignup({ open, onClose }) {
     return regex.test(email);
   };
 
+  // Validate name (only letters, spaces, hyphens, apostrophes)
+  const validateName = (name) => {
+    const regex = /^[a-zA-Z\s\-']+$/;
+    return regex.test(name) && name.trim().length >= 2;
+  };
+
   // Validate Sri Lankan phone number (without country code)
   const validatePhone = (phone) => {
-    const regex = /^[07]\d{8,9}$/;
+    // Updated regex for Sri Lankan numbers: 07XXXXXXXX or 7XXXXXXXX
+    const regex = /^0?7[0-9]{8}$/;
     return regex.test(phone);
+  };
+
+  // Check if email looks like an organizational email
+  const isOrganizationalEmail = (email) => {
+    const personalDomains = ['gmail.com', 'yahoo.com', 'hotmail.com', 'outlook.com', 'live.com'];
+    const domain = email.split('@')[1]?.toLowerCase();
+    return !personalDomains.includes(domain);
   };
 
   // Validate entire form
   const validateForm = () => {
     let newErrors = {};
 
-    if (!form.firstName.trim()) newErrors.firstName = "First name is required";
-    if (!form.lastName.trim()) newErrors.lastName = "Last name is required";
+    // First name validation
+    if (!form.firstName.trim()) {
+      newErrors.firstName = "First name is required";
+    } else if (!validateName(form.firstName.trim())) {
+      newErrors.firstName = "First name should only contain letters and be at least 2 characters";
+    } else if (form.firstName.trim().length > 50) {
+      newErrors.firstName = "First name should not exceed 50 characters";
+    }
 
-    if (!form.email.trim()) newErrors.email = "Email is required";
-    else if (!validateEmail(form.email.trim()))
-      newErrors.email = "Invalid email address";
+    // Last name validation
+    if (!form.lastName.trim()) {
+      newErrors.lastName = "Last name is required";
+    } else if (!validateName(form.lastName.trim())) {
+      newErrors.lastName = "Last name should only contain letters and be at least 2 characters";
+    } else if (form.lastName.trim().length > 50) {
+      newErrors.lastName = "Last name should not exceed 50 characters";
+    }
 
-    if (!form.phone.trim()) newErrors.phone = "Phone number is required";
-    else if (!validatePhone(form.phone.trim()))
-      newErrors.phone = "Invalid Sri Lankan phone number";
+    // Email validation
+    if (!form.email.trim()) {
+      newErrors.email = "Email is required";
+    } else if (!validateEmail(form.email.trim())) {
+      newErrors.email = "Please enter a valid email address";
+    } else if (form.email.trim().length > 100) {
+      newErrors.email = "Email should not exceed 100 characters";
+    }
 
-    if (!form.gender) newErrors.gender = "Please select your gender";
+    // Phone number validation
+    if (!form.phone.trim()) {
+      newErrors.phone = "Phone number is required";
+    } else if (!validatePhone(form.phone.trim())) {
+      newErrors.phone = "Please enter a valid Sri Lankan phone number (e.g., 0712345678)";
+    }
 
-    if (!form.volunteerIDImage)
+    // Gender validation
+    if (!form.gender) {
+      newErrors.gender = "Please select your gender";
+    }
+
+    // Image validation
+    if (!form.volunteerIDImage) {
       newErrors.volunteerIDImage = "Volunteer ID image is required";
+    }
 
     setErrors(newErrors);
 
@@ -124,38 +211,80 @@ export default function VolunteerSignup({ open, onClose }) {
   };
 
   // Handle submit
-  const handleSubmit = (event) => {
+  const handleSubmit = async (event) => {
     event.preventDefault();
     if (!validateForm()) return;
 
     setIsSubmitting(true);
 
-    // Simulate network request delay:
-    setTimeout(() => {
-      setIsSubmitting(false);
-      setSuccess(true);
+    try {
+      let imageUrl = "";
 
-      // Navigate to submitted screen after short delay
-      setTimeout(() => {
-        setSuccess(false);
-        setForm({
-          firstName: "",
-          lastName: "",
-          email: "",
-          phone: "",
-          gender: "",
-          volunteerIDImage: null,
-        });
-        setErrors({});
-        navigate("/VolunteerRegistrationSubmitted");
-        if (onClose) onClose();
-      }, 1500); // Short delay for UX
-    }, 2000);
+      // First, upload the image if provided
+      if (form.volunteerIDImageFile) {
+        const imageUploadResult = await VolunteerService.uploadVolunteerImage(form.volunteerIDImageFile);
+        
+        if (imageUploadResult.success) {
+          imageUrl = imageUploadResult.imageUrl;
+        } else {
+          // Fallback to base64 if upload fails
+          console.warn("Image upload failed, using base64 fallback:", imageUploadResult.message);
+          imageUrl = form.volunteerIDImage;
+        }
+      } else {
+        imageUrl = form.volunteerIDImage;
+      }
+
+      // Create volunteer request
+      const volunteerData = {
+        volunteerName: `${form.firstName.trim()} ${form.lastName.trim()}`,
+        email: form.email.trim(),
+        phoneNumber: form.phone.trim(),
+        gender: form.gender,
+        volunteerIdImage: imageUrl,
+      };
+
+      const result = await VolunteerService.createVolunteerRequest(volunteerData);
+
+      setIsSubmitting(false);
+
+      if (result.success) {
+        setSuccess(true);
+
+        // Navigate to submitted screen after short delay
+        setTimeout(() => {
+          setSuccess(false);
+          setForm({
+            firstName: "",
+            lastName: "",
+            email: "",
+            phone: "",
+            gender: "",
+            volunteerIDImage: null,
+            volunteerIDImageFile: null,
+          });
+          setErrors({});
+          navigate("/VolunteerRegistrationSubmitted");
+          if (onClose) onClose();
+        }, 1500); // Short delay for UX
+      } else {
+        // Show error message
+        setErrors({ submit: result.message });
+      }
+    } catch (error) {
+      setIsSubmitting(false);
+      console.error("Error submitting volunteer registration:", error);
+      setErrors({ submit: "An unexpected error occurred. Please try again." });
+    }
   };
 
   // Remove uploaded image
   const handleRemoveImage = () => {
-    setForm((prev) => ({ ...prev, volunteerIDImage: null }));
+    setForm((prev) => ({ 
+      ...prev, 
+      volunteerIDImage: null,
+      volunteerIDImageFile: null 
+    }));
     setErrors((prev) => ({ ...prev, volunteerIDImage: null }));
     if (fileInputRef.current) fileInputRef.current.value = null;
   };
@@ -224,6 +353,7 @@ export default function VolunteerSignup({ open, onClose }) {
                 onChange={handleChange("firstName")}
                 error={!!errors.firstName}
                 helperText={errors.firstName}
+                inputProps={{ maxLength: 50 }}
                 InputProps={{
                   startAdornment: (
                     <PersonIcon sx={{ color: colors.deepPurple, mr: 1 }} />
@@ -239,6 +369,7 @@ export default function VolunteerSignup({ open, onClose }) {
                 onChange={handleChange("lastName")}
                 error={!!errors.lastName}
                 helperText={errors.lastName}
+                inputProps={{ maxLength: 50 }}
                 InputProps={{
                   startAdornment: (
                     <PersonIcon sx={{ color: colors.deepPurple, mr: 1 }} />
@@ -278,6 +409,7 @@ export default function VolunteerSignup({ open, onClose }) {
                 onChange={handleChange("email")}
                 error={!!errors.email}
                 helperText={errors.email}
+                inputProps={{ maxLength: 100 }}
                 InputProps={{
                   startAdornment: (
                     <EmailIcon sx={{ color: colors.deepPurple, mr: 1 }} />
@@ -318,10 +450,20 @@ export default function VolunteerSignup({ open, onClose }) {
                   fullWidth
                   value={form.phone}
                   onChange={(e) => {
-                    // Only allow numbers
-                    const value = e.target.value.replace(/[^0-9]/g, "");
+                    // Only allow numbers and limit length
+                    let value = e.target.value.replace(/[^0-9]/g, "");
+                    
+                    // Limit to 10 digits max (Sri Lankan numbers)
+                    if (value.length > 10) {
+                      value = value.slice(0, 10);
+                    }
+                    
                     setForm((prev) => ({ ...prev, phone: value }));
-                    setErrors((prev) => ({ ...prev, phone: null }));
+                    
+                    // Real-time validation for phone
+                    if (errors.phone && validatePhone(value)) {
+                      setErrors((prev) => ({ ...prev, phone: null }));
+                    }
                   }}
                   error={!!errors.phone}
                   helperText={errors.phone}
@@ -459,6 +601,23 @@ export default function VolunteerSignup({ open, onClose }) {
               )}
             </Box>
 
+            {/* Display submission error if any */}
+            {errors.submit && (
+              <Typography 
+                variant="body2" 
+                color="error" 
+                sx={{ 
+                  mt: 2, 
+                  p: 2, 
+                  bgcolor: "#ffebee", 
+                  borderRadius: 2,
+                  border: "1px solid #f44336"
+                }}
+              >
+                {errors.submit}
+              </Typography>
+            )}
+
             {/* Submit Button & Success Animation */}
             <Box sx={{ textAlign: "center", pt: 1 }}>
               {success ? (
@@ -591,6 +750,7 @@ export default function VolunteerSignup({ open, onClose }) {
             onChange={handleChange("firstName")}
             error={!!errors.firstName}
             helperText={errors.firstName}
+            inputProps={{ maxLength: 50 }}
             InputProps={{
               startAdornment: <PersonIcon sx={{ color: colors.deepPurple, mr: 1 }} />,
             }}
@@ -604,6 +764,7 @@ export default function VolunteerSignup({ open, onClose }) {
             onChange={handleChange("lastName")}
             error={!!errors.lastName}
             helperText={errors.lastName}
+            inputProps={{ maxLength: 50 }}
             InputProps={{
               startAdornment: <PersonIcon sx={{ color: colors.deepPurple, mr: 1 }} />,
             }}
@@ -631,6 +792,7 @@ export default function VolunteerSignup({ open, onClose }) {
             onChange={handleChange("email")}
             error={!!errors.email}
             helperText={errors.email}
+            inputProps={{ maxLength: 100 }}
             InputProps={{
               startAdornment: <EmailIcon sx={{ color: colors.deepPurple, mr: 1 }} />,
             }}
@@ -666,10 +828,20 @@ export default function VolunteerSignup({ open, onClose }) {
               fullWidth
               value={form.phone}
               onChange={(e) => {
-                // Only allow numbers
-                const value = e.target.value.replace(/[^0-9]/g, "");
+                // Only allow numbers and limit length
+                let value = e.target.value.replace(/[^0-9]/g, "");
+                
+                // Limit to 10 digits max (Sri Lankan numbers)
+                if (value.length > 10) {
+                  value = value.slice(0, 10);
+                }
+                
                 setForm((prev) => ({ ...prev, phone: value }));
-                setErrors((prev) => ({ ...prev, phone: null }));
+                
+                // Real-time validation for phone
+                if (errors.phone && validatePhone(value)) {
+                  setErrors((prev) => ({ ...prev, phone: null }));
+                }
               }}
               error={!!errors.phone}
               helperText={errors.phone}
@@ -798,6 +970,23 @@ export default function VolunteerSignup({ open, onClose }) {
             </Typography>
           )}
         </Box>
+
+        {/* Display submission error if any */}
+        {errors.submit && (
+          <Typography 
+            variant="body2" 
+            color="error" 
+            sx={{ 
+              mt: 2, 
+              p: 2, 
+              bgcolor: "#ffebee", 
+              borderRadius: 2,
+              border: "1px solid #f44336"
+            }}
+          >
+            {errors.submit}
+          </Typography>
+        )}
 
         {/* Submit Button & Success Animation */}
         <Box sx={{ textAlign: "center", pt: 1 }}>
