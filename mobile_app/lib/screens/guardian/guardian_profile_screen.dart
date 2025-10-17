@@ -278,17 +278,46 @@ class _GuardianProfileScreenState extends State<GuardianProfileScreen> {
         combinedAddress += _stateController.text;
       }
 
-      // TODO: Replace with actual API call when backend is ready
-      // await GuardianService.updateProfile({
-      //   'name': _nameController.text,
-      //   'email': _emailController.text,
-      //   'phone': _phoneController.text,
-      //   'gender': _genderController.text,
-      //   'birthday': _birthdayController.text,
-      //   'street': _streetController.text,
-      //   'city': _cityController.text,
-      //   'state': _stateController.text,
-      // });
+      final userId = await AuthService.getCurrentUserId();
+      final guardianId = await GuardianService.getGuardianIdByUserId(userId!);
+
+      final nameParts = _nameController.text.trim().split(' ');
+      final fName = nameParts.isNotEmpty ? nameParts.first : '';
+      final lName = nameParts.length > 1 ? nameParts.sublist(1).join(' ') : '';
+
+      final success = await GuardianService.updateProfile(
+        guardianId: guardianId!,
+        fName: fName,
+        lName: lName,
+        email: _emailController.text,
+        phoneNumber: _phoneController.text,
+        gender: _genderController.text,
+        birthdate: _birthdayController.text,
+        street: _streetController.text,
+        city: _cityController.text,
+        state: _stateController.text,
+        profilePic: '', // or your image path
+      );
+
+      if (success) {
+        // Show success message and update original values
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Profile updated successfully!'),
+            backgroundColor: Colors.green,
+          ),
+        );
+        setState(() {
+          _isEditing = false;
+        });
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Failed to update profile.'),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
 
       // Update original values
       _originalName = _nameController.text;
@@ -310,14 +339,6 @@ class _GuardianProfileScreenState extends State<GuardianProfileScreen> {
       _currentPasswordController.clear();
       _newPasswordController.clear();
       _confirmPasswordController.clear();
-
-      // Show success message
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text('Profile updated successfully!'),
-          backgroundColor: Colors.green,
-        ),
-      );
 
       // Here you would typically upload the image to your server
       // and save the image path or URL to your database

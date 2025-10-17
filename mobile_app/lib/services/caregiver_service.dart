@@ -181,4 +181,45 @@ class CaregiverService {
       return null;
     }
   }
+
+  static Future<bool> updateProfile({
+    required int caregiverId,
+    required String fName,
+    required String lName,
+    required String email,
+    required String phoneNumber,
+    required String gender,
+    required String birthdate,
+    required String street,
+    required String city,
+    required String state,
+    required String profilePic,
+    required String experience,
+    required String qualifications,
+    required List<String> skills,
+  }) async {
+    final url = Uri.parse(
+        '${ApiConstants.baseUrl}/api/caregivers/$caregiverId/edit-profile');
+    final body = {
+      'fName': fName,
+      'lName': lName,
+      'email': email,
+      'phoneNumber': phoneNumber,
+      'gender': gender,
+      'birthdate': birthdate,
+      'street': street,
+      'city': city,
+      'state': state,
+      'profilePic': profilePic,
+      'experience': experience,
+      'qualifications': qualifications,
+      'skills': skills,
+    };
+    final response = await http.post(
+      url,
+      headers: {'Content-Type': 'application/json'},
+      body: jsonEncode(body),
+    );
+    return response.statusCode == 200;
+  }
 }

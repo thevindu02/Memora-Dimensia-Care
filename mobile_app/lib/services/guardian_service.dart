@@ -87,4 +87,38 @@ class GuardianService {
     );
     return response.statusCode == 200;
   }
+
+  static Future<bool> updateProfile({
+    required int guardianId,
+    required String fName,
+    required String lName,
+    required String email,
+    required String phoneNumber,
+    required String gender,
+    required String birthdate,
+    required String street,
+    required String city,
+    required String state,
+    String? profilePic,
+  }) async {
+    final url = Uri.parse('$baseUrl/$guardianId/edit-profile');
+    final body = {
+      'fName': fName,
+      'lName': lName,
+      'email': email,
+      'phoneNumber': phoneNumber,
+      'gender': gender,
+      'birthdate': birthdate,
+      'street': street,
+      'city': city,
+      'state': state,
+      'profilePic': profilePic ?? '',
+    };
+    final response = await http.put(
+      url,
+      headers: {'Content-Type': 'application/json'},
+      body: jsonEncode(body),
+    );
+    return response.statusCode == 200;
+  }
 }
