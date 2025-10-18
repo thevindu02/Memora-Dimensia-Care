@@ -1,8 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import '../../routes/app_routes.dart';
-import '../../services/patient_service.dart'; // Update the path as needed
-import '../../services/user_service.dart';
 import '../../services/auth_service.dart';
 import '../../services/guardian_service.dart';
 import '../../constants/color_constants.dart';
@@ -329,50 +327,7 @@ class _GuardianAddPatientScreenState extends State<GuardianAddPatientScreen> {
         setState(() {
           _isLoading = true;
         });
-        print('Form validated, starting user creation');
-
-        // 1. Create user
-        final userResult = await UserService.addUser(
-          FName: _firstNameController.text,
-          LName: _lastNameController.text,
-          email: _emailController.text,
-          //password: _passwordController.text,
-          phoneNumber: _contactController.text,
-          role: "PATIENT",
-          status: "ACTIVE",
-          birthdate: _selectedDOB != null
-              ? "${_selectedDOB!.toIso8601String().split('T')[0]}"
-              : "",
-          profilePic: "", // Add profile pic logic if needed
-          street: _streetController.text,
-          city: _cityController.text,
-          state: _stateController.text,
-          gender: _selectedGender ?? "",
-        );
-
-        print(
-          'User creation result:  [1m [38;5;2m${userResult.success}, ${userResult.message} [0m',
-        );
-
-        if (!userResult.success || userResult.userId == null) {
-          setState(() {
-            _isLoading = false;
-          });
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text('Failed to create user: ${userResult.message}'),
-              backgroundColor: Colors.red,
-            ),
-          );
-          return;
-        }
-
-        // 2. Create patient
-        final dementiaStage = _selectedDementiaStage?.toUpperCase();
-        final backendDementiaType = dementiaTypeMap[_selectedDementiaType];
-        final dateOfDiagnosis = _selectedDiagnosisDate != null
-            ? "${_selectedDiagnosisDate!.toIso8601String().split('T')[0]}"
-            : null;
+        print('Form validated, preparing patient data for payment');
 
         // Get the current user id (from user table)
         final int? currentUserId = await AuthService.getCurrentUserId();
@@ -401,81 +356,43 @@ class _GuardianAddPatientScreenState extends State<GuardianAddPatientScreen> {
           return;
         }
 
-        final patientResult = await PatientService.addPatient(
-          userId: userResult.userId!,
-          dementiaStage: dementiaStage ?? "",
-          dateOfDiagnosis: dateOfDiagnosis ?? "",
-          dementiaType: backendDementiaType ?? "",
-          guardianId: guardianId, // <-- Use guardian table id here
-          relationship: _selectedRelationship == 'Other'
+        // Collect all form data to pass to subscription screen
+        // Patient will be created AFTER successful payment
+        final String? backendDementiaType = _selectedDementiaType != null
+            ? dementiaTypeMap[_selectedDementiaType]
+            : null;
+
+        final Map<String, dynamic> patientData = {
+          'firstName': _firstNameController.text.trim(),
+          'lastName': _lastNameController.text.trim(),
+          'dateOfBirth': _dobController.text.trim(),
+          'gender': _selectedGender ?? '',
+          'contactNumber': _contactController.text.trim(),
+          'email': _emailController.text.trim(),
+          'street': _streetController.text.trim(),
+          'city': _cityController.text.trim(),
+          'state': _stateController.text.trim(),
+          'dementiaType': backendDementiaType ?? '',
+          'dementiaStage': _selectedDementiaStage ?? '',
+          'dateOfDiagnosis': _diagnosisDateController.text.trim(),
+          'relationship': _selectedRelationship == 'Other'
               ? _customRelationshipController.text.trim()
               : (_selectedRelationship ?? ''),
+        };
+
+        setState(() {
+          _isLoading = false;
+        });
+
+        print('Navigating to subscription plans with patient data');
+
+        // Navigate to subscription plans with data (patient created after payment)
+        Navigator.pushNamedAndRemoveUntil(
+          context,
+          AppRoutes.guardianSubscriptionPlans,
+          (route) => false,
+          arguments: {'guardianId': guardianId, 'patientData': patientData},
         );
-
-        print(
-          'Patient creation result: ${patientResult.success}, ${patientResult.message}',
-        );
-
-        if (patientResult.success) {
-          // Send guardian connection email to patient
-          try {
-            // Get current guardian's user information
-            final guardianUserData = await UserService.getUserById(currentUserId!);
-            
-            if (guardianUserData != null) {
-              final guardianName = '${guardianUserData['fname']} ${guardianUserData['lname']}';
-              final guardianEmail = guardianUserData['email'];
-              final patientName = '${_firstNameController.text} ${_lastNameController.text}';
-              final patientEmail = _emailController.text;
-              final relationship = _relationshipController.text.trim();
-
-              print('Sending guardian connection email...');
-              final emailResult = await GuardianService.sendGuardianConnectionEmail(
-                patientEmail: patientEmail,
-                patientName: patientName,
-                guardianName: guardianName,
-                guardianEmail: guardianEmail,
-                relationship: relationship,
-              );
-
-              if (emailResult['success']) {
-                print('Guardian connection email sent successfully');
-              } else {
-                print('Failed to send guardian connection email: ${emailResult['message']}');
-                // Don't fail the whole process if email fails, just log it
-              }
-            }
-          } catch (emailError) {
-            print('Error sending guardian connection email: $emailError');
-            // Don't fail the whole process if email fails
-          }
-
-          setState(() {
-            _isLoading = false;
-          });
-
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text('Patient saved successfully! Connection request email sent.'),
-              backgroundColor: Colors.green,
-            ),
-          );
-          Navigator.pushNamedAndRemoveUntil(
-            context,
-            AppRoutes.guardianSubscriptionPlans,
-            (route) => false,
-          );
-        } else {
-          setState(() {
-            _isLoading = false;
-          });
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text('Failed to save patient: ${patientResult.message}'),
-              backgroundColor: Colors.red,
-            ),
-          );
-        }
       } else {
         print('Form validation failed');
       }

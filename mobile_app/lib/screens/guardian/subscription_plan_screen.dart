@@ -10,11 +10,40 @@ class SubscriptionPlanScreen extends StatefulWidget {
 class _SubscriptionPlanScreenState extends State<SubscriptionPlanScreen> {
   String? selectedPlan;
   String? selectedDuration;
+  int? patientId;
+  int? guardianId;
+  Map<String, dynamic>? patientData;
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    // Get guardian ID and patient data from navigation arguments
+    final args =
+        ModalRoute.of(context)?.settings.arguments as Map<String, dynamic>?;
+
+    print('=== SubscriptionPlanScreen Debug ===');
+    print('Arguments received: $args');
+
+    if (args != null) {
+      patientId = args['patientId'] as int?;
+      guardianId = args['guardianId'] as int?;
+      patientData = args['patientData'] as Map<String, dynamic>?;
+
+      print('Extracted patientId: $patientId');
+      print('Extracted guardianId: $guardianId');
+      print(
+        'Extracted patientData: ${patientData != null ? "Present" : "None"}',
+      );
+    } else {
+      print('WARNING: No arguments received!');
+    }
+    print('===================================');
+  }
 
   final Map<String, double> planPrices = {
-    'basic_3': 499.00,    // ~$30 USD
-    'basic_6': 899.00,   // ~$55 USD
-    'basic_12': 1499.00,  // ~$100 USD
+    'basic_3': 499.00, // ~$30 USD
+    'basic_6': 899.00, // ~$55 USD
+    'basic_12': 1499.00, // ~$100 USD
     'premium_3': 999.00, // ~$50 USD
     'premium_6': 1899.00, // ~$90 USD
     'premium_12': 2499.00, // ~$160 USD
@@ -53,10 +82,7 @@ class _SubscriptionPlanScreenState extends State<SubscriptionPlanScreen> {
             SizedBox(height: 8),
             Text(
               'Choose the plan that best fits your healthcare needs',
-              style: TextStyle(
-                fontSize: 16,
-                color: AppColors.onSurfaceVariant,
-              ),
+              style: TextStyle(fontSize: 16, color: AppColors.onSurfaceVariant),
             ),
             SizedBox(height: 32),
 
@@ -135,10 +161,7 @@ class _SubscriptionPlanScreenState extends State<SubscriptionPlanScreen> {
                   ),
                   child: Text(
                     'Proceed to Payment',
-                    style: TextStyle(
-                      fontSize: 16,
-                      fontWeight: FontWeight.w600,
-                    ),
+                    style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
                   ),
                 ),
               ),
@@ -149,7 +172,12 @@ class _SubscriptionPlanScreenState extends State<SubscriptionPlanScreen> {
     );
   }
 
-  Widget _buildPlanCard(String planType, String title, String subtitle, List<String> features) {
+  Widget _buildPlanCard(
+    String planType,
+    String title,
+    String subtitle,
+    List<String> features,
+  ) {
     bool isSelected = selectedPlan == planType;
     bool isPremium = planType == 'premium';
 
@@ -163,7 +191,9 @@ class _SubscriptionPlanScreenState extends State<SubscriptionPlanScreen> {
       child: Container(
         padding: EdgeInsets.all(20),
         decoration: BoxDecoration(
-          color: isSelected ? AppColors.primaryLight.withOpacity(0.1) : AppColors.surface,
+          color: isSelected
+              ? AppColors.primaryLight.withOpacity(0.1)
+              : AppColors.surface,
           borderRadius: BorderRadius.circular(16),
           border: Border.all(
             color: isSelected ? AppColors.primary : AppColors.outline,
@@ -194,11 +224,7 @@ class _SubscriptionPlanScreenState extends State<SubscriptionPlanScreen> {
                     color: isSelected ? AppColors.primary : AppColors.surface,
                   ),
                   child: isSelected
-                      ? Icon(
-                    Icons.check,
-                    size: 16,
-                    color: AppColors.onPrimary,
-                  )
+                      ? Icon(Icons.check, size: 16, color: AppColors.onPrimary)
                       : null,
                 ),
                 SizedBox(width: 12),
@@ -219,7 +245,10 @@ class _SubscriptionPlanScreenState extends State<SubscriptionPlanScreen> {
                           if (isPremium) ...[
                             SizedBox(width: 8),
                             Container(
-                              padding: EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                              padding: EdgeInsets.symmetric(
+                                horizontal: 8,
+                                vertical: 4,
+                              ),
                               decoration: BoxDecoration(
                                 color: AppColors.accent,
                                 borderRadius: BorderRadius.circular(12),
@@ -249,28 +278,30 @@ class _SubscriptionPlanScreenState extends State<SubscriptionPlanScreen> {
               ],
             ),
             SizedBox(height: 16),
-            ...features.map((feature) => Padding(
-              padding: EdgeInsets.only(bottom: 8),
-              child: Row(
-                children: [
-                  Icon(
-                    Icons.check_circle,
-                    size: 16,
-                    color: AppColors.success,
-                  ),
-                  SizedBox(width: 8),
-                  Expanded(
-                    child: Text(
-                      feature,
-                      style: TextStyle(
-                        fontSize: 14,
-                        color: AppColors.onSurface,
+            ...features.map(
+              (feature) => Padding(
+                padding: EdgeInsets.only(bottom: 8),
+                child: Row(
+                  children: [
+                    Icon(
+                      Icons.check_circle,
+                      size: 16,
+                      color: AppColors.success,
+                    ),
+                    SizedBox(width: 8),
+                    Expanded(
+                      child: Text(
+                        feature,
+                        style: TextStyle(
+                          fontSize: 14,
+                          color: AppColors.onSurface,
+                        ),
                       ),
                     ),
-                  ),
-                ],
+                  ],
+                ),
               ),
-            )),
+            ),
           ],
         ),
       ),
@@ -282,14 +313,29 @@ class _SubscriptionPlanScreenState extends State<SubscriptionPlanScreen> {
       children: [
         _buildDurationCard('3', '3 Months', _getPrice(selectedPlan!, '3'), ''),
         SizedBox(height: 12),
-        _buildDurationCard('6', '6 Months', _getPrice(selectedPlan!, '6'), 'Save 8%'),
+        _buildDurationCard(
+          '6',
+          '6 Months',
+          _getPrice(selectedPlan!, '6'),
+          'Save 8%',
+        ),
         SizedBox(height: 12),
-        _buildDurationCard('12', '1 Year', _getPrice(selectedPlan!, '12'), 'Save 17%'),
+        _buildDurationCard(
+          '12',
+          '1 Year',
+          _getPrice(selectedPlan!, '12'),
+          'Save 17%',
+        ),
       ],
     );
   }
 
-  Widget _buildDurationCard(String duration, String title, double price, String savings) {
+  Widget _buildDurationCard(
+    String duration,
+    String title,
+    double price,
+    String savings,
+  ) {
     bool isSelected = selectedDuration == duration;
 
     return GestureDetector(
@@ -301,7 +347,9 @@ class _SubscriptionPlanScreenState extends State<SubscriptionPlanScreen> {
       child: Container(
         padding: EdgeInsets.all(16),
         decoration: BoxDecoration(
-          color: isSelected ? AppColors.primaryLight.withOpacity(0.1) : AppColors.surface,
+          color: isSelected
+              ? AppColors.primaryLight.withOpacity(0.1)
+              : AppColors.surface,
           borderRadius: BorderRadius.circular(12),
           border: Border.all(
             color: isSelected ? AppColors.primary : AppColors.outline,
@@ -322,11 +370,7 @@ class _SubscriptionPlanScreenState extends State<SubscriptionPlanScreen> {
                 color: isSelected ? AppColors.primary : AppColors.surface,
               ),
               child: isSelected
-                  ? Icon(
-                Icons.check,
-                size: 12,
-                color: AppColors.onPrimary,
-              )
+                  ? Icon(Icons.check, size: 12, color: AppColors.onPrimary)
                   : null,
             ),
             SizedBox(width: 12),
@@ -400,10 +444,7 @@ class _SubscriptionPlanScreenState extends State<SubscriptionPlanScreen> {
             children: [
               Text(
                 '${selectedPlan!.toUpperCase()} Plan - ${selectedDuration!} months',
-                style: TextStyle(
-                  fontSize: 14,
-                  color: AppColors.onSurface,
-                ),
+                style: TextStyle(fontSize: 14, color: AppColors.onSurface),
               ),
               Text(
                 'LKR ${price.toStringAsFixed(2)}',
@@ -468,6 +509,17 @@ class _SubscriptionPlanScreenState extends State<SubscriptionPlanScreen> {
   }
 
   void _proceedToPayment() {
+    // Check if we have patient data (new flow) or patientId (old flow for existing patients)
+    if (patientData == null && patientId == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Error: Patient information missing'),
+          backgroundColor: Colors.red,
+        ),
+      );
+      return;
+    }
+
     // Navigate to payment screen
     Navigator.push(
       context,
@@ -476,6 +528,10 @@ class _SubscriptionPlanScreenState extends State<SubscriptionPlanScreen> {
           planType: selectedPlan!,
           duration: selectedDuration!,
           price: _getPrice(selectedPlan!, selectedDuration!),
+          patientId: patientId, // Will be null if patient not created yet
+          guardianId: guardianId,
+          patientData:
+              patientData, // Pass patient form data for creation after payment
         ),
       ),
     );

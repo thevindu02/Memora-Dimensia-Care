@@ -42,13 +42,23 @@ class UserService {
 
     if (response.statusCode == 200 || response.statusCode == 201) {
       final data = jsonDecode(response.body);
-      return UserResult(success: true, message: "User created", userId: data['id']);
-    } else {
-      final responseData = jsonDecode(response.body);
       return UserResult(
-        success: false,
-        message: responseData['message'] ?? 'Failed to add user',
+        success: true,
+        message: "User created",
+        userId: data['id'],
       );
+    } else {
+      // Backend may return plain text or JSON error messages
+      String errorMessage;
+      try {
+        final responseData = jsonDecode(response.body);
+        errorMessage = responseData['message'] ?? response.body;
+      } catch (e) {
+        // If JSON parsing fails, use the raw response body
+        errorMessage = response.body;
+      }
+
+      return UserResult(success: false, message: errorMessage);
     }
   }
 
