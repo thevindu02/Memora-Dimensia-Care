@@ -304,15 +304,54 @@ class CaregiverService {
   }
 
   static Future<List<Map<String, dynamic>>> getCaregiverReviews(int caregiverId) async {
-    final response = await http.get(
-      Uri.parse('${ApiConstants.baseUrl}/api/caregivers/$caregiverId/reviews'),
-      headers: {'Content-Type': 'application/json'},
-    );
-    if (response.statusCode == 200) {
-      final List<dynamic> data = jsonDecode(response.body);
-      return data.cast<Map<String, dynamic>>();
-    } else {
-      throw Exception('Failed to load reviews');
+    final url = '${ApiConstants.baseUrl}/api/caregivers/$caregiverId/reviews';
+    final response = await http.get(Uri.parse(url), headers: {'Content-Type': 'application/json'});
+    if (response.statusCode != 200) {
+      throw Exception('Failed to load reviews: ${response.statusCode} ${response.body}');
     }
+
+    final body = response.body.trim();
+    if (body.isEmpty) return <Map<String, dynamic>>[];
+
+    final parsed = jsonDecode(body);
+    List<dynamic> rawList = [];
+    if (parsed is List) {
+      rawList = parsed;
+    } else if (parsed is Map<String, dynamic>) {
+      // common wrappers
+      for (final key in ['data', 'reviews', 'items', 'results']) {
+        if (parsed.containsKey(key) && parsed[key] is List) {
+          rawList = parsed[key];
+          break;
+        }
+      }
+      // single-object response -> return single-item list
+      if (rawList.isEmpty) {
+        return [Map<String, dynamic>.from(parsed)];
+      }
+    } else {
+      return <Map<String, dynamic>>[];
+    }
+
+    // normalize field names so UI can reliably read review_text, rating, created_at
+    final normalized = rawList.map<Map<String, dynamic>>((e) {
+      final m = Map<String, dynamic>.from(e as Map);
+      if (!m.containsKey('review_text')) {
+        if (m.containsKey('reviewText')) m['review_text'] = m['reviewText'];
+        else if (m.containsKey('text')) m['review_text'] = m['text'];
+        else if (m.containsKey('comment')) m['review_text'] = m['comment'];
+      }
+      if (!m.containsKey('rating')) {
+        if (m.containsKey('rating_value')) m['rating'] = m['rating_value'];
+        else if (m.containsKey('score')) m['rating'] = m['score'];
+      }
+      if (!m.containsKey('created_at')) {
+        if (m.containsKey('createdAt')) m['created_at'] = m['createdAt'];
+        else if (m.containsKey('date')) m['created_at'] = m['date'];
+      }
+      return m;
+    }).toList();
+
+    return normalized;
   }
 }

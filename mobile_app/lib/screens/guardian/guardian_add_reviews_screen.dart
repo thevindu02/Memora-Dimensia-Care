@@ -354,6 +354,7 @@ class _GuardianAddReviewsScreenState extends State<GuardianAddReviewsScreen> {
                         (caregiver['isActive'] == false) ||
                         (caregiver['active'] == false) ||
                         (caregiver['expired'] == true);
+                    final bool isActive = !isInactive;
                     return Material(
                       color: AppColors.primaryLight.withOpacity(0.10),
                       borderRadius: BorderRadius.circular(16),
@@ -392,23 +393,23 @@ class _GuardianAddReviewsScreenState extends State<GuardianAddReviewsScreen> {
                                             ),
                                           ),
                                         ),
-                                        if (isInactive)
-                                          Container(
-                                            padding: EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                                            decoration: BoxDecoration(
-                                              color: Colors.redAccent.withOpacity(0.12),
-                                              borderRadius: BorderRadius.circular(12),
-                                              border: Border.all(color: Colors.redAccent.withOpacity(0.25)),
-                                            ),
-                                            child: Text(
-                                              'INACTIVE',
-                                              style: TextStyle(
-                                                color: Colors.redAccent,
-                                                fontSize: 12,
-                                                fontWeight: FontWeight.w700,
-                                              ),
+                                        // Small status label: ACTIVE (green) or INACTIVE (red)
+                                        Container(
+                                          padding: EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                                          decoration: BoxDecoration(
+                                            color: isActive ? Colors.green.withOpacity(0.12) : Colors.redAccent.withOpacity(0.12),
+                                            borderRadius: BorderRadius.circular(12),
+                                            border: Border.all(color: isActive ? Colors.green.withOpacity(0.25) : Colors.redAccent.withOpacity(0.25)),
+                                          ),
+                                          child: Text(
+                                            isActive ? 'ACTIVE' : 'INACTIVE',
+                                            style: TextStyle(
+                                              color: isActive ? Colors.green : Colors.redAccent,
+                                              fontSize: 12,
+                                              fontWeight: FontWeight.w700,
                                             ),
                                           ),
+                                        ),
                                       ],
                                     ),
                                     SizedBox(height: 4),
@@ -435,8 +436,8 @@ class _GuardianAddReviewsScreenState extends State<GuardianAddReviewsScreen> {
                         ),
                       ),
                     );
-                  },
-                ),
+                    },
+                  ),
     );
   }
 }
