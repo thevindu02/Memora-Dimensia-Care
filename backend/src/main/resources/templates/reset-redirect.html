@@ -1,0 +1,269 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Memora - Reset Password</title>
+    <style>
+      body {
+        font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        margin: 0;
+        padding: 20px;
+        min-height: 100vh;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+      }
+
+      .container {
+        background: white;
+        border-radius: 15px;
+        padding: 40px;
+        max-width: 500px;
+        width: 100%;
+        box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+        text-align: center;
+      }
+
+      .logo {
+        font-size: 32px;
+        font-weight: bold;
+        color: #667eea;
+        margin-bottom: 20px;
+      }
+
+      h1 {
+        color: #333;
+        margin-bottom: 20px;
+        font-size: 24px;
+      }
+
+      .status-message {
+        padding: 15px;
+        border-radius: 8px;
+        margin: 20px 0;
+        font-weight: 500;
+      }
+
+      .info {
+        background-color: #e3f2fd;
+        color: #1976d2;
+        border: 1px solid #bbdefb;
+      }
+
+      .success {
+        background-color: #e8f5e8;
+        color: #2e7d32;
+        border: 1px solid #c8e6c9;
+        display: none;
+      }
+
+      .error {
+        background-color: #ffebee;
+        color: #c62828;
+        border: 1px solid #ffcdd2;
+        display: none;
+      }
+
+      .open-app-btn {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        border: none;
+        padding: 15px 30px;
+        border-radius: 25px;
+        font-size: 16px;
+        font-weight: 600;
+        cursor: pointer;
+        margin: 20px 10px;
+        transition: transform 0.2s ease;
+      }
+
+      .open-app-btn:hover {
+        transform: translateY(-2px);
+      }
+
+      .open-app-btn:active {
+        transform: translateY(0);
+      }
+
+      .token-display {
+        background-color: #f5f5f5;
+        border: 2px solid #ddd;
+        border-radius: 8px;
+        padding: 15px;
+        margin: 20px 0;
+        font-family: "Courier New", monospace;
+        font-size: 18px;
+        font-weight: bold;
+        letter-spacing: 2px;
+        word-break: break-all;
+      }
+
+      .instructions {
+        margin: 20px 0;
+        color: #666;
+        line-height: 1.6;
+      }
+
+      .manual-steps {
+        text-align: left;
+        background-color: #f9f9f9;
+        border-radius: 8px;
+        padding: 20px;
+        margin: 20px 0;
+      }
+
+      .manual-steps ol {
+        margin: 0;
+        padding-left: 20px;
+      }
+
+      .manual-steps li {
+        margin: 8px 0;
+        color: #555;
+      }
+
+      @media (max-width: 600px) {
+        .container {
+          padding: 20px;
+          margin: 10px;
+        }
+
+        .token-display {
+          font-size: 14px;
+          letter-spacing: 1px;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <div class="logo">Memora</div>
+      <h1>Reset Your Password</h1>
+
+      <div class="status-message info" id="statusMessage">
+        Attempting to open the Memora app...
+      </div>
+
+      <div class="status-message success" id="successMessage">
+        The Memora app should now be opening. If it doesn't open automatically,
+        use the manual method below.
+      </div>
+
+      <div class="status-message error" id="errorMessage">
+        Unable to open the Memora app automatically. Please use the manual
+        method below.
+      </div>
+
+      <button class="open-app-btn" onclick="attemptDeepLink()">
+        📱 Open Memora App
+      </button>
+
+      <div class="instructions">
+        <p>
+          <strong>Alternative Method:</strong> Copy the token below and enter it
+          manually in the Memora app.
+        </p>
+      </div>
+
+      <div class="token-display" id="tokenDisplay">
+        <span th:text="${token}">TOKEN_PLACEHOLDER</span>
+      </div>
+
+      <div class="manual-steps">
+        <h3>Manual Steps:</h3>
+        <ol>
+          <li>Copy the token above</li>
+          <li>Open the Memora app on your device</li>
+          <li>Go to the "Forgot Password" screen</li>
+          <li>Enter the token manually</li>
+          <li>Set your new password</li>
+        </ol>
+      </div>
+    </div>
+
+    <script th:inline="javascript">
+      const deepLinkUrl = [[${deepLinkUrl}]];
+      const token = [[${token}]];
+
+      function attemptDeepLink() {
+          const statusMsg = document.getElementById('statusMessage');
+          const successMsg = document.getElementById('successMessage');
+          const errorMsg = document.getElementById('errorMessage');
+
+          // Reset messages
+          statusMsg.style.display = 'block';
+          successMsg.style.display = 'none';
+          errorMsg.style.display = 'none';
+
+          // Check if we're on a mobile device
+          const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+
+          if (isMobile) {
+              // Try to open the deep link
+              window.location.href = deepLinkUrl;
+
+              // Set a timeout to show success message
+              setTimeout(() => {
+                  statusMsg.style.display = 'none';
+                  successMsg.style.display = 'block';
+              }, 1000);
+
+              // If the user is still on the page after 3 seconds, assume the app didn't open
+              setTimeout(() => {
+                  if (document.visibilityState === 'visible') {
+                      statusMsg.style.display = 'none';
+                      successMsg.style.display = 'none';
+                      errorMsg.style.display = 'block';
+                  }
+              }, 3000);
+          } else {
+              // On desktop, show error immediately
+              statusMsg.style.display = 'none';
+              errorMsg.style.display = 'block';
+          }
+      }
+
+      // Automatically attempt deep link when page loads
+      window.onload = function() {
+          // Small delay to let the page render
+          setTimeout(() => {
+              attemptDeepLink();
+          }, 500);
+      };
+
+      // Handle page visibility changes (user came back to browser)
+      document.addEventListener('visibilitychange', function() {
+          if (document.visibilityState === 'visible') {
+              // User came back to the browser, the app likely didn't open
+              setTimeout(() => {
+                  const statusMsg = document.getElementById('statusMessage');
+                  const successMsg = document.getElementById('successMessage');
+                  const errorMsg = document.getElementById('errorMessage');
+
+                  statusMsg.style.display = 'none';
+                  successMsg.style.display = 'none';
+                  errorMsg.style.display = 'block';
+              }, 1000);
+          }
+      });
+
+      // Copy token to clipboard when clicked
+      document.getElementById('tokenDisplay').addEventListener('click', function() {
+          navigator.clipboard.writeText(token).then(function() {
+              const original = this.innerHTML;
+              this.innerHTML = '✓ Copied to clipboard!';
+              this.style.backgroundColor = '#e8f5e8';
+              this.style.color = '#2e7d32';
+
+              setTimeout(() => {
+                  this.innerHTML = original;
+                  this.style.backgroundColor = '#f5f5f5';
+                  this.style.color = 'inherit';
+              }, 2000);
+          }.bind(this));
+      });
+    </script>
+  </body>
+</html>

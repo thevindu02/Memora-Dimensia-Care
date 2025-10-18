@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../../routes/app_routes.dart';
 import '../../constants/color_constants.dart';
+import '../../services/auth_service.dart';
 
 class PatientSettingsScreen extends StatefulWidget {
   @override
@@ -126,14 +127,19 @@ class _PatientSettingsScreenState extends State<PatientSettingsScreen> {
               child: Text('Cancel'),
             ),
             TextButton(
-              onPressed: () {
+              onPressed: () async {
                 Navigator.of(context).pop();
-                // Navigate to login screen and clear all previous routes
-                Navigator.pushNamedAndRemoveUntil(
-                  context,
-                  AppRoutes.login,
-                  (route) => false,
-                );
+                
+                await AuthService.logout();
+
+                if(mounted){
+                  // Navigate to login screen and clear all previous routes
+                  Navigator.pushNamedAndRemoveUntil(
+                    context,
+                    AppRoutes.login,
+                    (route) => false,
+                  );
+                }
               },
               child: Text('Log Out', style: TextStyle(color: Colors.red)),
             ),

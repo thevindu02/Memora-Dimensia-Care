@@ -21,6 +21,18 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
   void _initializeToken() {
     if (_tokenInitialized) return;
 
+    // First, try to get token from route arguments (deep link)
+    final args = ModalRoute.of(context)?.settings.arguments;
+    if (args is Map<String, dynamic> && args['token'] != null) {
+      setState(() {
+        _resetToken = args['token'];
+        _tokenController.text = args['token'];
+      });
+      _tokenInitialized = true;
+      return;
+    }
+
+    // Fallback: try GoRouter query parameters
     try {
       final token = GoRouterState.of(context).uri.queryParameters['token'];
       if (token != null && token.isNotEmpty) {

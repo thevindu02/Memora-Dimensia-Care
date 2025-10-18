@@ -35,13 +35,19 @@
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
-            
-            <!-- Deep linking for notification taps -->
+            <!-- Deep link intent filter for password reset -->
             <intent-filter android:autoVerify="true">
                 <action android:name="android.intent.action.VIEW" />
                 <category android:name="android.intent.category.DEFAULT" />
                 <category android:name="android.intent.category.BROWSABLE" />
-                <data android:scheme="memora" />
+                <data android:scheme="memora" android:host="reset-password" />
+            </intent-filter>
+            <!-- Deep link intent filter for guardian connection requests -->
+            <intent-filter android:autoVerify="true">
+                <action android:name="android.intent.action.VIEW" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+                <data android:scheme="memora" android:host="guardian-request" />
             </intent-filter>
         </activity>
         
