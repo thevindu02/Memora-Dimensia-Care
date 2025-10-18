@@ -207,14 +207,42 @@ class _CareDetailsScreenState extends State<CareDetailsScreen> {
                         SizedBox(height: 12),
                         _buildContactRow(
                           Icons.calendar_today,
-                          'Accepted on ' +
-                              ((patientData?['acceptedDate'] != null &&
-                                      patientData?['acceptedDate'] != 'N/A')
-                                  ? patientData!['acceptedDate']
-                                        .toString()
-                                        .split('T')[0]
-                                  : 'N/A'),
+                          'Accepted on ${(patientData?['acceptedDate'] != null && patientData!['acceptedDate'].toString().isNotEmpty) ? patientData!['acceptedDate'].toString().split('T')[0] : 'N/A'}',
                         ),
+                        SizedBox(height: 12),
+                        // Messages button: shown only when request accepted (acceptedDate present)
+                        if (patientData != null && patientData!['acceptedDate'] != null && patientData!['acceptedDate'].toString().isNotEmpty)
+                          Align(
+                            alignment: Alignment.centerRight,
+                            child: ElevatedButton(
+                              onPressed: () {
+                                final guardianId = patientData?['guardianId'];
+                                final guardianName = patientData?['guardianName'] ?? 'Guardian';
+                                if (guardianId == null) {
+                                  ScaffoldMessenger.of(context).showSnackBar(
+                                    SnackBar(content: Text('Guardian ID not available')),
+                                  );
+                                  return;
+                                }
+                                Navigator.pushNamed(
+                                  context,
+                                  AppRoutes.chatConversation,
+                                  arguments: {
+                                    'id': guardianId,
+                                    'name': guardianName,
+                                    'currentUser': 'caregiver',
+                                  },
+                                );
+                              },
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: Color(0xFFA0C4FD), // pastel/primary used across app
+                                foregroundColor: Color(0xFF2B3F99),
+                                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                                padding: EdgeInsets.symmetric(horizontal: 18, vertical: 10),
+                              ),
+                              child: Text('Messages', style: TextStyle(fontWeight: FontWeight.w600)),
+                            ),
+                          ),
                       ],
                     ),
                   ),

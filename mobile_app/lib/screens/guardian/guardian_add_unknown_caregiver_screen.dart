@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import '../../routes/app_routes.dart';
 import '../../services/caregiver_service.dart';
 import '../../services/guardian_service.dart';
+import '../../services/chat_db.dart';
 import '../../constants/color_constants.dart';
 import '../../utils/name_utils.dart';
 
@@ -736,8 +737,20 @@ class _GuardianAddUnknownCaregiverScreenState
             ),
             Column(
               children: [
+                // Messages button (guardian -> open conversation as guardian)
                 ElevatedButton(
-                  onPressed: () => _viewProfile(caregiver),
+                  onPressed: () {
+                    final partnerId = caregiver['id'] ?? caregiver['caregiverId'] ?? caregiver['user_id'] ?? caregiver['userId'];
+                    Navigator.pushNamed(
+                      context,
+                      AppRoutes.chatConversation,
+                      arguments: {
+                        'id': partnerId,
+                        'name': fullName,
+                        'currentUser': 'guardian',
+                      },
+                    );
+                  },
                   style: ElevatedButton.styleFrom(
                     backgroundColor: AppColors.primaryLight,
                     foregroundColor: AppColors.info,
@@ -746,34 +759,46 @@ class _GuardianAddUnknownCaregiverScreenState
                       borderRadius: BorderRadius.circular(8),
                     ),
                   ),
-                  child: Text(
-                    'View Profile',
-                    style: TextStyle(fontSize: 12, fontWeight: FontWeight.w600),
-                  ),
+                  child: Text('Chat', style: TextStyle(fontSize: 12, fontWeight: FontWeight.w600)),
                 ),
-                SizedBox(height: 8),
-                ElevatedButton(
-                  onPressed: () => _showConnectionRequestDialog(caregiver),
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: AppColors.primaryLight,
-                    foregroundColor: AppColors.info,
-                    padding: EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(8),
-                    ),
-                  ),
-                  child: Text(
-                    'Send Request',
-                    style: TextStyle(fontSize: 12, fontWeight: FontWeight.w600),
-                  ),
-                ),
-              ],
-            ),
-          ],
-        ),
-      ),
-    );
-  }
+                 ElevatedButton(
+                   onPressed: () => _viewProfile(caregiver),
+                   style: ElevatedButton.styleFrom(
+                     backgroundColor: AppColors.primaryLight,
+                     foregroundColor: AppColors.info,
+                     padding: EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                     shape: RoundedRectangleBorder(
+                       borderRadius: BorderRadius.circular(8),
+                     ),
+                   ),
+                   child: Text(
+                     'View Profile',
+                     style: TextStyle(fontSize: 12, fontWeight: FontWeight.w600),
+                   ),
+                 ),
+                 SizedBox(height: 8),
+                 ElevatedButton(
+                   onPressed: () => _showConnectionRequestDialog(caregiver),
+                   style: ElevatedButton.styleFrom(
+                     backgroundColor: AppColors.primaryLight,
+                     foregroundColor: AppColors.info,
+                     padding: EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                     shape: RoundedRectangleBorder(
+                       borderRadius: BorderRadius.circular(8),
+                     ),
+                   ),
+                   child: Text(
+                     'Send Request',
+                     style: TextStyle(fontSize: 12, fontWeight: FontWeight.w600),
+                   ),
+                 ),
+               ],
+             ),
+           ],
+         ),
+       ),
+     );
+   }
 
   @override
   Widget build(BuildContext context) {
@@ -795,6 +820,18 @@ class _GuardianAddUnknownCaregiverScreenState
         ),
         backgroundColor: AppColors.surface,
         iconTheme: IconThemeData(color: Colors.black),
+        actions: [
+          TextButton(
+            onPressed: () {
+              Navigator.pushNamed(context, AppRoutes.guardianChatHistory);
+            },
+            style: TextButton.styleFrom(
+              foregroundColor: Colors.black87,
+              padding: EdgeInsets.symmetric(horizontal: 16),
+            ),
+            child: Text('Meesseges'), // label as requested
+          ),
+        ],
       ),
       body: Padding(
         padding: EdgeInsets.all(16),

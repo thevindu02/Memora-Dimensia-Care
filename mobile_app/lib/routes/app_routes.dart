@@ -112,4 +112,6 @@ class AppRoutes {
   // Chat routes
   static const String chatList = '/chat/list';
   static const String chatConversation = '/chat/conversation';
+  static const String guardianChatHistory = '/guardian/chat-history';
+
 }

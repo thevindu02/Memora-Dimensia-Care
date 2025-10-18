@@ -65,4 +65,22 @@ class ChatDb {
     final database = await db;
     await database.delete('messages', where: 'conversation_id = ?', whereArgs: [conversationId]);
   }
+
+  // Delete all messages for a conversation id. Tries common column names.
+  Future<void> deleteConversation(String conversationId) async {
+    final dbPath = await getDatabasesPath();
+    final path = join(dbPath, 'chat_db.db');
+    final db = await openDatabase(path);
+    try {
+      // try common column names
+      await db.delete('messages', where: 'conversationId = ?', whereArgs: [conversationId]);
+    } catch (_) {}
+    try {
+      await db.delete('messages', where: 'conversation_id = ?', whereArgs: [conversationId]);
+    } catch (_) {}
+    try {
+      await db.delete('messages', where: 'conversation = ?', whereArgs: [conversationId]);
+    } catch (_) {}
+    await db.close();
+  }
 }

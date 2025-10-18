@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import '../../services/caregiver_service.dart';
 import '../../services/auth_service.dart';
 import '../../routes/app_routes.dart';
+import '../../services/chat_db.dart';
+import '../../constants/color_constants.dart';
 
 class ConnectionRequest {
   final String guardianName;
@@ -53,6 +55,10 @@ class _CaregiverConnectionRequestsScreenState
     final req = requests[index];
     final name = req['guardianName'] ?? '';
     final connectionId = req['connectionId'];
+    // resolve ids for chat deletion fallback
+    final guardianId = req['guardianId'] ?? req['guardian_id'] ?? req['guardianUserId'];
+    final caregiverId = req['caregiverId'] ?? req['caregiver_id'] ?? await AuthService.getCurrentCaregiverId();
+
     try {
       if (accepted) {
         await CaregiverService.acceptConnectionRequest(connectionId);
@@ -60,11 +66,21 @@ class _CaregiverConnectionRequestsScreenState
           SnackBar(
             content: Text('Accepted request from $name'),
             duration: const Duration(seconds: 2),
-            backgroundColor: Colors.green, // Make background green for accepted
+            backgroundColor: Colors.green,
           ),
         );
       } else {
         await CaregiverService.rejectConnectionRequest(connectionId);
+        // delete local chat history for both possible conversation ids
+        try {
+          final db = ChatDb();
+          if (guardianId != null) {
+            await db.deleteConversation('caregiver_with_$guardianId');
+          }
+          if (caregiverId != null) {
+            await db.deleteConversation('guardian_with_$caregiverId');
+          }
+        } catch (_) {}
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text('Rejected request from $name'),
@@ -297,70 +313,53 @@ class _CaregiverConnectionRequestsScreenState
                         mainAxisAlignment: MainAxisAlignment.end,
                         children: [
                           // Chat button - open conversation with guardian
-                          IconButton(
+                          ElevatedButton(
                             onPressed: () {
                               final guardianName = req['guardianName'] ?? req['guardian_name'] ?? 'Guardian';
                               final guardianId = req['guardianId'] ?? req['guardian_id'] ?? req['guardianUserId'];
-                              showDialog(
-                                context: context,
-                                builder: (_) => AlertDialog(
-                                  title: Text('Open chat with $guardianName'),
-                                  content: Text('Choose how to open the chat'),
-                                  actions: [
-                                    TextButton(
-                                      onPressed: () {
-                                        Navigator.pop(context);
-                                        Navigator.pushNamed(context, AppRoutes.chatList);
-                                      },
-                                      child: Text('Open Chat List'),
-                                    ),
-                                    TextButton(
-                                      onPressed: () {
-                                        Navigator.pop(context);
-                                        Navigator.pushNamed(
-                                          context,
-                                          AppRoutes.chatConversation,
-                                          arguments: {'id': guardianId, 'name': guardianName, 'currentUser': 'caregiver'},
-                                        );
-                                      },
-                                      child: Text('Open Conversation'),
-                                    ),
-                                    TextButton(onPressed: () => Navigator.pop(context), child: Text('Cancel')),
-                                  ],
-                                ),
+                              Navigator.pushNamed(
+                                context,
+                                AppRoutes.chatConversation,
+                                arguments: {'id': guardianId, 'name': guardianName, 'currentUser': 'caregiver'},
                               );
                             },
-                            icon: Icon(Icons.chat_bubble_outline, color: Color(0xFF2B3F99)),
-                            tooltip: 'Chat',
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: AppColors.primaryLight,
+                              foregroundColor: AppColors.info,
+                              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
+                              padding: EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+                            ),
+                            child: Text('Chat'),
                           ),
-                           ElevatedButton.icon(
-                             onPressed: expired
-                                 ? null
-                                 : () => _handleAction(index, true, requests),
-                             icon: const Icon(Icons.check),
-                             label: const Text('Accept'),
-                             style: ElevatedButton.styleFrom(
-                               backgroundColor: const Color(
-                                 0xFFA0C4FD,
-                               ), // Pastel blue
-                               foregroundColor: const Color(
-                                 0xFF2B3F99,
-                               ), // Theme blue
-                               disabledBackgroundColor: Colors.grey[300],
-                               disabledForegroundColor: Colors.grey[600],
-                               shape: RoundedRectangleBorder(
-                                 borderRadius: BorderRadius.circular(24),
-                               ),
-                               padding: const EdgeInsets.symmetric(
-                                 horizontal: 28,
-                                 vertical: 10,
-                               ),
-                               textStyle: const TextStyle(
-                                 fontSize: 16,
-                                 fontWeight: FontWeight.w600,
-                               ),
-                             ),
-                           ),
+                          const SizedBox(width: 16),
+                          ElevatedButton.icon(
+                            onPressed: expired
+                                ? null
+                                : () => _handleAction(index, true, requests),
+                            icon: const Icon(Icons.check),
+                            label: const Text('Accept'),
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: const Color(
+                                0xFFA0C4FD,
+                              ), // Pastel blue
+                              foregroundColor: const Color(
+                                0xFF2B3F99,
+                              ), // Theme blue
+                              disabledBackgroundColor: Colors.grey[300],
+                              disabledForegroundColor: Colors.grey[600],
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(24),
+                              ),
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 28,
+                                vertical: 10,
+                              ),
+                              textStyle: const TextStyle(
+                                fontSize: 16,
+                                fontWeight: FontWeight.w600,
+                              ),
+                            ),
+                          ),
                           const SizedBox(width: 16),
                           ElevatedButton.icon(
                             onPressed: expired

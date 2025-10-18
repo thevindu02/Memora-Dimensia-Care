@@ -12,6 +12,7 @@ import '../screens/forgot_password_screen.dart';
 import '../screens/guardian/guardian_notifications_screen.dart';
 import '../screens/chat/chat_list_screen.dart';
 import '../screens/chat/chat_conversation_screen.dart';
+import '../screens/guardian/guardian_chat_history_screen.dart';
 
 class RouteGenerator {
   static Route<dynamic> generateRoute(RouteSettings settings) {
@@ -55,6 +56,53 @@ class RouteGenerator {
     // Patient routes
     if (routeName.startsWith('/patient/')) {
       return PatientRoutes.generateRoute(settings);
+    }
+
+    // Guardian routes
+    if (routeName.startsWith('/guardian/')) {
+      return GuardianRoutes.generateRoute(settings);
+    }
+
+    // Caregiver connection requests (special case)
+    if (routeName == AppRoutes.caregiverConnectionRequests) {
+      return CaregiverRoutes.generateRoute(settings);
+    }
+
+    // Caregiver routes
+    if (routeName.startsWith('/caregiver/')) {
+      return CaregiverRoutes.generateRoute(settings);
+    }
+
+    // Volunteer routes
+    if (routeName.startsWith('/volunteer/')) {
+      return VolunteerRoutes.generateRoute(settings);
+    }
+
+    // Guardian notifications
+    if (routeName == AppRoutes.guardianNotifications) {
+      return MaterialPageRoute(builder: (_) => GuardianNotificationsScreen());
+    }
+
+    // Chat routes
+    if (routeName == AppRoutes.chatList) {
+      return MaterialPageRoute(
+        builder: (_) => ChatListScreen(),
+        settings: settings,
+      );
+    }
+    if (routeName == AppRoutes.chatConversation) {
+      return MaterialPageRoute(
+        builder: (_) => ChatConversationScreen(),
+        settings: settings,
+      );
+    }
+
+    // Guardian chat history (explicit) - must be before generic '/guardian/' handler
+    if (routeName == AppRoutes.guardianChatHistory) {
+      return MaterialPageRoute(
+        builder: (_) => const GuardianChatHistoryScreen(),
+        settings: settings,
+      );
     }
 
     // Guardian routes
