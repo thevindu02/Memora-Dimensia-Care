@@ -15,12 +15,11 @@ public class FirebaseConfig {
     @PostConstruct
     public void initialize() {
         try {
-            FileInputStream serviceAccount =
-                new FileInputStream("memora-2025-firebase-adminsdk-fbsvc-c45cc799ae.json");
+            FileInputStream serviceAccount = new FileInputStream("memora-2025-firebase-adminsdk-fbsvc-c45cc799ae.json");
 
             FirebaseOptions options = FirebaseOptions.builder()
-                .setCredentials(GoogleCredentials.fromStream(serviceAccount))
-                .build();
+                    .setCredentials(GoogleCredentials.fromStream(serviceAccount))
+                    .build();
 
             if (FirebaseApp.getApps().isEmpty()) {
                 FirebaseApp.initializeApp(options);

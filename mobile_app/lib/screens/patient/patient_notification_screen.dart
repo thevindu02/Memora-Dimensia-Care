@@ -86,6 +86,7 @@ class _PatientNotificationScreenState extends State<PatientNotificationScreen> {
       backgroundColor: PatientColors.background,
       appBar: AppBar(
         backgroundColor: PatientColors.surface,
+        automaticallyImplyLeading: false,
         elevation: 0,
         title: const Text(
           'Notification',

@@ -215,6 +215,7 @@ class _PatientDashboardScreenState extends State<PatientDashboardScreen> {
       backgroundColor: PatientColors.backgroundGrey,
       appBar: AppBar(
         backgroundColor: PatientColors.backgroundWhite,
+        automaticallyImplyLeading: false, // ← disables back icon
         elevation: 0,
         centerTitle: true,
         title: Row(

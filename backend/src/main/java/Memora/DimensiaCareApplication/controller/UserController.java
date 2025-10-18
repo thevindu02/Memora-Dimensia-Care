@@ -60,4 +60,14 @@ public class UserController {
                 .header("Content-Type", "application/json")
                 .body("{\"message\":\"User created successfully!\",\"id\":" + savedUser.getId() + "}");
     }
+
+    @GetMapping("/{id}")
+    public ResponseEntity<User> getUserById(@PathVariable Long id) {
+        Optional<User> user = userRepository.findById(id);
+        if (user.isPresent()) {
+            return ResponseEntity.ok(user.get());
+        } else {
+            return ResponseEntity.notFound().build();
+        }
+    }
 }

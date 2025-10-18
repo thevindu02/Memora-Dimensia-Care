@@ -2,7 +2,7 @@ package Memora.DimensiaCareApplication.model;
 
 import jakarta.persistence.*;
 import java.time.LocalDate;
-import Memora.DimensiaCareApplication.model.Guardian;
+//import Memora.DimensiaCareApplication.model.Guardian;
 
 @Entity
 @Table(name = "patients")
