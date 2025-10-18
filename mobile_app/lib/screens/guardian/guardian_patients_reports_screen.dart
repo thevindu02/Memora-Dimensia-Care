@@ -4,6 +4,7 @@ import '../../services/patient_service.dart';
 import '../../services/auth_service.dart';
 import '../../services/guardian_service.dart'; // Add this import if not present
 import '../../constants/color_constants.dart';
+import '../../utils/name_utils.dart';
 
 class GuardianPatientsReportsScreen extends StatefulWidget {
   @override
@@ -125,7 +126,7 @@ class _GuardianPatientsReportsScreenState
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      '${patient['fName'] ?? patient['FName'] ?? patient['fname'] ?? ''} ${patient['lName'] ?? patient['LName'] ?? patient['lname'] ?? ''}',
+                      NameUtils.formatPatientName(patient),
                       style: TextStyle(
                         fontSize: 18,
                         fontWeight: FontWeight.w600,

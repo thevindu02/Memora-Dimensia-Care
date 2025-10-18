@@ -19,6 +19,7 @@ import {
   Menu,
   MenuItem,
 } from '@mui/material';
+import { useNavigate } from "react-router-dom";
 
 import MenuIcon from '@mui/icons-material/Menu';
 import ArticleIcon from '@mui/icons-material/Article';
@@ -32,6 +33,7 @@ import VisibilityIcon from '@mui/icons-material/Visibility';
 import VolunteerNav from './VolunteerNav';
 import Footer from '../home/Footer';
 import SideBar from './SideBar';
+import VolunteerProfile from './VolunteerProfile';
 
 import {
   Chart as ChartJS,
@@ -256,17 +258,34 @@ export default function VolunteerDashboard({ volunteerName, volunteerProfileImag
   const [anchorEl, setAnchorEl] = useState(null);
   const openProfileMenu = Boolean(anchorEl);
 
+  // New state for showing profile page
+  const [showProfile, setShowProfile] = useState(false);
+  const navigate = useNavigate(); // Add this line
+
   // Handlers
   const handleProfileClick = (event) => setAnchorEl(event.currentTarget);
   const handleProfileClose = () => setAnchorEl(null);
 
   const handleMenuItemClick = (option) => {
-    alert(`You clicked ${option}`);
+    if (option === 'Profile') {
+      setShowProfile(true);
+    } else if (option === 'Sign Out') {
+      navigate("/home"); // Navigate to home page on sign out
+    } else {
+      alert(`You clicked ${option}`);
+    }
     handleProfileClose();
   };
 
   // Handlers for quick action buttons
   const handleActionClick = (action) => alert(`Action triggered: ${action}`);
+
+  // Render profile page if showProfile is true
+  if (showProfile) {
+    return (
+      <VolunteerProfile onBack={() => setShowProfile(false)} />
+    );
+  }
 
   return (
     <>
@@ -280,12 +299,13 @@ export default function VolunteerDashboard({ volunteerName, volunteerProfileImag
         sx={{
           bgcolor: colors.backgroundLight,
           minHeight: '100vh',
+
           py: { xs: 4, md: 6 },
           px: { xs: 2, md: 4 },
           fontFamily: 'Poppins, Lato, Nunito, Arial, sans-serif',
           color: colors.calmNavy,
           position: 'relative',
-          ml: { md: 30 }, // Leave space for sidebar on md+ screens if sidebar fixed outside
+          ml: { md: 30 }, 
         }}
       >
         <Container maxWidth="lg">
@@ -472,7 +492,9 @@ export default function VolunteerDashboard({ volunteerName, volunteerProfileImag
           </Box>
         </Container>
       </Box>
+      <Box sx={{ pl: { md: "260px" } }}>
       <Footer />
+    </Box>
     </>
   );
 }
