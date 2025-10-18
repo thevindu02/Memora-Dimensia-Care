@@ -1,11 +1,17 @@
 package Memora.DimensiaCareApplication.service;
 
+import Memora.DimensiaCareApplication.dto.response.CaregiverSummaryResponse;
 import Memora.DimensiaCareApplication.model.*;
 import Memora.DimensiaCareApplication.model.GuardianPatientCaregiverConnection.ConnectionStatus;
 import Memora.DimensiaCareApplication.repository.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.PersistenceContext;
+import jakarta.persistence.Query;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 
 @Service
@@ -18,6 +24,9 @@ public class GuardianService {
     private GuardianPatientCaregiverConnectionRepository connectionRepository;
     @Autowired
     private GuardianRepository guardianRepository;
+
+    @PersistenceContext
+    private EntityManager entityManager;
 
     public GuardianPatientCaregiverConnection sendCaregiverConnectionRequest(Long guardianId, Long patientId, Long caregiverId) {
         GuardianPatientCaregiverConnection connection = new GuardianPatientCaregiverConnection();
@@ -65,5 +74,39 @@ public class GuardianService {
         Guardian guardian = new Guardian();
         guardian.setUser(user);
         return guardianRepository.save(guardian);
+    }
+
+    /**
+     * Return caregivers that the guardian has a review/relationship with and are inactive/expired.
+     */
+    public List<CaregiverSummaryResponse> getExpiredCaregiversForGuardian(Long guardianId) {
+        // Select caregiver + user fields joined via caregiver_reviews
+        String sql = "SELECT c.caregiver_id, u.id, u.f_name, u.l_name, u.email, c.experience, c.qualifications, u.status " +
+                     "FROM caregivers c " +
+                     "JOIN users u ON c.user_id = u.id " +
+                     "JOIN caregiver_reviews cr ON cr.caregiver_id = c.caregiver_id " +
+                     "WHERE cr.guardian_id = :gid " +
+                     "AND (u.status = 'inactive' OR u.status = 'expired' OR u.status <> 'active') " +
+                     "GROUP BY c.caregiver_id, u.id, u.f_name, u.l_name, u.email, c.experience, c.qualifications, u.status";
+
+        Query q = entityManager.createNativeQuery(sql);
+        q.setParameter("gid", guardianId);
+        @SuppressWarnings("unchecked")
+        List<Object[]> rows = q.getResultList();
+
+        List<CaregiverSummaryResponse> result = new ArrayList<>();
+        for (Object[] r : rows) {
+            Long caregiverId = r[0] != null ? ((Number) r[0]).longValue() : null;
+            Long userId = r[1] != null ? ((Number) r[1]).longValue() : null;
+            String fName = r[2] != null ? r[2].toString() : "";
+            String lName = r[3] != null ? r[3].toString() : "";
+            String email = r[4] != null ? r[4].toString() : "";
+            String experience = r[5] != null ? r[5].toString() : "";
+            String qualifications = r[6] != null ? r[6].toString() : "";
+            String status = r[7] != null ? r[7].toString() : "";
+
+            result.add(new CaregiverSummaryResponse(caregiverId, userId, fName, lName, email, experience, qualifications, status));
+        }
+        return result;
     }
 }

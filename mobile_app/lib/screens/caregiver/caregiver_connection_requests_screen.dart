@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../../services/caregiver_service.dart';
 import '../../services/auth_service.dart';
+import '../../routes/app_routes.dart';
 
 class ConnectionRequest {
   final String guardianName;
@@ -295,34 +296,71 @@ class _CaregiverConnectionRequestsScreenState
                       Row(
                         mainAxisAlignment: MainAxisAlignment.end,
                         children: [
-                          ElevatedButton.icon(
-                            onPressed: expired
-                                ? null
-                                : () => _handleAction(index, true, requests),
-                            icon: const Icon(Icons.check),
-                            label: const Text('Accept'),
-                            style: ElevatedButton.styleFrom(
-                              backgroundColor: const Color(
-                                0xFFA0C4FD,
-                              ), // Pastel blue
-                              foregroundColor: const Color(
-                                0xFF2B3F99,
-                              ), // Theme blue
-                              disabledBackgroundColor: Colors.grey[300],
-                              disabledForegroundColor: Colors.grey[600],
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(24),
-                              ),
-                              padding: const EdgeInsets.symmetric(
-                                horizontal: 28,
-                                vertical: 10,
-                              ),
-                              textStyle: const TextStyle(
-                                fontSize: 16,
-                                fontWeight: FontWeight.w600,
-                              ),
-                            ),
+                          // Chat button - open conversation with guardian
+                          IconButton(
+                            onPressed: () {
+                              final guardianName = req['guardianName'] ?? req['guardian_name'] ?? 'Guardian';
+                              final guardianId = req['guardianId'] ?? req['guardian_id'] ?? req['guardianUserId'];
+                              showDialog(
+                                context: context,
+                                builder: (_) => AlertDialog(
+                                  title: Text('Open chat with $guardianName'),
+                                  content: Text('Choose how to open the chat'),
+                                  actions: [
+                                    TextButton(
+                                      onPressed: () {
+                                        Navigator.pop(context);
+                                        Navigator.pushNamed(context, AppRoutes.chatList);
+                                      },
+                                      child: Text('Open Chat List'),
+                                    ),
+                                    TextButton(
+                                      onPressed: () {
+                                        Navigator.pop(context);
+                                        Navigator.pushNamed(
+                                          context,
+                                          AppRoutes.chatConversation,
+                                          arguments: {'id': guardianId, 'name': guardianName, 'currentUser': 'caregiver'},
+                                        );
+                                      },
+                                      child: Text('Open Conversation'),
+                                    ),
+                                    TextButton(onPressed: () => Navigator.pop(context), child: Text('Cancel')),
+                                  ],
+                                ),
+                              );
+                            },
+                            icon: Icon(Icons.chat_bubble_outline, color: Color(0xFF2B3F99)),
+                            tooltip: 'Chat',
                           ),
+                           ElevatedButton.icon(
+                             onPressed: expired
+                                 ? null
+                                 : () => _handleAction(index, true, requests),
+                             icon: const Icon(Icons.check),
+                             label: const Text('Accept'),
+                             style: ElevatedButton.styleFrom(
+                               backgroundColor: const Color(
+                                 0xFFA0C4FD,
+                               ), // Pastel blue
+                               foregroundColor: const Color(
+                                 0xFF2B3F99,
+                               ), // Theme blue
+                               disabledBackgroundColor: Colors.grey[300],
+                               disabledForegroundColor: Colors.grey[600],
+                               shape: RoundedRectangleBorder(
+                                 borderRadius: BorderRadius.circular(24),
+                               ),
+                               padding: const EdgeInsets.symmetric(
+                                 horizontal: 28,
+                                 vertical: 10,
+                               ),
+                               textStyle: const TextStyle(
+                                 fontSize: 16,
+                                 fontWeight: FontWeight.w600,
+                               ),
+                             ),
+                           ),
                           const SizedBox(width: 16),
                           ElevatedButton.icon(
                             onPressed: expired

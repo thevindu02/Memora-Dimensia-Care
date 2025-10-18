@@ -1,23 +1,6 @@
 package Memora.DimensiaCareApplication.controller;
 
-import java.time.LocalDate;
-import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
-
+import Memora.DimensiaCareApplication.dto.response.CaregiverSummaryResponse;
 import Memora.DimensiaCareApplication.dto.request.GuardianProfileUpdateRequest;
 import Memora.DimensiaCareApplication.dto.response.GuardianDetailsResponse;
 import Memora.DimensiaCareApplication.model.Caregiver;
@@ -31,6 +14,17 @@ import Memora.DimensiaCareApplication.repository.GuardianRepository;
 import Memora.DimensiaCareApplication.repository.PatientRepository;
 import Memora.DimensiaCareApplication.repository.UserRepository;
 import Memora.DimensiaCareApplication.service.GuardianService;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
+
+import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
 
 @RestController
 @RequestMapping("/api/guardians")
@@ -300,5 +294,11 @@ public class GuardianController {
         } catch (Exception e) {
             return ResponseEntity.badRequest().body("Error processing request: " + e.getMessage());
         }
+    }
+
+    @GetMapping("/{guardianId}/expired-caregivers")
+    public ResponseEntity<List<CaregiverSummaryResponse>> getExpiredCaregivers(@PathVariable("guardianId") Long guardianId) {
+        List<CaregiverSummaryResponse> caregivers = guardianService.getExpiredCaregiversForGuardian(guardianId);
+        return ResponseEntity.ok(caregivers);
     }
 }

@@ -10,6 +10,8 @@ import '../screens/volunteer/volunteer_routes.dart';
 import '../screens/signup_screen.dart';
 import '../screens/forgot_password_screen.dart';
 import '../screens/guardian/guardian_notifications_screen.dart';
+import '../screens/chat/chat_list_screen.dart';
+import '../screens/chat/chat_conversation_screen.dart';
 
 class RouteGenerator {
   static Route<dynamic> generateRoute(RouteSettings settings) {
@@ -78,6 +80,20 @@ class RouteGenerator {
     // Guardian notifications
     if (routeName == AppRoutes.guardianNotifications) {
       return MaterialPageRoute(builder: (_) => GuardianNotificationsScreen());
+    }
+
+    // Chat routes
+    if (routeName == AppRoutes.chatList) {
+      return MaterialPageRoute(
+        builder: (_) => ChatListScreen(),
+        settings: settings,
+      );
+    }
+    if (routeName == AppRoutes.chatConversation) {
+      return MaterialPageRoute(
+        builder: (_) => ChatConversationScreen(),
+        settings: settings,
+      );
     }
 
     // Default route for unknown paths

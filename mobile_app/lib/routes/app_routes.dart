@@ -108,5 +108,8 @@ class AppRoutes {
   static const String volunteerDraft = '/volunteer/draft';
   static const String viewArticle = '/volunteer/viewarticle';
   static const String volunteerArticlesTab = '/volunteer/viewarticle';
-  
+
+  // Chat routes
+  static const String chatList = '/chat/list';
+  static const String chatConversation = '/chat/conversation';
 }
