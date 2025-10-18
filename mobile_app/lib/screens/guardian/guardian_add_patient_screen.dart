@@ -1,8 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import '../../routes/app_routes.dart';
-import '../../services/patient_service.dart'; // Update the path as needed
-import '../../services/user_service.dart';
 import '../../services/auth_service.dart';
 import '../../services/guardian_service.dart';
 import '../../constants/color_constants.dart';
@@ -329,50 +327,7 @@ class _GuardianAddPatientScreenState extends State<GuardianAddPatientScreen> {
         setState(() {
           _isLoading = true;
         });
-        print('Form validated, starting user creation');
-
-        // 1. Create user
-        final userResult = await UserService.addUser(
-          FName: _firstNameController.text,
-          LName: _lastNameController.text,
-          email: _emailController.text,
-          //password: _passwordController.text,
-          phoneNumber: _contactController.text,
-          role: "PATIENT",
-          status: "ACTIVE",
-          birthdate: _selectedDOB != null
-              ? "${_selectedDOB!.toIso8601String().split('T')[0]}"
-              : "",
-          profilePic: "", // Add profile pic logic if needed
-          street: _streetController.text,
-          city: _cityController.text,
-          state: _stateController.text,
-          gender: _selectedGender ?? "",
-        );
-
-        print(
-          'User creation result:  [1m [38;5;2m${userResult.success}, ${userResult.message} [0m',
-        );
-
-        if (!userResult.success || userResult.userId == null) {
-          setState(() {
-            _isLoading = false;
-          });
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text('Failed to create user: ${userResult.message}'),
-              backgroundColor: Colors.red,
-            ),
-          );
-          return;
-        }
-
-        // 2. Create patient
-        final dementiaStage = _selectedDementiaStage?.toUpperCase();
-        final backendDementiaType = dementiaTypeMap[_selectedDementiaType];
-        final dateOfDiagnosis = _selectedDiagnosisDate != null
-            ? "${_selectedDiagnosisDate!.toIso8601String().split('T')[0]}"
-            : null;
+        print('Form validated, preparing patient data for payment');
 
         // Get the current user id (from user table)
         final int? currentUserId = await AuthService.getCurrentUserId();
@@ -401,45 +356,53 @@ class _GuardianAddPatientScreenState extends State<GuardianAddPatientScreen> {
           return;
         }
 
-        final patientResult = await PatientService.addPatient(
-          userId: userResult.userId!,
-          dementiaStage: dementiaStage ?? "",
-          dateOfDiagnosis: dateOfDiagnosis ?? "",
-          dementiaType: backendDementiaType ?? "",
-          guardianId: guardianId, // <-- Use guardian table id here
-          relationship: _selectedRelationship == 'Other'
-              ? _customRelationshipController.text.trim()
-              : (_selectedRelationship ?? ''),
-        );
-
-        print(
-          'Patient creation result: ${patientResult.success}, ${patientResult.message}',
-        );
-
         setState(() {
           _isLoading = false;
         });
 
-        if (patientResult.success) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text('Patient saved successfully!'),
-              backgroundColor: Colors.green,
-            ),
-          );
-          Navigator.pushNamedAndRemoveUntil(
-            context,
-            AppRoutes.guardianSubscriptionPlans,
-            (route) => false,
-          );
-        } else {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text('Failed to save patient: ${patientResult.message}'),
-              backgroundColor: Colors.red,
-            ),
-          );
-        }
+        // Prepare patient data to pass to subscription screen
+        final dementiaStage = _selectedDementiaStage?.toUpperCase();
+        final backendDementiaType = dementiaTypeMap[_selectedDementiaType];
+        final dateOfDiagnosis = _selectedDiagnosisDate != null
+            ? "${_selectedDiagnosisDate!.toIso8601String().split('T')[0]}"
+            : null;
+        final dobString = _selectedDOB != null
+            ? "${_selectedDOB!.toIso8601String().split('T')[0]}"
+            : "";
+
+        print('=== Navigation Debug ===');
+        print('Navigating to subscription plans with patient form data');
+        print('guardianId: $guardianId');
+        print('========================');
+
+        // Navigate to subscription plans WITHOUT creating patient yet
+        // Patient will be created AFTER successful payment
+        Navigator.pushNamedAndRemoveUntil(
+          context,
+          AppRoutes.guardianSubscriptionPlans,
+          (route) => false,
+          arguments: {
+            'guardianId': guardianId,
+            // Pass all patient form data
+            'patientData': {
+              'firstName': _firstNameController.text,
+              'lastName': _lastNameController.text,
+              'email': _emailController.text,
+              'phoneNumber': _contactController.text,
+              'birthdate': dobString,
+              'street': _streetController.text,
+              'city': _cityController.text,
+              'state': _stateController.text,
+              'gender': _selectedGender ?? "",
+              'dementiaStage': dementiaStage ?? "",
+              'dateOfDiagnosis': dateOfDiagnosis ?? "",
+              'dementiaType': backendDementiaType ?? "",
+              'relationship': _selectedRelationship == 'Other'
+                  ? _customRelationshipController.text.trim()
+                  : (_selectedRelationship ?? ''),
+            },
+          },
+        );
       } else {
         print('Form validation failed');
       }
