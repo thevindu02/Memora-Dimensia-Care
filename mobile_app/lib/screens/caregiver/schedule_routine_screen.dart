@@ -37,7 +37,8 @@ class ScheduleTask {
   final String? mealTiming;
   final int? numberOfRounds;
   final String? medicationDescription;
-  final String? taskType; // 'medication', 'daily_activity', 'game', 'appointment'
+  final String?
+  taskType; // 'medication', 'daily_activity', 'game', 'appointment'
   // Appointment-specific fields
   final String? hospital;
   final String? doctorName;
@@ -112,7 +113,8 @@ class ScheduleTask {
       icon: Icons.medication,
       color: AppColors.primaryDark,
       isCompleted: medication.status == 'TAKEN',
-      isSkipped: medication.status == 'SKIPPED' || medication.status == 'CANCELLED',
+      isSkipped:
+          medication.status == 'SKIPPED' || medication.status == 'CANCELLED',
       careActivityId: medication.careActivityId,
       dailyTaskId: medication.medicationId, // Use medication ID
       status: medication.status == 'TAKEN' ? 'COMPLETED' : medication.status,
@@ -128,12 +130,14 @@ class ScheduleTask {
   factory ScheduleTask.fromAppointment(Appointment appointment) {
     return ScheduleTask(
       title: appointment.taskName,
-      description: 'Appointment at ${appointment.hospital} with Dr. ${appointment.doctorName}',
+      description:
+          'Appointment at ${appointment.hospital} with Dr. ${appointment.doctorName}',
       time: _formatTime(appointment.time),
       icon: Icons.local_hotel,
       color: AppColors.primaryDark,
       isCompleted: appointment.status == 'COMPLETED',
-      isSkipped: appointment.status == 'SKIPPED' || appointment.status == 'CANCELLED',
+      isSkipped:
+          appointment.status == 'SKIPPED' || appointment.status == 'CANCELLED',
       careActivityId: appointment.careActivityId,
       dailyTaskId: appointment.appointmentId,
       status: appointment.status,
@@ -270,7 +274,8 @@ class _ScheduleRoutineScreenState extends State<ScheduleRoutineScreen> {
   String? _patientError;
   int? _patientId;
   int? _scheduleId; // Add schedule ID
-  DateTime _selectedDate = DateTime.now(); // Currently selected date for schedule
+  DateTime _selectedDate =
+      DateTime.now(); // Currently selected date for schedule
   bool _isTasksLoading = true;
   String? _tasksError;
   // Map to track loading state for each task
@@ -315,6 +320,17 @@ class _ScheduleRoutineScreenState extends State<ScheduleRoutineScreen> {
     }
   }
 
+  String _capitalizeName(String name) {
+    if (name.isEmpty) return name;
+    return name
+        .split(' ')
+        .map((word) {
+          if (word.isEmpty) return word;
+          return word[0].toUpperCase() + word.substring(1).toLowerCase();
+        })
+        .join(' ');
+  }
+
   Future<void> _fetchPatientName(int patientId) async {
     setState(() {
       _isPatientLoading = true;
@@ -324,8 +340,9 @@ class _ScheduleRoutineScreenState extends State<ScheduleRoutineScreen> {
     if (result.success && result.data != null) {
       final data = result.data;
       setState(() {
-        _patientName = ((data['fName'] ?? '') + ' ' + (data['lName'] ?? ''))
+        final rawName = ((data['fName'] ?? '') + ' ' + (data['lName'] ?? ''))
             .trim();
+        _patientName = _capitalizeName(rawName);
         _isPatientLoading = false;
       });
     } else {
@@ -354,8 +371,11 @@ class _ScheduleRoutineScreenState extends State<ScheduleRoutineScreen> {
 
     try {
       // Format date as YYYY-MM-DD
-      final dateStr = '${_selectedDate.year}-${_selectedDate.month.toString().padLeft(2, '0')}-${_selectedDate.day.toString().padLeft(2, '0')}';
-      print('DEBUG: Fetching schedule for patient ID: $_patientId, date: $dateStr');
+      final dateStr =
+          '${_selectedDate.year}-${_selectedDate.month.toString().padLeft(2, '0')}-${_selectedDate.day.toString().padLeft(2, '0')}';
+      print(
+        'DEBUG: Fetching schedule for patient ID: $_patientId, date: $dateStr',
+      );
 
       // Get or create schedule for the selected date
       final scheduleResult = await ScheduleService.getOrCreateSchedule(
@@ -375,7 +395,7 @@ class _ScheduleRoutineScreenState extends State<ScheduleRoutineScreen> {
       final scheduleData = scheduleResult.data as Map<String, dynamic>;
       final scheduleId = scheduleData['scheduleId'] as int;
       final isCompleted = scheduleData['isCompleted'] as bool;
-      
+
       print('DEBUG: Got schedule ID: $scheduleId, isCompleted: $isCompleted');
 
       // Update the stored schedule ID
@@ -403,9 +423,7 @@ class _ScheduleRoutineScreenState extends State<ScheduleRoutineScreen> {
       final medicationsResult = MedicationService.getMedicationSchedule(
         scheduleId,
       );
-      final appointmentsResult = AppointmentService.getAppointments(
-        scheduleId,
-      );
+      final appointmentsResult = AppointmentService.getAppointments(scheduleId);
 
       print('DEBUG: Waiting for all API calls to complete...');
       final results = await Future.wait([
@@ -430,7 +448,8 @@ class _ScheduleRoutineScreenState extends State<ScheduleRoutineScreen> {
 
       // Get today's date in YYYY-MM-DD format
       final today = DateTime.now();
-      final todayStr = '${today.year}-${today.month.toString().padLeft(2, '0')}-${today.day.toString().padLeft(2, '0')}';
+      final todayStr =
+          '${today.year}-${today.month.toString().padLeft(2, '0')}-${today.day.toString().padLeft(2, '0')}';
       print('DEBUG: Today\'s date: $todayStr');
 
       List<ScheduleTask> allTasks = [];
@@ -480,10 +499,12 @@ class _ScheduleRoutineScreenState extends State<ScheduleRoutineScreen> {
       if (appointments.isNotEmpty) {
         print('DEBUG: Processing ${appointments.length} appointments:');
         final todayAppointments = appointments.where((appointment) {
-          print('DEBUG: Appointment - ${appointment.taskName}, Date: ${appointment.date}, Time: ${appointment.time}, Status: ${appointment.status}');
+          print(
+            'DEBUG: Appointment - ${appointment.taskName}, Date: ${appointment.date}, Time: ${appointment.time}, Status: ${appointment.status}',
+          );
           return appointment.date == todayStr;
         }).toList();
-        
+
         if (todayAppointments.isNotEmpty) {
           final appointmentTasks = todayAppointments
               .map((appointment) => ScheduleTask.fromAppointment(appointment))
@@ -642,12 +663,14 @@ class _ScheduleRoutineScreenState extends State<ScheduleRoutineScreen> {
     // Check all tasks that come before this task (by time)
     for (var task in tasks) {
       final currentTaskTime = _parseTimeForSorting(task.time);
-      
+
       // If this task is earlier in time
       if (currentTaskTime < taskTime) {
         // Check if it's completed or cancelled
         // Both COMPLETED and CANCELLED tasks are considered "done" for validation
-        if (!task.isCompleted && task.status != 'CANCELLED' && !task.isSkipped) {
+        if (!task.isCompleted &&
+            task.status != 'CANCELLED' &&
+            !task.isSkipped) {
           return 'Please complete or cancel earlier tasks first.\n\n"${task.title}" at ${task.time} must be completed before this task.';
         }
       }
@@ -665,7 +688,7 @@ class _ScheduleRoutineScreenState extends State<ScheduleRoutineScreen> {
     // Check all tasks that come after this task (by time)
     for (var task in tasks) {
       final currentTaskTime = _parseTimeForSorting(task.time);
-      
+
       // If this task is later in time and is completed
       if (currentTaskTime > taskTime && task.isCompleted) {
         return 'Cannot uncomplete this task.\n\nPlease uncomplete later tasks first.\n\n"${task.title}" at ${task.time} is already completed.';
@@ -773,7 +796,7 @@ class _ScheduleRoutineScreenState extends State<ScheduleRoutineScreen> {
     } catch (e) {
       // Hide loading indicator
       ScaffoldMessenger.of(context).hideCurrentSnackBar();
-      
+
       // Handle any unexpected errors
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
@@ -878,7 +901,9 @@ class _ScheduleRoutineScreenState extends State<ScheduleRoutineScreen> {
                           height: 20,
                           child: CircularProgressIndicator(
                             strokeWidth: 2,
-                            valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                            valueColor: AlwaysStoppedAnimation<Color>(
+                              Colors.white,
+                            ),
                           ),
                         ),
                         SizedBox(width: 16),
@@ -891,11 +916,12 @@ class _ScheduleRoutineScreenState extends State<ScheduleRoutineScreen> {
 
                 try {
                   // Call API to update status to CANCELLED with skip reason
-                  final result = await CareActivityService.updateStatusWithReason(
-                    task.careActivityId!,
-                    'CANCELLED',
-                    finalReason,
-                  );
+                  final result =
+                      await CareActivityService.updateStatusWithReason(
+                        task.careActivityId!,
+                        'CANCELLED',
+                        finalReason,
+                      );
 
                   // Hide loading indicator
                   ScaffoldMessenger.of(context).hideCurrentSnackBar();
@@ -926,7 +952,9 @@ class _ScheduleRoutineScreenState extends State<ScheduleRoutineScreen> {
                     // Show error message
                     ScaffoldMessenger.of(context).showSnackBar(
                       SnackBar(
-                        content: Text('Failed to cancel task: ${result.message}'),
+                        content: Text(
+                          'Failed to cancel task: ${result.message}',
+                        ),
                         backgroundColor: Colors.red,
                       ),
                     );
@@ -934,7 +962,7 @@ class _ScheduleRoutineScreenState extends State<ScheduleRoutineScreen> {
                 } catch (e) {
                   // Hide loading indicator
                   ScaffoldMessenger.of(context).hideCurrentSnackBar();
-                  
+
                   // Handle any unexpected errors
                   ScaffoldMessenger.of(context).showSnackBar(
                     SnackBar(
@@ -965,11 +993,10 @@ class _ScheduleRoutineScreenState extends State<ScheduleRoutineScreen> {
   // Check if all tasks are completed or cancelled (routine can be marked complete)
   bool get canCompleteRoutine {
     if (tasks.isEmpty) return false;
-    
-    return tasks.every((task) => 
-      task.isCompleted || 
-      task.status == 'CANCELLED' || 
-      task.isSkipped
+
+    return tasks.every(
+      (task) =>
+          task.isCompleted || task.status == 'CANCELLED' || task.isSkipped,
     );
   }
 
@@ -1100,7 +1127,7 @@ class _ScheduleRoutineScreenState extends State<ScheduleRoutineScreen> {
     } catch (e) {
       // Hide loading indicator if still showing
       Navigator.of(context).pop();
-      
+
       // Handle any unexpected errors - tasks remain visible
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
@@ -1156,13 +1183,23 @@ class _ScheduleRoutineScreenState extends State<ScheduleRoutineScreen> {
 
   String _formatDate(DateTime date) {
     final months = [
-      'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun',
-      'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'
+      'Jan',
+      'Feb',
+      'Mar',
+      'Apr',
+      'May',
+      'Jun',
+      'Jul',
+      'Aug',
+      'Sep',
+      'Oct',
+      'Nov',
+      'Dec',
     ];
     final now = DateTime.now();
     final today = DateTime(now.year, now.month, now.day);
     final selectedDay = DateTime(date.year, date.month, date.day);
-    
+
     if (selectedDay == today) {
       return 'Today, ${months[date.month - 1]} ${date.day}';
     } else if (selectedDay == today.subtract(Duration(days: 1))) {
@@ -1319,7 +1356,10 @@ class _ScheduleRoutineScreenState extends State<ScheduleRoutineScreen> {
                 children: [
                   // Previous Day Button
                   IconButton(
-                    icon: Icon(Icons.chevron_left, color: AppColors.primaryDark),
+                    icon: Icon(
+                      Icons.chevron_left,
+                      color: AppColors.primaryDark,
+                    ),
                     onPressed: _goToPreviousDay,
                     tooltip: 'Previous Day',
                   ),
@@ -1358,7 +1398,10 @@ class _ScheduleRoutineScreenState extends State<ScheduleRoutineScreen> {
                   ),
                   // Next Day Button
                   IconButton(
-                    icon: Icon(Icons.chevron_right, color: AppColors.primaryDark),
+                    icon: Icon(
+                      Icons.chevron_right,
+                      color: AppColors.primaryDark,
+                    ),
                     onPressed: _goToNextDay,
                     tooltip: 'Next Day',
                   ),
@@ -1508,7 +1551,9 @@ class _ScheduleRoutineScreenState extends State<ScheduleRoutineScreen> {
               child: ElevatedButton(
                 onPressed: canCompleteRoutine ? _completeRoutine : null,
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: canCompleteRoutine ? Colors.green : Colors.grey,
+                  backgroundColor: canCompleteRoutine
+                      ? Colors.green
+                      : Colors.grey,
                   foregroundColor: Colors.white,
                   padding: EdgeInsets.symmetric(vertical: 16),
                   shape: RoundedRectangleBorder(
@@ -1624,7 +1669,7 @@ class _ScheduleRoutineScreenState extends State<ScheduleRoutineScreen> {
       itemBuilder: (context, index) {
         final task = tasks[index];
         final bool isCancelled = task.status == 'CANCELLED' || task.isSkipped;
-        
+
         return Opacity(
           opacity: isCancelled ? 0.5 : 1.0, // Dim cancelled tasks
           child: Container(
@@ -1632,21 +1677,28 @@ class _ScheduleRoutineScreenState extends State<ScheduleRoutineScreen> {
             child: Material(
               color: Colors.transparent,
               child: InkWell(
-                onTap: isCancelled ? null : () => _selectTask(task), // Disable tap for cancelled tasks
+                onTap: isCancelled
+                    ? null
+                    : () =>
+                          _selectTask(task), // Disable tap for cancelled tasks
                 borderRadius: BorderRadius.circular(12),
                 child: Container(
                   padding: EdgeInsets.all(16),
                   decoration: BoxDecoration(
-                    color: isCancelled 
-                        ? Colors.grey.shade200 // Gray background for cancelled tasks
+                    color: isCancelled
+                        ? Colors
+                              .grey
+                              .shade200 // Gray background for cancelled tasks
                         : (task.isSelected ? Color(0xFFE8E0FF) : Colors.white),
                     borderRadius: BorderRadius.circular(12),
                     border: Border.all(
                       color: isCancelled
-                          ? Colors.grey.shade400 // Gray border for cancelled tasks
+                          ? Colors
+                                .grey
+                                .shade400 // Gray border for cancelled tasks
                           : (task.isSelected
-                              ? Color(0xFF6B4EE6)
-                              : Colors.grey.shade200),
+                                ? Color(0xFF6B4EE6)
+                                : Colors.grey.shade200),
                       width: task.isSelected ? 2 : 1,
                     ),
                     boxShadow: [
@@ -1683,8 +1735,12 @@ class _ScheduleRoutineScreenState extends State<ScheduleRoutineScreen> {
                                   style: TextStyle(
                                     fontSize: 16,
                                     fontWeight: FontWeight.w600,
-                                    color: isCancelled ? Colors.grey[500] : Colors.black87,
-                                    decoration: isCancelled ? TextDecoration.lineThrough : null,
+                                    color: isCancelled
+                                        ? Colors.grey[500]
+                                        : Colors.black87,
+                                    decoration: isCancelled
+                                        ? TextDecoration.lineThrough
+                                        : null,
                                   ),
                                 ),
                                 SizedBox(height: 4),
@@ -1692,8 +1748,12 @@ class _ScheduleRoutineScreenState extends State<ScheduleRoutineScreen> {
                                   task.description,
                                   style: TextStyle(
                                     fontSize: 14,
-                                    color: isCancelled ? Colors.grey[400] : Colors.grey[600],
-                                    decoration: isCancelled ? TextDecoration.lineThrough : null,
+                                    color: isCancelled
+                                        ? Colors.grey[400]
+                                        : Colors.grey[600],
+                                    decoration: isCancelled
+                                        ? TextDecoration.lineThrough
+                                        : null,
                                   ),
                                 ),
                               ],
@@ -1713,7 +1773,11 @@ class _ScheduleRoutineScreenState extends State<ScheduleRoutineScreen> {
 
                           // Completion Circle
                           GestureDetector(
-                            onTap: isCancelled ? null : () => _toggleTaskCompletion(task), // Disable for cancelled tasks
+                            onTap: isCancelled
+                                ? null
+                                : () => _toggleTaskCompletion(
+                                    task,
+                                  ), // Disable for cancelled tasks
                             child: Container(
                               width: 24,
                               height: 24,
@@ -1721,534 +1785,561 @@ class _ScheduleRoutineScreenState extends State<ScheduleRoutineScreen> {
                                 shape: BoxShape.circle,
                                 color: task.isCompleted
                                     ? Colors.green
-                                    : (isCancelled ? Colors.grey.shade300 : Colors.transparent),
+                                    : (isCancelled
+                                          ? Colors.grey.shade300
+                                          : Colors.transparent),
                                 border: Border.all(
                                   color: task.isCompleted
                                       ? Colors.green
-                                      : (isCancelled ? Colors.grey.shade400 : Colors.grey.shade400),
+                                      : (isCancelled
+                                            ? Colors.grey.shade400
+                                            : Colors.grey.shade400),
                                   width: 2,
                                 ),
                               ),
-                              child: _taskLoadingStates[task.careActivityId] == true
+                              child:
+                                  _taskLoadingStates[task.careActivityId] ==
+                                      true
                                   ? SizedBox(
                                       width: 16,
                                       height: 16,
                                       child: CircularProgressIndicator(
                                         strokeWidth: 2,
-                                        valueColor: AlwaysStoppedAnimation<Color>(
-                                          Colors.blue,
-                                        ),
+                                        valueColor:
+                                            AlwaysStoppedAnimation<Color>(
+                                              Colors.blue,
+                                            ),
                                       ),
                                     )
                                   : task.isCompleted
-                                      ? Icon(
-                                          Icons.check,
-                                          color: Colors.white,
-                                          size: 16,
-                                        )
-                                      : null,
+                                  ? Icon(
+                                      Icons.check,
+                                      color: Colors.white,
+                                      size: 16,
+                                    )
+                                  : null,
                             ),
                           ),
                         ],
                       ),
 
-                    // Show skip reason for any cancelled task (general display)
-                    if (isCancelled &&
-                        task.skipReason != null &&
-                        task.skipReason!.isNotEmpty)
-                      Container(
-                        margin: EdgeInsets.only(top: 12),
-                        padding: EdgeInsets.all(12),
-                        decoration: BoxDecoration(
-                          color: Colors.red.shade50,
-                          borderRadius: BorderRadius.circular(8),
-                          border: Border.all(color: Colors.red.shade200),
+                      // Show skip reason for any cancelled task (general display)
+                      if (isCancelled &&
+                          task.skipReason != null &&
+                          task.skipReason!.isNotEmpty)
+                        Container(
+                          margin: EdgeInsets.only(top: 12),
+                          padding: EdgeInsets.all(12),
+                          decoration: BoxDecoration(
+                            color: Colors.red.shade50,
+                            borderRadius: BorderRadius.circular(8),
+                            border: Border.all(color: Colors.red.shade200),
+                          ),
+                          child: Row(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Container(
+                                padding: EdgeInsets.all(4),
+                                decoration: BoxDecoration(
+                                  color: Colors.red.shade100,
+                                  borderRadius: BorderRadius.circular(4),
+                                ),
+                                child: Icon(
+                                  Icons.cancel,
+                                  size: 16,
+                                  color: Colors.red.shade600,
+                                ),
+                              ),
+                              SizedBox(width: 12),
+                              Expanded(
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text(
+                                      'Task Cancelled',
+                                      style: TextStyle(
+                                        fontSize: 14,
+                                        fontWeight: FontWeight.w600,
+                                        color: Colors.red.shade700,
+                                      ),
+                                    ),
+                                    SizedBox(height: 4),
+                                    Text(
+                                      'Reason: ${task.skipReason}',
+                                      style: TextStyle(
+                                        fontSize: 13,
+                                        color: Colors.red.shade600,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ],
+                          ),
                         ),
-                        child: Row(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Container(
-                              padding: EdgeInsets.all(4),
-                              decoration: BoxDecoration(
-                                color: Colors.red.shade100,
-                                borderRadius: BorderRadius.circular(4),
-                              ),
-                              child: Icon(
-                                Icons.cancel,
-                                size: 16,
-                                color: Colors.red.shade600,
-                              ),
-                            ),
-                            SizedBox(width: 12),
-                            Expanded(
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
+
+                      // Show detailed medication information when selected
+                      if (task.isSelected && task.taskType == 'medication')
+                        Container(
+                          margin: EdgeInsets.only(top: 16),
+                          padding: EdgeInsets.all(16),
+                          decoration: BoxDecoration(
+                            color: Colors.blue.shade50,
+                            borderRadius: BorderRadius.circular(8),
+                            border: Border.all(color: Colors.blue.shade200),
+                          ),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Row(
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceBetween,
                                 children: [
                                   Text(
-                                    'Task Cancelled',
+                                    'Medication Details',
                                     style: TextStyle(
-                                      fontSize: 14,
+                                      fontSize: 16,
                                       fontWeight: FontWeight.w600,
-                                      color: Colors.red.shade700,
+                                      color: Colors.blue.shade800,
                                     ),
                                   ),
-                                  SizedBox(height: 4),
-                                  Text(
-                                    'Reason: ${task.skipReason}',
-                                    style: TextStyle(
-                                      fontSize: 13,
-                                      color: Colors.red.shade600,
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-
-                    // Show detailed medication information when selected
-                    if (task.isSelected && task.taskType == 'medication')
-                      Container(
-                        margin: EdgeInsets.only(top: 16),
-                        padding: EdgeInsets.all(16),
-                        decoration: BoxDecoration(
-                          color: Colors.blue.shade50,
-                          borderRadius: BorderRadius.circular(8),
-                          border: Border.all(color: Colors.blue.shade200),
-                        ),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                              children: [
-                                Text(
-                                  'Medication Details',
-                                  style: TextStyle(
-                                    fontSize: 16,
-                                    fontWeight: FontWeight.w600,
+                                  IconButton(
+                                    icon: Icon(Icons.keyboard_arrow_up),
                                     color: Colors.blue.shade800,
-                                  ),
-                                ),
-                                IconButton(
-                                  icon: Icon(Icons.keyboard_arrow_up),
-                                  color: Colors.blue.shade800,
-                                  iconSize: 24,
-                                  padding: EdgeInsets.zero,
-                                  constraints: BoxConstraints(),
-                                  tooltip: 'Minimize',
-                                  onPressed: () {
-                                    setState(() {
-                                      task.isSelected = false;
-                                    });
-                                  },
-                                ),
-                              ],
-                            ),
-                            // Status indicator
-                            Container(
-                              margin: EdgeInsets.only(top: 8),
-                              padding: EdgeInsets.symmetric(
-                                horizontal: 8,
-                                vertical: 4,
-                              ),
-                              decoration: BoxDecoration(
-                                color: task.isCompleted
-                                    ? Colors.green.shade100
-                                    : task.isSkipped
-                                    ? Colors.red.shade100
-                                    : Colors.orange.shade100,
-                                borderRadius: BorderRadius.circular(12),
-                                border: Border.all(
-                                  color: task.isCompleted
-                                      ? Colors.green.shade300
-                                      : task.isSkipped
-                                      ? Colors.red.shade300
-                                      : Colors.orange.shade300,
-                                ),
-                              ),
-                              child: Row(
-                                mainAxisSize: MainAxisSize.min,
-                                children: [
-                                  Icon(
-                                    task.isCompleted
-                                        ? Icons.check_circle
-                                        : task.isSkipped
-                                        ? Icons.cancel
-                                        : Icons.schedule,
-                                    size: 14,
-                                    color: task.isCompleted
-                                        ? Colors.green.shade700
-                                        : task.isSkipped
-                                        ? Colors.red.shade700
-                                        : Colors.orange.shade700,
-                                  ),
-                                  SizedBox(width: 4),
-                                  Text(
-                                    task.isCompleted
-                                        ? 'Taken'
-                                        : task.isSkipped
-                                        ? 'Skipped'
-                                        : 'Pending',
-                                    style: TextStyle(
-                                      fontSize: 12,
-                                      fontWeight: FontWeight.w500,
-                                      color: task.isCompleted
-                                          ? Colors.green.shade700
-                                          : task.isSkipped
-                                          ? Colors.red.shade700
-                                          : Colors.orange.shade700,
-                                    ),
+                                    iconSize: 24,
+                                    padding: EdgeInsets.zero,
+                                    constraints: BoxConstraints(),
+                                    tooltip: 'Minimize',
+                                    onPressed: () {
+                                      setState(() {
+                                        task.isSelected = false;
+                                      });
+                                    },
                                   ),
                                 ],
                               ),
-                            ),
-
-                            // Show cancel reason if task is cancelled and has a reason
-                            if (isCancelled &&
-                                task.skipReason != null &&
-                                task.skipReason!.isNotEmpty)
+                              // Status indicator
                               Container(
                                 margin: EdgeInsets.only(top: 8),
-                                padding: EdgeInsets.all(8),
+                                padding: EdgeInsets.symmetric(
+                                  horizontal: 8,
+                                  vertical: 4,
+                                ),
                                 decoration: BoxDecoration(
-                                  color: Colors.red.shade50,
-                                  borderRadius: BorderRadius.circular(8),
+                                  color: task.isCompleted
+                                      ? Colors.green.shade100
+                                      : task.isSkipped
+                                      ? Colors.red.shade100
+                                      : Colors.orange.shade100,
+                                  borderRadius: BorderRadius.circular(12),
                                   border: Border.all(
-                                    color: Colors.red.shade200,
+                                    color: task.isCompleted
+                                        ? Colors.green.shade300
+                                        : task.isSkipped
+                                        ? Colors.red.shade300
+                                        : Colors.orange.shade300,
                                   ),
                                 ),
                                 child: Row(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  mainAxisSize: MainAxisSize.min,
                                   children: [
                                     Icon(
-                                      Icons.info_outline,
-                                      size: 16,
-                                      color: Colors.red.shade600,
-                                    ),
-                                    SizedBox(width: 8),
-                                    Expanded(
-                                      child: Column(
-                                        crossAxisAlignment:
-                                            CrossAxisAlignment.start,
-                                        children: [
-                                          Text(
-                                            'Cancellation Reason:',
-                                            style: TextStyle(
-                                              fontSize: 12,
-                                              fontWeight: FontWeight.w600,
-                                              color: Colors.red.shade700,
-                                            ),
-                                          ),
-                                          SizedBox(height: 2),
-                                          Text(
-                                            task.skipReason!,
-                                            style: TextStyle(
-                                              fontSize: 12,
-                                              color: Colors.red.shade600,
-                                            ),
-                                          ),
-                                        ],
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              ),
-
-                            SizedBox(height: 12),
-                            Row(
-                              children: [
-                                Expanded(
-                                  child: _buildMedicationDetailItem(
-                                    'Medication Name',
-                                    task.title,
-                                    Icons.medication,
-                                  ),
-                                ),
-                                Expanded(
-                                  child: _buildMedicationDetailItem(
-                                    'Dosage',
-                                    task.dosage ?? 'Not specified',
-                                    Icons.local_pharmacy,
-                                  ),
-                                ),
-                              ],
-                            ),
-                            SizedBox(height: 8),
-                            Row(
-                              children: [
-                                Expanded(
-                                  child: _buildMedicationDetailItem(
-                                    'Meal Timing',
-                                    task.mealTiming ?? 'Not specified',
-                                    Icons.restaurant,
-                                  ),
-                                ),
-                                Expanded(
-                                  child: _buildMedicationDetailItem(
-                                    'Rounds',
-                                    '${task.numberOfRounds ?? 1}',
-                                    Icons.repeat,
-                                  ),
-                                ),
-                              ],
-                            ),
-                            if (task.medicationDescription != null &&
-                                task.medicationDescription!.isNotEmpty) ...[
-                              SizedBox(height: 8),
-                              _buildMedicationDetailItem(
-                                'Description',
-                                task.medicationDescription!,
-                                Icons.description,
-                                isFullWidth: true,
-                              ),
-                            ],
-                          ],
-                        ),
-                      ),
-
-                    // Show detailed appointment information when selected
-                    if (task.isSelected && task.taskType == 'appointment')
-                      Container(
-                        margin: EdgeInsets.only(top: 16),
-                        padding: EdgeInsets.all(16),
-                        decoration: BoxDecoration(
-                          color: Colors.purple.shade50,
-                          borderRadius: BorderRadius.circular(8),
-                          border: Border.all(color: Colors.purple.shade200),
-                        ),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                              children: [
-                                Row(
-                                  children: [
-                                    Icon(
-                                      Icons.local_hotel,
-                                      color: Colors.purple.shade700,
-                                      size: 20,
-                                    ),
-                                    SizedBox(width: 8),
-                                    Text(
-                                      'Appointment Details',
-                                      style: TextStyle(
-                                        fontSize: 16,
-                                        fontWeight: FontWeight.w600,
-                                        color: Colors.purple.shade800,
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                                IconButton(
-                                  icon: Icon(Icons.keyboard_arrow_up),
-                                  color: Colors.purple.shade800,
-                                  iconSize: 24,
-                                  padding: EdgeInsets.zero,
-                                  constraints: BoxConstraints(),
-                                  tooltip: 'Minimize',
-                                  onPressed: () {
-                                    setState(() {
-                                      task.isSelected = false;
-                                    });
-                                  },
-                                ),
-                              ],
-                            ),
-                            
-                            // Status indicator
-                            Container(
-                              margin: EdgeInsets.only(top: 8),
-                              padding: EdgeInsets.symmetric(
-                                horizontal: 8,
-                                vertical: 4,
-                              ),
-                              decoration: BoxDecoration(
-                                color: task.isCompleted
-                                    ? Colors.green.shade100
-                                    : task.isSkipped
-                                    ? Colors.red.shade100
-                                    : Colors.orange.shade100,
-                                borderRadius: BorderRadius.circular(12),
-                                border: Border.all(
-                                  color: task.isCompleted
-                                      ? Colors.green.shade300
-                                      : task.isSkipped
-                                      ? Colors.red.shade300
-                                      : Colors.orange.shade300,
-                                ),
-                              ),
-                              child: Row(
-                                mainAxisSize: MainAxisSize.min,
-                                children: [
-                                  Icon(
-                                    task.isCompleted
-                                        ? Icons.check_circle
-                                        : task.isSkipped
-                                        ? Icons.cancel
-                                        : Icons.schedule,
-                                    size: 14,
-                                    color: task.isCompleted
-                                        ? Colors.green.shade700
-                                        : task.isSkipped
-                                        ? Colors.red.shade700
-                                        : Colors.orange.shade700,
-                                  ),
-                                  SizedBox(width: 4),
-                                  Text(
-                                    task.isCompleted
-                                        ? 'Completed'
-                                        : task.isSkipped
-                                        ? 'Skipped'
-                                        : 'Scheduled',
-                                    style: TextStyle(
-                                      fontSize: 12,
-                                      fontWeight: FontWeight.w500,
+                                      task.isCompleted
+                                          ? Icons.check_circle
+                                          : task.isSkipped
+                                          ? Icons.cancel
+                                          : Icons.schedule,
+                                      size: 14,
                                       color: task.isCompleted
                                           ? Colors.green.shade700
                                           : task.isSkipped
                                           ? Colors.red.shade700
                                           : Colors.orange.shade700,
                                     ),
+                                    SizedBox(width: 4),
+                                    Text(
+                                      task.isCompleted
+                                          ? 'Taken'
+                                          : task.isSkipped
+                                          ? 'Skipped'
+                                          : 'Pending',
+                                      style: TextStyle(
+                                        fontSize: 12,
+                                        fontWeight: FontWeight.w500,
+                                        color: task.isCompleted
+                                            ? Colors.green.shade700
+                                            : task.isSkipped
+                                            ? Colors.red.shade700
+                                            : Colors.orange.shade700,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+
+                              // Show cancel reason if task is cancelled and has a reason
+                              if (isCancelled &&
+                                  task.skipReason != null &&
+                                  task.skipReason!.isNotEmpty)
+                                Container(
+                                  margin: EdgeInsets.only(top: 8),
+                                  padding: EdgeInsets.all(8),
+                                  decoration: BoxDecoration(
+                                    color: Colors.red.shade50,
+                                    borderRadius: BorderRadius.circular(8),
+                                    border: Border.all(
+                                      color: Colors.red.shade200,
+                                    ),
+                                  ),
+                                  child: Row(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    children: [
+                                      Icon(
+                                        Icons.info_outline,
+                                        size: 16,
+                                        color: Colors.red.shade600,
+                                      ),
+                                      SizedBox(width: 8),
+                                      Expanded(
+                                        child: Column(
+                                          crossAxisAlignment:
+                                              CrossAxisAlignment.start,
+                                          children: [
+                                            Text(
+                                              'Cancellation Reason:',
+                                              style: TextStyle(
+                                                fontSize: 12,
+                                                fontWeight: FontWeight.w600,
+                                                color: Colors.red.shade700,
+                                              ),
+                                            ),
+                                            SizedBox(height: 2),
+                                            Text(
+                                              task.skipReason!,
+                                              style: TextStyle(
+                                                fontSize: 12,
+                                                color: Colors.red.shade600,
+                                              ),
+                                            ),
+                                          ],
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+
+                              SizedBox(height: 12),
+                              Row(
+                                children: [
+                                  Expanded(
+                                    child: _buildMedicationDetailItem(
+                                      'Medication Name',
+                                      task.title,
+                                      Icons.medication,
+                                    ),
+                                  ),
+                                  Expanded(
+                                    child: _buildMedicationDetailItem(
+                                      'Dosage',
+                                      task.dosage ?? 'Not specified',
+                                      Icons.local_pharmacy,
+                                    ),
                                   ),
                                 ],
                               ),
-                            ),
-
-                            SizedBox(height: 12),
-                            _buildMedicationDetailItem(
-                              'Hospital/Clinic',
-                              task.hospital ?? 'Not specified',
-                              Icons.local_hotel,
-                              isFullWidth: true,
-                            ),
-                            SizedBox(height: 8),
-                            _buildMedicationDetailItem(
-                              'Doctor',
-                              'Dr. ${task.doctorName ?? 'Not specified'}',
-                              Icons.person,
-                              isFullWidth: true,
-                            ),
-                            SizedBox(height: 8),
-                            Row(
-                              children: [
-                                Expanded(
-                                  child: _buildMedicationDetailItem(
-                                    'Date',
-                                    _formatDateDisplay(task.appointmentDate ?? ''),
-                                    Icons.calendar_today,
+                              SizedBox(height: 8),
+                              Row(
+                                children: [
+                                  Expanded(
+                                    child: _buildMedicationDetailItem(
+                                      'Meal Timing',
+                                      task.mealTiming ?? 'Not specified',
+                                      Icons.restaurant,
+                                    ),
                                   ),
-                                ),
-                                Expanded(
-                                  child: _buildMedicationDetailItem(
-                                    'Time',
-                                    task.time,
-                                    Icons.access_time,
+                                  Expanded(
+                                    child: _buildMedicationDetailItem(
+                                      'Rounds',
+                                      '${task.numberOfRounds ?? 1}',
+                                      Icons.repeat,
+                                    ),
                                   ),
+                                ],
+                              ),
+                              if (task.medicationDescription != null &&
+                                  task.medicationDescription!.isNotEmpty) ...[
+                                SizedBox(height: 8),
+                                _buildMedicationDetailItem(
+                                  'Description',
+                                  task.medicationDescription!,
+                                  Icons.description,
+                                  isFullWidth: true,
                                 ),
                               ],
-                            ),
-                            if (task.description.isNotEmpty) ...[
-                              SizedBox(height: 8),
+                            ],
+                          ),
+                        ),
+
+                      // Show detailed appointment information when selected
+                      if (task.isSelected && task.taskType == 'appointment')
+                        Container(
+                          margin: EdgeInsets.only(top: 16),
+                          padding: EdgeInsets.all(16),
+                          decoration: BoxDecoration(
+                            color: Colors.purple.shade50,
+                            borderRadius: BorderRadius.circular(8),
+                            border: Border.all(color: Colors.purple.shade200),
+                          ),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Row(
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceBetween,
+                                children: [
+                                  Row(
+                                    children: [
+                                      Icon(
+                                        Icons.local_hotel,
+                                        color: Colors.purple.shade700,
+                                        size: 20,
+                                      ),
+                                      SizedBox(width: 8),
+                                      Text(
+                                        'Appointment Details',
+                                        style: TextStyle(
+                                          fontSize: 16,
+                                          fontWeight: FontWeight.w600,
+                                          color: Colors.purple.shade800,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                  IconButton(
+                                    icon: Icon(Icons.keyboard_arrow_up),
+                                    color: Colors.purple.shade800,
+                                    iconSize: 24,
+                                    padding: EdgeInsets.zero,
+                                    constraints: BoxConstraints(),
+                                    tooltip: 'Minimize',
+                                    onPressed: () {
+                                      setState(() {
+                                        task.isSelected = false;
+                                      });
+                                    },
+                                  ),
+                                ],
+                              ),
+
+                              // Status indicator
+                              Container(
+                                margin: EdgeInsets.only(top: 8),
+                                padding: EdgeInsets.symmetric(
+                                  horizontal: 8,
+                                  vertical: 4,
+                                ),
+                                decoration: BoxDecoration(
+                                  color: task.isCompleted
+                                      ? Colors.green.shade100
+                                      : task.isSkipped
+                                      ? Colors.red.shade100
+                                      : Colors.orange.shade100,
+                                  borderRadius: BorderRadius.circular(12),
+                                  border: Border.all(
+                                    color: task.isCompleted
+                                        ? Colors.green.shade300
+                                        : task.isSkipped
+                                        ? Colors.red.shade300
+                                        : Colors.orange.shade300,
+                                  ),
+                                ),
+                                child: Row(
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: [
+                                    Icon(
+                                      task.isCompleted
+                                          ? Icons.check_circle
+                                          : task.isSkipped
+                                          ? Icons.cancel
+                                          : Icons.schedule,
+                                      size: 14,
+                                      color: task.isCompleted
+                                          ? Colors.green.shade700
+                                          : task.isSkipped
+                                          ? Colors.red.shade700
+                                          : Colors.orange.shade700,
+                                    ),
+                                    SizedBox(width: 4),
+                                    Text(
+                                      task.isCompleted
+                                          ? 'Completed'
+                                          : task.isSkipped
+                                          ? 'Skipped'
+                                          : 'Scheduled',
+                                      style: TextStyle(
+                                        fontSize: 12,
+                                        fontWeight: FontWeight.w500,
+                                        color: task.isCompleted
+                                            ? Colors.green.shade700
+                                            : task.isSkipped
+                                            ? Colors.red.shade700
+                                            : Colors.orange.shade700,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+
+                              SizedBox(height: 12),
                               _buildMedicationDetailItem(
-                                'Notes',
-                                task.description,
-                                Icons.notes,
+                                'Hospital/Clinic',
+                                task.hospital ?? 'Not specified',
+                                Icons.local_hotel,
                                 isFullWidth: true,
                               ),
+                              SizedBox(height: 8),
+                              _buildMedicationDetailItem(
+                                'Doctor',
+                                'Dr. ${task.doctorName ?? 'Not specified'}',
+                                Icons.person,
+                                isFullWidth: true,
+                              ),
+                              SizedBox(height: 8),
+                              Row(
+                                children: [
+                                  Expanded(
+                                    child: _buildMedicationDetailItem(
+                                      'Date',
+                                      _formatDateDisplay(
+                                        task.appointmentDate ?? '',
+                                      ),
+                                      Icons.calendar_today,
+                                    ),
+                                  ),
+                                  Expanded(
+                                    child: _buildMedicationDetailItem(
+                                      'Time',
+                                      task.time,
+                                      Icons.access_time,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                              if (task.description.isNotEmpty) ...[
+                                SizedBox(height: 8),
+                                _buildMedicationDetailItem(
+                                  'Notes',
+                                  task.description,
+                                  Icons.notes,
+                                  isFullWidth: true,
+                                ),
+                              ],
                             ],
-                          ],
-                        ),
-                      ),
-
-                    // Skip Task Button (only show when task is selected, not completed, and not cancelled)
-                    if (task.isSelected && !task.isCompleted && !isCancelled && (task.status == 'PENDING' || task.status == null))
-                      Container(
-                        margin: EdgeInsets.only(top: 16),
-                        width: double.infinity,
-                        child: ElevatedButton.icon(
-                          onPressed: () => _showSkipReasonDialog(task),
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: Colors.red,
-                            foregroundColor: Colors.white,
-                            padding: EdgeInsets.symmetric(vertical: 12),
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(8),
-                            ),
-                            elevation: 0,
-                          ),
-                          icon: Icon(Icons.close, size: 18),
-                          label: Text(
-                            'Skip Task',
-                            style: TextStyle(
-                              fontSize: 16,
-                              fontWeight: FontWeight.w500,
-                            ),
                           ),
                         ),
-                      ),
 
-                    // Edit and Undo buttons row (show for selected tasks or cancelled tasks)
-                    if ((task.isSelected && !task.isCompleted && !isCancelled) ||
-                        isCancelled)
-                      Container(
-                        margin: EdgeInsets.only(top: task.isSelected ? 8 : 16),
-                        child: Row(
-                          children: [
-                            // Edit Button (only show for non-cancelled tasks)
-                            if (!isCancelled)
-                              Expanded(
-                                child: OutlinedButton.icon(
-                                  onPressed: () => _editTask(task),
-                                  style: OutlinedButton.styleFrom(
-                                    side: BorderSide(color: Color(0xFF6B4EE6)),
-                                    padding: EdgeInsets.symmetric(vertical: 8),
-                                    shape: RoundedRectangleBorder(
-                                      borderRadius: BorderRadius.circular(8),
-                                    ),
-                                  ),
-                                  icon: Icon(
-                                    Icons.edit,
-                                    size: 16,
-                                    color: Color(0xFF6B4EE6),
-                                  ),
-                                  label: Text(
-                                    'Edit',
-                                    style: TextStyle(color: Color(0xFF6B4EE6)),
-                                  ),
-                                ),
+                      // Skip Task Button (only show when task is selected, not completed, and not cancelled)
+                      if (task.isSelected &&
+                          !task.isCompleted &&
+                          !isCancelled &&
+                          (task.status == 'PENDING' || task.status == null))
+                        Container(
+                          margin: EdgeInsets.only(top: 16),
+                          width: double.infinity,
+                          child: ElevatedButton.icon(
+                            onPressed: () => _showSkipReasonDialog(task),
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: Colors.red,
+                              foregroundColor: Colors.white,
+                              padding: EdgeInsets.symmetric(vertical: 12),
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(8),
                               ),
-
-                            // Undo Skip Button (only for cancelled/skipped tasks)
-                            if (task.isSkipped || isCancelled)
-                              Expanded(
-                                child: ElevatedButton.icon(
-                                  onPressed: () async {
-                                    await _undoCancelTask(task);
-                                  },
-                                  style: ElevatedButton.styleFrom(
-                                    backgroundColor: Colors.green,
-                                    foregroundColor: Colors.white,
-                                    padding: EdgeInsets.symmetric(vertical: 8),
-                                    shape: RoundedRectangleBorder(
-                                      borderRadius: BorderRadius.circular(8),
-                                    ),
-                                    elevation: 0,
-                                  ),
-                                  icon: Icon(Icons.undo, size: 16),
-                                  label: Text('Undo Cancel'),
-                                ),
+                              elevation: 0,
+                            ),
+                            icon: Icon(Icons.close, size: 18),
+                            label: Text(
+                              'Skip Task',
+                              style: TextStyle(
+                                fontSize: 16,
+                                fontWeight: FontWeight.w500,
                               ),
-                          ],
+                            ),
+                          ),
                         ),
-                      ),
-                  ],
+
+                      // Edit and Undo buttons row (show for selected tasks or cancelled tasks)
+                      if ((task.isSelected &&
+                              !task.isCompleted &&
+                              !isCancelled) ||
+                          isCancelled)
+                        Container(
+                          margin: EdgeInsets.only(
+                            top: task.isSelected ? 8 : 16,
+                          ),
+                          child: Row(
+                            children: [
+                              // Edit Button (only show for non-cancelled tasks)
+                              if (!isCancelled)
+                                Expanded(
+                                  child: OutlinedButton.icon(
+                                    onPressed: () => _editTask(task),
+                                    style: OutlinedButton.styleFrom(
+                                      side: BorderSide(
+                                        color: Color(0xFF6B4EE6),
+                                      ),
+                                      padding: EdgeInsets.symmetric(
+                                        vertical: 8,
+                                      ),
+                                      shape: RoundedRectangleBorder(
+                                        borderRadius: BorderRadius.circular(8),
+                                      ),
+                                    ),
+                                    icon: Icon(
+                                      Icons.edit,
+                                      size: 16,
+                                      color: Color(0xFF6B4EE6),
+                                    ),
+                                    label: Text(
+                                      'Edit',
+                                      style: TextStyle(
+                                        color: Color(0xFF6B4EE6),
+                                      ),
+                                    ),
+                                  ),
+                                ),
+
+                              // Undo Skip Button (only for cancelled/skipped tasks)
+                              if (task.isSkipped || isCancelled)
+                                Expanded(
+                                  child: ElevatedButton.icon(
+                                    onPressed: () async {
+                                      await _undoCancelTask(task);
+                                    },
+                                    style: ElevatedButton.styleFrom(
+                                      backgroundColor: Colors.green,
+                                      foregroundColor: Colors.white,
+                                      padding: EdgeInsets.symmetric(
+                                        vertical: 8,
+                                      ),
+                                      shape: RoundedRectangleBorder(
+                                        borderRadius: BorderRadius.circular(8),
+                                      ),
+                                      elevation: 0,
+                                    ),
+                                    icon: Icon(Icons.undo, size: 16),
+                                    label: Text('Undo Cancel'),
+                                  ),
+                                ),
+                            ],
+                          ),
+                        ),
+                    ],
+                  ),
                 ),
               ),
             ),
-          ),
           ), // Close the Opacity child property
         ); // Close the return statement
       },

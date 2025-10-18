@@ -2,7 +2,8 @@ import 'package:flutter/material.dart';
 import '../../routes/app_routes.dart';
 import '../../services/patient_service.dart';
 import '../../services/auth_service.dart';
-import '../../services/guardian_service.dart'; // Add this import if not present
+import '../../services/guardian_service.dart';
+import '../../services/daily_report_service.dart';
 import '../../constants/color_constants.dart';
 import '../../utils/name_utils.dart';
 
@@ -39,12 +40,19 @@ class _GuardianPatientsReportsScreenState
         final response = await PatientService.getPatientsWithRequestStatus(
           guardianId,
         );
-        // Only use patient name and id, hardcode other fields
+        // Fetch real report data for each patient
         final List<Map<String, dynamic>> loadedPatients = [];
         int labelCounter = 1;
         for (var p in response) {
+          final patientId = p['patientId'] ?? p['id'];
+
+          // Fetch report summary from backend
+          final reportSummary =
+              await DailyReportService.getReportSummaryForPatient(patientId);
+
           loadedPatients.add({
-            'id': p['patientId'] ?? p['id'],
+            'id': patientId,
+            'patientId': patientId,
             'name': p['name'] ?? p['fName'] + ' ' + p['lName'],
             'label': 'Patient $labelCounter',
             'fName': (p['name'] ?? p['fName'] ?? '').split(' ').first,
@@ -54,8 +62,9 @@ class _GuardianPatientsReportsScreenState
                       .sublist(1)
                       .join(' ')
                 : '',
-            'totalReports': 10 + labelCounter, // hardcoded
-            'lastReportDate': '2024-07-0${labelCounter}', // hardcoded
+            'totalReports': reportSummary['totalReports'],
+            'lastReportDate':
+                reportSummary['lastReportDate'] ?? 'No reports yet',
           });
           labelCounter++;
         }
@@ -145,14 +154,20 @@ class _GuardianPatientsReportsScreenState
                     Container(
                       padding: EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                       decoration: BoxDecoration(
-                        color: AppColors.primaryLight.withOpacity(0.2),
+                        color: patient['totalReports'] > 0
+                            ? AppColors.primaryLight.withOpacity(0.2)
+                            : Colors.grey[200],
                         borderRadius: BorderRadius.circular(6),
                       ),
                       child: Text(
-                        '${patient['totalReports']} reports available',
+                        patient['totalReports'] > 0
+                            ? '${patient['totalReports']} report${patient['totalReports'] == 1 ? '' : 's'} available'
+                            : 'No reports yet',
                         style: TextStyle(
                           fontSize: 12,
-                          color: AppColors.info,
+                          color: patient['totalReports'] > 0
+                              ? AppColors.info
+                              : Colors.grey[600],
                           fontWeight: FontWeight.w500,
                         ),
                       ),
@@ -172,11 +187,15 @@ class _GuardianPatientsReportsScreenState
                   ),
                   SizedBox(height: 4),
                   Text(
-                    patient['lastReportDate'],
+                    patient['lastReportDate'] == 'No reports yet'
+                        ? 'N/A'
+                        : patient['lastReportDate'],
                     style: TextStyle(
                       fontSize: 14,
                       fontWeight: FontWeight.w500,
-                      color: AppColors.onSurface,
+                      color: patient['lastReportDate'] == 'No reports yet'
+                          ? Colors.grey[500]
+                          : AppColors.onSurface,
                     ),
                   ),
                   SizedBox(height: 12),

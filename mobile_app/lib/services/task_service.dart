@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'package:http/http.dart' as http;
+import 'api_constants.dart';
 
 // Task model
 class Task {
@@ -67,7 +68,7 @@ class TaskService {
   static Future<ApiResult<List<Map<String, dynamic>>>> getGames() async {
     try {
       final response = await http.get(
-        Uri.parse('$baseUrl/api/games'),
+        Uri.parse('${ApiConstants.baseUrl}/api/games'),
         headers: {'Content-Type': 'application/json'},
       );
       if (response.statusCode == 200) {
@@ -113,7 +114,7 @@ class TaskService {
   }) async {
     try {
       final response = await http.put(
-        Uri.parse('$baseUrl/api/tasks/$taskId'),
+        Uri.parse('${ApiConstants.baseUrl}/api/tasks/$taskId'),
         headers: {'Content-Type': 'application/json'},
         body: jsonEncode({
           'gameName': gameName,
@@ -147,8 +148,6 @@ class TaskService {
     }
   }
 
-  static const String baseUrl = 'http://192.168.8.166:8080';
-
   /// Create a new task
   static Future<ApiResult<Task>> createTask({
     required int scheduleId,
@@ -161,7 +160,7 @@ class TaskService {
       );
 
       final response = await http.post(
-        Uri.parse('$baseUrl/api/tasks'),
+        Uri.parse('${ApiConstants.baseUrl}/api/tasks'),
         headers: {'Content-Type': 'application/json'},
         body: jsonEncode({
           'scheduleId': scheduleId,
@@ -209,7 +208,7 @@ class TaskService {
 
       final response = await http
           .get(
-            Uri.parse('$baseUrl/api/tasks/schedule/$scheduleId'),
+            Uri.parse('${ApiConstants.baseUrl}/api/tasks/schedule/$scheduleId'),
             headers: {'Content-Type': 'application/json'},
           )
           .timeout(Duration(seconds: 10));
@@ -255,7 +254,7 @@ class TaskService {
       print('TaskService - Updating task $taskId status to: $status');
 
       final response = await http.put(
-        Uri.parse('$baseUrl/api/tasks/$taskId/status'),
+        Uri.parse('${ApiConstants.baseUrl}/api/tasks/$taskId/status'),
         headers: {'Content-Type': 'application/json'},
         body: jsonEncode({'status': status}),
       );
@@ -296,7 +295,7 @@ class TaskService {
       print('TaskService - Deleting task: $taskId');
 
       final response = await http.delete(
-        Uri.parse('$baseUrl/api/tasks/$taskId'),
+        Uri.parse('${ApiConstants.baseUrl}/api/tasks/$taskId'),
         headers: {'Content-Type': 'application/json'},
       );
 
