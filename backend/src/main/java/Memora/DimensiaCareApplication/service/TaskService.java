@@ -134,6 +134,15 @@ public class TaskService {
         try {
             System.out.println("TaskService - Getting tasks for schedule ID: " + scheduleId);
 
+            // Check if schedule is completed
+            Schedule schedule = scheduleRepository.findById(scheduleId.longValue())
+                    .orElseThrow(() -> new RuntimeException("Schedule not found with ID: " + scheduleId));
+
+            if (schedule.getIsCompleted() != null && schedule.getIsCompleted()) {
+                System.out.println("TaskService - Schedule is completed, returning empty list");
+                return List.of();
+            }
+
             List<Task> tasks = taskRepository.findByScheduleId(scheduleId);
             System.out.println("TaskService - Found " + tasks.size() + " tasks");
 

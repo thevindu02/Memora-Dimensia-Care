@@ -6,6 +6,10 @@ import Memora.DimensiaCareApplication.dto.DailyActivityResponse;
 import Memora.DimensiaCareApplication.repository.ScheduleRepository;
 import Memora.DimensiaCareApplication.repository.CareActivityRepository;
 import Memora.DimensiaCareApplication.repository.DailyTaskRepository;
+import Memora.DimensiaCareApplication.repository.PatientRepository;
+import Memora.DimensiaCareApplication.repository.GuardianRepository;
+import Memora.DimensiaCareApplication.repository.CaregiverRepository;
+import Memora.DimensiaCareApplication.repository.GuardianPatientCaregiverConnectionRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -27,6 +31,18 @@ public class ScheduleService {
 
     @Autowired
     private DailyTaskRepository dailyTaskRepository;
+
+    @Autowired
+    private PatientRepository patientRepository;
+
+    @Autowired
+    private GuardianRepository guardianRepository;
+
+    @Autowired
+    private CaregiverRepository caregiverRepository;
+
+    @Autowired
+    private GuardianPatientCaregiverConnectionRepository connectionRepository;
 
     // Create a new schedule with default daily routine tasks
     public Schedule createScheduleWithDefaultTasks(Patient patient, Guardian guardian, Caregiver caregiver,
@@ -122,6 +138,50 @@ public class ScheduleService {
         return scheduleRepository.findByIsCompletedTrue();
     }
 
+    // Get or create schedule for a patient on a specific date
+    public Schedule getOrCreateScheduleForPatientAndDate(Long patientId, LocalDate date) {
+        // First try to find existing schedule
+        Optional<Schedule> existingSchedule = scheduleRepository.findByPatientPatientIdAndDate(patientId, date);
+        if (existingSchedule.isPresent()) {
+            return existingSchedule.get();
+        }
+
+        // Schedule doesn't exist, create a new empty one
+        Patient patient = patientRepository.findById(patientId).orElse(null);
+        if (patient == null) {
+            throw new RuntimeException("Patient not found with ID: " + patientId);
+        }
+
+        // Find the active guardian-patient-caregiver connection
+        List<GuardianPatientCaregiverConnection> connections = connectionRepository.findByPatientIdAndStatus(
+                patientId,
+                GuardianPatientCaregiverConnection.ConnectionStatus.ACTIVE);
+
+        if (connections.isEmpty()) {
+            System.out.println("No active caregiver connection found for patient " + patientId);
+            return null;
+        }
+
+        // Use the first active connection
+        GuardianPatientCaregiverConnection activeConnection = connections.get(0);
+
+        // Get guardian and caregiver
+        Guardian guardian = guardianRepository.findById(activeConnection.getGuardianId()).orElse(null);
+        Caregiver caregiver = caregiverRepository.findById(activeConnection.getCaregiverId().intValue()).orElse(null);
+
+        if (guardian == null || caregiver == null) {
+            System.out.println("Guardian or Caregiver not found for patient " + patientId);
+            return null;
+        }
+
+        // Create empty schedule (no default tasks)
+        Schedule schedule = new Schedule(patient, guardian, caregiver, date);
+        schedule = scheduleRepository.save(schedule);
+
+        System.out.println("Created empty schedule for patient " + patientId + " on " + date);
+        return schedule;
+    }
+
     // ===== DAILY ACTIVITIES METHODS =====
 
     // Add daily activity to schedule
@@ -159,6 +219,11 @@ public class ScheduleService {
         // Check if schedule exists
         Schedule schedule = scheduleRepository.findById(scheduleId)
                 .orElseThrow(() -> new RuntimeException("Schedule not found with ID: " + scheduleId));
+
+        // If schedule is completed, return empty list
+        if (schedule.getIsCompleted() != null && schedule.getIsCompleted()) {
+            return List.of();
+        }
 
         // Get all care activities for the schedule
         List<CareActivity> careActivities = careActivityRepository.findByScheduleScheduleIdOrderByTime(scheduleId);

@@ -39,7 +39,7 @@ public class DailySchedulerService {
     private CaregiverRepository caregiverRepository;
 
     // Runs every day at 12:00 PM for testing purposes
-    @Scheduled(cron = "0 0 12 * * *") // Runs at 12:00:00 every day
+    @Scheduled(cron = "0 48 12 * * *") // Runs at 12:00:00 every day
     public void createDailySchedulesForAllPatients() {
         System.out.println("Creating daily schedules for all patients...");
 

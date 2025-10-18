@@ -61,7 +61,7 @@ public class MedicationReminderService {
             medication.setMealTiming(request.getMealTiming());
             medication.setTime(time);
             medication.setDescription(request.getDescription());
-            medication.setPatientId(1L); // TODO: Replace with actual patientId from context/request
+            medication.setPatientId(scheduleOpt.get().getPatient().getPatientID());
             if (request.getFromDate() != null && !request.getFromDate().isEmpty()) {
                 medication.setFromDate(java.time.LocalDate.parse(request.getFromDate()));
             }
@@ -113,6 +113,14 @@ public class MedicationReminderService {
     }
 
     public List<MedicationReminder> getMedicationRemindersByScheduleId(Long scheduleId) {
+        // Check if schedule is completed
+        Schedule schedule = scheduleRepository.findById(scheduleId)
+                .orElseThrow(() -> new RuntimeException("Schedule not found with ID: " + scheduleId));
+
+        if (schedule.getIsCompleted() != null && schedule.getIsCompleted()) {
+            return List.of();
+        }
+
         return medicationReminderRepository.findByScheduleId(scheduleId);
     }
 }

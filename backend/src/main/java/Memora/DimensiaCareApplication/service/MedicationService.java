@@ -23,7 +23,19 @@ public class MedicationService {
     @Autowired
     private MedicationReminderRepository medicationReminderRepository;
 
+    @Autowired
+    private PatientRepository patientRepository;
+
     public Medication addMedication(Medication medication) {
+        // Validate that patient exists
+        if (medication.getPatientId() == null) {
+            throw new IllegalArgumentException("Patient ID cannot be null");
+        }
+        
+        if (!patientRepository.existsById(medication.getPatientId().longValue())) {
+            throw new RuntimeException("Patient with ID " + medication.getPatientId() + " does not exist");
+        }
+        
         Medication savedMedication = medicationRepository.save(medication);
 
         LocalDate today = LocalDate.now();

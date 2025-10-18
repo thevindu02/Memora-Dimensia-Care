@@ -77,10 +77,13 @@ class AppointmentService {
   ) async {
     try {
       final response = await http.post(
-        Uri.parse('${ApiConstants.baseUrl}/appointments/schedule/$scheduleId'),
+        Uri.parse('${ApiConstants.baseUrl}/api/appointments/schedule/$scheduleId'),
         headers: {'Content-Type': 'application/json'},
         body: json.encode(request.toJson()),
       );
+
+      print('Response status code: ${response.statusCode}');
+      print('Response body: ${response.body}');
 
       if (response.statusCode == 201 || response.statusCode == 200) {
         final responseData = json.decode(response.body);
@@ -94,16 +97,28 @@ class AppointmentService {
         } else {
           return ApiResult<Appointment>(
             success: false,
-            message: responseData['message'] ?? 'Failed to create appointment',
+            message: responseData['message'] ?? 'Failed to create appointment - Invalid response format',
           );
         }
       } else {
+        // Try to parse error message from response
+        String errorMessage = 'Failed to create appointment - Status code: ${response.statusCode}';
+        try {
+          final errorData = json.decode(response.body);
+          if (errorData['message'] != null) {
+            errorMessage = errorData['message'];
+          }
+        } catch (e) {
+          errorMessage += ' - Response: ${response.body}';
+        }
+        
         return ApiResult<Appointment>(
           success: false,
-          message: 'Failed to create appointment',
+          message: errorMessage,
         );
       }
     } catch (e) {
+      print('Exception creating appointment: $e');
       return ApiResult<Appointment>(
         success: false,
         message: 'Error creating appointment: $e',
@@ -114,7 +129,7 @@ class AppointmentService {
   static Future<List<Appointment>> getAppointments(int scheduleId) async {
     try {
       final response = await http.get(
-        Uri.parse('${ApiConstants.baseUrl}/appointments/schedule/$scheduleId'),
+        Uri.parse('${ApiConstants.baseUrl}/api/appointments/schedule/$scheduleId'),
         headers: {'Content-Type': 'application/json'},
       );
 

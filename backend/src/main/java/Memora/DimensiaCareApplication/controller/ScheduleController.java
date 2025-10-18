@@ -13,6 +13,8 @@ import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Map;
+import java.util.HashMap;
 import java.util.Optional;
 
 @RestController
@@ -115,10 +117,11 @@ public class ScheduleController {
     @PutMapping("/{id}/completion")
     public ResponseEntity<?> updateScheduleCompletion(@PathVariable Long id, @RequestParam boolean isCompleted) {
         try {
-            Schedule updatedSchedule = scheduleService.updateScheduleCompletion(id, isCompleted);
-            return ResponseEntity.ok(new ScheduleResponse(true, "Schedule completion status updated", updatedSchedule));
+            scheduleService.updateScheduleCompletion(id, isCompleted);
+            return ResponseEntity.ok(new ApiResponse(true, "Schedule completion status updated successfully"));
         } catch (RuntimeException e) {
-            return ResponseEntity.notFound().build();
+            return ResponseEntity.badRequest()
+                    .body(new ApiResponse(false, "Error updating schedule: " + e.getMessage()));
         }
     }
 
@@ -146,6 +149,39 @@ public class ScheduleController {
     public ResponseEntity<List<Schedule>> getCompletedSchedules() {
         List<Schedule> schedules = scheduleService.getCompletedSchedules();
         return ResponseEntity.ok(schedules);
+    }
+
+    // Get or create schedule by patient ID and date
+    @PostMapping("/get-or-create")
+    public ResponseEntity<?> getOrCreateSchedule(@RequestBody GetOrCreateScheduleRequest request) {
+        try {
+            if (request.getPatientId() == null || request.getDate() == null) {
+                return ResponseEntity.badRequest()
+                        .body(new ApiResponse(false, "Patient ID and date are required"));
+            }
+
+            Schedule schedule = scheduleService.getOrCreateScheduleForPatientAndDate(
+                    request.getPatientId(),
+                    request.getDate());
+
+            if (schedule == null) {
+                return ResponseEntity.badRequest()
+                        .body(new ApiResponse(false,
+                                "Failed to get or create schedule. Patient may not have an active caregiver connection."));
+            }
+
+            // Return schedule details
+            Map<String, Object> scheduleData = new HashMap<>();
+            scheduleData.put("scheduleId", schedule.getScheduleId());
+            scheduleData.put("patientId", schedule.getPatient().getPatientID());
+            scheduleData.put("date", schedule.getDate().toString());
+            scheduleData.put("isCompleted", schedule.getIsCompleted());
+
+            return ResponseEntity.ok(new ApiResponse(true, "Schedule retrieved successfully", scheduleData));
+        } catch (Exception e) {
+            return ResponseEntity.badRequest()
+                    .body(new ApiResponse(false, "Error getting or creating schedule: " + e.getMessage()));
+        }
     }
 
     // ===== DAILY ACTIVITIES ENDPOINTS =====
@@ -298,6 +334,28 @@ public class ScheduleController {
 
         public void setSchedule(Schedule schedule) {
             this.schedule = schedule;
+        }
+    }
+
+    public static class GetOrCreateScheduleRequest {
+        private Long patientId;
+        private LocalDate date;
+
+        // Getters and setters
+        public Long getPatientId() {
+            return patientId;
+        }
+
+        public void setPatientId(Long patientId) {
+            this.patientId = patientId;
+        }
+
+        public LocalDate getDate() {
+            return date;
+        }
+
+        public void setDate(LocalDate date) {
+            this.date = date;
         }
     }
 }

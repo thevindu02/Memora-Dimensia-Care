@@ -8,6 +8,7 @@ import '../../services/game_service.dart' as GameAPI;
 import '../../services/task_service.dart' as TaskAPI;
 import '../../services/medication_service.dart' as MedicationAPI;
 import '../../services/appointment_service.dart';
+import '../../services/schedule_service.dart' as ScheduleAPI;
 import '../../models/medication_reminder.dart';
 import '../../models/api_result.dart' as Models;
 
@@ -144,6 +145,10 @@ class Approute {
 
 // 5. Enhanced SelectType Widget with Error Handling
 class SelectTypeWithErrorHandling extends StatefulWidget {
+  final int? patientId;
+
+  const SelectTypeWithErrorHandling({Key? key, this.patientId}) : super(key: key);
+
   @override
   _SelectTypeWithErrorHandlingState createState() =>
       _SelectTypeWithErrorHandlingState();
@@ -154,8 +159,6 @@ class _SelectTypeWithErrorHandlingState
   int _currentIndex = 1;
   bool _isLoading = false;
   String? _errorMessage;
-  final int scheduleId =
-      1; // You should pass this as a parameter or get it from context
 
   final List<RoutineCard> routineCards = [
     RoutineCard(
@@ -491,6 +494,7 @@ class _SelectTypeWithErrorHandlingState
     final _formKey = GlobalKey<FormState>();
     final _taskNameController = TextEditingController();
     final _descriptionController = TextEditingController();
+    DateTime _selectedDate = DateTime.now(); // Default to today
     TimeOfDay? _selectedTime;
     bool _isSubmitting = false;
 
@@ -534,6 +538,49 @@ class _SelectTypeWithErrorHandlingState
                           }
                           return null;
                         },
+                      ),
+                      SizedBox(height: 16),
+
+                      // Date Picker
+                      InkWell(
+                        onTap: () async {
+                          final DateTime? picked = await showDatePicker(
+                            context: context,
+                            initialDate: _selectedDate,
+                            firstDate: DateTime(2020),
+                            lastDate: DateTime(2030),
+                            builder: (context, child) {
+                              return Theme(
+                                data: Theme.of(context).copyWith(
+                                  colorScheme: ColorScheme.light(
+                                    primary: Color(0xFF2196F3),
+                                    onPrimary: Colors.white,
+                                    onSurface: Colors.black,
+                                  ),
+                                ),
+                                child: child!,
+                              );
+                            },
+                          );
+                          if (picked != null) {
+                            setState(() {
+                              _selectedDate = picked;
+                            });
+                          }
+                        },
+                        child: InputDecorator(
+                          decoration: InputDecoration(
+                            labelText: 'Date',
+                            border: OutlineInputBorder(),
+                            prefixIcon: Icon(Icons.calendar_today),
+                          ),
+                          child: Text(
+                            '${_selectedDate.year}-${_selectedDate.month.toString().padLeft(2, '0')}-${_selectedDate.day.toString().padLeft(2, '0')}',
+                            style: TextStyle(
+                              color: Colors.black87,
+                            ),
+                          ),
+                        ),
                       ),
                       SizedBox(height: 16),
 
@@ -611,6 +658,50 @@ class _SelectTypeWithErrorHandlingState
                             });
 
                             try {
+                              // First, check if patient ID is available
+                              if (widget.patientId == null) {
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  SnackBar(
+                                    content: Text('Patient information not available'),
+                                    backgroundColor: Colors.red,
+                                  ),
+                                );
+                                setState(() {
+                                  _isSubmitting = false;
+                                });
+                                return;
+                              }
+
+                              // Format date as YYYY-MM-DD
+                              String dateString =
+                                  '${_selectedDate.year}-${_selectedDate.month.toString().padLeft(2, '0')}-${_selectedDate.day.toString().padLeft(2, '0')}';
+
+                              // Get or create schedule for the selected date
+                              final scheduleResult =
+                                  await ScheduleAPI.ScheduleService.getOrCreateSchedule(
+                                widget.patientId!,
+                                dateString,
+                              );
+
+                              if (!scheduleResult.success || scheduleResult.data == null) {
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  SnackBar(
+                                    content: Text(
+                                      'Failed to get schedule: ${scheduleResult.message}',
+                                    ),
+                                    backgroundColor: Colors.red,
+                                    behavior: SnackBarBehavior.floating,
+                                  ),
+                                );
+                                setState(() {
+                                  _isSubmitting = false;
+                                });
+                                return;
+                              }
+
+                              final scheduleData = scheduleResult.data as Map<String, dynamic>;
+                              final scheduleId = scheduleData['scheduleId'] as int;
+
                               // Format time as HH:mm
                               String timeString =
                                   '${_selectedTime!.hour.toString().padLeft(2, '0')}:${_selectedTime!.minute.toString().padLeft(2, '0')}';
@@ -707,6 +798,7 @@ class _SelectTypeWithErrorHandlingState
     final _formKey = GlobalKey<FormState>();
     final _descriptionController = TextEditingController();
     String? _selectedGame;
+    DateTime _selectedDate = DateTime.now(); // Default to today
     TimeOfDay? _selectedTime;
     List<GameAPI.Game> _games = [];
     bool _loadingGames = true;
@@ -879,6 +971,57 @@ class _SelectTypeWithErrorHandlingState
                                     ),
                               SizedBox(height: 12),
 
+                              // Date Picker
+                              InkWell(
+                                onTap: () async {
+                                  final DateTime? picked = await showDatePicker(
+                                    context: context,
+                                    initialDate: _selectedDate,
+                                    firstDate: DateTime(2020),
+                                    lastDate: DateTime(2030),
+                                    builder: (context, child) {
+                                      return Theme(
+                                        data: Theme.of(context).copyWith(
+                                          colorScheme: ColorScheme.light(
+                                            primary: Color(0xFFE91E63),
+                                            onPrimary: Colors.white,
+                                            onSurface: Colors.black,
+                                          ),
+                                        ),
+                                        child: child!,
+                                      );
+                                    },
+                                  );
+                                  if (picked != null) {
+                                    setState(() {
+                                      _selectedDate = picked;
+                                    });
+                                  }
+                                },
+                                child: InputDecorator(
+                                  decoration: InputDecoration(
+                                    labelText: 'Date',
+                                    border: OutlineInputBorder(),
+                                    prefixIcon: Icon(
+                                      Icons.calendar_today,
+                                      size: 20,
+                                    ),
+                                    contentPadding: EdgeInsets.symmetric(
+                                      horizontal: 12,
+                                      vertical: 8,
+                                    ),
+                                  ),
+                                  child: Text(
+                                    '${_selectedDate.year}-${_selectedDate.month.toString().padLeft(2, '0')}-${_selectedDate.day.toString().padLeft(2, '0')}',
+                                    style: TextStyle(
+                                      color: Colors.black87,
+                                      fontSize: 14,
+                                    ),
+                                  ),
+                                ),
+                              ),
+                              SizedBox(height: 12),
+
                               // Time Picker
                               InkWell(
                                 onTap: () async {
@@ -980,6 +1123,45 @@ class _SelectTypeWithErrorHandlingState
                                 );
 
                                 try {
+                                  // First, check if patient ID is available
+                                  if (widget.patientId == null) {
+                                    Navigator.pop(context); // Close loading dialog
+                                    ScaffoldMessenger.of(context).showSnackBar(
+                                      SnackBar(
+                                        content: Text('Patient information not available'),
+                                        backgroundColor: Colors.red,
+                                      ),
+                                    );
+                                    return;
+                                  }
+
+                                  // Format date as YYYY-MM-DD
+                                  String dateString =
+                                      '${_selectedDate.year}-${_selectedDate.month.toString().padLeft(2, '0')}-${_selectedDate.day.toString().padLeft(2, '0')}';
+
+                                  // Get or create schedule for the selected date
+                                  final scheduleResult =
+                                      await ScheduleAPI.ScheduleService.getOrCreateSchedule(
+                                    widget.patientId!,
+                                    dateString,
+                                  );
+
+                                  if (!scheduleResult.success || scheduleResult.data == null) {
+                                    Navigator.pop(context); // Close loading dialog
+                                    ScaffoldMessenger.of(context).showSnackBar(
+                                      SnackBar(
+                                        content: Text(
+                                          'Failed to get schedule: ${scheduleResult.message}',
+                                        ),
+                                        backgroundColor: Colors.red,
+                                      ),
+                                    );
+                                    return;
+                                  }
+
+                                  final scheduleData = scheduleResult.data as Map<String, dynamic>;
+                                  final scheduleId = scheduleData['scheduleId'] as int;
+
                                   // Format time as HH:mm for the backend
                                   String timeString =
                                       '${_selectedTime!.hour.toString().padLeft(2, '0')}:${_selectedTime!.minute.toString().padLeft(2, '0')}';
@@ -1462,8 +1644,50 @@ class _SelectTypeWithErrorHandlingState
                                           'Description: ${_descriptionController.text.trim()}',
                                         );
 
-                                        int patientId =
-                                            2; // TODO: get from context or user profile
+                                        // Check if patient ID is available
+                                        if (widget.patientId == null) {
+                                          ScaffoldMessenger.of(context).showSnackBar(
+                                            SnackBar(
+                                              content: Text('Patient information not available'),
+                                              backgroundColor: Colors.red,
+                                            ),
+                                          );
+                                          setState(() {
+                                            _isSubmitting = false;
+                                          });
+                                          return;
+                                        }
+
+                                        // Use from date as the schedule date (default to today if not set)
+                                        DateTime scheduleDate = _fromDate ?? DateTime.now();
+                                        String scheduleDateString =
+                                            '${scheduleDate.year}-${scheduleDate.month.toString().padLeft(2, '0')}-${scheduleDate.day.toString().padLeft(2, '0')}';
+
+                                        // Get or create schedule for the date
+                                        final scheduleResult =
+                                            await ScheduleAPI.ScheduleService.getOrCreateSchedule(
+                                          widget.patientId!,
+                                          scheduleDateString,
+                                        );
+
+                                        if (!scheduleResult.success || scheduleResult.data == null) {
+                                          ScaffoldMessenger.of(context).showSnackBar(
+                                            SnackBar(
+                                              content: Text(
+                                                'Failed to get schedule: ${scheduleResult.message}',
+                                              ),
+                                              backgroundColor: Colors.red,
+                                              behavior: SnackBarBehavior.floating,
+                                            ),
+                                          );
+                                          setState(() {
+                                            _isSubmitting = false;
+                                          });
+                                          return;
+                                        }
+
+                                        final scheduleData = scheduleResult.data as Map<String, dynamic>;
+                                        final scheduleId = scheduleData['scheduleId'] as int;
 
                                         MedicationReminderRequest
                                         medicationRequest =
@@ -1479,7 +1703,7 @@ class _SelectTypeWithErrorHandlingState
                                                   _descriptionController.text
                                                       .trim(),
                                               time: timeString,
-                                              patientId: patientId,
+                                              patientId: widget.patientId!,
                                               fromDate: fromDateString,
                                               dueDate: dueDateString,
                                             );
@@ -1843,10 +2067,6 @@ class _SelectTypeWithErrorHandlingState
                         children: [
                           TextButton(
                             onPressed: () {
-                              _taskNameController.dispose();
-                              _hospitalController.dispose();
-                              _doctorNameController.dispose();
-                              _descriptionController.dispose();
                               Navigator.pop(context);
                             },
                             child: Text('Cancel'),
@@ -1884,23 +2104,55 @@ class _SelectTypeWithErrorHandlingState
                                 );
 
                                 try {
+                                  // Check if patient ID is available
+                                  if (widget.patientId == null) {
+                                    Navigator.pop(context); // Close loading dialog
+                                    ScaffoldMessenger.of(context).showSnackBar(
+                                      SnackBar(
+                                        content: Text('Patient information not available'),
+                                        backgroundColor: Colors.red,
+                                      ),
+                                    );
+                                    return;
+                                  }
+
                                   // Format date for backend (YYYY-MM-DD)
                                   String formattedDate =
                                       '${_selectedDate!.year}-${_selectedDate!.month.toString().padLeft(2, '0')}-${_selectedDate!.day.toString().padLeft(2, '0')}';
 
-                                  // Format time for backend (HH:MM:SS)
+                                  // Get or create schedule for the selected date
+                                  final scheduleResult =
+                                      await ScheduleAPI.ScheduleService.getOrCreateSchedule(
+                                    widget.patientId!,
+                                    formattedDate,
+                                  );
+
+                                  if (!scheduleResult.success || scheduleResult.data == null) {
+                                    Navigator.pop(context); // Close loading dialog
+                                    ScaffoldMessenger.of(context).showSnackBar(
+                                      SnackBar(
+                                        content: Text(
+                                          'Failed to get schedule: ${scheduleResult.message}',
+                                        ),
+                                        backgroundColor: Colors.red,
+                                      ),
+                                    );
+                                    return;
+                                  }
+
+                                  final scheduleData = scheduleResult.data as Map<String, dynamic>;
+                                  final scheduleId = scheduleData['scheduleId'] as int;
+
+                                  // Format time for backend (HH:mm)
                                   String formattedTime =
-                                      '${_selectedTime!.hour.toString().padLeft(2, '0')}:${_selectedTime!.minute.toString().padLeft(2, '0')}:00';
+                                      '${_selectedTime!.hour.toString().padLeft(2, '0')}:${_selectedTime!.minute.toString().padLeft(2, '0')}';
 
                                   // Create appointment
-                                  AppointmentRequest
-                                  appointmentRequest = AppointmentRequest(
+                                  AppointmentRequest appointmentRequest = AppointmentRequest(
                                     taskName: _taskNameController.text.trim(),
                                     hospital: _hospitalController.text.trim(),
-                                    doctorName: _doctorNameController.text
-                                        .trim(),
-                                    description: _descriptionController.text
-                                        .trim(),
+                                    doctorName: _doctorNameController.text.trim(),
+                                    description: _descriptionController.text.trim(),
                                     date: formattedDate,
                                     time: formattedTime,
                                   );
@@ -1915,12 +2167,6 @@ class _SelectTypeWithErrorHandlingState
                                   Navigator.pop(context);
 
                                   if (result.success) {
-                                    // Clean up controllers
-                                    _taskNameController.dispose();
-                                    _hospitalController.dispose();
-                                    _doctorNameController.dispose();
-                                    _descriptionController.dispose();
-
                                     // Close dialog
                                     Navigator.pop(context);
 
@@ -1928,7 +2174,7 @@ class _SelectTypeWithErrorHandlingState
                                     ScaffoldMessenger.of(context).showSnackBar(
                                       SnackBar(
                                         content: Text(
-                                          'Appointment created successfully! Both appointment and care activity tables have been updated.',
+                                          'Appointment created successfully!',
                                         ),
                                         backgroundColor: Colors.green,
                                         duration: Duration(seconds: 3),

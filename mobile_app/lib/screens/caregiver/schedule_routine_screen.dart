@@ -6,6 +6,9 @@ import '../../services/patient_service.dart';
 import '../../services/daily_activity_service.dart';
 import '../../services/task_service.dart' as TaskAPI;
 import '../../services/medication_service.dart';
+import '../../services/appointment_service.dart';
+import '../../services/care_activity_service.dart';
+import '../../services/schedule_service.dart';
 import '../../models/medication_reminder.dart';
 
 // Remove the nested MaterialApp - this was causing the routing issue
@@ -28,12 +31,17 @@ class ScheduleTask {
   String? skipReason; // Add skip reason field
   final int? careActivityId; // Add ID for API operations
   final int? dailyTaskId; // Add daily task ID
+  String? status; // Add status field for validation (mutable)
   // Additional medication details
   final String? dosage;
   final String? mealTiming;
   final int? numberOfRounds;
   final String? medicationDescription;
-  final String? taskType; // 'medication', 'daily_activity', 'game'
+  final String? taskType; // 'medication', 'daily_activity', 'game', 'appointment'
+  // Appointment-specific fields
+  final String? hospital;
+  final String? doctorName;
+  final String? appointmentDate;
 
   ScheduleTask({
     required this.title,
@@ -47,11 +55,15 @@ class ScheduleTask {
     this.skipReason,
     this.careActivityId,
     this.dailyTaskId,
+    this.status,
     this.dosage,
     this.mealTiming,
     this.numberOfRounds,
     this.medicationDescription,
     this.taskType,
+    this.hospital,
+    this.doctorName,
+    this.appointmentDate,
   });
 
   // Factory constructor to create ScheduleTask from DailyActivity
@@ -63,9 +75,10 @@ class ScheduleTask {
       icon: _getIconForTask(activity.taskName),
       color: AppColors.primaryDark,
       isCompleted: activity.status == 'COMPLETED',
-      isSkipped: activity.status == 'SKIPPED',
+      isSkipped: activity.status == 'SKIPPED' || activity.status == 'CANCELLED',
       careActivityId: activity.careActivityId,
       dailyTaskId: activity.dailyTaskId,
+      status: activity.status,
       taskType: 'daily_activity',
     );
   }
@@ -79,9 +92,10 @@ class ScheduleTask {
       icon: _getIconForGameTask(task.gameName),
       color: AppColors.primaryDark, // Use same color as daily activities
       isCompleted: task.status == 'COMPLETED',
-      isSkipped: task.status == 'SKIPPED',
+      isSkipped: task.status == 'SKIPPED' || task.status == 'CANCELLED',
       careActivityId: task.careActivityId,
       dailyTaskId: task.taskId, // Use taskId for game tasks
+      status: task.status,
       taskType: 'game',
     );
   }
@@ -98,14 +112,35 @@ class ScheduleTask {
       icon: Icons.medication,
       color: AppColors.primaryDark,
       isCompleted: medication.status == 'TAKEN',
-      isSkipped: medication.status == 'SKIPPED',
+      isSkipped: medication.status == 'SKIPPED' || medication.status == 'CANCELLED',
       careActivityId: medication.careActivityId,
       dailyTaskId: medication.medicationId, // Use medication ID
+      status: medication.status == 'TAKEN' ? 'COMPLETED' : medication.status,
       taskType: 'medication',
       dosage: medication.dosage,
       mealTiming: medication.mealTiming,
       numberOfRounds: medication.numberOfRounds,
       medicationDescription: medication.description,
+    );
+  }
+
+  // Factory constructor to create ScheduleTask from Appointment
+  factory ScheduleTask.fromAppointment(Appointment appointment) {
+    return ScheduleTask(
+      title: appointment.taskName,
+      description: 'Appointment at ${appointment.hospital} with Dr. ${appointment.doctorName}',
+      time: _formatTime(appointment.time),
+      icon: Icons.local_hotel,
+      color: AppColors.primaryDark,
+      isCompleted: appointment.status == 'COMPLETED',
+      isSkipped: appointment.status == 'SKIPPED' || appointment.status == 'CANCELLED',
+      careActivityId: appointment.careActivityId,
+      dailyTaskId: appointment.appointmentId,
+      status: appointment.status,
+      taskType: 'appointment',
+      hospital: appointment.hospital,
+      doctorName: appointment.doctorName,
+      appointmentDate: appointment.date,
     );
   }
 
@@ -161,7 +196,7 @@ class ScheduleTask {
     } else if (lowerTask.contains('doctor') ||
         lowerTask.contains('appointment') ||
         lowerTask.contains('visit')) {
-      return Icons.local_hospital;
+      return Icons.local_hotel;
     } else {
       return Icons.task_alt; // Default icon
     }
@@ -235,8 +270,11 @@ class _ScheduleRoutineScreenState extends State<ScheduleRoutineScreen> {
   String? _patientError;
   int? _patientId;
   int? _scheduleId; // Add schedule ID
+  DateTime _selectedDate = DateTime.now(); // Currently selected date for schedule
   bool _isTasksLoading = true;
   String? _tasksError;
+  // Map to track loading state for each task
+  Map<int, bool> _taskLoadingStates = {};
 
   @override
   void didChangeDependencies() {
@@ -266,20 +304,14 @@ class _ScheduleRoutineScreenState extends State<ScheduleRoutineScreen> {
       });
     }
 
-    if (scheduleId != null) {
-      _scheduleId = scheduleId;
-      _fetchAllTasks(scheduleId);
+    // Fetch tasks for the selected date (defaults to today)
+    if (patientId != null) {
+      _fetchAllTasks();
     } else {
-      // For now, use schedule ID 1 as default (can be improved later to properly map patients to schedules)
-      if (patientId != null) {
-        _scheduleId = 1; // Use schedule ID 1 instead of patient ID
-        _fetchAllTasks(1);
-      } else {
-        setState(() {
-          _isTasksLoading = false;
-          _tasksError = 'No schedule information available.';
-        });
-      }
+      setState(() {
+        _isTasksLoading = false;
+        _tasksError = 'No patient information available.';
+      });
     }
   }
 
@@ -304,16 +336,64 @@ class _ScheduleRoutineScreenState extends State<ScheduleRoutineScreen> {
     }
   }
 
-  Future<void> _fetchAllTasks(int scheduleId) async {
-    print('DEBUG: Starting to fetch tasks for schedule ID: $scheduleId');
+  Future<void> _fetchAllTasks() async {
+    if (_patientId == null) {
+      print('DEBUG: Cannot fetch tasks - patient ID is null');
+      setState(() {
+        _isTasksLoading = false;
+        _tasksError = 'Patient information not available';
+      });
+      return;
+    }
+
+    print('DEBUG: Starting to fetch schedule for date: $_selectedDate');
     setState(() {
       _isTasksLoading = true;
       _tasksError = null;
     });
 
     try {
-      print('DEBUG: Making API calls...');
-      // Fetch daily activities, game tasks, and medications concurrently
+      // Format date as YYYY-MM-DD
+      final dateStr = '${_selectedDate.year}-${_selectedDate.month.toString().padLeft(2, '0')}-${_selectedDate.day.toString().padLeft(2, '0')}';
+      print('DEBUG: Fetching schedule for patient ID: $_patientId, date: $dateStr');
+
+      // Get or create schedule for the selected date
+      final scheduleResult = await ScheduleService.getOrCreateSchedule(
+        _patientId!,
+        dateStr,
+      );
+
+      if (!scheduleResult.success || scheduleResult.data == null) {
+        setState(() {
+          _isTasksLoading = false;
+          _tasksError = 'Failed to load schedule: ${scheduleResult.message}';
+          tasks = [];
+        });
+        return;
+      }
+
+      final scheduleData = scheduleResult.data as Map<String, dynamic>;
+      final scheduleId = scheduleData['scheduleId'] as int;
+      final isCompleted = scheduleData['isCompleted'] as bool;
+      
+      print('DEBUG: Got schedule ID: $scheduleId, isCompleted: $isCompleted');
+
+      // Update the stored schedule ID
+      setState(() {
+        _scheduleId = scheduleId;
+      });
+
+      // If schedule is completed, show empty state
+      if (isCompleted) {
+        setState(() {
+          tasks = [];
+          _isTasksLoading = false;
+        });
+        return;
+      }
+
+      print('DEBUG: Making API calls for schedule ID: $scheduleId');
+      // Fetch daily activities, game tasks, medications, and appointments concurrently
       final dailyActivitiesResult = DailyActivityService.getDailyActivities(
         scheduleId,
       );
@@ -323,12 +403,16 @@ class _ScheduleRoutineScreenState extends State<ScheduleRoutineScreen> {
       final medicationsResult = MedicationService.getMedicationSchedule(
         scheduleId,
       );
+      final appointmentsResult = AppointmentService.getAppointments(
+        scheduleId,
+      );
 
       print('DEBUG: Waiting for all API calls to complete...');
       final results = await Future.wait([
         dailyActivitiesResult,
         gameTasksResult,
         medicationsResult,
+        appointmentsResult,
       ]);
 
       print('DEBUG: All API calls completed');
@@ -336,11 +420,18 @@ class _ScheduleRoutineScreenState extends State<ScheduleRoutineScreen> {
       final dailyResult = results[0] as dynamic;
       final taskResult = results[1] as TaskAPI.ApiResult<List<TaskAPI.Task>>;
       final medications = results[2] as List<MedicationScheduleItem>;
+      final appointments = results[3] as List<Appointment>;
 
       print('DEBUG: Processing results...');
       print('DEBUG: Daily result success: ${dailyResult.success}');
       print('DEBUG: Game tasks result success: ${taskResult.success}');
       print('DEBUG: Medications count: ${medications.length}');
+      print('DEBUG: Appointments count: ${appointments.length}');
+
+      // Get today's date in YYYY-MM-DD format
+      final today = DateTime.now();
+      final todayStr = '${today.year}-${today.month.toString().padLeft(2, '0')}-${today.day.toString().padLeft(2, '0')}';
+      print('DEBUG: Today\'s date: $todayStr');
 
       List<ScheduleTask> allTasks = [];
 
@@ -383,6 +474,27 @@ class _ScheduleRoutineScreenState extends State<ScheduleRoutineScreen> {
         print('Loaded ${medications.length} medication reminders');
       } else {
         print('DEBUG: No medications found');
+      }
+
+      // Add appointments (only for today's date)
+      if (appointments.isNotEmpty) {
+        print('DEBUG: Processing ${appointments.length} appointments:');
+        final todayAppointments = appointments.where((appointment) {
+          print('DEBUG: Appointment - ${appointment.taskName}, Date: ${appointment.date}, Time: ${appointment.time}, Status: ${appointment.status}');
+          return appointment.date == todayStr;
+        }).toList();
+        
+        if (todayAppointments.isNotEmpty) {
+          final appointmentTasks = todayAppointments
+              .map((appointment) => ScheduleTask.fromAppointment(appointment))
+              .toList();
+          allTasks.addAll(appointmentTasks);
+          print('Loaded ${todayAppointments.length} appointments for today');
+        } else {
+          print('DEBUG: No appointments scheduled for today');
+        }
+      } else {
+        print('DEBUG: No appointments found');
       }
 
       // Sort tasks by time
@@ -450,19 +562,230 @@ class _ScheduleRoutineScreenState extends State<ScheduleRoutineScreen> {
     });
   }
 
-  void _toggleTaskCompletion(ScheduleTask task) {
-    setState(() {
-      task.isCompleted = !task.isCompleted;
-      if (task.isCompleted) {
-        task.isSelected = false; // Deselect when completed
-        task.isSkipped = false; // Reset skip status when completed
-        task.skipReason = null; // Clear skip reason when completed
+  void _toggleTaskCompletion(ScheduleTask task) async {
+    // Prevent multiple simultaneous requests for the same task
+    if (_taskLoadingStates[task.careActivityId] == true) {
+      return;
+    }
+
+    // Check if careActivityId exists
+    if (task.careActivityId == null) {
+      _showErrorDialog('Cannot update task status: Invalid task ID');
+      return;
+    }
+
+    final bool isCurrentlyCompleted = task.isCompleted;
+    final String newStatus = isCurrentlyCompleted ? 'PENDING' : 'COMPLETED';
+
+    // Validate order before making changes
+    if (!isCurrentlyCompleted) {
+      // Completing a task - check if all earlier tasks are completed/cancelled
+      final validationError = _validateTaskCompletionOrder(task);
+      if (validationError != null) {
+        _showErrorDialog(validationError);
+        return;
       }
+    } else {
+      // Un-completing a task - check if all later tasks are not completed
+      final validationError = _validateTaskUncompletionOrder(task);
+      if (validationError != null) {
+        _showErrorDialog(validationError);
+        return;
+      }
+    }
+
+    // Set loading state
+    setState(() {
+      _taskLoadingStates[task.careActivityId!] = true;
     });
+
+    try {
+      // Call API to update status
+      final result = await CareActivityService.updateStatus(
+        task.careActivityId!,
+        newStatus,
+      );
+
+      if (result.success) {
+        // Update UI on success
+        setState(() {
+          task.isCompleted = !isCurrentlyCompleted;
+          if (task.isCompleted) {
+            task.isSelected = false; // Deselect when completed
+            task.isSkipped = false; // Reset skip status when completed
+            task.skipReason = null; // Clear skip reason when completed
+          }
+          _taskLoadingStates[task.careActivityId!] = false;
+        });
+      } else {
+        // Show error and don't update UI
+        setState(() {
+          _taskLoadingStates[task.careActivityId!] = false;
+        });
+        _showErrorDialog(result.message);
+      }
+    } catch (e) {
+      // Handle any unexpected errors
+      setState(() {
+        _taskLoadingStates[task.careActivityId!] = false;
+      });
+      _showErrorDialog('An error occurred while updating task status');
+    }
+  }
+
+  /// Validates if a task can be completed
+  /// Returns error message if validation fails, null if validation passes
+  String? _validateTaskCompletionOrder(ScheduleTask taskToComplete) {
+    // Get the time of the task we want to complete
+    final taskTime = _parseTimeForSorting(taskToComplete.time);
+
+    // Check all tasks that come before this task (by time)
+    for (var task in tasks) {
+      final currentTaskTime = _parseTimeForSorting(task.time);
+      
+      // If this task is earlier in time
+      if (currentTaskTime < taskTime) {
+        // Check if it's completed or cancelled
+        // Both COMPLETED and CANCELLED tasks are considered "done" for validation
+        if (!task.isCompleted && task.status != 'CANCELLED' && !task.isSkipped) {
+          return 'Please complete or cancel earlier tasks first.\n\n"${task.title}" at ${task.time} must be completed before this task.';
+        }
+      }
+    }
+
+    return null; // Validation passed
+  }
+
+  /// Validates if a task can be un-completed
+  /// Returns error message if validation fails, null if validation passes
+  String? _validateTaskUncompletionOrder(ScheduleTask taskToUncomplete) {
+    // Get the time of the task we want to uncomplete
+    final taskTime = _parseTimeForSorting(taskToUncomplete.time);
+
+    // Check all tasks that come after this task (by time)
+    for (var task in tasks) {
+      final currentTaskTime = _parseTimeForSorting(task.time);
+      
+      // If this task is later in time and is completed
+      if (currentTaskTime > taskTime && task.isCompleted) {
+        return 'Cannot uncomplete this task.\n\nPlease uncomplete later tasks first.\n\n"${task.title}" at ${task.time} is already completed.';
+      }
+    }
+
+    return null; // Validation passed
+  }
+
+  /// Shows an error dialog with the given message
+  void _showErrorDialog(String message) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Row(
+            children: [
+              Icon(Icons.error_outline, color: Colors.red),
+              SizedBox(width: 8),
+              Text('Cannot Update Task'),
+            ],
+          ),
+          content: Text(message),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+              child: Text('OK'),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  // Function to undo task cancellation
+  Future<void> _undoCancelTask(ScheduleTask task) async {
+    if (task.careActivityId == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Cannot undo: Invalid task ID'),
+          backgroundColor: Colors.red,
+        ),
+      );
+      return;
+    }
+
+    // Show loading indicator
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Row(
+          children: [
+            SizedBox(
+              width: 20,
+              height: 20,
+              child: CircularProgressIndicator(
+                strokeWidth: 2,
+                valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+              ),
+            ),
+            SizedBox(width: 16),
+            Text('Undoing cancellation...'),
+          ],
+        ),
+        duration: Duration(seconds: 10),
+      ),
+    );
+
+    try {
+      // Call API to update status back to PENDING (which will also clear skip reason)
+      final result = await CareActivityService.updateStatusWithReason(
+        task.careActivityId!,
+        'PENDING',
+        null, // No skip reason for PENDING status
+      );
+
+      // Hide loading indicator
+      ScaffoldMessenger.of(context).hideCurrentSnackBar();
+
+      if (result.success) {
+        // Update UI on success
+        setState(() {
+          task.isSkipped = false;
+          task.skipReason = null;
+          task.isCompleted = false;
+          task.status = 'PENDING'; // Update status to PENDING
+        });
+
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Task "${task.title}" restored to pending'),
+            backgroundColor: Colors.green,
+          ),
+        );
+      } else {
+        // Show error message
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Failed to undo cancellation: ${result.message}'),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
+    } catch (e) {
+      // Hide loading indicator
+      ScaffoldMessenger.of(context).hideCurrentSnackBar();
+      
+      // Handle any unexpected errors
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('An error occurred while undoing cancellation'),
+          backgroundColor: Colors.red,
+        ),
+      );
+    }
   }
 
   // Function to show skip reason popup
-  void _showSkipReasonDialog(ScheduleTask task) {
+  void _showSkipReasonDialog(ScheduleTask task) async {
     final TextEditingController reasonController = TextEditingController();
 
     showDialog(
@@ -519,7 +842,7 @@ class _ScheduleRoutineScreenState extends State<ScheduleRoutineScreen> {
               child: Text('Cancel', style: TextStyle(color: Colors.grey[600])),
             ),
             ElevatedButton(
-              onPressed: () {
+              onPressed: () async {
                 String finalReason = reasonController.text.trim();
 
                 if (finalReason.isEmpty) {
@@ -532,33 +855,94 @@ class _ScheduleRoutineScreenState extends State<ScheduleRoutineScreen> {
                   return;
                 }
 
-                // Skip the task with reason
-                setState(() {
-                  task.isSkipped = true;
-                  task.isSelected = false;
-                  task.skipReason = finalReason;
-                  task.isCompleted =
-                      false; // Ensure it's not marked as completed
-                });
+                // Check if careActivityId exists
+                if (task.careActivityId == null) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(
+                      content: Text('Cannot skip task: Invalid task ID'),
+                      backgroundColor: Colors.red,
+                    ),
+                  );
+                  return;
+                }
 
                 Navigator.pop(context);
 
+                // Show loading indicator
                 ScaffoldMessenger.of(context).showSnackBar(
                   SnackBar(
-                    content: Text('Task "${task.title}" skipped: $finalReason'),
-                    backgroundColor: Colors.orange,
-                    action: SnackBarAction(
-                      label: 'Undo',
-                      textColor: Colors.white,
-                      onPressed: () {
-                        setState(() {
-                          task.isSkipped = false;
-                          task.skipReason = null;
-                        });
-                      },
+                    content: Row(
+                      children: [
+                        SizedBox(
+                          width: 20,
+                          height: 20,
+                          child: CircularProgressIndicator(
+                            strokeWidth: 2,
+                            valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                          ),
+                        ),
+                        SizedBox(width: 16),
+                        Text('Cancelling task...'),
+                      ],
                     ),
+                    duration: Duration(seconds: 10),
                   ),
                 );
+
+                try {
+                  // Call API to update status to CANCELLED with skip reason
+                  final result = await CareActivityService.updateStatusWithReason(
+                    task.careActivityId!,
+                    'CANCELLED',
+                    finalReason,
+                  );
+
+                  // Hide loading indicator
+                  ScaffoldMessenger.of(context).hideCurrentSnackBar();
+
+                  if (result.success) {
+                    // Update UI on success
+                    setState(() {
+                      task.isSkipped = true;
+                      task.isSelected = false;
+                      task.skipReason = finalReason;
+                      task.isCompleted = false;
+                    });
+
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(
+                        content: Text('Task "${task.title}" cancelled'),
+                        backgroundColor: Colors.orange,
+                        action: SnackBarAction(
+                          label: 'Undo',
+                          textColor: Colors.white,
+                          onPressed: () async {
+                            await _undoCancelTask(task);
+                          },
+                        ),
+                      ),
+                    );
+                  } else {
+                    // Show error message
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(
+                        content: Text('Failed to cancel task: ${result.message}'),
+                        backgroundColor: Colors.red,
+                      ),
+                    );
+                  }
+                } catch (e) {
+                  // Hide loading indicator
+                  ScaffoldMessenger.of(context).hideCurrentSnackBar();
+                  
+                  // Handle any unexpected errors
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(
+                      content: Text('An error occurred while cancelling task'),
+                      backgroundColor: Colors.red,
+                    ),
+                  );
+                }
               },
               style: ElevatedButton.styleFrom(
                 backgroundColor: Colors.red,
@@ -577,6 +961,218 @@ class _ScheduleRoutineScreenState extends State<ScheduleRoutineScreen> {
   int get skippedTasksCount => tasks.where((task) => task.isSkipped).length;
   int get uncompletedTasksCount =>
       tasks.where((task) => !task.isCompleted && !task.isSkipped).length;
+
+  // Check if all tasks are completed or cancelled (routine can be marked complete)
+  bool get canCompleteRoutine {
+    if (tasks.isEmpty) return false;
+    
+    return tasks.every((task) => 
+      task.isCompleted || 
+      task.status == 'CANCELLED' || 
+      task.isSkipped
+    );
+  }
+
+  // Function to complete the daily routine
+  Future<void> _completeRoutine() async {
+    if (_scheduleId == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Cannot complete routine: No schedule found'),
+          backgroundColor: Colors.red,
+        ),
+      );
+      return;
+    }
+
+    // Show confirmation dialog
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Row(
+            children: [
+              Icon(Icons.check_circle, color: Colors.green),
+              SizedBox(width: 8),
+              Text('Complete Routine'),
+            ],
+          ),
+          content: Text(
+            'Are you sure you want to mark this daily routine as complete?',
+            style: TextStyle(fontSize: 16),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.of(context).pop(false),
+              child: Text('Cancel', style: TextStyle(color: Colors.grey[600])),
+            ),
+            ElevatedButton(
+              onPressed: () => Navigator.of(context).pop(true),
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Colors.green,
+                foregroundColor: Colors.white,
+              ),
+              child: Text('Complete'),
+            ),
+          ],
+        );
+      },
+    );
+
+    if (confirmed != true) return;
+
+    // Show loading indicator
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (BuildContext context) {
+        return Center(
+          child: Card(
+            child: Padding(
+              padding: EdgeInsets.all(20),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  CircularProgressIndicator(),
+                  SizedBox(height: 16),
+                  Text('Completing routine...'),
+                ],
+              ),
+            ),
+          ),
+        );
+      },
+    );
+
+    try {
+      // Call API to mark schedule as completed
+      final result = await ScheduleService.completeSchedule(_scheduleId!);
+
+      // Hide loading indicator
+      Navigator.of(context).pop();
+
+      if (result.success) {
+        // Show success message
+        await showDialog(
+          context: context,
+          barrierDismissible: false,
+          builder: (BuildContext context) {
+            return AlertDialog(
+              title: Row(
+                children: [
+                  Icon(Icons.check_circle, color: Colors.green, size: 32),
+                  SizedBox(width: 12),
+                  Text('Success!'),
+                ],
+              ),
+              content: Text(
+                'Daily routine has been completed successfully!',
+                style: TextStyle(fontSize: 16),
+              ),
+              actions: [
+                ElevatedButton(
+                  onPressed: () => Navigator.of(context).pop(),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.green,
+                    foregroundColor: Colors.white,
+                  ),
+                  child: Text('OK'),
+                ),
+              ],
+            );
+          },
+        );
+
+        // Clear tasks to show empty state
+        setState(() {
+          tasks.clear();
+        });
+      } else {
+        // Show error message - tasks remain visible
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Failed to complete routine: ${result.message}'),
+            backgroundColor: Colors.red,
+            duration: Duration(seconds: 4),
+          ),
+        );
+      }
+    } catch (e) {
+      // Hide loading indicator if still showing
+      Navigator.of(context).pop();
+      
+      // Handle any unexpected errors - tasks remain visible
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('An error occurred while completing routine'),
+          backgroundColor: Colors.red,
+          duration: Duration(seconds: 4),
+        ),
+      );
+    }
+  }
+
+  // Date Navigation Methods
+  void _goToPreviousDay() {
+    setState(() {
+      _selectedDate = _selectedDate.subtract(Duration(days: 1));
+    });
+    _fetchAllTasks(); // Refresh tasks for the new date
+  }
+
+  void _goToNextDay() {
+    setState(() {
+      _selectedDate = _selectedDate.add(Duration(days: 1));
+    });
+    _fetchAllTasks(); // Refresh tasks for the new date
+  }
+
+  Future<void> _showDatePicker() async {
+    final DateTime? picked = await showDatePicker(
+      context: context,
+      initialDate: _selectedDate,
+      firstDate: DateTime(2020),
+      lastDate: DateTime(2030),
+      builder: (context, child) {
+        return Theme(
+          data: Theme.of(context).copyWith(
+            colorScheme: ColorScheme.light(
+              primary: AppColors.primaryDark,
+              onPrimary: Colors.white,
+              onSurface: Colors.black,
+            ),
+          ),
+          child: child!,
+        );
+      },
+    );
+    if (picked != null && picked != _selectedDate) {
+      setState(() {
+        _selectedDate = picked;
+      });
+      _fetchAllTasks(); // Refresh tasks for the new date
+    }
+  }
+
+  String _formatDate(DateTime date) {
+    final months = [
+      'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun',
+      'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'
+    ];
+    final now = DateTime.now();
+    final today = DateTime(now.year, now.month, now.day);
+    final selectedDay = DateTime(date.year, date.month, date.day);
+    
+    if (selectedDay == today) {
+      return 'Today, ${months[date.month - 1]} ${date.day}';
+    } else if (selectedDay == today.subtract(Duration(days: 1))) {
+      return 'Yesterday, ${months[date.month - 1]} ${date.day}';
+    } else if (selectedDay == today.add(Duration(days: 1))) {
+      return 'Tomorrow, ${months[date.month - 1]} ${date.day}';
+    } else {
+      return '${months[date.month - 1]} ${date.day}, ${date.year}';
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -699,6 +1295,74 @@ class _ScheduleRoutineScreenState extends State<ScheduleRoutineScreen> {
                     ],
                   ),
                 ),
+              ),
+            ),
+
+            // Date Navigation
+            Container(
+              margin: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+              padding: EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(12),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.grey.withOpacity(0.1),
+                    spreadRadius: 1,
+                    blurRadius: 4,
+                    offset: Offset(0, 2),
+                  ),
+                ],
+              ),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  // Previous Day Button
+                  IconButton(
+                    icon: Icon(Icons.chevron_left, color: AppColors.primaryDark),
+                    onPressed: _goToPreviousDay,
+                    tooltip: 'Previous Day',
+                  ),
+                  // Date Display
+                  Expanded(
+                    child: GestureDetector(
+                      onTap: _showDatePicker,
+                      child: Container(
+                        padding: EdgeInsets.symmetric(vertical: 8),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Icon(
+                              Icons.calendar_today,
+                              size: 18,
+                              color: AppColors.primaryDark,
+                            ),
+                            SizedBox(width: 8),
+                            Flexible(
+                              child: Text(
+                                _formatDate(_selectedDate),
+                                style: TextStyle(
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.w600,
+                                  color: Colors.black87,
+                                ),
+                                overflow: TextOverflow.ellipsis,
+                                textAlign: TextAlign.center,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ),
+                  // Next Day Button
+                  IconButton(
+                    icon: Icon(Icons.chevron_right, color: AppColors.primaryDark),
+                    onPressed: _goToNextDay,
+                    tooltip: 'Next Day',
+                  ),
+                ],
               ),
             ),
 
@@ -842,21 +1506,17 @@ class _ScheduleRoutineScreenState extends State<ScheduleRoutineScreen> {
               margin: EdgeInsets.all(16),
               width: double.infinity,
               child: ElevatedButton(
-                onPressed: () {
-                  Navigator.pushNamed(
-                    context,
-                    AppRoutes.completeRoutine,
-                    arguments: {'patientName': _patientName ?? 'Unknown'},
-                  );
-                },
+                onPressed: canCompleteRoutine ? _completeRoutine : null,
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.green,
+                  backgroundColor: canCompleteRoutine ? Colors.green : Colors.grey,
                   foregroundColor: Colors.white,
                   padding: EdgeInsets.symmetric(vertical: 16),
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(12),
                   ),
-                  elevation: 2,
+                  elevation: canCompleteRoutine ? 2 : 0,
+                  disabledBackgroundColor: Colors.grey.shade300,
+                  disabledForegroundColor: Colors.grey.shade500,
                 ),
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.center,
@@ -866,7 +1526,6 @@ class _ScheduleRoutineScreenState extends State<ScheduleRoutineScreen> {
                     Text(
                       'Complete Daily Routine',
                       style: TextStyle(
-                        color: Colors.white,
                         fontSize: 16,
                         fontWeight: FontWeight.w600,
                       ),
@@ -920,9 +1579,7 @@ class _ScheduleRoutineScreenState extends State<ScheduleRoutineScreen> {
               SizedBox(height: 16),
               ElevatedButton(
                 onPressed: () {
-                  if (_scheduleId != null) {
-                    _fetchAllTasks(_scheduleId!);
-                  }
+                  _fetchAllTasks();
                 },
                 child: Text('Retry'),
               ),
@@ -966,116 +1623,137 @@ class _ScheduleRoutineScreenState extends State<ScheduleRoutineScreen> {
       itemCount: tasks.length,
       itemBuilder: (context, index) {
         final task = tasks[index];
-        return Container(
-          margin: EdgeInsets.only(bottom: 12),
-          child: Material(
-            color: Colors.transparent,
-            child: InkWell(
-              onTap: () => _selectTask(task),
-              borderRadius: BorderRadius.circular(12),
-              child: Container(
-                padding: EdgeInsets.all(16),
-                decoration: BoxDecoration(
-                  color: task.isSelected ? Color(0xFFE8E0FF) : Colors.white,
-                  borderRadius: BorderRadius.circular(12),
-                  border: Border.all(
-                    color: task.isSelected
-                        ? Color(0xFF6B4EE6)
-                        : Colors.grey.shade200,
-                    width: task.isSelected ? 2 : 1,
-                  ),
-                  boxShadow: [
-                    BoxShadow(
-                      color: Colors.grey.withOpacity(0.1),
-                      spreadRadius: 1,
-                      blurRadius: 4,
-                      offset: Offset(0, 2),
+        final bool isCancelled = task.status == 'CANCELLED' || task.isSkipped;
+        
+        return Opacity(
+          opacity: isCancelled ? 0.5 : 1.0, // Dim cancelled tasks
+          child: Container(
+            margin: EdgeInsets.only(bottom: 12),
+            child: Material(
+              color: Colors.transparent,
+              child: InkWell(
+                onTap: isCancelled ? null : () => _selectTask(task), // Disable tap for cancelled tasks
+                borderRadius: BorderRadius.circular(12),
+                child: Container(
+                  padding: EdgeInsets.all(16),
+                  decoration: BoxDecoration(
+                    color: isCancelled 
+                        ? Colors.grey.shade200 // Gray background for cancelled tasks
+                        : (task.isSelected ? Color(0xFFE8E0FF) : Colors.white),
+                    borderRadius: BorderRadius.circular(12),
+                    border: Border.all(
+                      color: isCancelled
+                          ? Colors.grey.shade400 // Gray border for cancelled tasks
+                          : (task.isSelected
+                              ? Color(0xFF6B4EE6)
+                              : Colors.grey.shade200),
+                      width: task.isSelected ? 2 : 1,
                     ),
-                  ],
-                ),
-                child: Column(
-                  children: [
-                    Row(
-                      children: [
-                        // Task Icon
-                        Container(
-                          padding: EdgeInsets.all(12),
-                          decoration: BoxDecoration(
-                            color: task.color.withOpacity(0.1),
-                            borderRadius: BorderRadius.circular(12),
-                          ),
-                          child: Icon(task.icon, color: task.color, size: 24),
-                        ),
-                        SizedBox(width: 16),
-
-                        // Task Details
-                        Expanded(
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                task.title,
-                                style: TextStyle(
-                                  fontSize: 16,
-                                  fontWeight: FontWeight.w600,
-                                  color: Colors.black87,
-                                ),
-                              ),
-                              SizedBox(height: 4),
-                              Text(
-                                task.description,
-                                style: TextStyle(
-                                  fontSize: 14,
-                                  color: Colors.grey[600],
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-
-                        // Time
-                        Text(
-                          task.time,
-                          style: TextStyle(
-                            fontSize: 14,
-                            fontWeight: FontWeight.w500,
-                            color: Colors.black87,
-                          ),
-                        ),
-                        SizedBox(width: 16),
-
-                        // Completion Circle
-                        GestureDetector(
-                          onTap: () => _toggleTaskCompletion(task),
-                          child: Container(
-                            width: 24,
-                            height: 24,
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.grey.withOpacity(0.1),
+                        spreadRadius: 1,
+                        blurRadius: 4,
+                        offset: Offset(0, 2),
+                      ),
+                    ],
+                  ),
+                  child: Column(
+                    children: [
+                      Row(
+                        children: [
+                          // Task Icon
+                          Container(
+                            padding: EdgeInsets.all(12),
                             decoration: BoxDecoration(
-                              shape: BoxShape.circle,
-                              color: task.isCompleted
-                                  ? Colors.green
-                                  : Colors.transparent,
-                              border: Border.all(
+                              color: task.color.withOpacity(0.1),
+                              borderRadius: BorderRadius.circular(12),
+                            ),
+                            child: Icon(task.icon, color: task.color, size: 24),
+                          ),
+                          SizedBox(width: 16),
+
+                          // Task Details
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  task.title,
+                                  style: TextStyle(
+                                    fontSize: 16,
+                                    fontWeight: FontWeight.w600,
+                                    color: isCancelled ? Colors.grey[500] : Colors.black87,
+                                    decoration: isCancelled ? TextDecoration.lineThrough : null,
+                                  ),
+                                ),
+                                SizedBox(height: 4),
+                                Text(
+                                  task.description,
+                                  style: TextStyle(
+                                    fontSize: 14,
+                                    color: isCancelled ? Colors.grey[400] : Colors.grey[600],
+                                    decoration: isCancelled ? TextDecoration.lineThrough : null,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+
+                          // Time
+                          Text(
+                            task.time,
+                            style: TextStyle(
+                              fontSize: 14,
+                              fontWeight: FontWeight.w500,
+                              color: Colors.black87,
+                            ),
+                          ),
+                          SizedBox(width: 16),
+
+                          // Completion Circle
+                          GestureDetector(
+                            onTap: isCancelled ? null : () => _toggleTaskCompletion(task), // Disable for cancelled tasks
+                            child: Container(
+                              width: 24,
+                              height: 24,
+                              decoration: BoxDecoration(
+                                shape: BoxShape.circle,
                                 color: task.isCompleted
                                     ? Colors.green
-                                    : Colors.grey.shade400,
-                                width: 2,
+                                    : (isCancelled ? Colors.grey.shade300 : Colors.transparent),
+                                border: Border.all(
+                                  color: task.isCompleted
+                                      ? Colors.green
+                                      : (isCancelled ? Colors.grey.shade400 : Colors.grey.shade400),
+                                  width: 2,
+                                ),
                               ),
+                              child: _taskLoadingStates[task.careActivityId] == true
+                                  ? SizedBox(
+                                      width: 16,
+                                      height: 16,
+                                      child: CircularProgressIndicator(
+                                        strokeWidth: 2,
+                                        valueColor: AlwaysStoppedAnimation<Color>(
+                                          Colors.blue,
+                                        ),
+                                      ),
+                                    )
+                                  : task.isCompleted
+                                      ? Icon(
+                                          Icons.check,
+                                          color: Colors.white,
+                                          size: 16,
+                                        )
+                                      : null,
                             ),
-                            child: task.isCompleted
-                                ? Icon(
-                                    Icons.check,
-                                    color: Colors.white,
-                                    size: 16,
-                                  )
-                                : null,
                           ),
-                        ),
-                      ],
-                    ),
+                        ],
+                      ),
 
-                    // Show skip reason for any skipped task (general display)
-                    if (task.isSkipped &&
+                    // Show skip reason for any cancelled task (general display)
+                    if (isCancelled &&
                         task.skipReason != null &&
                         task.skipReason!.isNotEmpty)
                       Container(
@@ -1107,7 +1785,7 @@ class _ScheduleRoutineScreenState extends State<ScheduleRoutineScreen> {
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
                                   Text(
-                                    'Task Skipped',
+                                    'Task Cancelled',
                                     style: TextStyle(
                                       fontSize: 14,
                                       fontWeight: FontWeight.w600,
@@ -1142,13 +1820,31 @@ class _ScheduleRoutineScreenState extends State<ScheduleRoutineScreen> {
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            Text(
-                              'Medication Details',
-                              style: TextStyle(
-                                fontSize: 16,
-                                fontWeight: FontWeight.w600,
-                                color: Colors.blue.shade800,
-                              ),
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                Text(
+                                  'Medication Details',
+                                  style: TextStyle(
+                                    fontSize: 16,
+                                    fontWeight: FontWeight.w600,
+                                    color: Colors.blue.shade800,
+                                  ),
+                                ),
+                                IconButton(
+                                  icon: Icon(Icons.keyboard_arrow_up),
+                                  color: Colors.blue.shade800,
+                                  iconSize: 24,
+                                  padding: EdgeInsets.zero,
+                                  constraints: BoxConstraints(),
+                                  tooltip: 'Minimize',
+                                  onPressed: () {
+                                    setState(() {
+                                      task.isSelected = false;
+                                    });
+                                  },
+                                ),
+                              ],
                             ),
                             // Status indicator
                             Container(
@@ -1209,8 +1905,8 @@ class _ScheduleRoutineScreenState extends State<ScheduleRoutineScreen> {
                               ),
                             ),
 
-                            // Show skip reason if task is skipped and has a reason
-                            if (task.isSkipped &&
+                            // Show cancel reason if task is cancelled and has a reason
+                            if (isCancelled &&
                                 task.skipReason != null &&
                                 task.skipReason!.isNotEmpty)
                               Container(
@@ -1238,7 +1934,7 @@ class _ScheduleRoutineScreenState extends State<ScheduleRoutineScreen> {
                                             CrossAxisAlignment.start,
                                         children: [
                                           Text(
-                                            'Skip Reason:',
+                                            'Cancellation Reason:',
                                             style: TextStyle(
                                               fontSize: 12,
                                               fontWeight: FontWeight.w600,
@@ -1312,8 +2008,163 @@ class _ScheduleRoutineScreenState extends State<ScheduleRoutineScreen> {
                         ),
                       ),
 
-                    // Skip Task Button (only show when task is selected)
-                    if (task.isSelected && !task.isCompleted)
+                    // Show detailed appointment information when selected
+                    if (task.isSelected && task.taskType == 'appointment')
+                      Container(
+                        margin: EdgeInsets.only(top: 16),
+                        padding: EdgeInsets.all(16),
+                        decoration: BoxDecoration(
+                          color: Colors.purple.shade50,
+                          borderRadius: BorderRadius.circular(8),
+                          border: Border.all(color: Colors.purple.shade200),
+                        ),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                Row(
+                                  children: [
+                                    Icon(
+                                      Icons.local_hotel,
+                                      color: Colors.purple.shade700,
+                                      size: 20,
+                                    ),
+                                    SizedBox(width: 8),
+                                    Text(
+                                      'Appointment Details',
+                                      style: TextStyle(
+                                        fontSize: 16,
+                                        fontWeight: FontWeight.w600,
+                                        color: Colors.purple.shade800,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                                IconButton(
+                                  icon: Icon(Icons.keyboard_arrow_up),
+                                  color: Colors.purple.shade800,
+                                  iconSize: 24,
+                                  padding: EdgeInsets.zero,
+                                  constraints: BoxConstraints(),
+                                  tooltip: 'Minimize',
+                                  onPressed: () {
+                                    setState(() {
+                                      task.isSelected = false;
+                                    });
+                                  },
+                                ),
+                              ],
+                            ),
+                            
+                            // Status indicator
+                            Container(
+                              margin: EdgeInsets.only(top: 8),
+                              padding: EdgeInsets.symmetric(
+                                horizontal: 8,
+                                vertical: 4,
+                              ),
+                              decoration: BoxDecoration(
+                                color: task.isCompleted
+                                    ? Colors.green.shade100
+                                    : task.isSkipped
+                                    ? Colors.red.shade100
+                                    : Colors.orange.shade100,
+                                borderRadius: BorderRadius.circular(12),
+                                border: Border.all(
+                                  color: task.isCompleted
+                                      ? Colors.green.shade300
+                                      : task.isSkipped
+                                      ? Colors.red.shade300
+                                      : Colors.orange.shade300,
+                                ),
+                              ),
+                              child: Row(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  Icon(
+                                    task.isCompleted
+                                        ? Icons.check_circle
+                                        : task.isSkipped
+                                        ? Icons.cancel
+                                        : Icons.schedule,
+                                    size: 14,
+                                    color: task.isCompleted
+                                        ? Colors.green.shade700
+                                        : task.isSkipped
+                                        ? Colors.red.shade700
+                                        : Colors.orange.shade700,
+                                  ),
+                                  SizedBox(width: 4),
+                                  Text(
+                                    task.isCompleted
+                                        ? 'Completed'
+                                        : task.isSkipped
+                                        ? 'Skipped'
+                                        : 'Scheduled',
+                                    style: TextStyle(
+                                      fontSize: 12,
+                                      fontWeight: FontWeight.w500,
+                                      color: task.isCompleted
+                                          ? Colors.green.shade700
+                                          : task.isSkipped
+                                          ? Colors.red.shade700
+                                          : Colors.orange.shade700,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+
+                            SizedBox(height: 12),
+                            _buildMedicationDetailItem(
+                              'Hospital/Clinic',
+                              task.hospital ?? 'Not specified',
+                              Icons.local_hotel,
+                              isFullWidth: true,
+                            ),
+                            SizedBox(height: 8),
+                            _buildMedicationDetailItem(
+                              'Doctor',
+                              'Dr. ${task.doctorName ?? 'Not specified'}',
+                              Icons.person,
+                              isFullWidth: true,
+                            ),
+                            SizedBox(height: 8),
+                            Row(
+                              children: [
+                                Expanded(
+                                  child: _buildMedicationDetailItem(
+                                    'Date',
+                                    _formatDateDisplay(task.appointmentDate ?? ''),
+                                    Icons.calendar_today,
+                                  ),
+                                ),
+                                Expanded(
+                                  child: _buildMedicationDetailItem(
+                                    'Time',
+                                    task.time,
+                                    Icons.access_time,
+                                  ),
+                                ),
+                              ],
+                            ),
+                            if (task.description.isNotEmpty) ...[
+                              SizedBox(height: 8),
+                              _buildMedicationDetailItem(
+                                'Notes',
+                                task.description,
+                                Icons.notes,
+                                isFullWidth: true,
+                              ),
+                            ],
+                          ],
+                        ),
+                      ),
+
+                    // Skip Task Button (only show when task is selected, not completed, and not cancelled)
+                    if (task.isSelected && !task.isCompleted && !isCancelled && (task.status == 'PENDING' || task.status == null))
                       Container(
                         margin: EdgeInsets.only(top: 16),
                         width: double.infinity,
@@ -1339,15 +2190,15 @@ class _ScheduleRoutineScreenState extends State<ScheduleRoutineScreen> {
                         ),
                       ),
 
-                    // Edit and Undo buttons row (show for selected tasks or skipped tasks)
-                    if ((task.isSelected && !task.isCompleted) ||
-                        task.isSkipped)
+                    // Edit and Undo buttons row (show for selected tasks or cancelled tasks)
+                    if ((task.isSelected && !task.isCompleted && !isCancelled) ||
+                        isCancelled)
                       Container(
                         margin: EdgeInsets.only(top: task.isSelected ? 8 : 16),
                         child: Row(
                           children: [
-                            // Edit Button
-                            if (!task.isSkipped)
+                            // Edit Button (only show for non-cancelled tasks)
+                            if (!isCancelled)
                               Expanded(
                                 child: OutlinedButton.icon(
                                   onPressed: () => _editTask(task),
@@ -1370,24 +2221,12 @@ class _ScheduleRoutineScreenState extends State<ScheduleRoutineScreen> {
                                 ),
                               ),
 
-                            // Undo Skip Button (only for skipped tasks)
-                            if (task.isSkipped)
+                            // Undo Skip Button (only for cancelled/skipped tasks)
+                            if (task.isSkipped || isCancelled)
                               Expanded(
                                 child: ElevatedButton.icon(
-                                  onPressed: () {
-                                    setState(() {
-                                      task.isSkipped = false;
-                                      task.skipReason =
-                                          null; // Clear skip reason when undoing skip
-                                    });
-                                    ScaffoldMessenger.of(context).showSnackBar(
-                                      SnackBar(
-                                        content: Text(
-                                          'Task "${task.title}" restored',
-                                        ),
-                                        backgroundColor: Colors.green,
-                                      ),
-                                    );
+                                  onPressed: () async {
+                                    await _undoCancelTask(task);
                                   },
                                   style: ElevatedButton.styleFrom(
                                     backgroundColor: Colors.green,
@@ -1399,7 +2238,7 @@ class _ScheduleRoutineScreenState extends State<ScheduleRoutineScreen> {
                                     elevation: 0,
                                   ),
                                   icon: Icon(Icons.undo, size: 16),
-                                  label: Text('Undo Skip'),
+                                  label: Text('Undo Cancel'),
                                 ),
                               ),
                           ],
@@ -1410,7 +2249,8 @@ class _ScheduleRoutineScreenState extends State<ScheduleRoutineScreen> {
               ),
             ),
           ),
-        );
+          ), // Close the Opacity child property
+        ); // Close the return statement
       },
     );
   }
@@ -1767,6 +2607,19 @@ class _ScheduleRoutineScreenState extends State<ScheduleRoutineScreen> {
           );
         },
       );
+    }
+  }
+
+  /// Helper method to format date from YYYY-MM-DD to DD/MM/YYYY
+  String _formatDateDisplay(String dateStr) {
+    try {
+      final parts = dateStr.split('-');
+      if (parts.length == 3) {
+        return '${parts[2]}/${parts[1]}/${parts[0]}';
+      }
+      return dateStr;
+    } catch (e) {
+      return dateStr;
     }
   }
 }

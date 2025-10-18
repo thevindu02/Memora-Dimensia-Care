@@ -49,8 +49,9 @@ class CaregiverRoutes {
           settings: settings,
         );
       case AppRoutes.selectType:
+        final patientId = settings.arguments as int?;
         return MaterialPageRoute(
-          builder: (_) => SelectTypeWithErrorHandling(),
+          builder: (_) => SelectTypeWithErrorHandling(patientId: patientId),
           settings: settings,
         );
       case AppRoutes.viewArticleList:
