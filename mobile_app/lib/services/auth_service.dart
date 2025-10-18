@@ -398,6 +398,78 @@ class AuthService {
     }
   }
 
+  // Reset password with token and new password
+  static Future<ForgotPasswordResult> resetPassword({
+    required String token,
+    required String newPassword,
+  }) async {
+    try {
+      // Prepare request body
+      final requestBody = {
+        'token': token,
+        'newPassword': newPassword,
+      };
+
+      // Make HTTP request to backend
+      final response = await http.post(
+        Uri.parse('$url/reset-password'),
+        headers: {'Content-Type': 'application/json'},
+        body: jsonEncode(requestBody),
+      );
+
+      // Handle different response status codes
+      if (response.statusCode == 200) {
+        // Success - password reset
+        final responseData = jsonDecode(response.body);
+        return ForgotPasswordResult(
+          success: true,
+          message:
+              responseData['message'] ?? 'Password reset successfully',
+        );
+      } else if (response.statusCode == 400) {
+        // Bad request (invalid token, expired token, etc.)
+        final responseData = jsonDecode(response.body);
+        return ForgotPasswordResult(
+          success: false,
+          message:
+              responseData['message'] ?? 'Invalid or expired reset token',
+        );
+      } else {
+        // Other server errors
+        try {
+          final responseData = jsonDecode(response.body);
+          return ForgotPasswordResult(
+            success: false,
+            message: responseData['message'] ?? 'Failed to reset password',
+          );
+        } catch (e) {
+          return ForgotPasswordResult(
+            success: false,
+            message: 'Server error occurred. Please try again later',
+          );
+        }
+      }
+    } on http.ClientException {
+      // Network connectivity issues
+      return ForgotPasswordResult(
+        success: false,
+        message: 'Network error. Please check your internet connection',
+      );
+    } on FormatException {
+      // JSON parsing errors
+      return ForgotPasswordResult(
+        success: false,
+        message: 'Invalid response from server',
+      );
+    } catch (e) {
+      // Any other unexpected errors
+      return ForgotPasswordResult(
+        success: false,
+        message: 'An unexpected error occurred. Please try again',
+      );
+    }
+  }
+
   static Future<int?> getCurrentCaregiverId() async {
     if (currentCaregiverId != null) return currentCaregiverId;
     SharedPreferences prefs = await SharedPreferences.getInstance();
@@ -417,6 +489,140 @@ class AuthService {
     }
     return null;
   }
+
+  static Future<AuthResult> authenticatePatientWithCode(
+    String email,
+    String code,
+  ) async {
+    try {
+      final requestBody = {'email': email, 'code': code};
+
+      final response = await http.post(
+        Uri.parse('${ApiConstants.baseUrl}/api/patients/verify-code'),
+        headers: {'Content-Type': 'application/json'},
+        body: jsonEncode(requestBody),
+      );
+
+      print('Patient Verification Response Status: ${response.statusCode}');
+      print('Patient Verification Response Body: ${response.body}');
+
+      if (response.statusCode == 200) {
+        final responseData = jsonDecode(response.body);
+
+        if (responseData['success'] == true) {
+          final String token = responseData['accessToken'];
+          final String role = responseData['role'];
+          final int id = responseData['id'];
+          final Map<String, dynamic> userData = {
+            'id': id,
+            'email': responseData['email'],
+            'fName': responseData['fname'],
+            'lName': responseData['lname'],
+            'role': role,
+          };
+
+          // Save session data
+          await login(role, token: token, userData: userData);
+          currentUserId = id;
+
+          return AuthResult(
+            success: true,
+            role: role,
+            dashboardRoute: getDashboardRoute(role),
+            message: 'Login successful',
+            userData: userData,
+          );
+        } else {
+          return AuthResult(
+            success: false,
+            message: responseData['message'] ?? 'Verification failed',
+          );
+        }
+      } else if (response.statusCode == 401) {
+        final responseData = jsonDecode(response.body);
+        return AuthResult(
+          success: false,
+          message: responseData['message'] ?? 'Invalid verification code',
+        );
+      } else if (response.statusCode == 429) {
+        final responseData = jsonDecode(response.body);
+        return AuthResult(
+          success: false,
+          message: responseData['message'] ?? 'Too many attempts. Please try again later.',
+        );
+      } else if (response.statusCode == 410) {
+        return AuthResult(
+          success: false,
+          message: 'Verification code has expired. Please request a new code.',
+        );
+      } else {
+        final responseData = jsonDecode(response.body);
+        return AuthResult(
+          success: false,
+          message: responseData['message'] ?? 'Verification failed',
+        );
+      }
+    } catch (e) {
+      return AuthResult(
+        success: false,
+        message: 'Network error. Please check your connection and try again.',
+      );
+    }
+  }
+
+  // NEW: Send verification code to patient email
+  static Future<VerificationCodeResult> sendPatientVerificationCode(
+    String email,
+  ) async {
+    try {
+      final requestBody = {'email': email};
+
+      final response = await http.post(
+        Uri.parse('${ApiConstants.baseUrl}/api/patients/send-verification-code'),
+        headers: {'Content-Type': 'application/json'},
+        body: jsonEncode(requestBody),
+      );
+
+      print('Send Code Response Status: ${response.statusCode}');
+      print('Send Code Response Body: ${response.body}');
+
+      if (response.statusCode == 200) {
+        final responseData = jsonDecode(response.body);
+        return VerificationCodeResult(
+          success: true,
+          message: responseData['message'] ?? 'Verification code sent',
+          expiresInMinutes: responseData['expiresInMinutes'],
+        );
+      } else if (response.statusCode == 429) {
+        final responseData = jsonDecode(response.body);
+        return VerificationCodeResult(
+          success: false,
+          message: responseData['message'] ?? 'Please wait before requesting a new code',
+          locked: responseData['locked'] ?? false,
+          cooldown: responseData['cooldown'] ?? false,
+          minutesRemaining: responseData['minutesRemaining'],
+          secondsRemaining: responseData['secondsRemaining'],
+        );
+      } else if (response.statusCode == 404) {
+        return VerificationCodeResult(
+          success: false,
+          message: 'No patient account found with this email',
+        );
+      } else {
+        final responseData = jsonDecode(response.body);
+        return VerificationCodeResult(
+          success: false,
+          message: responseData['message'] ?? 'Failed to send verification code',
+        );
+      }
+    } catch (e) {
+      return VerificationCodeResult(
+        success: false,
+        message: 'Network error. Please check your connection and try again.',
+      );
+    }
+  }
+
 }
 
 // Authentication result class
@@ -441,4 +647,25 @@ class ForgotPasswordResult {
   final String message;
 
   ForgotPasswordResult({required this.success, required this.message});
+}
+
+// NEW: Verification code result class
+class VerificationCodeResult {
+  final bool success;
+  final String message;
+  final int? expiresInMinutes;
+  final bool? locked;
+  final bool? cooldown;
+  final int? minutesRemaining;
+  final int? secondsRemaining;
+
+  VerificationCodeResult({
+    required this.success,
+    required this.message,
+    this.expiresInMinutes,
+    this.locked,
+    this.cooldown,
+    this.minutesRemaining,
+    this.secondsRemaining,
+  });
 }

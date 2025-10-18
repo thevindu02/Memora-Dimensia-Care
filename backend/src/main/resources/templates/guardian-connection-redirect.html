@@ -1,0 +1,299 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Memora - Guardian Connection Request</title>
+    <style>
+      body {
+        font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+        margin: 0;
+        padding: 20px;
+        background: linear-gradient(135deg, #a0c4fd 0%, #2b3f99 100%);
+        min-height: 100vh;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+      .container {
+        background: white;
+        padding: 40px;
+        border-radius: 20px;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+        text-align: center;
+        max-width: 500px;
+        width: 100%;
+      }
+      .logo {
+        width: 80px;
+        height: 80px;
+        margin: 0 auto 20px;
+        background: linear-gradient(135deg, #a0c4fd, #2b3f99);
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        font-size: 24px;
+        font-weight: bold;
+      }
+      h1 {
+        color: #2b3f99;
+        margin-bottom: 20px;
+        font-size: 24px;
+      }
+      .status-message {
+        padding: 15px;
+        border-radius: 8px;
+        margin: 20px 0;
+        font-weight: 500;
+      }
+      .info {
+        background-color: #e3f2fd;
+        color: #1976d2;
+        border: 1px solid #bbdefb;
+      }
+      .success {
+        background-color: #e8f5e8;
+        color: #2e7d32;
+        border: 1px solid #c8e6c9;
+        display: none;
+      }
+      .error {
+        background-color: #ffebee;
+        color: #c62828;
+        border: 1px solid #ffcdd2;
+        display: none;
+      }
+      .btn {
+        background: linear-gradient(135deg, #a0c4fd, #2b3f99);
+        color: white;
+        padding: 15px 30px;
+        border: none;
+        border-radius: 50px;
+        font-size: 16px;
+        font-weight: 600;
+        cursor: pointer;
+        text-decoration: none;
+        display: inline-block;
+        margin: 20px 10px;
+        transition: transform 0.2s, box-shadow 0.2s;
+      }
+      .btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 5px 15px rgba(43, 63, 153, 0.3);
+      }
+      .btn-secondary {
+        background: #f8f9fa;
+        color: #2b3f99;
+        border: 2px solid #a0c4fd;
+      }
+      .token-display {
+        background: #f8f9fa;
+        padding: 15px;
+        border-radius: 10px;
+        margin: 20px 0;
+        border-left: 4px solid #a0c4fd;
+        font-family: "Courier New", monospace;
+        font-size: 16px;
+        font-weight: bold;
+        letter-spacing: 1px;
+        word-break: break-all;
+        cursor: pointer;
+        transition: background-color 0.3s;
+      }
+      .token-display:hover {
+        background-color: #e8f4f8;
+      }
+      .instructions {
+        margin: 20px 0;
+        color: #666;
+        line-height: 1.6;
+      }
+      .manual-steps {
+        text-align: left;
+        background-color: #f9f9f9;
+        border-radius: 8px;
+        padding: 20px;
+        margin: 20px 0;
+      }
+      .manual-steps ol {
+        margin: 0;
+        padding-left: 20px;
+      }
+      .manual-steps li {
+        margin: 8px 0;
+        color: #555;
+      }
+      @media (max-width: 600px) {
+        .container {
+          margin: 10px;
+          padding: 30px 20px;
+        }
+        .token-display {
+          font-size: 14px;
+          letter-spacing: 1px;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <div class="logo">M</div>
+      <h1>Guardian Connection Request</h1>
+
+      <div class="status-message info" id="statusMessage">
+        Attempting to open the Memora app...
+      </div>
+
+      <div class="status-message success" id="successMessage">
+        The Memora app should now be opening. If it doesn't open automatically,
+        use the manual method below.
+      </div>
+
+      <div class="status-message error" id="errorMessage">
+        Unable to open the Memora app automatically. Please use the manual
+        method below.
+      </div>
+
+      <button
+        class="btn"
+        onclick="attemptDeepLink()"
+        style="font-size: 18px; padding: 20px 40px"
+      >
+        📱 Open Memora App
+      </button>
+
+      <div class="instructions">
+        <p>
+          <strong>Alternative Method:</strong> Copy the token below and enter it
+          manually in the Memora app.
+        </p>
+      </div>
+
+      <div class="token-display" id="tokenDisplay">
+        <strong>Connection Token:</strong><br />
+        <span th:text="${token}">TOKEN_PLACEHOLDER</span>
+      </div>
+
+      <div class="manual-steps">
+        <h3>Manual Steps:</h3>
+        <ol>
+          <li>Copy the token above by clicking on it</li>
+          <li>Open the Memora app on your device</li>
+          <li>Navigate to your guardian requests section</li>
+          <li>Enter the token manually if needed</li>
+          <li>Review and respond to the guardian connection request</li>
+        </ol>
+      </div>
+    </div>
+
+    <script th:inline="javascript">
+      /*<![CDATA[*/
+      var token = /*[[${token}]]*/ "default";
+      var deepLinkUrl = "memora://guardian-request?token=" + token;
+
+      function attemptDeepLink() {
+        const statusMsg = document.getElementById("statusMessage");
+        const successMsg = document.getElementById("successMessage");
+        const errorMsg = document.getElementById("errorMessage");
+
+        // Reset messages
+        statusMsg.style.display = "block";
+        successMsg.style.display = "none";
+        errorMsg.style.display = "none";
+
+        // Check if we're on a mobile device
+        const isMobile =
+          /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(
+            navigator.userAgent
+          );
+
+        if (isMobile) {
+          // Try to open the deep link
+          window.location.href = deepLinkUrl;
+
+          // Also try using a hidden iframe (sometimes more reliable)
+          var iframe = document.createElement("iframe");
+          iframe.style.display = "none";
+          iframe.src = deepLinkUrl;
+          document.body.appendChild(iframe);
+
+          // Try multiple methods for better compatibility
+          setTimeout(function () {
+            try {
+              window.open(deepLinkUrl, "_self");
+            } catch (e) {
+              console.log("Window.open failed:", e);
+            }
+          }, 100);
+
+          // Set a timeout to show success message
+          setTimeout(() => {
+            statusMsg.style.display = "none";
+            successMsg.style.display = "block";
+          }, 1000);
+
+          // If the user is still on the page after 3 seconds, assume the app didn't open
+          setTimeout(() => {
+            if (document.visibilityState === "visible") {
+              statusMsg.style.display = "none";
+              successMsg.style.display = "none";
+              errorMsg.style.display = "block";
+            }
+          }, 3000);
+        } else {
+          // On desktop, show error immediately
+          statusMsg.style.display = "none";
+          errorMsg.style.display = "block";
+        }
+      }
+
+      // Automatically attempt deep link when page loads
+      window.onload = function () {
+        // Small delay to let the page render
+        setTimeout(() => {
+          attemptDeepLink();
+        }, 500);
+      };
+
+      // Handle page visibility changes (user came back to browser)
+      document.addEventListener("visibilitychange", function () {
+        if (document.visibilityState === "visible") {
+          // User came back to the browser, the app likely didn't open
+          setTimeout(() => {
+            const statusMsg = document.getElementById("statusMessage");
+            const successMsg = document.getElementById("successMessage");
+            const errorMsg = document.getElementById("errorMessage");
+
+            statusMsg.style.display = "none";
+            successMsg.style.display = "none";
+            errorMsg.style.display = "block";
+          }, 1000);
+        }
+      });
+
+      // Copy token to clipboard when clicked
+      document
+        .getElementById("tokenDisplay")
+        .addEventListener("click", function () {
+          navigator.clipboard.writeText(token).then(
+            function () {
+              const original = this.innerHTML;
+              this.innerHTML =
+                "<strong>Connection Token:</strong><br>✓ Copied to clipboard!";
+              this.style.backgroundColor = "#e8f5e8";
+              this.style.color = "#2e7d32";
+
+              setTimeout(() => {
+                this.innerHTML = original;
+                this.style.backgroundColor = "#f8f9fa";
+                this.style.color = "inherit";
+              }, 2000);
+            }.bind(this)
+          );
+        });
+      /*]]>*/
+    </script>
+  </body>
+</html>

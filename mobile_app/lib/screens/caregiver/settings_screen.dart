@@ -130,7 +130,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 Navigator.pushNamedAndRemoveUntil(
                   context,
                   AppRoutes.login,
-                      (route) => false,
+                  (route) => false,
                 );
               },
               child: Text('Log Out', style: TextStyle(color: Colors.red)),
@@ -154,7 +154,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
             Navigator.pushNamedAndRemoveUntil(
               context,
               AppRoutes.caregiverDashboard,
-                  (route) => false,
+              (route) => false,
             );
           },
         ),
@@ -224,8 +224,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
             child: ElevatedButton(
               onPressed: _showLogoutDialog,
               style: ElevatedButton.styleFrom(
-                backgroundColor: Color(0xA0C4FD).withOpacity(0.35),
-                foregroundColor: Color(0xFF2B3F99),
+                backgroundColor: Colors.red.withOpacity(0.1),
+                foregroundColor: Colors.red,
                 padding: EdgeInsets.symmetric(vertical: 16),
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(8),

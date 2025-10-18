@@ -1,209 +1,268 @@
+import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import '../../routes/app_routes.dart';
+import '../../services/auth_service.dart';
 
 class PatientVerifyCodeScreen extends StatefulWidget {
+  final String? email;
+  
+  const PatientVerifyCodeScreen({Key? key, this.email}) : super(key: key);
+
   @override
-  _PatientVerifyCodeScreenState createState() => _PatientVerifyCodeScreenState();
+  State<PatientVerifyCodeScreen> createState() => _PatientVerifyCodeScreenState();
 }
 
 class _PatientVerifyCodeScreenState extends State<PatientVerifyCodeScreen> {
-  List<TextEditingController> _controllers = List.generate(6, (index) => TextEditingController());
-  List<FocusNode> _focusNodes = List.generate(6, (index) => FocusNode());
-
+  final _codeController = TextEditingController();
+  bool _isLoading = false;
+  bool _isResending = false;
+  int _resendCooldown = 0;
+  Timer? _cooldownTimer;
+  String? _errorMessage;
+  String? _email;
+  
+  @override
+  void initState() {
+    super.initState();
+    _email = widget.email;
+  }
+  
   @override
   void dispose() {
-    _controllers.forEach((controller) => controller.dispose());
-    _focusNodes.forEach((node) => node.dispose());
+    _codeController.dispose();
+    _cooldownTimer?.cancel();
     super.dispose();
   }
-
-  void _onCodeChanged(String value, int index) {
-    if (value.isNotEmpty && index < 5) {
-      _focusNodes[index + 1].requestFocus();
+  
+  void _startResendCooldown(int seconds) {
+    setState(() {
+      _resendCooldown = seconds;
+    });
+    
+    _cooldownTimer?.cancel();
+    _cooldownTimer = Timer.periodic(const Duration(seconds: 1), (timer) {
+      setState(() {
+        if (_resendCooldown > 0) {
+          _resendCooldown--;
+        } else {
+          timer.cancel();
+        }
+      });
+    });
+  }
+  
+  Future<void> _verifyCode() async {
+    final code = _codeController.text.trim();
+    
+    if (code.isEmpty || code.length != 6) {
+      setState(() {
+        _errorMessage = 'Please enter the 6-digit verification code';
+      });
+      return;
+    }
+    
+    if (_email == null) {
+      setState(() {
+        _errorMessage = 'Email not found. Please go back and try again.';
+      });
+      return;
+    }
+    
+    setState(() {
+      _isLoading = true;
+      _errorMessage = null;
+    });
+    
+    try {
+      final result = await AuthService.authenticatePatientWithCode(_email!, code);
+      
+      if (result.success) {
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text('Login successful! ✓'),
+              backgroundColor: Colors.green,
+              duration: Duration(seconds: 2),
+            ),
+          );
+          
+          // Navigate to patient dashboard
+          Navigator.of(context).pushReplacementNamed(
+            result.dashboardRoute ?? AppRoutes.patientMain,
+          );
+        }
+      } else {
+        setState(() {
+          _isLoading = false;
+          _errorMessage = result.message;
+        });
+        
+        if (result.message.contains('expired')) {
+          _showErrorDialog(
+            'Code Expired',
+            'Your verification code has expired. Please request a new code.',
+          );
+        } else {
+          _showErrorDialog('Invalid Code', result.message);
+        }
+      }
+    } catch (e) {
+      setState(() {
+        _isLoading = false;
+        _errorMessage = e.toString();
+      });
+      _showErrorDialog('Error', 'Verification failed: $e');
     }
   }
-
-  void _onBackspace(int index) {
-    if (index > 0) {
-      _controllers[index - 1].clear();
-      _focusNodes[index - 1].requestFocus();
+  
+  Future<void> _resendCode() async {
+    if (_resendCooldown > 0) {
+      _showErrorDialog('Please Wait', 'Please wait $_resendCooldown seconds before resending');
+      return;
+    }
+    
+    if (_email == null) {
+      _showErrorDialog('Error', 'Email not found. Please go back and try again.');
+      return;
+    }
+    
+    setState(() {
+      _isResending = true;
+      _errorMessage = null;
+    });
+    
+    try {
+      final result = await AuthService.sendPatientVerificationCode(_email!);
+      
+      setState(() {
+        _isResending = false;
+      });
+      
+      if (result.success) {
+        _startResendCooldown(60);
+        
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text(result.message),
+              backgroundColor: Colors.green,
+            ),
+          );
+        }
+      } else {
+        _showErrorDialog('Error', result.message);
+        
+        if (result.cooldown == true) {
+          _startResendCooldown(result.secondsRemaining ?? 60);
+        }
+      }
+    } catch (e) {
+      setState(() {
+        _isResending = false;
+      });
+      _showErrorDialog('Error', 'Failed to resend code: $e');
     }
   }
-
-  String _getEnteredCode() {
-    return _controllers.map((controller) => controller.text).join();
-  }
-
-  void _verifyCode() {
-    String code = _getEnteredCode();
-    if (code.length == 6) {
-      // Handle verification logic here
-      print('Verifying code: $code');
-    } else {
-      // Show error message
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Please enter all 6 digits')),
-      );
-    }
-  }
-
-  void _resendCode() {
-    // Handle resend logic here
-    print('Resending code...');
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text('Code sent to your email')),
+  
+  void _showErrorDialog(String title, String message) {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: Text(title),
+        content: Text(message),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(),
+            child: const Text('OK'),
+          ),
+        ],
+      ),
     );
   }
-
+  
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.grey[50],
       appBar: AppBar(
-        backgroundColor: Colors.transparent,
-        elevation: 0,
-        leading: IconButton(
-          icon: Icon(Icons.arrow_back, color: Colors.black),
-          onPressed: () => Navigator.of(context).pop(),
-        ),
+        title: const Text('Enter Verification Code'),
+        centerTitle: true,
       ),
       body: Padding(
         padding: const EdgeInsets.all(24.0),
         child: Column(
-          crossAxisAlignment: CrossAxisAlignment.center,
+          mainAxisAlignment: MainAxisAlignment.center,
+          crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            SizedBox(height: 40),
-
-            // Title
+            const Icon(Icons.verified_user, size: 80, color: Colors.blue),
+            const SizedBox(height: 24),
+            const Text(
+              'Enter Verification Code',
+              textAlign: TextAlign.center,
+              style: TextStyle(fontSize: 28, fontWeight: FontWeight.bold),
+            ),
+            const SizedBox(height: 8),
             Text(
-              'Verify Code',
-              style: TextStyle(
-                fontSize: 32,
+              'Code sent to $_email',
+              textAlign: TextAlign.center,
+              style: const TextStyle(fontSize: 14, color: Colors.grey),
+            ),
+            const SizedBox(height: 40),
+            
+            TextField(
+              controller: _codeController,
+              keyboardType: TextInputType.number,
+              maxLength: 6,
+              textAlign: TextAlign.center,
+              style: const TextStyle(
+                fontSize: 24,
                 fontWeight: FontWeight.bold,
-                color: Colors.black87,
+                letterSpacing: 8,
+              ),
+              inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+              decoration: InputDecoration(
+                labelText: 'Verification Code',
+                hintText: '000000',
+                counterText: '',
+                border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+                errorText: _errorMessage,
               ),
             ),
-
-            SizedBox(height: 12),
-
-            // Subtitle
-            Text(
-              'Enter the code sent to your email',
-              style: TextStyle(
-                fontSize: 16,
-                color: Colors.grey[600],
+            const SizedBox(height: 24),
+            
+            ElevatedButton(
+              onPressed: _isLoading ? null : _verifyCode,
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Colors.green,
+                padding: const EdgeInsets.symmetric(vertical: 16),
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+              ),
+              child: _isLoading
+                  ? const SizedBox(
+                      height: 20,
+                      width: 20,
+                      child: CircularProgressIndicator(
+                        strokeWidth: 2,
+                        valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                      ),
+                    )
+                  : const Text('Verify & Login', style: TextStyle(fontSize: 16)),
+            ),
+            const SizedBox(height: 16),
+            
+            TextButton.icon(
+              onPressed: _resendCooldown > 0 || _isResending ? null : _resendCode,
+              icon: const Icon(Icons.refresh),
+              label: Text(
+                _resendCooldown > 0 ? 'Resend Code ($_resendCooldown s)' : 'Resend Code',
               ),
             ),
-
-            SizedBox(height: 60),
-
-            // Code input boxes
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-              children: List.generate(6, (index) {
-                return Container(
-                  width: 50,
-                  height: 60,
-                  decoration: BoxDecoration(
-                    color: Colors.grey[200],
-                    borderRadius: BorderRadius.circular(12),
-                    border: Border.all(
-                      color: _focusNodes[index].hasFocus
-                          ? Colors.blue[300]!
-                          : Colors.transparent,
-                      width: 2,
-                    ),
-                  ),
-                  child: TextField(
-                    controller: _controllers[index],
-                    focusNode: _focusNodes[index],
-                    textAlign: TextAlign.center,
-                    style: TextStyle(
-                      fontSize: 24,
-                      fontWeight: FontWeight.bold,
-                      color: Colors.black87,
-                    ),
-                    keyboardType: TextInputType.number,
-                    inputFormatters: [
-                      FilteringTextInputFormatter.digitsOnly,
-                      LengthLimitingTextInputFormatter(1),
-                    ],
-                    decoration: InputDecoration(
-                      border: InputBorder.none,
-                      counterText: '',
-                    ),
-                    onChanged: (value) => _onCodeChanged(value, index),
-                    onTap: () {
-                      if (_controllers[index].text.isNotEmpty) {
-                        _controllers[index].selection = TextSelection.fromPosition(
-                          TextPosition(offset: _controllers[index].text.length),
-                        );
-                      }
-                    },
-                  ),
-                );
-              }),
-            ),
-
-            SizedBox(height: 60),
-
-            // Verify button
-            Container(
-              width: double.infinity,
-              height: 56,
-              child: ElevatedButton(
-                //onPressed: _verifyCode,
-                onPressed: () {
-                  // Handle accept connection
-                  //_handleAcceptConnection(context);
-                  Navigator.of(context).pushNamed(AppRoutes.patientWelcome);
-                },
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: const Color(0xFFA0C4FD),
-                  foregroundColor: const Color(0xFF2B3F99),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(28),
-                  ),
-                  elevation: 0,
-                ),
-                child: Text(
-                  'Verify',
-                  style: TextStyle(
-                    fontSize: 18,
-                    fontWeight: FontWeight.w600,
-                    color: Color(0xFF2B3F99),
-                  ),
-                ),
-              ),
-            ),
-
-            SizedBox(height: 32),
-
-            // Resend code
-            Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Text(
-                  "Didn't receive the code? ",
-                  style: TextStyle(
-                    fontSize: 16,
-                    color: Colors.grey[700],
-                  ),
-                ),
-                GestureDetector(
-                  onTap: _resendCode,
-                  child: Text(
-                    'Resend',
-                    style: TextStyle(
-                      fontSize: 16,
-                      color: Colors.blue[600],
-                      fontWeight: FontWeight.w600,
-                      decoration: TextDecoration.underline,
-                    ),
-                  ),
-                ),
-              ],
+            
+            const SizedBox(height: 8),
+            const Text(
+              'Code expires in 15 minutes',
+              textAlign: TextAlign.center,
+              style: TextStyle(fontSize: 12, color: Colors.grey),
             ),
           ],
         ),

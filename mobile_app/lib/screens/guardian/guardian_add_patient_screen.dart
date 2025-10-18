@@ -356,52 +356,42 @@ class _GuardianAddPatientScreenState extends State<GuardianAddPatientScreen> {
           return;
         }
 
+        // Collect all form data to pass to subscription screen
+        // Patient will be created AFTER successful payment
+        final String? backendDementiaType = _selectedDementiaType != null
+            ? dementiaTypeMap[_selectedDementiaType]
+            : null;
+
+        final Map<String, dynamic> patientData = {
+          'firstName': _firstNameController.text.trim(),
+          'lastName': _lastNameController.text.trim(),
+          'dateOfBirth': _dobController.text.trim(),
+          'gender': _selectedGender ?? '',
+          'contactNumber': _contactController.text.trim(),
+          'email': _emailController.text.trim(),
+          'street': _streetController.text.trim(),
+          'city': _cityController.text.trim(),
+          'state': _stateController.text.trim(),
+          'dementiaType': backendDementiaType ?? '',
+          'dementiaStage': _selectedDementiaStage ?? '',
+          'dateOfDiagnosis': _diagnosisDateController.text.trim(),
+          'relationship': _selectedRelationship == 'Other'
+              ? _customRelationshipController.text.trim()
+              : (_selectedRelationship ?? ''),
+        };
+
         setState(() {
           _isLoading = false;
         });
 
-        // Prepare patient data to pass to subscription screen
-        final dementiaStage = _selectedDementiaStage?.toUpperCase();
-        final backendDementiaType = dementiaTypeMap[_selectedDementiaType];
-        final dateOfDiagnosis = _selectedDiagnosisDate != null
-            ? "${_selectedDiagnosisDate!.toIso8601String().split('T')[0]}"
-            : null;
-        final dobString = _selectedDOB != null
-            ? "${_selectedDOB!.toIso8601String().split('T')[0]}"
-            : "";
+        print('Navigating to subscription plans with patient data');
 
-        print('=== Navigation Debug ===');
-        print('Navigating to subscription plans with patient form data');
-        print('guardianId: $guardianId');
-        print('========================');
-
-        // Navigate to subscription plans WITHOUT creating patient yet
-        // Patient will be created AFTER successful payment
+        // Navigate to subscription plans with data (patient created after payment)
         Navigator.pushNamedAndRemoveUntil(
           context,
           AppRoutes.guardianSubscriptionPlans,
           (route) => false,
-          arguments: {
-            'guardianId': guardianId,
-            // Pass all patient form data
-            'patientData': {
-              'firstName': _firstNameController.text,
-              'lastName': _lastNameController.text,
-              'email': _emailController.text,
-              'phoneNumber': _contactController.text,
-              'birthdate': dobString,
-              'street': _streetController.text,
-              'city': _cityController.text,
-              'state': _stateController.text,
-              'gender': _selectedGender ?? "",
-              'dementiaStage': dementiaStage ?? "",
-              'dateOfDiagnosis': dateOfDiagnosis ?? "",
-              'dementiaType': backendDementiaType ?? "",
-              'relationship': _selectedRelationship == 'Other'
-                  ? _customRelationshipController.text.trim()
-                  : (_selectedRelationship ?? ''),
-            },
-          },
+          arguments: {'guardianId': guardianId, 'patientData': patientData},
         );
       } else {
         print('Form validation failed');

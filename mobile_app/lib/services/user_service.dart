@@ -61,6 +61,25 @@ class UserService {
       return UserResult(success: false, message: errorMessage);
     }
   }
+
+  static Future<Map<String, dynamic>?> getUserById(int userId) async {
+    try {
+      final response = await http.get(
+        Uri.parse('$url/$userId'),
+        headers: {'Content-Type': 'application/json'},
+      );
+
+      if (response.statusCode == 200) {
+        return jsonDecode(response.body) as Map<String, dynamic>;
+      } else {
+        print('Failed to get user: ${response.statusCode}');
+        return null;
+      }
+    } catch (e) {
+      print('Error getting user: $e');
+      return null;
+    }
+  }
 }
 
 class UserResult {
