@@ -65,6 +65,8 @@ class AppRoutes {
   static const String guardianPayment = 'guardian/payment';
   static const String guardianPaymentSuccess = '/guardian/payment/success';
   static const String guardianPaymentFailed = '/guardian/payment/failed';
+  static const String guardianCaregiverList = '/guardian/caregiver-list'; // NEW
+static const String guardianCaregiverDetails = '/guardian/caregiver-details'; // NEW
 
   // static const String guardianOrders = '/guardian/orders';
 

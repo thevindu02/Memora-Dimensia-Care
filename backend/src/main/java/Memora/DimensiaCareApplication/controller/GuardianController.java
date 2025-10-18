@@ -301,4 +301,10 @@ public class GuardianController {
         List<CaregiverSummaryResponse> caregivers = guardianService.getExpiredCaregiversForGuardian(guardianId);
         return ResponseEntity.ok(caregivers);
     }
+
+    @GetMapping("/{guardianId}/all-caregivers")
+    public ResponseEntity<List<CaregiverSummaryResponse>> getAllCaregiversForGuardian(@PathVariable("guardianId") Long guardianId) {
+        List<CaregiverSummaryResponse> caregivers = guardianService.getAllCaregiversForGuardian(guardianId);
+        return ResponseEntity.ok(caregivers);
+    }
 }
