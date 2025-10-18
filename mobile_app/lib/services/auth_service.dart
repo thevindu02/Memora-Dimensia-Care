@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
+import 'guardian_service.dart';
 import '../routes/app_routes.dart';
 import 'api_constants.dart';
 import '../services/caregiver_service.dart'; // Added import for CaregiverService
@@ -82,7 +83,7 @@ class AuthService {
         final String token = responseData['accessToken'];
         final String role = responseData['role'];
         final int id = responseData['id'];
-        final int? guardianId = responseData['guardianId']; // <-- Add this line
+        final int? guardianId = responseData['guardianId']; // may be null
         final Map<String, dynamic> userData = {
           'id': id,
           'email': responseData['email'],
@@ -105,10 +106,27 @@ class AuthService {
           }
         }
 
-        // If guardian, save guardianId to SharedPreferences
-        if (role.toLowerCase() == 'guardian' && guardianId != null) {
-          SharedPreferences prefs = await SharedPreferences.getInstance();
-          await prefs.setInt('guardianId', guardianId);
+        // If guardian, save guardianId to SharedPreferences (use response or fetch by user id)
+        if (role.toLowerCase() == 'guardian') {
+          try {
+            final prefs = await SharedPreferences.getInstance();
+            int? gid;
+            if (responseData.containsKey('guardianId')) {
+              gid = int.tryParse(responseData['guardianId'].toString());
+            }
+            if (gid == null) {
+              // attempt backend lookup: GuardianService.getGuardianIdByUserId returns int?
+              gid = await GuardianService.getGuardianIdByUserId(id);
+            }
+            if (gid != null) {
+              await prefs.setInt('guardianId', gid);
+              print('Saved guardianId=$gid to prefs');
+            } else {
+              print('guardianId not found for user $id');
+            }
+          } catch (e) {
+            print('Failed to save guardianId: $e');
+          }
         }
 
         return AuthResult(
@@ -423,6 +441,35 @@ class AuthService {
       }
     }
     return null;
+  }
+
+  // Ensure guardian ID is saved in SharedPreferences
+  static Future<void> _ensureGuardianIdSaved(int userId, int? maybeGuardianId) async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      if (maybeGuardianId != null) {
+        await prefs.setInt('guardianId', maybeGuardianId);
+        return;
+      }
+      // If already present, nothing to do
+      if (prefs.containsKey('guardianId')) return;
+
+      // Try fetch guardian record from backend (adjust path if your API differs)
+      final uri = Uri.parse('${ApiConstants.baseUrl}/guardians/user/$userId');
+      final resp = await http.get(uri, headers: {'Content-Type': 'application/json'});
+      if (resp.statusCode == 200) {
+        final data = jsonDecode(resp.body);
+        // try multiple possible field names
+        final fetched = data['guardianId'] ?? data['id'] ?? data['guardian_id'];
+        if (fetched != null) {
+          final int gid = fetched is int ? fetched : int.parse(fetched.toString());
+          await prefs.setInt('guardianId', gid);
+        }
+      }
+    } catch (e) {
+      // silently ignore - login shouldn't fail due to missing guardianId
+      print('Failed to fetch/save guardianId: $e');
+    }
   }
 }
 

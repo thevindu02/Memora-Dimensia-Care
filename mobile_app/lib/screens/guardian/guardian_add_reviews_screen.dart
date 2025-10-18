@@ -5,6 +5,7 @@ import '../../constants/color_constants.dart';
 import '../../services/caregiver_service.dart';
 import '../../services/caregiver_review_service.dart';
 import '../../services/guardian_service.dart';
+import '../../services/auth_service.dart';
 
 class GuardianAddReviewsScreen extends StatefulWidget {
   @override
@@ -20,39 +21,105 @@ class _GuardianAddReviewsScreenState extends State<GuardianAddReviewsScreen> {
   @override
   void initState() {
     super.initState();
-    _fetchCaregivers();
-    _retrieveGuardianId();
+    // Ensure guardianId is retrieved first, then fetch caregivers
+    _retrieveGuardianId().then((_) {
+      _fetchCaregivers();
+    });
   }
 
   Future<void> _retrieveGuardianId() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     int? storedGuardianId = prefs.getInt('guardianId');
     print('Retrieved guardianId from prefs: $storedGuardianId');
-    setState(() {
-      guardianId = storedGuardianId;
-    });
+    if (storedGuardianId != null) {
+      setState(() {
+        guardianId = storedGuardianId;
+      });
+      return;
+    }
+    // fallback: try to get current user id and resolve guardian id from server
+    try {
+      final userId = await AuthService.getCurrentUserId();
+      if (userId != null) {
+        final fetched = await GuardianService.getGuardianIdByUserId(userId);
+        print('Fetched guardianId by userId: $fetched');
+        if (fetched != null) {
+          setState(() {
+            guardianId = fetched;
+          });
+          SharedPreferences prefs2 = await SharedPreferences.getInstance();
+          await prefs2.setInt('guardianId', fetched);
+          return;
+        }
+      }
+    } catch (e) {
+      print('Error retrieving guardianId fallback: $e');
+    }
+    // if still null, leave guardianId null — fetch will handle it
   }
 
   Future<void> _fetchCaregivers() async {
+    setState(() {
+      _isLoading = true;
+    });
+
     try {
-      caregivers = await CaregiverService.getExpiredInactiveCaregivers();
+      // Ensure we have guardianId before requesting caregiver list
+      if (guardianId == null) {
+        await _retrieveGuardianId();
+      }
+
+      if (guardianId == null) {
+        // Nothing to fetch without guardianId
+        caregivers = [];
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+                content: Text('Guardian ID not available. Please login again.'),
+                backgroundColor: Colors.red),
+          );
+        }
+        return;
+      }
+
+      // Prefer API that accepts guardianId. Fallback to parameterless call if it doesn't exist.
+      try {
+        caregivers =
+            await CaregiverService.getExpiredInactiveCaregiversByGuardianId(
+                guardianId!);
+      } catch (e) {
+        // Fallback to older API (if exists)
+        print(
+            'Fallback to parameterless getExpiredInactiveCaregivers due to: $e');
+        caregivers = await CaregiverService.getExpiredInactiveCaregivers();
+      }
     } catch (e) {
       caregivers = [];
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Failed to load caregivers'), backgroundColor: Colors.red),
-      );
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+              content: Text('Failed to load caregivers: $e'),
+              backgroundColor: Colors.red),
+        );
+      }
+    } finally {
+      if (mounted) {
+        setState(() {
+          _isLoading = false;
+        });
+      } else {
+        _isLoading = false;
+      }
     }
-    setState(() {
-      _isLoading = false;
-    });
   }
 
   void _showReviewDialog(Map<String, dynamic> caregiver) {
+    final parentContext = context; // capture scaffold/context for SnackBars
     double rating = 0;
     TextEditingController reviewController = TextEditingController();
     showDialog(
-      context: context,
-      builder: (context) {
+      context: parentContext,
+      builder: (dialogContext) {
         return StatefulBuilder(
           builder: (context, setState) {
             return Dialog(
@@ -74,12 +141,14 @@ class _GuardianAddReviewsScreenState extends State<GuardianAddReviewsScreen> {
                           size: 28,
                         ),
                         SizedBox(width: 12),
-                        Text(
-                          'Review ${caregiver['fName']} ${caregiver['lName']}',
-                          style: TextStyle(
-                            fontSize: 20,
-                            fontWeight: FontWeight.bold,
-                            color: AppColors.info,
+                        Expanded(
+                          child: Text(
+                            'Review ${caregiver['fName'] ?? ''} ${caregiver['lName'] ?? ''}',
+                            style: TextStyle(
+                              fontSize: 20,
+                              fontWeight: FontWeight.bold,
+                              color: AppColors.info,
+                            ),
                           ),
                         ),
                       ],
@@ -95,12 +164,11 @@ class _GuardianAddReviewsScreenState extends State<GuardianAddReviewsScreen> {
                     SizedBox(height: 8),
                     Row(
                       children: List.generate(5, (index) {
+                        final filled = rating > index;
                         return IconButton(
                           icon: Icon(
                             Icons.star,
-                            color: rating > index
-                                ? Colors.amber
-                                : Colors.grey[300],
+                            color: filled ? Colors.amber : Colors.grey[300],
                             size: 32,
                           ),
                           onPressed: () {
@@ -133,7 +201,10 @@ class _GuardianAddReviewsScreenState extends State<GuardianAddReviewsScreen> {
                       mainAxisAlignment: MainAxisAlignment.end,
                       children: [
                         TextButton(
-                          onPressed: () => Navigator.pop(context),
+                          onPressed: () {
+                            // Close dialog first, then dispose controller
+                            Navigator.pop(context);
+                          },
                           child: Text(
                             'Cancel',
                             style: TextStyle(color: AppColors.onSurfaceVariant),
@@ -142,53 +213,88 @@ class _GuardianAddReviewsScreenState extends State<GuardianAddReviewsScreen> {
                         SizedBox(width: 16),
                         ElevatedButton(
                           onPressed: () async {
+                            // Resolve caregiver id robustly
+                            final dynamic cidValue = caregiver['caregiver_id'] ??
+                                caregiver['id'] ??
+                                caregiver['caregiverId'];
+                            final int? caregiverId =
+                                cidValue == null ? null : int.tryParse(cidValue.toString());
+
                             if (guardianId == null) {
-                              ScaffoldMessenger.of(context).showSnackBar(
-                                SnackBar(content: Text('Guardian ID not found. Please log in again.'), backgroundColor: Colors.red),
-                              );
+                              if (mounted) {
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  SnackBar(
+                                      content: Text(
+                                          'Guardian ID not found. Please log in again.'),
+                                      backgroundColor: Colors.red),
+                                );
+                              }
                               return;
                             }
-                            if (caregiver['caregiver_id'] == null) {
-                              ScaffoldMessenger.of(context).showSnackBar(
-                                SnackBar(content: Text('Missing caregiver ID'), backgroundColor: Colors.red),
-                              );
+                            if (caregiverId == null) {
+                              if (mounted) {
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  SnackBar(
+                                      content: Text('Missing caregiver ID'),
+                                      backgroundColor: Colors.red),
+                                );
+                              }
                               return;
                             }
                             if (rating == 0) {
-                              ScaffoldMessenger.of(context).showSnackBar(
-                                SnackBar(content: Text('Please select a rating.'), backgroundColor: Colors.red),
-                              );
+                              if (mounted) {
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  SnackBar(
+                                      content:
+                                          Text('Please select a rating.'),
+                                      backgroundColor: Colors.red),
+                                );
+                              }
                               return;
                             }
                             if (reviewController.text.trim().isEmpty) {
-                              ScaffoldMessenger.of(context).showSnackBar(
-                                SnackBar(content: Text('Please enter your review.'), backgroundColor: Colors.red),
-                              );
+                              if (mounted) {
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  SnackBar(
+                                      content:
+                                          Text('Please enter your review.'),
+                                      backgroundColor: Colors.red),
+                                );
+                              }
                               return;
                             }
-                            // If backend returns 'caregiver_id'
-                            print('Submitting review with guardianId: $guardianId, caregiverId: ${caregiver['caregiver_id']}');
+
+                            print(
+                                'Submitting review with guardianId: $guardianId, caregiverId: $caregiverId');
+
                             final success = await CaregiverReviewService.addReview(
                               guardianId: guardianId!,
-                              caregiverId: int.parse(caregiver['caregiver_id'].toString()), // <-- use 'caregiver_id' if backend returns this
+                              caregiverId: caregiverId,
                               rating: rating.toInt(),
                               reviewText: reviewController.text,
                             );
+
+                            reviewController.dispose();
                             Navigator.pop(context);
-                            if (success) {
-                              ScaffoldMessenger.of(context).showSnackBar(
-                                SnackBar(
-                                  content: Text('Review submitted!'),
-                                  backgroundColor: Colors.green,
-                                ),
-                              );
-                            } else {
-                              ScaffoldMessenger.of(context).showSnackBar(
-                                SnackBar(
-                                  content: Text('Failed to submit review'),
-                                  backgroundColor: Colors.red,
-                                ),
-                              );
+
+                            if (mounted) {
+                              if (success) {
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  SnackBar(
+                                    content: Text('Review submitted!'),
+                                    backgroundColor: Colors.green,
+                                  ),
+                                );
+                                // Optionally refresh list
+                                _fetchCaregivers();
+                              } else {
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  SnackBar(
+                                    content: Text('Failed to submit review'),
+                                    backgroundColor: Colors.red,
+                                  ),
+                                );
+                              }
                             }
                           },
                           style: ElevatedButton.styleFrom(
@@ -242,11 +348,18 @@ class _GuardianAddReviewsScreenState extends State<GuardianAddReviewsScreen> {
                   separatorBuilder: (_, __) => SizedBox(height: 16),
                   itemBuilder: (context, index) {
                     final caregiver = caregivers[index];
+                    // Determine if caregiver is inactive/expired using several common keys
+                    final status = caregiver['status']?.toString().toLowerCase();
+                    final bool isInactive = (status == 'inactive' || status == 'expired') ||
+                        (caregiver['isActive'] == false) ||
+                        (caregiver['active'] == false) ||
+                        (caregiver['expired'] == true);
                     return Material(
                       color: AppColors.primaryLight.withOpacity(0.10),
                       borderRadius: BorderRadius.circular(16),
                       child: InkWell(
                         borderRadius: BorderRadius.circular(16),
+                        // Keep inactive caregivers clickable so guardians can add reviews
                         onTap: () => _showReviewDialog(caregiver),
                         child: Container(
                           padding: EdgeInsets.all(20),
@@ -266,31 +379,57 @@ class _GuardianAddReviewsScreenState extends State<GuardianAddReviewsScreen> {
                                 child: Column(
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
-                                    Text(
-                                      '${caregiver['fName']} ${caregiver['lName']}',
-                                      style: TextStyle(
-                                        fontSize: 16,
-                                        fontWeight: FontWeight.w700,
-                                        color: AppColors.info,
-                                      ),
+                                    Row(
+                                      crossAxisAlignment: CrossAxisAlignment.center,
+                                      children: [
+                                        Expanded(
+                                          child: Text(
+                                            '${caregiver['fName'] ?? ''} ${caregiver['lName'] ?? ''}',
+                                            style: TextStyle(
+                                              fontSize: 16,
+                                              fontWeight: FontWeight.w700,
+                                              color: AppColors.info,
+                                            ),
+                                          ),
+                                        ),
+                                        if (isInactive)
+                                          Container(
+                                            padding: EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                                            decoration: BoxDecoration(
+                                              color: Colors.redAccent.withOpacity(0.12),
+                                              borderRadius: BorderRadius.circular(12),
+                                              border: Border.all(color: Colors.redAccent.withOpacity(0.25)),
+                                            ),
+                                            child: Text(
+                                              'INACTIVE',
+                                              style: TextStyle(
+                                                color: Colors.redAccent,
+                                                fontSize: 12,
+                                                fontWeight: FontWeight.w700,
+                                              ),
+                                            ),
+                                          ),
+                                      ],
                                     ),
                                     SizedBox(height: 4),
                                     Text(
-                                      'Email: ${caregiver['email']}',
-                                      style: TextStyle(fontSize: 14, color: AppColors.onSurface),
+                                      'Email: ${caregiver['email'] ?? ''}',
+                                      style: TextStyle(
+                                          fontSize: 14, color: AppColors.onSurface),
                                     ),
                                     Text(
                                       'Experience: ${caregiver['experience'] ?? ''}',
-                                      style: TextStyle(fontSize: 14, color: AppColors.onSurface),
+                                      style: TextStyle(
+                                          fontSize: 14, color: AppColors.onSurface),
                                     ),
                                     Text(
                                       'Qualifications: ${caregiver['qualifications'] ?? ''}',
-                                      style: TextStyle(fontSize: 14, color: AppColors.onSurface),
+                                      style: TextStyle(
+                                          fontSize: 14, color: AppColors.onSurface),
                                     ),
                                   ],
                                 ),
                               ),
-                              // Remove IconButton for review, keep card tap only
                             ],
                           ),
                         ),

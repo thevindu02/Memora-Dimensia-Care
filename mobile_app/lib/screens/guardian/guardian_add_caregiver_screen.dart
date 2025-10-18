@@ -62,16 +62,14 @@ class _GuardianAddCaregiverScreenState
   }
 
   void _openChat(Map<String, dynamic> patient) {
-    // Placeholder for chat functionality
-    // TODO: Navigate to chat screen with the caregiver
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text(
-          'Chat functionality will be implemented in future update',
-        ),
-        backgroundColor: AppColors.info,
-        duration: Duration(seconds: 2),
-      ),
+    Navigator.pushNamed(
+      context,
+      AppRoutes.chatConversation,
+      arguments: {
+        'id': patient['caregiverId'],
+        'name': patient['caregiverName'] ?? 'Caregiver',
+        'role': 'Caregiver',
+      },
     );
   }
 
