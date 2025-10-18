@@ -46,7 +46,7 @@ class _PatientSettingsScreenState extends State<PatientSettingsScreen> {
                       Text(
                         subtitle,
                         style: TextStyle(
-                          fontSize: 14, 
+                          fontSize: 14,
                           color: AppColors.onSurfaceVariant,
                         ),
                       ),
@@ -194,7 +194,10 @@ class _PatientSettingsScreenState extends State<PatientSettingsScreen> {
                 _buildSettingsItem(
                   title: 'Language',
                   subtitle: _selectedLanguage,
-                  trailing: Icon(Icons.chevron_right, color: AppColors.onSurfaceVariant),
+                  trailing: Icon(
+                    Icons.chevron_right,
+                    color: AppColors.onSurfaceVariant,
+                  ),
                   onTap: _showLanguageDialog,
                 ),
                 Divider(height: 1, thickness: 1, color: AppColors.outline),
@@ -202,7 +205,10 @@ class _PatientSettingsScreenState extends State<PatientSettingsScreen> {
                 _buildSettingsItem(
                   title: 'Privacy',
                   subtitle: 'Manage your data',
-                  trailing: Icon(Icons.chevron_right, color: AppColors.onSurfaceVariant),
+                  trailing: Icon(
+                    Icons.chevron_right,
+                    color: AppColors.onSurfaceVariant,
+                  ),
                   onTap: _showPrivacyScreen,
                 ),
                 Divider(height: 1, thickness: 1, color: AppColors.outline),

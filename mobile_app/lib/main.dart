@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'routes/app_routes.dart';
 import 'routes/route_generator.dart';
 import 'services/auth_service.dart';
+import 'services/fcm_notification_service.dart';
 import 'screens/splash_screen.dart';
 import 'package:go_router/go_router.dart';
 import 'routes/router.dart';
@@ -13,17 +14,11 @@ import 'package:firebase_core/firebase_core.dart';
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
-  // Initialize Firebase
-  await Firebase.initializeApp(
-    options: const FirebaseOptions(
-      apiKey: "AIzaSyCHqLQ7xW4qfHfxYP9f6HZoYqm0_VjHPro",
-      authDomain: "memora-2025.firebaseapp.com",
-      projectId: "memora-2025",
-      storageBucket: "memora-2025.firebasestorage.app",
-      messagingSenderId: "428099632711",
-      appId: "1:428099632711:web:dd6f67e3df3a1e0e3a2e31",
-    ),
-  );
+  // Initialize Firebase (will use google-services.json on Android)
+  await Firebase.initializeApp();
+
+  // Initialize FCM Notifications
+  await FCMNotificationService().initialize();
 
   // Set system UI overlay style (keeps navigation visible)
   SystemChrome.setEnabledSystemUIMode(SystemUiMode.edgeToEdge);

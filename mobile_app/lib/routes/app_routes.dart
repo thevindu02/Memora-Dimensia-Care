@@ -31,7 +31,6 @@ class AppRoutes {
   static const String patientSettingsHelpSupport =
       '/patient/settings/help_support';
 
-      
   // Guardian routes
   static const String guardianSignup = '/guardian/signup';
   static const String guardianDashboard = '/guardian/dashboard';
@@ -108,5 +107,4 @@ class AppRoutes {
   static const String volunteerDraft = '/volunteer/draft';
   static const String viewArticle = '/volunteer/viewarticle';
   static const String volunteerArticlesTab = '/volunteer/viewarticle';
-  
 }
