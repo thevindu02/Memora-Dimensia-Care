@@ -9,6 +9,7 @@ import 'package:flutter/services.dart';
 import 'utils/navigator_observer.dart';
 import 'constants/color_constants.dart';
 import 'package:firebase_core/firebase_core.dart';
+import 'services/deep_link_service.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -31,12 +32,35 @@ void main() async {
   runApp(MyApp());
 }
 
-class MyApp extends StatelessWidget {
+class MyApp extends StatefulWidget {
   const MyApp({super.key});
+
+  @override
+  State<MyApp> createState() => _MyAppState();
+}
+
+class _MyAppState extends State<MyApp> {
+  final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
+
+  @override
+  void initState() {
+    super.initState();
+    // Initialize deep link service with navigator key
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      DeepLinkService.initialize(navigatorKey);
+    });
+  }
+
+  @override
+  void dispose() {
+    DeepLinkService.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
+      navigatorKey: navigatorKey,
       title: 'Memora',
       theme: ThemeData(
         primarySwatch: AppMaterialColors.primarySwatch,

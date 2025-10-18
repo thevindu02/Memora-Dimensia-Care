@@ -58,4 +58,25 @@ public class JwtUtils {
 
         return false;
     }
+
+    // Add this new method after generateJwtToken
+    public String generateTokenFromEmail(String email) {
+        return Jwts.builder()
+                .setSubject(email)
+                .setIssuedAt(new Date())
+                .setExpiration(new Date((new Date()).getTime() + jwtExpirationMs))
+                .signWith(key(), SignatureAlgorithm.HS256)
+                .compact();
+    }
+
+    // Add this method for custom expiry (for 30-day patient tokens)
+    public String generateTokenFromEmail(String email, long expirationMs) {
+        return Jwts.builder()
+                .setSubject(email)
+                .setIssuedAt(new Date())
+                .setExpiration(new Date((new Date()).getTime() + expirationMs))
+                .signWith(key(), SignatureAlgorithm.HS256)
+                .compact();
+    }
+
 }
