@@ -27,9 +27,11 @@ class _GuardianAddPatientScreenState extends State<GuardianAddPatientScreen> {
   final _emailController = TextEditingController();
   //final _passwordController = TextEditingController();
   final _relationshipController = TextEditingController();
+  final _customRelationshipController = TextEditingController();
 
   String? _selectedDementiaStage;
   String? _selectedDementiaType;
+  String? _selectedRelationship;
   DateTime? _selectedDOB;
   DateTime? _selectedDiagnosisDate;
   String? _selectedGender;
@@ -71,6 +73,7 @@ class _GuardianAddPatientScreenState extends State<GuardianAddPatientScreen> {
     _emailController.dispose();
     //_passwordController.dispose();
     _relationshipController.dispose();
+    _customRelationshipController.dispose();
     super.dispose();
   }
 

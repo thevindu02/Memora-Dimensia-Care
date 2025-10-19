@@ -255,7 +255,12 @@ public class PatientService {
                     .orElse(null);
         }
 
-        // Find or create schedule for the date
+        // For MEDICATION tasks, handle date range differently
+        if ("MEDICATION".equals(request.getTaskType())) {
+            return createMedicationTask(patient, guardian, caregiver, patientId, request, time);
+        }
+
+        // Find or create schedule for the date (for non-medication tasks)
         Optional<Schedule> scheduleOpt = scheduleRepository.findByPatientPatientIdAndDate(patientId, date);
         Schedule schedule;
         if (!scheduleOpt.isPresent()) {
@@ -273,20 +278,19 @@ public class PatientService {
 
         // Create specific task type
         switch (request.getTaskType()) {
+            case "DAILY_ACTIVITY": {
+                DailyTask dailyTask = new DailyTask();
+                dailyTask.setCareActivity(careActivity);
+                dailyTask.setDailyTaskName(request.getTitle());
+                dailyTask.setDescription(request.getDescription());
+                dailyTaskRepository.save(dailyTask);
+                break;
+            }
             case "GAME": {
                 Game game = gameRepository.findById(request.getGameId())
                         .orElseThrow(() -> new RuntimeException("Game not found"));
                 Task task = new Task(careActivity, game);
                 taskRepository.save(task);
-                break;
-            }
-            case "MEDICATION": {
-                Medication medication = medicationRepository.findById(request.getMedicationId())
-                        .orElseThrow(() -> new RuntimeException("Medication not found"));
-                MedicationReminder reminder = new MedicationReminder();
-                reminder.setCareActivity(careActivity);
-                reminder.setMedication(medication);
-                medicationReminderRepository.save(reminder);
                 break;
             }
             case "APPOINTMENT": {
@@ -330,5 +334,87 @@ public class PatientService {
 
     public Patient getPatientByUserId(Long userId) {
         return patientRepository.findByUser_Id(userId).orElse(null);
+    }
+
+    private ScheduleTaskDTO createMedicationTask(Patient patient, Guardian guardian, Caregiver caregiver,
+            Long patientId, CreateTaskRequestDTO request, LocalTime time) {
+        // Step 1: Create or get Medication entity
+        Medication medication;
+        if (request.getMedicationId() != null) {
+            // Use existing medication
+            medication = medicationRepository.findById(request.getMedicationId())
+                    .orElseThrow(
+                            () -> new RuntimeException("Medication not found with ID: " + request.getMedicationId()));
+        } else {
+            // Create new medication with all required fields
+            if (request.getTitle() == null || request.getTitle().trim().isEmpty()) {
+                throw new RuntimeException("Medication name (title) is required");
+            }
+            if (request.getDosage() == null || request.getDosage().trim().isEmpty()) {
+                throw new RuntimeException("Dosage is required for medication tasks");
+            }
+            if (request.getMealTiming() == null || request.getMealTiming().trim().isEmpty()) {
+                throw new RuntimeException("Meal timing is required for medication tasks");
+            }
+            if (request.getFromDate() == null) {
+                throw new RuntimeException("From date is required for medication tasks");
+            }
+            if (request.getToDate() == null) {
+                throw new RuntimeException("To date (due date) is required for medication tasks");
+            }
+
+            medication = new Medication();
+            medication.setPatientId(patientId);
+            medication.setMedicationName(request.getTitle());
+            medication.setDosage(request.getDosage());
+            medication.setMealTiming(request.getMealTiming());
+            medication.setTime(time);
+            medication.setDescription(request.getDescription());
+            medication.setFromDate(LocalDate.parse(request.getFromDate()));
+            medication.setDueDate(LocalDate.parse(request.getToDate()));
+            medication = medicationRepository.save(medication);
+        }
+
+        // Step 2 & 3: Create Schedule and CareActivity for each date in range
+        LocalDate fromDate = LocalDate.parse(request.getFromDate());
+        LocalDate toDate = LocalDate.parse(request.getToDate());
+
+        CareActivity firstCareActivity = null; // To return the first one
+
+        // Iterate through each date in the range
+        LocalDate currentDate = fromDate;
+        while (!currentDate.isAfter(toDate)) {
+            // Find or create schedule for this date
+            Optional<Schedule> dateScheduleOpt = scheduleRepository.findByPatientPatientIdAndDate(patientId,
+                    currentDate);
+            Schedule dateSchedule;
+            if (!dateScheduleOpt.isPresent()) {
+                dateSchedule = new Schedule(patient, guardian, caregiver, currentDate);
+                dateSchedule = scheduleRepository.save(dateSchedule);
+            } else {
+                dateSchedule = dateScheduleOpt.get();
+            }
+
+            // Create CareActivity for this date
+            CareActivity dateCareActivity = new CareActivity(dateSchedule, time, CareActivityStatus.PENDING);
+            dateCareActivity = careActivityRepository.save(dateCareActivity);
+
+            // Step 4: Create MedicationReminder linking CareActivity to Medication
+            MedicationReminder reminder = new MedicationReminder();
+            reminder.setCareActivity(dateCareActivity);
+            reminder.setMedication(medication);
+            medicationReminderRepository.save(reminder);
+
+            // Save the first care activity to return
+            if (firstCareActivity == null) {
+                firstCareActivity = dateCareActivity;
+            }
+
+            // Move to next date
+            currentDate = currentDate.plusDays(1);
+        }
+
+        // Return the first created medication reminder's activity as DTO
+        return convertCareActivityToDTO(firstCareActivity);
     }
 }

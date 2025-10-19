@@ -1154,10 +1154,12 @@ class _PatientTaskSelectionScreenState extends State<PatientTaskSelectionScreen>
                                           'title': medicationNameController.text.trim(),
                                           'date': DateFormat('yyyy-MM-dd').format(fromDate),
                                           'time': '${selectedTime!.hour.toString().padLeft(2, '0')}:${selectedTime!.minute.toString().padLeft(2, '0')}',
+                                          'dosage': dosageController.text.trim(),
+                                          'mealTiming': selectedMealTiming,
+                                          'fromDate': DateFormat('yyyy-MM-dd').format(fromDate),
+                                          'toDate': DateFormat('yyyy-MM-dd').format(dueDate),
                                           if (descriptionController.text.trim().isNotEmpty)
                                             'description': descriptionController.text.trim(),
-                                          // Note: medication-specific fields would need medicationId from backend
-                                          // For now, we're using title as the medication name
                                         };
 
                                         await PatientService.createTask(patientId!, taskData);

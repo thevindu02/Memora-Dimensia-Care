@@ -14,6 +14,10 @@ public class CreateTaskRequestDTO {
 
     // Medication specific
     private Long medicationId;
+    private String dosage;
+    private String mealTiming;
+    private String fromDate; // For date range (medications)
+    private String toDate; // For date range (medications)
 
     // Appointment specific
     private String hospital;
@@ -78,6 +82,38 @@ public class CreateTaskRequestDTO {
 
     public void setMedicationId(Long medicationId) {
         this.medicationId = medicationId;
+    }
+
+    public String getDosage() {
+        return dosage;
+    }
+
+    public void setDosage(String dosage) {
+        this.dosage = dosage;
+    }
+
+    public String getMealTiming() {
+        return mealTiming;
+    }
+
+    public void setMealTiming(String mealTiming) {
+        this.mealTiming = mealTiming;
+    }
+
+    public String getFromDate() {
+        return fromDate;
+    }
+
+    public void setFromDate(String fromDate) {
+        this.fromDate = fromDate;
+    }
+
+    public String getToDate() {
+        return toDate;
+    }
+
+    public void setToDate(String toDate) {
+        this.toDate = toDate;
     }
 
     public String getHospital() {
