@@ -81,7 +81,7 @@ public class CombinedVolunteerDTO {
         this.userStatus = userStatus;
         this.createdAt = createdAt;
         this.type = "volunteer";
-        
+
         // Map UserStatus to display status for volunteers
         if (userStatus != null) {
             switch (userStatus) {

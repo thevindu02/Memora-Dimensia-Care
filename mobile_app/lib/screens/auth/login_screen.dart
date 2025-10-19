@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import '../../services/auth_service.dart';
 import '../../routes/app_routes.dart';
 
@@ -49,6 +50,16 @@ class _LoginScreenState extends State<LoginScreen> {
               backgroundColor: Colors.green,
             ),
           );
+
+          // verify guardianId saved (debug)
+          try {
+            final prefs = await SharedPreferences.getInstance();
+            final gid = prefs.getInt('guardianId');
+            // quick debug print — remove later
+            print('DEBUG: guardianId in prefs = $gid');
+          } catch (e) {
+            print('DEBUG: failed reading guardianId: $e');
+          }
 
           // Navigate to dashboard based on user role
           Navigator.of(context).pushReplacementNamed(

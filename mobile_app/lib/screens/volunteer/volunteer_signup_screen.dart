@@ -498,8 +498,9 @@ class _VolunteerSignupScreenState extends State<VolunteerSignupScreen> {
                                   Navigator.push(
                                     context,
                                     MaterialPageRoute(
-                                      builder: (context) =>
-                                          const VolunteerRegistrationCompletedScreen(),
+                                      builder: (context) => VolunteerRegistrationCompletedScreen(
+                                        volunteerId: volunteerRequestResult.volunteerId, // <-- Pass volunteerId here
+                                      ),
                                     ),
                                   );
                                 } else {

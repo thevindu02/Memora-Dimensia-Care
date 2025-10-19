@@ -78,7 +78,7 @@ public class VolunteerRequestService {
         return false;
     }
 
-    @Transactional 
+    @Transactional
     public boolean updateVolunteerStatus(Long volunteerId, User.UserStatus status) {
         Optional<Volunteer> volunteerOpt = volunteerRepository.findById(volunteerId);
         if (volunteerOpt.isPresent()) {
@@ -125,7 +125,7 @@ public class VolunteerRequestService {
 
             // Delete the request from volunteer_request table (it's now a volunteer)
             volunteerRequestRepository.deleteById(requestId);
-            
+
             return request; // Return the original request for confirmation
         }
         throw new RuntimeException("Volunteer request not found");
@@ -184,7 +184,7 @@ public class VolunteerRequestService {
         // Sort by priority: 1=pending/inactive (top), 2=active, 3=disabled/suspended (bottom)
         combinedList.sort(Comparator.comparingInt(CombinedVolunteerDTO::getSortPriority)
                 .thenComparing(dto -> dto.getCreatedAt() != null ? dto.getCreatedAt() : java.time.LocalDateTime.MIN));
-        
+
         return combinedList;
     }
 

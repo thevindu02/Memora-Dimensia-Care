@@ -32,5 +32,14 @@ build/
 ### VS Code ###
 .vscode/
 
-# Firebase Admin SDK key
+# Firebase Admin SDK key (KEEP PRIVATE!)
 memora-2025-firebase-adminsdk-fbsvc-c45cc799ae.json
+firebase-service-account.json
+src/main/resources/firebase-service-account.json
+*-firebase-adminsdk-*.json
+
+# Other sensitive files
+application-local.properties
+application-prod.properties
+.env
+.env.local

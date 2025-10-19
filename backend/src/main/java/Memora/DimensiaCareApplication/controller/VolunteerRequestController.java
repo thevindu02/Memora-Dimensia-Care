@@ -143,8 +143,8 @@ public class VolunteerRequestController {
     @PutMapping("/volunteer/{volunteerId}/disable")
     public ResponseEntity<?> disableVolunteer(@PathVariable Long volunteerId) {
         try {
-            boolean updated = volunteerRequestService.updateVolunteerStatus(volunteerId, 
-                Memora.DimensiaCareApplication.model.User.UserStatus.INACTIVE);
+            boolean updated = volunteerRequestService.updateVolunteerStatus(volunteerId,
+                    Memora.DimensiaCareApplication.model.User.UserStatus.INACTIVE);
             if (updated) {
                 return ResponseEntity.ok().body("{\"message\": \"Volunteer disabled successfully\"}");
             } else {
@@ -158,8 +158,8 @@ public class VolunteerRequestController {
     @PutMapping("/volunteer/{volunteerId}/enable")
     public ResponseEntity<?> enableVolunteer(@PathVariable Long volunteerId) {
         try {
-            boolean updated = volunteerRequestService.updateVolunteerStatus(volunteerId, 
-                Memora.DimensiaCareApplication.model.User.UserStatus.ACTIVE);
+            boolean updated = volunteerRequestService.updateVolunteerStatus(volunteerId,
+                    Memora.DimensiaCareApplication.model.User.UserStatus.ACTIVE);
             if (updated) {
                 return ResponseEntity.ok().body("{\"message\": \"Volunteer enabled successfully\"}");
             } else {
