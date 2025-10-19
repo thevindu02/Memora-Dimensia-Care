@@ -24,6 +24,10 @@ import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import Memora.DimensiaCareApplication.service.GmailEmailService;
+import Memora.DimensiaCareApplication.model.GuardianConnectionRequest;
+import Memora.DimensiaCareApplication.repository.GuardianConnectionRequestRepository;
+import java.util.UUID;
 import java.util.Optional;
 
 @RestController
@@ -42,6 +46,10 @@ public class GuardianController {
     private CaregiverRepository caregiverRepository;
     @Autowired
     private GuardianPatientCaregiverConnectionRepository connectionRepository;
+    @Autowired
+    private GmailEmailService emailService;
+    @Autowired
+    private GuardianConnectionRequestRepository guardianConnectionRequestRepository;
 
     @Autowired
     private UserRepository userRepository;
@@ -132,13 +140,14 @@ public class GuardianController {
                 map.put("guardianPhone", "N/A");
                 map.put("guardianCity", "N/A");
             }
-            // Find latest connection request for this patient (unknown caregiver only, excluding cancelled)
-            List<GuardianPatientCaregiverConnection> connections = connectionRepository.findByPatientId(patient.getPatientID());
+            // Find latest connection request for this patient (unknown caregiver only)
+            List<GuardianPatientCaregiverConnection> connections = connectionRepository
+                    .findByPatientId(patient.getPatientID());
             GuardianPatientCaregiverConnection latest = connections.stream()
-                .filter(conn -> conn.getCaregiverId() != null) // unknown caregiver
-                .filter(conn -> conn.getStatus() != GuardianPatientCaregiverConnection.ConnectionStatus.CANCELLED) // exclude cancelled
-                .max(Comparator.comparing(GuardianPatientCaregiverConnection::getConnectedDateTime, Comparator.nullsLast(Comparator.naturalOrder())))
-                .orElse(null);
+                    .filter(conn -> conn.getCaregiverId() != null) // unknown caregiver
+                    .max(Comparator.comparing(GuardianPatientCaregiverConnection::getConnectedDateTime,
+                            Comparator.nullsLast(Comparator.naturalOrder())))
+                    .orElse(null);
             if (latest != null) {
                 map.put("latestRequestStatus", latest.getStatus().name());
                 // Include connection ID and request time for pending requests (needed for cancel functionality)
@@ -170,9 +179,7 @@ public class GuardianController {
             return ResponseEntity.badRequest().body("Caregiver not found");
         }
         // Check for duplicate pending requests
-        boolean exists = guardianService.hasPendingConnectionRequest(
-            guardianId, patientId, caregiverId
-        );
+        boolean exists = guardianService.hasPendingConnectionRequest(guardianId, patientId, caregiverId);
         if (exists) {
             return ResponseEntity.badRequest().body("A pending request already exists.");
         }
@@ -306,5 +313,91 @@ public class GuardianController {
     public ResponseEntity<List<CaregiverSummaryResponse>> getAllCaregiversForGuardian(@PathVariable("guardianId") Long guardianId) {
         List<CaregiverSummaryResponse> caregivers = guardianService.getAllCaregiversForGuardian(guardianId);
         return ResponseEntity.ok(caregivers);
+    }
+        
+    @PostMapping("/send-guardian-connection-email")
+    public ResponseEntity<?> sendGuardianConnectionEmail(@RequestBody Map<String, Object> request) {
+        try {
+            String patientEmail = (String) request.get("patientEmail");
+            String patientName = (String) request.get("patientName");
+            String guardianName = (String) request.get("guardianName");
+            String guardianEmail = (String) request.get("guardianEmail");
+            String relationship = (String) request.get("relationship");
+
+            // Validate required fields
+            if (patientEmail == null || patientName == null || guardianName == null ||
+                    guardianEmail == null || relationship == null) {
+                return ResponseEntity.badRequest().body("Missing required fields");
+            }
+
+            // Generate a unique connection token
+            String connectionToken = UUID.randomUUID().toString();
+
+            // Store the connection request in database
+            GuardianConnectionRequest connectionRequest = new GuardianConnectionRequest(
+                    connectionToken, guardianName, guardianEmail, patientName, patientEmail, relationship);
+            guardianConnectionRequestRepository.save(connectionRequest);
+
+            // Send the email
+            emailService.sendGuardianConnectionEmail(
+                    patientEmail, patientName, guardianName, guardianEmail, relationship, connectionToken);
+
+            Map<String, Object> response = new HashMap<>();
+            response.put("success", true);
+            response.put("message", "Guardian connection email sent successfully");
+            response.put("connectionToken", connectionToken);
+
+            return ResponseEntity.ok(response);
+
+        } catch (Exception e) {
+            Map<String, Object> response = new HashMap<>();
+            response.put("success", false);
+            response.put("message", "Failed to send guardian connection email: " + e.getMessage());
+            return ResponseEntity.status(500).body(response);
+        }
+    }
+
+    @GetMapping("/connection-request/{token}")
+    public ResponseEntity<?> getGuardianConnectionDetails(@PathVariable String token) {
+        try {
+            Optional<GuardianConnectionRequest> requestOpt = guardianConnectionRequestRepository
+                    .findByConnectionToken(token);
+
+            if (requestOpt.isEmpty()) {
+                return ResponseEntity.badRequest().body("Invalid or expired connection token");
+            }
+
+            GuardianConnectionRequest connectionRequest = requestOpt.get();
+
+            // Check if token is expired
+            if (connectionRequest.getExpiresAt().isBefore(java.time.LocalDateTime.now())) {
+                connectionRequest.setStatus(GuardianConnectionRequest.RequestStatus.EXPIRED);
+                guardianConnectionRequestRepository.save(connectionRequest);
+                return ResponseEntity.badRequest().body("Connection token has expired");
+            }
+
+            // Check if already processed
+            if (connectionRequest.getStatus() != GuardianConnectionRequest.RequestStatus.PENDING) {
+                return ResponseEntity.badRequest().body(
+                        "Connection request has already been " + connectionRequest.getStatus().name().toLowerCase());
+            }
+
+            Map<String, Object> response = new HashMap<>();
+            response.put("guardianName", connectionRequest.getGuardianName());
+            response.put("guardianEmail", connectionRequest.getGuardianEmail());
+            response.put("patientName", connectionRequest.getPatientName());
+            response.put("patientEmail", connectionRequest.getPatientEmail());
+            response.put("relationship", connectionRequest.getRelationship());
+            response.put("createdAt", connectionRequest.getCreatedAt());
+            response.put("expiresAt", connectionRequest.getExpiresAt());
+            response.put("status", connectionRequest.getStatus());
+
+            return ResponseEntity.ok(response);
+
+        } catch (Exception e) {
+            Map<String, Object> response = new HashMap<>();
+            response.put("error", "Failed to retrieve connection details: " + e.getMessage());
+            return ResponseEntity.status(500).body(response);
+        }
     }
 }

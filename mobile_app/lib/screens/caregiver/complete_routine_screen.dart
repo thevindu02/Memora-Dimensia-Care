@@ -193,8 +193,8 @@ class _ScheduleRoutineDialogState extends State<ScheduleRoutineDialog> {
                                     );
                                   },
                                   style: ElevatedButton.styleFrom(
-                                    backgroundColor: Color(0xFFA0C4FD),
-                                    foregroundColor: Color(0xFF2B3F99),
+                                    backgroundColor: Colors.green,
+                                    foregroundColor: Colors.white,
                                     padding: const EdgeInsets.symmetric(
                                       vertical: 12,
                                     ),

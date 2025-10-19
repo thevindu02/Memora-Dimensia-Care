@@ -24,7 +24,15 @@ class VolunteerRoutes {
         );
       case AppRoutes.volunteerArticles:
         return MaterialPageRoute(
-          builder: (_) => VolunteerArticlesScreen(),
+          builder: (_) => Scaffold(
+            appBar: AppBar(
+              title: Text('Articles'),
+              backgroundColor: Colors.white,
+              foregroundColor: Colors.black,
+              elevation: 0,
+            ),
+            body: VolunteerArticlesTabBody(),
+          ),
           settings: settings,
         );
       case AppRoutes.volunteerProfile:

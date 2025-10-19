@@ -31,9 +31,26 @@ class PatientService {
       );
 
       if (response.statusCode == 200) {
+        final responseData = jsonDecode(response.body);
+
+        print('=== Patient Service Debug ===');
+        print('Backend response: $responseData');
+        print('Keys available: ${responseData.keys}');
+
+        // Try both patientId (lowercase) and patientID (uppercase)
+        // Backend getter is getPatientID() which serializes to "patientID"
+        final patientId =
+            responseData['patientId'] ?? responseData['patientID'];
+
+        print('Extracted patientId: $patientId');
+        print('Type: ${patientId?.runtimeType}');
+        print('=============================');
+
         return PatientResult(
           success: true,
           message: "Patient added successfully",
+          patientId: patientId,
+          data: responseData,
         );
       } else {
         final responseData = jsonDecode(response.body);
@@ -207,8 +224,14 @@ class PatientService {
 class PatientResult {
   final bool success;
   final String message;
+  final int? patientId;
   final dynamic data;
 
-  PatientResult({required this.success, required this.message, this.data});
+  PatientResult({
+    required this.success,
+    required this.message,
+    this.patientId,
+    this.data,
+  });
 }
 

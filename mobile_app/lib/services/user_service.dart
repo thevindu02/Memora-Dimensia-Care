@@ -42,13 +42,42 @@ class UserService {
 
     if (response.statusCode == 200 || response.statusCode == 201) {
       final data = jsonDecode(response.body);
-      return UserResult(success: true, message: "User created", userId: data['id']);
-    } else {
-      final responseData = jsonDecode(response.body);
       return UserResult(
-        success: false,
-        message: responseData['message'] ?? 'Failed to add user',
+        success: true,
+        message: "User created",
+        userId: data['id'],
       );
+    } else {
+      // Backend may return plain text or JSON error messages
+      String errorMessage;
+      try {
+        final responseData = jsonDecode(response.body);
+        errorMessage = responseData['message'] ?? response.body;
+      } catch (e) {
+        // If JSON parsing fails, use the raw response body
+        errorMessage = response.body;
+      }
+
+      return UserResult(success: false, message: errorMessage);
+    }
+  }
+
+  static Future<Map<String, dynamic>?> getUserById(int userId) async {
+    try {
+      final response = await http.get(
+        Uri.parse('$url/$userId'),
+        headers: {'Content-Type': 'application/json'},
+      );
+
+      if (response.statusCode == 200) {
+        return jsonDecode(response.body) as Map<String, dynamic>;
+      } else {
+        print('Failed to get user: ${response.statusCode}');
+        return null;
+      }
+    } catch (e) {
+      print('Error getting user: $e');
+      return null;
     }
   }
 }

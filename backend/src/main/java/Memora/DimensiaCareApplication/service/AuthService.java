@@ -41,6 +41,9 @@ public class AuthService {
     @Autowired
     private ResendEmailService resendEmailService;
 
+    @Autowired
+    private GmailEmailService gmailEmailService;
+
     public JwtResponse authenticateUser(LoginRequest loginRequest) {
         try {
             System.out.println("Starting authentication for email: " + loginRequest.getEmail());
@@ -87,8 +90,8 @@ public class AuthService {
         user.setPhoneNumber(signUpRequest.getPhoneNumber());
         User savedUser = userRepository.save(user);
 
-        // Send welcome email
-        resendEmailService.sendWelcomeEmail(savedUser.getEmail(), savedUser.getFName());
+        // Send welcome email using Gmail SMTP
+        gmailEmailService.sendWelcomeEmail(savedUser.getEmail(), savedUser.getFName());
 
         return savedUser;
     }
@@ -143,8 +146,9 @@ public class AuthService {
 
             passwordResetTokenRepository.save(resetToken);
 
-            // Send email using Resend
-            return resendEmailService.sendPasswordResetEmail(email, token);
+            // Send email using Gmail SMTP (can send to any email)
+            gmailEmailService.sendPasswordResetEmail(email, token);
+            return true;
 
         } catch (Exception e) {
             // Log the error in production

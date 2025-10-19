@@ -203,6 +203,7 @@ class _PatientProfileScreenState extends State<PatientProfileScreen> {
       backgroundColor: PatientColors.background,
       appBar: AppBar(
         backgroundColor: PatientColors.surface,
+        automaticallyImplyLeading: false,
         elevation: 0,
         leading: IconButton(
           icon: Icon(Icons.arrow_back, color: PatientColors.onSurface),

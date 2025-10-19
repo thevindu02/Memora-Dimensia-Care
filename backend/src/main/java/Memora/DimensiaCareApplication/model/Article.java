@@ -9,30 +9,34 @@ import jakarta.persistence.*;
 public class Article {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "article_id")
     private Long articleId;
 
-    @Column
+    @Column(name = "volunteer_id")
     private Integer volunteerId;
 
-    @Column
+    @Column(name = "category_id")
     private Integer categoryId;
 
-    @Column
+    @Column(name = "title")
     private String title;
 
-    @Column
+    @Column(name = "status")
     private String status;
 
-    @Column
+    @Column(name = "draft")
     private Boolean draft;
 
-    @Column
+    @Column(name = "tagname")
     private String tagname;
-    @Column
+    
+    @Column(name = "img")
     private String img;
-    @Column
+    
+    @Column(name = "firebase_doc_id")
     private String firebaseDocId;
-    @Column
+    
+    @Column(name = "created_at")
     private LocalDateTime createdAt;
 
     public Article() {

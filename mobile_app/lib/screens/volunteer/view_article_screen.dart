@@ -17,7 +17,7 @@ class _VolunteerArticlesTabState extends State<VolunteerArticlesTab> {
       'title': 'Understanding Dementia',
       'description': 'Discussion on symptoms and care',
       'category': 'Caregiver Tips',
-      'author': 'Anonymous Guardian',
+      'author': 'Mr. Adam',
       'imageUrl':
           'https://images.unsplash.com/photo-1559757148-5c350d0d3c56?w=300&h=200&fit=crop',
       'comments': 15,
@@ -31,7 +31,7 @@ class _VolunteerArticlesTabState extends State<VolunteerArticlesTab> {
       'title': 'Caregiver Support',
       'description': 'Share your experiences',
       'category': 'Caregiver Tips',
-      'author': 'Anonymous Guardian',
+      'author': 'Mr. Adam',
       'imageUrl':
           'https://images.unsplash.com/photo-1582750433449-648ed127bb54?w=300&h=200&fit=crop',
       'comments': 8,

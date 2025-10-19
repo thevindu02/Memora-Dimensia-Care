@@ -1,5 +1,5 @@
 // src/components/auth/SignIn.js
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   Box,
   Typography,
@@ -25,7 +25,8 @@ import {
   VisibilityOff,
 } from "@mui/icons-material";
 import GoogleIcon from "@mui/icons-material/Google";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
+import AuthService from "../../services/authService";
 
 const colors = {
   softLavender: "#C3B1E1",
@@ -38,6 +39,10 @@ export default function SignIn() {
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
   const navigate = useNavigate();
+  const location = useLocation();
+
+  // Check if there's an error message from redirect
+  const redirectError = location.state?.error;
 
   // Form state
   const [email, setEmail] = useState("");
@@ -45,20 +50,109 @@ export default function SignIn() {
   const [passwordVisible, setPasswordVisible] = useState(false);
   const [rememberMe, setRememberMe] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [errors, setErrors] = useState({});
+  const [loginError, setLoginError] = useState(redirectError || "");
+
+  // Load remembered email on component mount
+  useEffect(() => {
+    const rememberedEmail = localStorage.getItem('rememberedEmail');
+    if (rememberedEmail) {
+      setEmail(rememberedEmail);
+      setRememberMe(true);
+    }
+  }, []);
 
   // Toggle password visibility
   const togglePasswordVisibility = () => {
     setPasswordVisible((visible) => !visible);
   };
 
-  // Simulate sign-in loading state
-  const handleSignIn = (e) => {
+  // Validate email format
+  const validateEmail = (email) => {
+    const regex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    return regex.test(email);
+  };
+
+  // Validate form
+  const validateForm = () => {
+    let newErrors = {};
+
+    if (!email.trim()) {
+      newErrors.email = "Email is required";
+    } else if (!validateEmail(email.trim())) {
+      newErrors.email = "Please enter a valid email address";
+    }
+
+    if (!password.trim()) {
+      newErrors.password = "Password is required";
+    } else if (password.length < 6) {
+      newErrors.password = "Password must be at least 6 characters";
+    }
+
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
+  };
+
+  // Handle input changes with real-time validation
+  const handleEmailChange = (e) => {
+    const value = e.target.value;
+    setEmail(value);
+    setLoginError("");
+    
+    if (errors.email && validateEmail(value.trim())) {
+      setErrors(prev => ({ ...prev, email: null }));
+    }
+  };
+
+  const handlePasswordChange = (e) => {
+    const value = e.target.value;
+    setPassword(value);
+    setLoginError("");
+    
+    if (errors.password && value.length >= 6) {
+      setErrors(prev => ({ ...prev, password: null }));
+    }
+  };
+
+  // Handle sign-in with backend integration
+  const handleSignIn = async (e) => {
     e.preventDefault();
+    
+    if (!validateForm()) return;
+
     setLoading(true);
-    setTimeout(() => {
+    setLoginError("");
+
+    try {
+      const result = await AuthService.login(email.trim(), password);
+
+      if (result.success) {
+        // Check if user is a volunteer
+        if (result.user.role.toLowerCase() === 'volunteer') {
+          // Handle "Remember Me" functionality
+          if (rememberMe) {
+            // Store email for next time (but not password for security)
+            localStorage.setItem('rememberedEmail', email.trim());
+          } else {
+            localStorage.removeItem('rememberedEmail');
+          }
+
+          // Successful login - navigate to intended page or dashboard
+          const intendedDestination = location.state?.from?.pathname || "/VolunteerDashboard";
+          navigate(intendedDestination, { replace: true });
+        } else {
+          // User is not a volunteer
+          AuthService.logout(); // Clear any stored data
+          setLoginError("This login is only for volunteers. Please check your credentials.");
+        }
+      } else {
+        setLoginError(result.message);
+      }
+    } catch (error) {
+      setLoginError("An unexpected error occurred. Please try again.");
+    } finally {
       setLoading(false);
-      // Here you might handle result or reset form
-    }, 2000);
+    }
   };
 
   return (
@@ -153,6 +247,24 @@ export default function SignIn() {
 
           {/* Form */}
           <Box component="form" onSubmit={handleSignIn} noValidate sx={{ mb: 2 }}>
+            {/* Display login error */}
+            {loginError && (
+              <Typography 
+                variant="body2" 
+                color="error" 
+                sx={{ 
+                  mb: 2, 
+                  p: 2, 
+                  bgcolor: "#ffebee", 
+                  borderRadius: 2,
+                  border: "1px solid #f44336",
+                  textAlign: "center"
+                }}
+              >
+                {loginError}
+              </Typography>
+            )}
+
             <TextField
               label="Email"
               type="email"
@@ -161,7 +273,9 @@ export default function SignIn() {
               required
               fullWidth
               value={email}
-              onChange={(e) => setEmail(e.target.value)}
+              onChange={handleEmailChange}
+              error={!!errors.email}
+              helperText={errors.email}
               InputProps={{
                 startAdornment: (
                   <InputAdornment position="start">
@@ -187,7 +301,9 @@ export default function SignIn() {
               required
               fullWidth
               value={password}
-              onChange={(e) => setPassword(e.target.value)}
+              onChange={handlePasswordChange}
+              error={!!errors.password}
+              helperText={errors.password}
               InputProps={{
                 startAdornment: (
                   <InputAdornment position="start">
@@ -267,7 +383,6 @@ export default function SignIn() {
               fullWidth
               variant="contained"
               disabled={loading}
-              onClick={() => navigate("/VolunteerDashboard")} // Adjust route if needed
               sx={{
                 borderRadius: 12,
                 bgcolor: colors.lightSkyBlue,
@@ -283,6 +398,10 @@ export default function SignIn() {
                 },
                 "&:active": {
                   transform: "scale(0.98)",
+                },
+                "&:disabled": {
+                  bgcolor: colors.softLavender,
+                  color: colors.deepPurple,
                 },
                 userSelect: "none",
               }}

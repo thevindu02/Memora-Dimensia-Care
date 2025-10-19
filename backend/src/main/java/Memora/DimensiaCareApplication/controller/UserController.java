@@ -33,11 +33,17 @@ public class UserController {
             return ResponseEntity.status(HttpStatus.CONFLICT).body("A user with this email already exists.");
         }
 
+        // Encode password only if provided
+        // Note: PATIENT role users may have null passwords as they are managed by guardians
         if (user.getPassword() != null && !user.getPassword().isEmpty()) {
             user.setPassword(passwordEncoder.encode(user.getPassword()));
+            System.out.println("Password encoded for user: " + user.getEmail());
+        } else {
+            System.out.println("No password provided for user: " + user.getEmail() + " (Role: " + user.getRole() + ")");
         }
 
         User savedUser = userRepository.save(user);
+        System.out.println("User created successfully with ID: " + savedUser.getId());
 
         // Debug logging
         System.out.println("User saved with role: " + user.getRole());
@@ -59,5 +65,15 @@ public class UserController {
         return ResponseEntity.ok()
                 .header("Content-Type", "application/json")
                 .body("{\"message\":\"User created successfully!\",\"id\":" + savedUser.getId() + "}");
+    }
+
+    @GetMapping("/{id}")
+    public ResponseEntity<User> getUserById(@PathVariable Long id) {
+        Optional<User> user = userRepository.findById(id);
+        if (user.isPresent()) {
+            return ResponseEntity.ok(user.get());
+        } else {
+            return ResponseEntity.notFound().build();
+        }
     }
 }

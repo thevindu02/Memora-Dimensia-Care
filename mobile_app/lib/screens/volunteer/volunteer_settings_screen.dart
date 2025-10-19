@@ -225,7 +225,10 @@ class _VolunteerSettingsScreenState extends State<VolunteerSettingsScreen> {
                         ),
                         TextButton(
                           onPressed: () => Navigator.pop(context, true),
-                          child: Text('Yes'),
+                          child: Text(
+                            'Log out',
+                            style: TextStyle(color: Colors.red),
+                          ),
                         ),
                       ],
                     ),

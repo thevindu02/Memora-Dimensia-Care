@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:mobile_app/screens/patient/games/memory_match/memory_match_game.dart';
 import 'package:mobile_app/screens/patient/games/memory_match/ui/pages/memory_match_page.dart';
 import 'package:mobile_app/screens/patient/games/memory_match/ui/pages/game_controls_page.dart';
+import 'package:mobile_app/screens/patient/games/sudoku/main.dart'
+    show HomePage;
 import 'package:mobile_app/screens/patient/patient_email_verification_screen.dart';
 import 'package:mobile_app/screens/patient/patient_games_screen.dart';
 import 'package:mobile_app/screens/patient/patient_main_screen.dart';
@@ -31,18 +33,24 @@ class PatientRoutes {
           settings: settings,
         );
       case AppRoutes.patientEmailVerification:
+        final arguments = settings.arguments as Map<String, dynamic>?;
+        final email = arguments?['email'] as String?;
         return MaterialPageRoute(
-          builder: (_) => PatientEmailVerificationScreen(),
+          builder: (_) => PatientEmailVerificationScreen(email: email),
           settings: settings,
         );
       case AppRoutes.patientVerifyCode:
+        final arguments = settings.arguments as Map<String, dynamic>?;
+        final email = arguments?['email'] as String?;
         return MaterialPageRoute(
-          builder: (_) => PatientVerifyCodeScreen(),
+          builder: (_) => PatientVerifyCodeScreen(email: email),
           settings: settings,
         );
       case AppRoutes.patientGuardianRequest:
+        final arguments = settings.arguments as Map<String, dynamic>?;
+        final token = arguments?['token'] as String?;
         return MaterialPageRoute(
-          builder: (_) => PatientGuardianRequestScreen(),
+          builder: (_) => PatientGuardianRequestScreen(token: token),
           settings: settings,
         );
       case AppRoutes.patientWelcome:
@@ -73,6 +81,11 @@ class PatientRoutes {
       case AppRoutes.patientMemoryMatch:
         return MaterialPageRoute(
           builder: (_) => MemoryMatchGame(),
+          settings: settings,
+        );
+      case AppRoutes.patientSudoku:
+        return MaterialPageRoute(
+          builder: (_) => HomePage(),
           settings: settings,
         );
       case AppRoutes.patientMemoryMatchLevel4:

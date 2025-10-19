@@ -10,6 +10,8 @@ import {
   IconButton,
   Tooltip,
   Paper,
+  Alert,
+  CircularProgress,
 } from "@mui/material";
 
 import CalendarTodayIcon from "@mui/icons-material/CalendarToday";
@@ -25,6 +27,7 @@ import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns';
 import VolunteerNav from './VolunteerNav';
 import Footer from '../home/Footer';
 import SideBar from './SideBar';
+import scheduleSessionService from '../../services/scheduleSessionService';
 
 // Memora color palette
 const colors = {
@@ -58,8 +61,114 @@ export default function ScheduleSession({
   const [description, setDescription] = useState("");
   const [meetingLink, setMeetingLink] = useState("");
 
-  const handleSchedule = () => {
-    alert("Session scheduled (dummy)!");
+  // Form state management
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState(null);
+  const [success, setSuccess] = useState(null);
+
+  // Validation state
+  const [validationErrors, setValidationErrors] = useState({});
+
+  // Clear messages after timeout
+  const clearMessages = () => {
+    setTimeout(() => {
+      setError(null);
+      setSuccess(null);
+    }, 5000);
+  };
+
+  // Validate form data
+  const validateForm = () => {
+    const errors = {};
+
+    if (!date) {
+      errors.date = 'Session date is required';
+    } else {
+      // Check if date is in the past
+      const today = new Date();
+      today.setHours(0, 0, 0, 0);
+      const selectedDate = new Date(date);
+      selectedDate.setHours(0, 0, 0, 0);
+      
+      if (selectedDate < today) {
+        errors.date = 'Cannot schedule sessions in the past';
+      }
+    }
+
+    if (!time) {
+      errors.time = 'Session time is required';
+    }
+
+    if (!topic.trim()) {
+      errors.topic = 'Session topic is required';
+    } else if (topic.trim().length < 3) {
+      errors.topic = 'Session topic must be at least 3 characters long';
+    }
+
+    // Validate meeting link format if provided
+    if (meetingLink.trim() && meetingLink.trim() !== '') {
+      const urlPattern = /^(https?:\/\/)?([\da-z\.-]+)\.([a-z\.]{2,6})([\/\w \.-]*)*\/?$/;
+      if (!urlPattern.test(meetingLink.trim())) {
+        errors.meetingLink = 'Please enter a valid meeting link URL';
+      }
+    }
+
+    setValidationErrors(errors);
+    return Object.keys(errors).length === 0;
+  };
+
+  const handleSchedule = async () => {
+    setError(null);
+    setSuccess(null);
+    setValidationErrors({});
+
+    // Validate form
+    if (!validateForm()) {
+      setError('Please correct the errors below');
+      clearMessages();
+      return;
+    }
+
+    setIsLoading(true);
+
+    try {
+      // Format data for API
+      const sessionData = {
+        sessionDate: scheduleSessionService.formatDateForAPI(date),
+        sessionTime: scheduleSessionService.formatTimeForAPI(time.getHours(), time.getMinutes()),
+        sessionTopic: topic.trim(),
+        description: description.trim(),
+        meetingLink: meetingLink.trim()
+      };
+
+      console.log('Submitting session data:', sessionData);
+
+      // Call API to create session
+      const result = await scheduleSessionService.createScheduleSession(sessionData);
+
+      if (result.success) {
+        setSuccess(result.message);
+        
+        // Reset form on success
+        setDate(null);
+        setTime(null);
+        setTopic('');
+        setDescription('');
+        setMeetingLink('');
+        setValidationErrors({});
+        
+        console.log('Session created successfully:', result.data);
+      } else {
+        setError(result.message);
+      }
+
+    } catch (error) {
+      console.error('Error scheduling session:', error);
+      setError('An unexpected error occurred. Please try again.');
+    } finally {
+      setIsLoading(false);
+      clearMessages();
+    }
   };
 
   return (
@@ -135,6 +244,19 @@ export default function ScheduleSession({
             🗓️ Schedule a Session
           </Typography>
 
+          {/* Error and Success Messages */}
+          {error && (
+            <Alert severity="error" sx={{ mb: 3 }}>
+              {error}
+            </Alert>
+          )}
+          
+          {success && (
+            <Alert severity="success" sx={{ mb: 3 }}>
+              {success}
+            </Alert>
+          )}
+
           {/* Date Picker Block */}
           <Paper
             elevation={3}
@@ -159,12 +281,19 @@ export default function ScheduleSession({
             <LocalizationProvider dateAdapter={AdapterDateFns}>
               <DatePicker
                 value={date}
-                onChange={(newDate) => setDate(newDate)}
+                onChange={(newDate) => {
+                  setDate(newDate);
+                  if (validationErrors.date) {
+                    setValidationErrors(prev => ({ ...prev, date: null }));
+                  }
+                }}
                 slotProps={{
                   textField: {
                     fullWidth: true,
                     variant: "outlined",
                     placeholder: "Select date...",
+                    error: !!validationErrors.date,
+                    helperText: validationErrors.date,
                     InputProps: {
                       startAdornment: (
                         <InputAdornment position="start">
@@ -203,13 +332,20 @@ export default function ScheduleSession({
             <LocalizationProvider dateAdapter={AdapterDateFns}>
               <TimePicker
                 value={time}
-                onChange={(newTime) => setTime(newTime)}
+                onChange={(newTime) => {
+                  setTime(newTime);
+                  if (validationErrors.time) {
+                    setValidationErrors(prev => ({ ...prev, time: null }));
+                  }
+                }}
                 ampm
                 slotProps={{
                   textField: {
                     fullWidth: true,
                     variant: "outlined",
                     placeholder: "Select time...",
+                    error: !!validationErrors.time,
+                    helperText: validationErrors.time,
                     InputProps: {
                       startAdornment: (
                         <InputAdornment position="start">
@@ -250,7 +386,14 @@ export default function ScheduleSession({
               fullWidth
               placeholder="Enter session topic"
               value={topic}
-              onChange={(e) => setTopic(e.target.value)}
+              onChange={(e) => {
+                setTopic(e.target.value);
+                if (validationErrors.topic) {
+                  setValidationErrors(prev => ({ ...prev, topic: null }));
+                }
+              }}
+              error={!!validationErrors.topic}
+              helperText={validationErrors.topic}
               InputProps={{
                 startAdornment: (
                   <InputAdornment position="start">
@@ -328,7 +471,14 @@ export default function ScheduleSession({
               fullWidth
               placeholder="Enter meeting URL"
               value={meetingLink}
-              onChange={(e) => setMeetingLink(e.target.value)}
+              onChange={(e) => {
+                setMeetingLink(e.target.value);
+                if (validationErrors.meetingLink) {
+                  setValidationErrors(prev => ({ ...prev, meetingLink: null }));
+                }
+              }}
+              error={!!validationErrors.meetingLink}
+              helperText={validationErrors.meetingLink}
               InputProps={{
                 startAdornment: (
                   <InputAdornment position="start">
@@ -346,6 +496,7 @@ export default function ScheduleSession({
             fullWidth
             variant="contained"
             onClick={handleSchedule}
+            disabled={isLoading}
             sx={{
               bgcolor: colors.deepPurple,
               color: colors.white,
@@ -359,11 +510,22 @@ export default function ScheduleSession({
                 bgcolor: colors.lightSkyBlue,
                 boxShadow: `0 12px 24px ${colors.lightSkyBlue}cc`,
               },
+              "&:disabled": {
+                bgcolor: colors.softLavender,
+                color: colors.white,
+              },
               transition: "all 0.3s ease",
             }}
             aria-label="Schedule session"
           >
-            Schedule
+            {isLoading ? (
+              <>
+                <CircularProgress size={20} sx={{ color: colors.white, mr: 1 }} />
+                Scheduling...
+              </>
+            ) : (
+              'Schedule'
+            )}
           </Button>
         </Container>
 
