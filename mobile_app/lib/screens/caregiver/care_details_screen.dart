@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../../routes/app_routes.dart';
 import '../../services/caregiver_service.dart';
+import '../../services/auth_service.dart'; // ADD THIS IMPORT
 
 class CareDetailsScreen extends StatefulWidget {
   @override
@@ -207,14 +208,56 @@ class _CareDetailsScreenState extends State<CareDetailsScreen> {
                         SizedBox(height: 12),
                         _buildContactRow(
                           Icons.calendar_today,
-                          'Accepted on ' +
-                              ((patientData?['acceptedDate'] != null &&
-                                      patientData?['acceptedDate'] != 'N/A')
-                                  ? patientData!['acceptedDate']
-                                        .toString()
-                                        .split('T')[0]
-                                  : 'N/A'),
+                          'Accepted on ${(patientData?['acceptedDate'] != null && patientData!['acceptedDate'].toString().isNotEmpty) ? patientData!['acceptedDate'].toString().split('T')[0] : 'N/A'}',
                         ),
+                        SizedBox(height: 12),
+                        // Messages button: shown only when request accepted (acceptedDate present)
+                        if (patientData != null && patientData!['acceptedDate'] != null && patientData!['acceptedDate'].toString().isNotEmpty)
+                          Align(
+                            alignment: Alignment.centerRight,
+                            child: ElevatedButton(
+                              onPressed: () async { // CHANGED: Made async
+                                final guardianId = patientData?['guardianId'];
+                                final guardianName = patientData?['guardianName'] ?? 'Guardian';
+                                
+                                if (guardianId == null) {
+                                  ScaffoldMessenger.of(context).showSnackBar(
+                                    SnackBar(content: Text('Guardian ID not available')),
+                                  );
+                                  return;
+                                }
+                                
+                                // ADDED: Get current caregiver ID
+                                final currentUserId = await AuthService.getCurrentCaregiverId();
+                                
+                                if (currentUserId == null) {
+                                  ScaffoldMessenger.of(context).showSnackBar(
+                                    SnackBar(content: Text('Please login again')),
+                                  );
+                                  return;
+                                }
+                                
+                                // CHANGED: Added currentUserId to arguments
+                                Navigator.pushNamed(
+                                  context,
+                                  AppRoutes.chatConversation,
+                                  arguments: {
+                                    'id': guardianId,
+                                    'name': guardianName,
+                                    'currentUser': 'caregiver',
+                                    'currentUserId': currentUserId.toString(), // ADDED THIS
+                                  },
+                                );
+                              },
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: Color(0xFFA0C4FD),
+                                foregroundColor: Color(0xFF2B3F99),
+                                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                                padding: EdgeInsets.symmetric(horizontal: 18, vertical: 10),
+                              ),
+                              child: Text('Messages', style: TextStyle(fontWeight: FontWeight.w600)),
+                            ),
+                          ),
                       ],
                     ),
                   ),

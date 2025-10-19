@@ -47,6 +47,11 @@ dependencies:
   network_info_plus: ^5.0.0
   connectivity_plus: ^6.0.0
   fl_chart: ^0.68.0
+  sqflite: ^2.2.8+4
+  path_provider: ^2.0.15
+  firebase_core: ^3.8.1
+  firebase_auth: ^5.3.3
+  cloud_firestore: ^5.5.2
   payhere_mobilesdk_flutter: ^3.0.8
   app_links: ^6.3.2
   flutter_secure_storage: ^9.0.0

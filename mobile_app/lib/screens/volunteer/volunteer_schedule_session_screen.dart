@@ -2,7 +2,9 @@ import 'package:flutter/material.dart';
 import '../../services/schedule_session_service.dart';
 
 class VolunteerScheduleSessionScreen extends StatefulWidget {
-  const VolunteerScheduleSessionScreen({Key? key}) : super(key: key);
+  final int volunteerId; // <-- Add this line
+
+  const VolunteerScheduleSessionScreen({Key? key, required this.volunteerId}) : super(key: key); // <-- Update constructor
 
   @override
   State<VolunteerScheduleSessionScreen> createState() =>
@@ -257,6 +259,11 @@ class _VolunteerScheduleSessionScreenState
         ),
       );
     }
+  }
+
+  void someMethod() {
+    final id = widget.volunteerId;
+    // Use id as needed
   }
 
   @override

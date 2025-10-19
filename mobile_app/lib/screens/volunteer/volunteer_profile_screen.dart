@@ -4,9 +4,11 @@ import '../../constants/color_constants.dart';
 import '../../routes/app_routes.dart';
 import 'dart:io';
 import 'package:image_picker/image_picker.dart';
+import '../../../services/volunteer_service.dart';
 
 class VolunteerProfileScreen extends StatefulWidget {
-  const VolunteerProfileScreen({Key? key}) : super(key: key);
+  final int volunteerId;
+  const VolunteerProfileScreen({Key? key, required this.volunteerId}) : super(key: key);
 
   @override
   State<VolunteerProfileScreen> createState() => _VolunteerProfileScreenState();
@@ -15,38 +17,59 @@ class VolunteerProfileScreen extends StatefulWidget {
 class _VolunteerProfileScreenState extends State<VolunteerProfileScreen> {
   int _selectedIndex = 3;
   bool _isEditing = false;
-  bool _isLoading = false;
+  bool _isLoading = true;
   File? _profileImage;
   File? _originalProfileImage;
   final ImagePicker _picker = ImagePicker();
 
   // Text editing controllers
-  final TextEditingController _fullNameController = TextEditingController(
-    text: 'John Smith',
-  );
-  final TextEditingController _emailController = TextEditingController(
-    text: 'john.smith@example.com',
-  );
-  final TextEditingController _phoneController = TextEditingController(
-    text: '+1 (555) 123-4567',
-  );
-  final TextEditingController _genderController = TextEditingController(
-    text: 'Male',
-  );
+  final TextEditingController _firstNameController = TextEditingController();
+  final TextEditingController _lastNameController = TextEditingController();
+  final TextEditingController _emailController = TextEditingController();
+  final TextEditingController _phoneController = TextEditingController();
+  final TextEditingController _genderController = TextEditingController();
 
   // Store original values to compare
-  String _originalName = 'John Smith';
-  String _originalEmail = 'john.smith@example.com';
-  String _originalPhone = '+1 (555) 123-4567';
-  String _originalGender = 'Male';
+  String _originalName = '';
+  String _originalEmail = '';
+  String _originalPhone = '';
+  String _originalGender = '';
+
+  @override
+  void initState() {
+    super.initState();
+    _loadVolunteerProfile();
+  }
 
   @override
   void dispose() {
-    _fullNameController.dispose();
+    _firstNameController.dispose();
+    _lastNameController.dispose();
     _emailController.dispose();
     _phoneController.dispose();
     _genderController.dispose();
     super.dispose();
+  }
+
+  Future<void> _loadVolunteerProfile() async {
+    setState(() => _isLoading = true);
+    final data = await VolunteerService.getVolunteerProfile(widget.volunteerId);
+    if (data != null) {
+      setState(() {
+        _firstNameController.text = data['FName'] ?? data['f_name'] ?? data['fname'] ?? '';
+        _lastNameController.text = data['LName'] ?? data['l_name'] ?? data['lname'] ?? '';
+        _emailController.text = data['email'] ?? '';
+        _phoneController.text = data['phoneNumber'] ?? data['phone_number'] ?? '';
+        _genderController.text = data['gender'] ?? '';
+        _originalName = '${data['FName']} ${data['LName']}';
+        _originalEmail = _emailController.text;
+        _originalPhone = _phoneController.text;
+        _originalGender = _genderController.text;
+        _isLoading = false;
+      });
+    } else {
+      setState(() => _isLoading = false);
+    }
   }
 
   Future<void> _pickProfileImage() async {
@@ -128,7 +151,8 @@ class _VolunteerProfileScreenState extends State<VolunteerProfileScreen> {
 
   void _cancelEdit() {
     setState(() {
-      _fullNameController.text = _originalName;
+      _firstNameController.text = _originalName.split(' ').first;
+      _lastNameController.text = _originalName.split(' ').length > 1 ? _originalName.split(' ').sublist(1).join(' ') : '';
       _emailController.text = _originalEmail;
       _phoneController.text = _originalPhone;
       _genderController.text = _originalGender;
@@ -138,31 +162,43 @@ class _VolunteerProfileScreenState extends State<VolunteerProfileScreen> {
   }
 
   void _saveProfile() async {
-    setState(() {
-      _isLoading = true;
-    });
+    setState(() => _isLoading = true);
 
-    // Simulate API call
-    await Future.delayed(Duration(seconds: 2));
+    // Prepare data for update
+    final fName = _firstNameController.text.trim();
+    final lName = _lastNameController.text.trim();
 
-    // Update original values
-    _originalName = _fullNameController.text;
-    _originalEmail = _emailController.text;
-    _originalPhone = _phoneController.text;
-    _originalGender = _genderController.text;
-    _originalProfileImage = _profileImage;
+    // Always send non-null values
+    final profile = {
+      'fName': fName.isNotEmpty ? fName : _originalName.split(' ').first,
+      'lName': lName.isNotEmpty ? lName : (_originalName.split(' ').length > 1 ? _originalName.split(' ').sublist(1).join(' ') : ''),
+      'email': _emailController.text,
+      'phoneNumber': _phoneController.text,
+      'gender': _genderController.text,
+      'profilePic': '', // Add if you support profile pic
+    };
 
-    setState(() {
-      _isLoading = false;
-      _isEditing = false;
-    });
+    final success = await VolunteerService.updateVolunteerProfile(widget.volunteerId, profile);
 
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text('Profile updated successfully!'),
-        backgroundColor: Colors.green,
-      ),
-    );
+    if (success) {
+      setState(() {
+        _originalName = '${_firstNameController.text} ${_lastNameController.text}';
+        _originalEmail = _emailController.text;
+        _originalPhone = _phoneController.text;
+        _originalGender = _genderController.text;
+        _originalProfileImage = _profileImage;
+        _isEditing = false;
+        _isLoading = false;
+      });
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Profile updated successfully!'), backgroundColor: Colors.green),
+      );
+    } else {
+      setState(() => _isLoading = false);
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Failed to update profile.'), backgroundColor: Colors.red),
+      );
+    }
   }
 
   void _showGenderPicker() {
@@ -206,6 +242,10 @@ class _VolunteerProfileScreenState extends State<VolunteerProfileScreen> {
 
   @override
   Widget build(BuildContext context) {
+    if (_isLoading) {
+      return const Center(child: CircularProgressIndicator());
+    }
+
     return Scaffold(
       backgroundColor: AppColors.surfaceVariant,
       appBar: AppBar(
@@ -299,7 +339,7 @@ class _VolunteerProfileScreenState extends State<VolunteerProfileScreen> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        _fullNameController.text,
+                        _firstNameController.text + ' ' + _lastNameController.text,
                         style: TextStyle(
                           fontSize: 20,
                           fontWeight: FontWeight.w600,
@@ -340,11 +380,19 @@ class _VolunteerProfileScreenState extends State<VolunteerProfileScreen> {
                   SizedBox(height: 24),
 
                   _buildTextField(
-                    controller: _fullNameController,
-                    label: 'Full Name',
+                    controller: _firstNameController,
+                    label: 'First Name',
                     icon: Icons.person,
-                    originalValue: _originalName,
-                    fieldName: 'name',
+                    originalValue: _originalName.split(' ').first,
+                    fieldName: 'first_name',
+                  ),
+
+                  _buildTextField(
+                    controller: _lastNameController,
+                    label: 'Last Name',
+                    icon: Icons.person,
+                    originalValue: _originalName.split(' ').length > 1 ? _originalName.split(' ').sublist(1).join(' ') : '',
+                    fieldName: 'last_name',
                   ),
 
                   _buildTextField(
@@ -447,7 +495,10 @@ class _VolunteerProfileScreenState extends State<VolunteerProfileScreen> {
           ],
         ),
       ),
-      bottomNavigationBar: VolunteerBottomNavigation(currentPage: 'profile'),
+      bottomNavigationBar: VolunteerBottomNavigation(
+        currentPage: 'profile',
+        volunteerId: widget.volunteerId, // <-- Pass volunteerId here
+      ),
     );
   }
 

@@ -60,6 +60,8 @@ class AppRoutes {
   static const String guardianPayment = 'guardian/payment';
   static const String guardianPaymentSuccess = '/guardian/payment/success';
   static const String guardianPaymentFailed = '/guardian/payment/failed';
+  static const String guardianCaregiverList = '/guardian/caregiver-list'; // NEW
+static const String guardianCaregiverDetails = '/guardian/caregiver-details'; // NEW
 
   // static const String guardianOrders = '/guardian/orders';
 
@@ -99,4 +101,10 @@ class AppRoutes {
   static const String volunteerDraft = '/volunteer/draft';
   static const String viewArticle = '/volunteer/viewarticle';
   static const String volunteerArticlesTab = '/volunteer/viewarticle';
+
+  // Chat routes
+  static const String chatList = '/chat/list';
+  static const String chatConversation = '/chat/conversation';
+  static const String guardianChatHistory = '/guardian/chat-history';
+
 }

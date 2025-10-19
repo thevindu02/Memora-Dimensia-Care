@@ -5,7 +5,9 @@ import 'volunteer_privacy_screen.dart';
 import '../../constants/color_constants.dart';
 
 class VolunteerSettingsScreen extends StatefulWidget {
-  const VolunteerSettingsScreen({Key? key}) : super(key: key);
+  final int volunteerId; // <-- Add this line
+
+  const VolunteerSettingsScreen({Key? key, required this.volunteerId}) : super(key: key);
 
   @override
   State<VolunteerSettingsScreen> createState() =>
@@ -263,7 +265,10 @@ class _VolunteerSettingsScreenState extends State<VolunteerSettingsScreen> {
           ),
         ],
       ),
-      bottomNavigationBar: VolunteerBottomNavigation(currentPage: 'profile'),
+      bottomNavigationBar: VolunteerBottomNavigation(
+        currentPage: 'profile',
+        volunteerId: widget.volunteerId, // <-- Pass volunteerId here
+      ),
     );
   }
 }

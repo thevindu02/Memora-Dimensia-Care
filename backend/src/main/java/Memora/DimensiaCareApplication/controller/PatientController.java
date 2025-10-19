@@ -1,7 +1,11 @@
 package Memora.DimensiaCareApplication.controller;
 
+import Memora.DimensiaCareApplication.dto.request.PatientProfileUpdateRequest;
 import Memora.DimensiaCareApplication.dto.request.PatientRequest;
 import Memora.DimensiaCareApplication.model.Patient;
+import Memora.DimensiaCareApplication.model.User;
+import Memora.DimensiaCareApplication.repository.PatientRepository;
+import Memora.DimensiaCareApplication.repository.UserRepository;
 import Memora.DimensiaCareApplication.service.PatientService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -19,6 +23,12 @@ public class PatientController {
 
     @Autowired
     private PatientService patientService;
+
+    @Autowired
+    private PatientRepository patientRepository;
+
+    @Autowired
+    private UserRepository userRepository;
 
     @PostMapping
     public ResponseEntity<Patient> addPatient(@RequestBody PatientRequest request) {
@@ -49,64 +59,53 @@ public class PatientController {
         return ResponseEntity.ok(resp);
     }
 
-    // New endpoints for patient dashboard
-    @GetMapping("/{patientId}/profile")
-    public ResponseEntity<?> getPatientProfile(@PathVariable Long patientId) {
-        try {
-            var profile = patientService.getPatientProfile(patientId);
-            return ResponseEntity.ok(profile);
-        } catch (Exception e) {
-            return ResponseEntity.badRequest().body("Error fetching patient profile: " + e.getMessage());
+    @PutMapping("/{patientId}/edit-profile")
+    public ResponseEntity<?> editPatientProfile(
+        @PathVariable Long patientId,
+        @RequestBody PatientProfileUpdateRequest req) {
+    try {
+        Patient patient = patientRepository.findById(patientId).orElse(null);
+        if (patient == null) {
+            return ResponseEntity.notFound().build();
         }
-    }
+        User user = patient.getUser();
+        if (user == null) {
+            return ResponseEntity.badRequest().body("Patient does not have an associated user.");
+        }
 
-    @GetMapping("/{patientId}/schedule")
-    public ResponseEntity<?> getPatientSchedule(
-            @PathVariable Long patientId,
-            @RequestParam String date) {
-        try {
-            var tasks = patientService.getScheduleForDate(patientId, date);
-            return ResponseEntity.ok(tasks);
-        } catch (Exception e) {
-            return ResponseEntity.badRequest().body("Error fetching schedule: " + e.getMessage());
-        }
-    }
+        // --- Update user fields ---
+        if (req.getFName() != null && !req.getFName().isEmpty()) user.setFName(req.getFName());
+        if (req.getLName() != null && !req.getLName().isEmpty()) user.setLName(req.getLName());
+        if (req.getBirthdate() != null) user.setBirthdate(req.getBirthdate());
+        if (req.getGender() != null) user.setGender(req.getGender());
+        if (req.getPhoneNumber() != null) user.setPhoneNumber(req.getPhoneNumber());
+        if (req.getStreet() != null) user.setStreet(req.getStreet());
+        if (req.getCity() != null) user.setCity(req.getCity());
+        if (req.getState() != null) user.setState(req.getState());
+        if (req.getEmail() != null) user.setEmail(req.getEmail());
+        if (req.getProfilePic() != null) user.setProfilePic(req.getProfilePic());
 
-    @PostMapping("/{patientId}/tasks")
-    public ResponseEntity<?> createTask(
-            @PathVariable Long patientId,
-            @RequestBody Memora.DimensiaCareApplication.dto.CreateTaskRequestDTO request) {
-        try {
-            var task = patientService.createTask(patientId, request);
-            return ResponseEntity.ok(task);
-        } catch (Exception e) {
-            return ResponseEntity.badRequest().body("Error creating task: " + e.getMessage());
-        }
-    }
+        userRepository.save(user); // <--- Save user changes
 
-    @PutMapping("/tasks/{careActivityId}/status")
-    public ResponseEntity<?> updateTaskStatus(
-            @PathVariable Long careActivityId,
-            @RequestBody Memora.DimensiaCareApplication.dto.UpdateTaskStatusDTO request) {
-        try {
-            patientService.updateTaskStatus(careActivityId, request);
-            return ResponseEntity.ok("Task status updated successfully");
-        } catch (Exception e) {
-            return ResponseEntity.badRequest().body("Error updating task status: " + e.getMessage());
-        }
-    }
+        // --- Update patient fields ---
+        if (req.getLabel() != null) patient.setLabel(req.getLabel());
+        if (req.getDementiaType() != null) patient.setDementiaType(req.getDementiaType());
+        if (req.getDementiaStage() != null) patient.setDementiaStage(req.getDementiaStage());
 
-    @GetMapping("/user/{userId}")
-    public ResponseEntity<?> getPatientByUserId(@PathVariable Long userId) {
-        try {
-            var patient = patientService.getPatientByUserId(userId);
-            if (patient != null) {
-                return ResponseEntity.ok(Map.of("patientId", patient.getPatientID()));
-            } else {
-                return ResponseEntity.status(404).body("Patient not found for user ID: " + userId);
-            }
-        } catch (Exception e) {
-            return ResponseEntity.badRequest().body("Error fetching patient: " + e.getMessage());
-        }
+        patientRepository.save(patient); // <--- Save patient changes
+
+        System.out.println("FName: " + req.getFName());
+        System.out.println("LName: " + req.getLName());
+        System.out.println("birthdate: " + req.getBirthdate());
+        System.out.println("dementiaType: " + req.getDementiaType());
+        System.out.println("dementiaStage: " + req.getDementiaStage());
+
+        return ResponseEntity.ok("Patient profile updated successfully");
+
+    } catch (Exception e) {
+        e.printStackTrace();
+        return ResponseEntity.status(500).body("Error updating patient profile: " + e.getMessage());
     }
+}
+
 }

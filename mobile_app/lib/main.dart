@@ -10,6 +10,7 @@ import 'package:flutter/services.dart';
 import 'utils/navigator_observer.dart';
 import 'constants/color_constants.dart';
 import 'package:firebase_core/firebase_core.dart';
+import 'firebase_options.dart'; 
 import 'services/deep_link_service.dart';
 
 // Global navigator key for navigation from anywhere (e.g., FCM notifications)
