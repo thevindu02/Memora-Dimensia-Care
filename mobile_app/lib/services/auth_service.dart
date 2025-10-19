@@ -5,20 +5,17 @@ import 'guardian_service.dart';
 import '../routes/app_routes.dart';
 import 'api_constants.dart';
 import '../services/caregiver_service.dart'; // Added import for CaregiverService
+import 'fcm_notification_service.dart'; // Added for FCM token registration
 
 class AuthService {
   static const String _userKey = 'current_user';
   static const String _roleKey = 'user_role';
   static const String _tokenKey = 'auth_token';
 
-
-  static const String baseUrl = 'http://192.168.8.102:8080/api/auth';
-
   static int? currentUserId; // Set this after login
   static int? currentCaregiverId; // Store caregiverId for caregivers
 
   static final String url = "${ApiConstants.baseUrl}/api/auth";
-
 
   static String? currentUserRole;
   static bool isLoggedIn = false;
@@ -95,6 +92,18 @@ class AuthService {
         // Save session data
         await login(role, token: token, userData: userData);
         currentUserId = id; // <-- Set currentUserId after login
+
+        // Save userId to SharedPreferences for FCM token registration
+        SharedPreferences prefs = await SharedPreferences.getInstance();
+        await prefs.setInt('userId', id);
+
+        // Register FCM token after successful login
+        try {
+          await FCMNotificationService().sendTokenToBackendOnLogin();
+          print('✅ FCM token sent to backend after login');
+        } catch (e) {
+          print('⚠️  Failed to send FCM token after login: $e');
+        }
 
         // If caregiver, fetch and store caregiverId
         if (role.toLowerCase() == 'caregiver') {
@@ -430,10 +439,7 @@ class AuthService {
   }) async {
     try {
       // Prepare request body
-      final requestBody = {
-        'token': token,
-        'newPassword': newPassword,
-      };
+      final requestBody = {'token': token, 'newPassword': newPassword};
 
       // Make HTTP request to backend
       final response = await http.post(
@@ -448,16 +454,14 @@ class AuthService {
         final responseData = jsonDecode(response.body);
         return ForgotPasswordResult(
           success: true,
-          message:
-              responseData['message'] ?? 'Password reset successfully',
+          message: responseData['message'] ?? 'Password reset successfully',
         );
       } else if (response.statusCode == 400) {
         // Bad request (invalid token, expired token, etc.)
         final responseData = jsonDecode(response.body);
         return ForgotPasswordResult(
           success: false,
-          message:
-              responseData['message'] ?? 'Invalid or expired reset token',
+          message: responseData['message'] ?? 'Invalid or expired reset token',
         );
       } else {
         // Other server errors
@@ -601,7 +605,9 @@ class AuthService {
         final responseData = jsonDecode(response.body);
         return AuthResult(
           success: false,
-          message: responseData['message'] ?? 'Too many attempts. Please try again later.',
+          message:
+              responseData['message'] ??
+              'Too many attempts. Please try again later.',
         );
       } else if (response.statusCode == 410) {
         return AuthResult(
@@ -631,7 +637,9 @@ class AuthService {
       final requestBody = {'email': email};
 
       final response = await http.post(
-        Uri.parse('${ApiConstants.baseUrl}/api/patients/send-verification-code'),
+        Uri.parse(
+          '${ApiConstants.baseUrl}/api/patients/send-verification-code',
+        ),
         headers: {'Content-Type': 'application/json'},
         body: jsonEncode(requestBody),
       );
@@ -650,7 +658,9 @@ class AuthService {
         final responseData = jsonDecode(response.body);
         return VerificationCodeResult(
           success: false,
-          message: responseData['message'] ?? 'Please wait before requesting a new code',
+          message:
+              responseData['message'] ??
+              'Please wait before requesting a new code',
           locked: responseData['locked'] ?? false,
           cooldown: responseData['cooldown'] ?? false,
           minutesRemaining: responseData['minutesRemaining'],
@@ -665,7 +675,8 @@ class AuthService {
         final responseData = jsonDecode(response.body);
         return VerificationCodeResult(
           success: false,
-          message: responseData['message'] ?? 'Failed to send verification code',
+          message:
+              responseData['message'] ?? 'Failed to send verification code',
         );
       }
     } catch (e) {
@@ -675,7 +686,6 @@ class AuthService {
       );
     }
   }
-
 }
 
 // Authentication result class

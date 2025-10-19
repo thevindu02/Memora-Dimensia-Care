@@ -30,6 +30,7 @@ class AppRoutes {
   static const String patientSettings = '/patient/settings';
   static const String patientSettingsPrivacy = '/patient/settings/privacy';
   static const String patientSettingsHelpSupport = '/patient/settings/help_support';
+  static const String patientSelectRoutine = '/patient/select-routine';
 
   // Guardian routes
   static const String guardianSignup = '/guardian/signup';
