@@ -17,6 +17,7 @@ import 'patient_profile_screen.dart';
 import 'patient_settings_screens.dart';
 import 'patient_settings_help_support.dart';
 import 'patient_settings_privacy_screen.dart';
+import 'patient_task_selection_screen.dart';
 
 class PatientRoutes {
   static Route<dynamic> generateRoute(RouteSettings settings) {
@@ -125,6 +126,11 @@ class PatientRoutes {
       case AppRoutes.patientSettingsPrivacy:
         return MaterialPageRoute(
           builder: (_) => PatientSettingsPrivacyScreen(),
+          settings: settings,
+        );
+      case AppRoutes.patientSelectRoutine:
+        return MaterialPageRoute(
+          builder: (_) => PatientTaskSelectionScreen(),
           settings: settings,
         );
       default:

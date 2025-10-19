@@ -24,6 +24,24 @@ void main() async {
   // Initialize FCM Notifications
   await FCMNotificationService().initialize();
 
+  // Initialize Firebase (optional - will fail gracefully if not configured)
+  try {
+    await Firebase.initializeApp(
+      options: const FirebaseOptions(
+        apiKey: "AIzaSyCHqLQ7xW4qfHfxYP9f6HZoYqm0_VjHPro",
+        authDomain: "memora-2025.firebaseapp.com",
+        projectId: "memora-2025",
+        storageBucket: "memora-2025.firebasestorage.app",
+        messagingSenderId: "428099632711",
+        appId: "1:428099632711:web:dd6f67e3df3a1e0e3a2e31",
+      ),
+    );
+    print('Firebase initialized successfully');
+  } catch (e) {
+    print('Firebase initialization failed: $e');
+    print('App will continue without Firebase features');
+  }
+
   // Set system UI overlay style (keeps navigation visible)
   SystemChrome.setEnabledSystemUIMode(SystemUiMode.edgeToEdge);
 

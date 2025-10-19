@@ -28,6 +28,7 @@ class _GuardianAddPatientScreenState extends State<GuardianAddPatientScreen> {
 
   String? _selectedDementiaStage;
   String? _selectedDementiaType;
+  String? _selectedRelationship;
   DateTime? _selectedDOB;
   DateTime? _selectedDiagnosisDate;
   String? _selectedGender;

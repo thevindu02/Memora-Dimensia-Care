@@ -191,7 +191,8 @@ public class GuardianController {
         if (exists) {
             return ResponseEntity.badRequest().body("A pending request already exists.");
         }
-        GuardianPatientCaregiverConnection connection = guardianService.sendCaregiverConnectionRequest(guardianId, patientId, caregiverId);
+        GuardianPatientCaregiverConnection connection = guardianService.sendCaregiverConnectionRequest(guardianId,
+                patientId, caregiverId);
         return ResponseEntity.ok(connection);
     }
 
