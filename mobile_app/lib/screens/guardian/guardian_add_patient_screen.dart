@@ -420,28 +420,37 @@ class _GuardianAddPatientScreenState extends State<GuardianAddPatientScreen> {
           // Send guardian connection email to patient
           try {
             // Get current guardian's user information
-            final guardianUserData = await UserService.getUserById(currentUserId!);
-            
+            final guardianUserData = await UserService.getUserById(
+              currentUserId!,
+            );
+
             if (guardianUserData != null) {
-              final guardianName = '${guardianUserData['fname']} ${guardianUserData['lname']}';
+              final guardianName =
+                  '${guardianUserData['fname']} ${guardianUserData['lname']}';
               final guardianEmail = guardianUserData['email'];
-              final patientName = '${_firstNameController.text} ${_lastNameController.text}';
+              final patientName =
+                  '${_firstNameController.text} ${_lastNameController.text}';
               final patientEmail = _emailController.text;
-              final relationship = _relationshipController.text.trim();
+              final relationship = _selectedRelationship == 'Other'
+                  ? _customRelationshipController.text.trim()
+                  : (_selectedRelationship ?? '');
 
               print('Sending guardian connection email...');
-              final emailResult = await GuardianService.sendGuardianConnectionEmail(
-                patientEmail: patientEmail,
-                patientName: patientName,
-                guardianName: guardianName,
-                guardianEmail: guardianEmail,
-                relationship: relationship,
-              );
+              final emailResult =
+                  await GuardianService.sendGuardianConnectionEmail(
+                    patientEmail: patientEmail,
+                    patientName: patientName,
+                    guardianName: guardianName,
+                    guardianEmail: guardianEmail,
+                    relationship: relationship,
+                  );
 
               if (emailResult['success']) {
                 print('Guardian connection email sent successfully');
               } else {
-                print('Failed to send guardian connection email: ${emailResult['message']}');
+                print(
+                  'Failed to send guardian connection email: ${emailResult['message']}',
+                );
                 // Don't fail the whole process if email fails, just log it
               }
             }
@@ -456,7 +465,9 @@ class _GuardianAddPatientScreenState extends State<GuardianAddPatientScreen> {
 
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
-              content: Text('Patient saved successfully! Connection request email sent.'),
+              content: Text(
+                'Patient saved successfully! Connection request email sent.',
+              ),
               backgroundColor: Colors.green,
             ),
           );

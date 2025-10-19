@@ -12,6 +12,9 @@ import 'constants/color_constants.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'services/deep_link_service.dart';
 
+// Global navigator key for navigation from anywhere (e.g., FCM notifications)
+final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
+
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
@@ -35,8 +38,6 @@ class MyApp extends StatefulWidget {
 }
 
 class _MyAppState extends State<MyApp> {
-  final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
-
   @override
   void initState() {
     super.initState();

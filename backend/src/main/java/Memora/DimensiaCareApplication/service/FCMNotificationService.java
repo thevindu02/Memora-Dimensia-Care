@@ -19,6 +19,11 @@ public class FCMNotificationService {
      */
     public void sendNotificationToDevice(String fcmToken, String title, String body, Map<String, String> data) {
         try {
+            logger.info("📤 Attempting to send notification:");
+            logger.info("   Token: {}", fcmToken.substring(0, Math.min(20, fcmToken.length())) + "...");
+            logger.info("   Title: {}", title);
+            logger.info("   Body: {}", body);
+
             // Build notification
             Notification notification = Notification.builder()
                     .setTitle(title)
@@ -33,14 +38,19 @@ public class FCMNotificationService {
             // Add data if provided
             if (data != null && !data.isEmpty()) {
                 messageBuilder.putAllData(data);
+                logger.info("   Data: {}", data);
             }
 
             // Send message
             String response = FirebaseMessaging.getInstance().send(messageBuilder.build());
-            logger.info("Successfully sent message: {}", response);
+            logger.info("✅ Successfully sent message. Response: {}", response);
 
         } catch (FirebaseMessagingException e) {
-            logger.error("Error sending FCM notification to token {}: {}", fcmToken, e.getMessage());
+            logger.error("❌ Error sending FCM notification to token {}: {}", fcmToken, e.getMessage());
+            logger.error("Error code: {}", e.getErrorCode());
+            logger.error("Full error:", e);
+        } catch (Exception e) {
+            logger.error("❌ Unexpected error sending notification: {}", e.getMessage(), e);
         }
     }
 
@@ -50,11 +60,16 @@ public class FCMNotificationService {
     public void sendNotificationToMultipleDevices(List<String> fcmTokens, String title, String body,
             Map<String, String> data) {
         if (fcmTokens == null || fcmTokens.isEmpty()) {
-            logger.warn("No FCM tokens provided");
+            logger.warn("⚠️  No FCM tokens provided for notification");
             return;
         }
 
         try {
+            logger.info("📤 Sending multicast notification:");
+            logger.info("   Recipients: {} devices", fcmTokens.size());
+            logger.info("   Title: {}", title);
+            logger.info("   Body: {}", body);
+
             // Build notification
             Notification notification = Notification.builder()
                     .setTitle(title)
@@ -69,26 +84,39 @@ public class FCMNotificationService {
             // Add data if provided
             if (data != null && !data.isEmpty()) {
                 messageBuilder.putAllData(data);
+                logger.info("   Data: {}", data);
             }
 
             // Send message
             BatchResponse response = FirebaseMessaging.getInstance().sendEachForMulticast(messageBuilder.build());
-            logger.info("Successfully sent {} messages, {} failures",
+            logger.info("✅ Multicast result: {} successful, {} failures",
                     response.getSuccessCount(), response.getFailureCount());
 
-            // Log failures
+            // Log failures with details
             if (response.getFailureCount() > 0) {
                 List<SendResponse> responses = response.getResponses();
                 for (int i = 0; i < responses.size(); i++) {
                     if (!responses.get(i).isSuccessful()) {
-                        logger.error("Failed to send to token {}: {}",
-                                fcmTokens.get(i), responses.get(i).getException().getMessage());
+                        String token = fcmTokens.get(i);
+                        String tokenPreview = token.substring(0, Math.min(20, token.length())) + "...";
+                        Exception ex = responses.get(i).getException();
+                        logger.error("❌ Failed to send to token {}: {}",
+                                tokenPreview,
+                                ex != null ? ex.getMessage() : "Unknown error");
+                        if (ex instanceof FirebaseMessagingException) {
+                            FirebaseMessagingException fme = (FirebaseMessagingException) ex;
+                            logger.error("   Error code: {}", fme.getErrorCode());
+                        }
                     }
                 }
             }
 
         } catch (FirebaseMessagingException e) {
-            logger.error("Error sending multicast FCM notification: {}", e.getMessage());
+            logger.error("❌ Error sending multicast FCM notification: {}", e.getMessage());
+            logger.error("Error code: {}", e.getErrorCode());
+            logger.error("Full error:", e);
+        } catch (Exception e) {
+            logger.error("❌ Unexpected error in multicast send: {}", e.getMessage(), e);
         }
     }
 

@@ -308,6 +308,7 @@ public class GuardianController {
             
         } catch (Exception e) {
             return ResponseEntity.badRequest().body("Error processing request: " + e.getMessage());
+        }}
     @PostMapping("/send-guardian-connection-email")
     public ResponseEntity<?> sendGuardianConnectionEmail(@RequestBody Map<String, Object> request) {
         try {
