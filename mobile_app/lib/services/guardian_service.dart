@@ -78,6 +78,50 @@ class GuardianService {
     }
   }
 
+  /// Cancels a pending connection request. Returns true if successful, false otherwise.
+  static Future<bool> cancelConnectionRequest(int connectionId) async {
+    final url = Uri.parse('$baseUrl/cancel-connection-request/$connectionId');
+    final response = await http.post(
+      url,
+      headers: {'Content-Type': 'application/json'},
+    );
+    return response.statusCode == 200;
+  }
+
+  static Future<bool> updateProfile({
+    required int guardianId,
+    required String fName,
+    required String lName,
+    required String email,
+    required String phoneNumber,
+    required String gender,
+    required String birthdate,
+    required String street,
+    required String city,
+    required String state,
+    String? profilePic,
+  }) async {
+    final url = Uri.parse('$baseUrl/$guardianId/edit-profile');
+    final body = {
+      'fName': fName,
+      'lName': lName,
+      'email': email,
+      'phoneNumber': phoneNumber,
+      'gender': gender,
+      'birthdate': birthdate,
+      'street': street,
+      'city': city,
+      'state': state,
+      'profilePic': profilePic ?? '',
+    };
+    final response = await http.put(
+      url,
+      headers: {'Content-Type': 'application/json'},
+      body: jsonEncode(body),
+    );
+    return response.statusCode == 200;
+  }
+
   /// Sends a guardian connection email to the patient. Returns true if successful, false otherwise.
   static Future<Map<String, dynamic>> sendGuardianConnectionEmail({
     required String patientEmail,

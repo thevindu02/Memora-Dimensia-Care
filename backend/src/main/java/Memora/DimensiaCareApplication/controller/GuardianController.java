@@ -113,6 +113,13 @@ public class GuardianController {
                     .orElse(null);
             if (latest != null) {
                 map.put("latestRequestStatus", latest.getStatus().name());
+                // Include connection ID and request time for pending requests (needed for
+                // cancel functionality)
+                if (latest.getStatus() == GuardianPatientCaregiverConnection.ConnectionStatus.PENDING) {
+                    map.put("connectionId", latest.getConnectionId());
+                    map.put("requestDateTime",
+                            latest.getConnectedDateTime() != null ? latest.getConnectedDateTime().toString() : null);
+                }
             } else {
                 map.put("latestRequestStatus", "NONE");
             }
@@ -140,8 +147,125 @@ public class GuardianController {
         if (exists) {
             return ResponseEntity.badRequest().body("A pending request already exists.");
         }
-        GuardianPatientCaregiverConnection connection = guardianService.sendCaregiverConnectionRequest(guardianId, patientId, caregiverId);
+        GuardianPatientCaregiverConnection connection = guardianService.sendCaregiverConnectionRequest(guardianId,
+                patientId, caregiverId);
         return ResponseEntity.ok(connection);
+    }
+
+    @PostMapping("/cancel-connection-request/{connectionId}")
+    public ResponseEntity<?> cancelConnectionRequest(@PathVariable Long connectionId) {
+        try {
+            GuardianPatientCaregiverConnection conn = connectionRepository.findById(connectionId).orElse(null);
+            if (conn == null) {
+                return ResponseEntity.badRequest().body("Connection request not found");
+            }
+
+            if (conn.getStatus() != GuardianPatientCaregiverConnection.ConnectionStatus.PENDING) {
+                return ResponseEntity.badRequest().body("Can only cancel pending requests");
+            }
+
+            // Check if request is within 24 hours
+            if (conn.getConnectedDateTime() != null) {
+                java.time.LocalDateTime now = java.time.LocalDateTime.now();
+                java.time.LocalDateTime requestTime = conn.getConnectedDateTime();
+                long hoursElapsed = java.time.Duration.between(requestTime, now).toHours();
+
+                if (hoursElapsed >= 24) {
+                    return ResponseEntity.badRequest().body("Cannot cancel request after 24 hours");
+                }
+            }
+
+            // Set status to CANCELLED and record cancellation time
+            conn.setStatus(GuardianPatientCaregiverConnection.ConnectionStatus.CANCELLED);
+            conn.setCancelledDateTime(java.time.LocalDateTime.now());
+            connectionRepository.save(conn);
+            return ResponseEntity.ok().body("Connection request cancelled successfully");
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body("Error cancelling request: " + e.getMessage());
+        }
+    }
+
+    @PostMapping("/add-known-caregiver")
+    public ResponseEntity<?> addKnownCaregiver(@RequestBody Map<String, Object> request) {
+        try {
+            Long guardianId = ((Number) request.get("guardianId")).longValue();
+            Long patientId = ((Number) request.get("patientId")).longValue();
+            String caregiverEmail = (String) request.get("caregiverEmail");
+
+            // Check patient existence
+            if (!patientRepository.existsById(patientId)) {
+                return ResponseEntity.badRequest().body("Patient not found");
+            }
+
+            // Find caregiver by email
+            Optional<Caregiver> caregiverOpt = caregiverRepository.findByUser_Email(caregiverEmail);
+            if (!caregiverOpt.isPresent()) {
+                return ResponseEntity.badRequest().body("No caregiver found with this email address");
+            }
+
+            Caregiver caregiver = caregiverOpt.get();
+            Long caregiverId = caregiver.getCaregiverId().longValue();
+
+            // Check for duplicate pending requests
+            boolean exists = guardianService.hasPendingConnectionRequest(
+                    guardianId, patientId, caregiverId);
+            if (exists) {
+                return ResponseEntity.badRequest().body("A pending request already exists with this caregiver");
+            }
+
+            // Check for existing active connections
+            boolean activeExists = connectionRepository.existsByGuardianIdAndPatientIdAndCaregiverIdAndStatus(
+                    guardianId, patientId, caregiverId, GuardianPatientCaregiverConnection.ConnectionStatus.ACTIVE);
+            if (activeExists) {
+                return ResponseEntity.badRequest().body("This caregiver is already connected to this patient");
+            }
+
+            // Check severity score logic
+            Patient patient = patientRepository.findById(patientId).orElse(null);
+            if (patient == null) {
+                return ResponseEntity.badRequest().body("Patient not found");
+            }
+
+            // Calculate stage score
+            int stageScore = 0;
+            switch (patient.getDementiaStage()) {
+                case MILD:
+                    stageScore = 1;
+                    break;
+                case MODERATE:
+                    stageScore = 2;
+                    break;
+                case SEVERE:
+                    stageScore = 3;
+                    break;
+                case VERY_SEVERE:
+                    stageScore = 4;
+                    break;
+                default:
+                    stageScore = 0;
+            }
+
+            Integer currentScore = caregiver.getSeverityScore();
+            if (currentScore == null)
+                currentScore = 0;
+
+            // Check if caregiver can handle this patient
+            if (currentScore + stageScore > 4) {
+                return ResponseEntity.badRequest().body(
+                        "This caregiver has reached their maximum patient capacity and cannot take on additional patients with this severity level");
+            }
+
+            // Create direct active connection and update severity score
+            guardianService.createDirectConnection(guardianId, patientId, caregiverId, stageScore);
+
+            // Get caregiver name for response
+            String caregiverName = caregiver.getUser().getFName() + " " + caregiver.getUser().getLName();
+
+            return ResponseEntity.ok("Patient successfully connected to " + caregiverName);
+
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body("Error processing request: " + e.getMessage());
+        }
     }
 
     @PostMapping("/send-guardian-connection-email")

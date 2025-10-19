@@ -9,4 +9,6 @@ import java.util.Optional;
 
 public interface PatientRepository extends JpaRepository<Patient, Long> {
     List<Patient> findByGuardian_GuardianId(Long guardianId);
+
+    Optional<Patient> findByUser_Id(Long userId);
 }
