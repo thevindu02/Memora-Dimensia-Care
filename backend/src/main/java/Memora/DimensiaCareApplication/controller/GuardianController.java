@@ -175,9 +175,8 @@ public class GuardianController {
                 }
             }
 
-            // Set status to CANCELLED and record cancellation time
-            conn.setStatus(GuardianPatientCaregiverConnection.ConnectionStatus.CANCELLED);
-            conn.setCancelledDateTime(java.time.LocalDateTime.now());
+            // Set status to REJECTED (cancellation by guardian)
+            conn.setStatus(GuardianPatientCaregiverConnection.ConnectionStatus.REJECTED);
             connectionRepository.save(conn);
             return ResponseEntity.ok().body("Connection request cancelled successfully");
         } catch (Exception e) {
@@ -256,7 +255,17 @@ public class GuardianController {
             }
 
             // Create direct active connection and update severity score
-            guardianService.createDirectConnection(guardianId, patientId, caregiverId, stageScore);
+            GuardianPatientCaregiverConnection newConn = new GuardianPatientCaregiverConnection();
+            newConn.setGuardianId(guardianId);
+            newConn.setPatientId(patientId);
+            newConn.setCaregiverId(caregiverId);
+            newConn.setStatus(GuardianPatientCaregiverConnection.ConnectionStatus.ACTIVE);
+            newConn.setConnectedDateTime(java.time.LocalDateTime.now());
+            connectionRepository.save(newConn);
+
+            // Update caregiver's severity score
+            caregiver.setSeverityScore(currentScore + stageScore);
+            caregiverRepository.save(caregiver);
 
             // Get caregiver name for response
             String caregiverName = caregiver.getUser().getFName() + " " + caregiver.getUser().getLName();

@@ -21,7 +21,6 @@ public class ScheduleTaskDTO {
     private String medicationName;
     private String dosage;
     private String mealTiming;
-
     // Appointment specific
     private String hospital;
     private String doctorName;

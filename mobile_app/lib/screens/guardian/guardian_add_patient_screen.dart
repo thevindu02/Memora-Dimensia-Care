@@ -410,7 +410,9 @@ class _GuardianAddPatientScreenState extends State<GuardianAddPatientScreen> {
               final guardianEmail = guardianUserData['email'];
               final patientName = '${_firstNameController.text} ${_lastNameController.text}';
               final patientEmail = _emailController.text;
-              final relationship = _relationshipController.text.trim();
+              final relationship = _selectedRelationship == 'Other'
+                  ? _customRelationshipController.text.trim()
+                  : (_selectedRelationship ?? '');
 
               print('Sending guardian connection email...');
               final emailResult = await GuardianService.sendGuardianConnectionEmail(

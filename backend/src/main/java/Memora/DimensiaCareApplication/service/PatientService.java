@@ -131,7 +131,6 @@ public class PatientService {
         dto.setDateOfDiagnosis(patient.getDateOfDiagnosis() != null ? patient.getDateOfDiagnosis().toString() : null);
         dto.setGuardianId(guardianId);
         dto.setCaregiverId(caregiverId);
-
         return dto;
     }
 
@@ -159,7 +158,6 @@ public class PatientService {
                 tasks.add(taskDTO);
             }
         }
-
         return tasks;
     }
 
@@ -169,7 +167,6 @@ public class PatientService {
         dto.setTime(careActivity.getTime().toString());
         dto.setStatus(careActivity.getStatus().name());
         dto.setSkipReason(careActivity.getSkipReason());
-
         // Check which type of task this is
         if (!careActivity.getDailyTasks().isEmpty()) {
             // Daily Activity
@@ -220,14 +217,12 @@ public class PatientService {
                 }
             }
         }
-
         return dto;
     }
 
     public ScheduleTaskDTO createTask(Long patientId, CreateTaskRequestDTO request) {
         Patient patient = patientRepository.findById(patientId)
                 .orElseThrow(() -> new RuntimeException("Patient not found"));
-
         // Validate task type based on dementia stage
         String dementiaStage = patient.getDementiaStage().name();
         if ("SEVERE".equals(dementiaStage) || "VERY_SEVERE".equals(dementiaStage)) {
@@ -278,17 +273,14 @@ public class PatientService {
 
         // Create specific task type
         switch (request.getTaskType()) {
-            case "DAILY_ACTIVITY":
-                DailyTask dailyTask = new DailyTask(careActivity, request.getTitle(), request.getDescription());
-                dailyTaskRepository.save(dailyTask);
-                break;
-            case "GAME":
+            case "GAME": {
                 Game game = gameRepository.findById(request.getGameId())
                         .orElseThrow(() -> new RuntimeException("Game not found"));
                 Task task = new Task(careActivity, game);
                 taskRepository.save(task);
                 break;
-            case "MEDICATION":
+            }
+            case "MEDICATION": {
                 Medication medication = medicationRepository.findById(request.getMedicationId())
                         .orElseThrow(() -> new RuntimeException("Medication not found"));
                 MedicationReminder reminder = new MedicationReminder();
@@ -296,7 +288,8 @@ public class PatientService {
                 reminder.setMedication(medication);
                 medicationReminderRepository.save(reminder);
                 break;
-            case "APPOINTMENT":
+            }
+            case "APPOINTMENT": {
                 Appointment appointment = new Appointment();
                 appointment.setCareActivity(careActivity);
                 appointment.setTaskName(request.getTitle());
@@ -307,10 +300,10 @@ public class PatientService {
                 appointment.setDate(date);
                 appointmentRepository.save(appointment);
                 break;
+            }
             default:
                 throw new RuntimeException("Invalid task type: " + request.getTaskType());
         }
-
         // Return the created task as DTO
         return convertCareActivityToDTO(careActivity);
     }
@@ -331,7 +324,6 @@ public class PatientService {
             // Clear skip reason if not skipping
             careActivity.setSkipReason(null);
         }
-
         careActivity.setStatus(newStatus);
         careActivityRepository.save(careActivity);
     }
