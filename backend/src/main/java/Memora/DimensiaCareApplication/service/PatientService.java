@@ -1,3 +1,4 @@
+package Memora.DimensiaCareApplication.service;
 
 import Memora.DimensiaCareApplication.model.Patient;
 import Memora.DimensiaCareApplication.model.User;
@@ -21,9 +22,12 @@ import java.util.List;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
+@Service
+public class PatientService {
 
-@Autowired
+    @Autowired
     private PatientRepository patientRepository;
 
     @Autowired
@@ -432,5 +436,12 @@ import java.util.Optional;
 
         // Return the first created medication reminder's activity as DTO
         return convertCareActivityToDTO(firstCareActivity);
+    }
+
+    public List<PatientDetailsResponse> getAllPatients() {
+        List<Patient> patients = patientRepository.findAll();
+        return patients.stream()
+                .map(PatientDetailsResponse::fromPatient)
+                .collect(Collectors.toList());
     }
 }
