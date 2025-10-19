@@ -25,6 +25,7 @@ import java.util.Optional;
 public class ArticleService {
 
     private static final String COLLECTION_NAME = "articles";
+    private static final String ARTICLE_LIKES_COLLECTION = "article_likes";
 
     @Autowired
     private ArticleRepository articleRepository;
@@ -706,4 +707,130 @@ public class ArticleService {
             throw new RuntimeException("Failed to sync article images: " + e.getMessage(), e);
         }
     }
+
+    /**
+     * Like an article
+     */
+    public boolean likeArticle(String articleId, Long userId) throws ExecutionException, InterruptedException {
+        Firestore db = FirestoreClient.getFirestore();
+        
+        // Check if already liked
+        Query query = db.collection(ARTICLE_LIKES_COLLECTION)
+                .whereEqualTo("articleId", articleId)
+                .whereEqualTo("userId", userId);
+        
+        ApiFuture<QuerySnapshot> future = query.get();
+        QuerySnapshot documents = future.get();
+        
+        if (!documents.isEmpty()) {
+            // Already liked
+            return false;
+        }
+        
+        // Create like document
+        DocumentReference likeRef = db.collection(ARTICLE_LIKES_COLLECTION).document();
+        Map<String, Object> likeData = new HashMap<>();
+        likeData.put("likeId", likeRef.getId());
+        likeData.put("articleId", articleId);
+        likeData.put("userId", userId);
+        likeData.put("createdAt", com.google.cloud.Timestamp.now());
+        
+        ApiFuture<WriteResult> likeResult = likeRef.set(likeData);
+        likeResult.get();
+        
+        // Increment likes count in article
+        DocumentReference articleRef = db.collection(COLLECTION_NAME).document(articleId);
+        db.runTransaction(txn -> {
+            DocumentSnapshot snapshot = txn.get(articleRef).get();
+            Long currentLikes = snapshot.getLong("likes");
+            if (currentLikes == null) {
+                currentLikes = 0L;
+            }
+            txn.update(articleRef, "likes", currentLikes + 1);
+            txn.update(articleRef, "updated_at", System.currentTimeMillis());
+            return null;
+        }).get();
+        
+        return true;
+    }
+
+    /**
+     * Unlike an article
+     */
+    public boolean unlikeArticle(String articleId, Long userId) throws ExecutionException, InterruptedException {
+        Firestore db = FirestoreClient.getFirestore();
+        
+        // Find the like document
+        Query query = db.collection(ARTICLE_LIKES_COLLECTION)
+                .whereEqualTo("articleId", articleId)
+                .whereEqualTo("userId", userId);
+        
+        ApiFuture<QuerySnapshot> future = query.get();
+        QuerySnapshot documents = future.get();
+        
+        if (documents.isEmpty()) {
+            // Not liked
+            return false;
+        }
+        
+        // Delete the like document
+        DocumentSnapshot likeDoc = documents.getDocuments().get(0);
+        ApiFuture<WriteResult> deleteResult = likeDoc.getReference().delete();
+        deleteResult.get();
+        
+        // Decrement likes count in article
+        DocumentReference articleRef = db.collection(COLLECTION_NAME).document(articleId);
+        db.runTransaction(txn -> {
+            DocumentSnapshot snapshot = txn.get(articleRef).get();
+            Long currentLikes = snapshot.getLong("likes");
+            if (currentLikes == null || currentLikes <= 0) {
+                currentLikes = 0L;
+            } else {
+                currentLikes--;
+            }
+            txn.update(articleRef, "likes", currentLikes);
+            txn.update(articleRef, "updated_at", System.currentTimeMillis());
+            return null;
+        }).get();
+        
+        return true;
+    }
+
+    /**
+     * Check if a user has liked a specific article
+     */
+    public boolean hasLikedArticle(String articleId, Long userId) throws ExecutionException, InterruptedException {
+        if (userId == null) {
+            return false;
+        }
+        
+        Firestore db = FirestoreClient.getFirestore();
+        Query query = db.collection(ARTICLE_LIKES_COLLECTION)
+                .whereEqualTo("articleId", articleId)
+                .whereEqualTo("userId", userId);
+        
+        ApiFuture<QuerySnapshot> future = query.get();
+        QuerySnapshot documents = future.get();
+        
+        return !documents.isEmpty();
+    }
+
+    /**
+     * Get like count for an article
+     */
+    public long getArticleLikeCount(String articleId) throws ExecutionException, InterruptedException {
+        Firestore db = FirestoreClient.getFirestore();
+        DocumentReference articleRef = db.collection(COLLECTION_NAME).document(articleId);
+        
+        ApiFuture<DocumentSnapshot> future = articleRef.get();
+        DocumentSnapshot document = future.get();
+        
+        if (document.exists()) {
+            Long likes = document.getLong("likes");
+            return likes != null ? likes : 0L;
+        }
+        
+        return 0L;
+    }
 }
+
