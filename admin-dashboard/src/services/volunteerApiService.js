@@ -82,6 +82,73 @@ class VolunteerApiService {
       throw error;
     }
   }
+
+  async getAllVolunteersAndRequests() {
+    try {
+      // Add timestamp to prevent caching
+      const timestamp = new Date().getTime();
+      const response = await fetch(`${API_BASE_URL}/volunteer-requests/all-volunteers?_t=${timestamp}`, {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+          'Cache-Control': 'no-cache, no-store, must-revalidate',
+          'Pragma': 'no-cache',
+          'Expires': '0'
+        },
+        cache: 'no-store'
+      });
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      const data = await response.json();
+      return data;
+    } catch (error) {
+      console.error('Error fetching combined volunteer data:', error);
+      throw error;
+    }
+  }
+
+  async disableVolunteer(volunteerId) {
+    try {
+      const response = await fetch(`${API_BASE_URL}/volunteer-requests/volunteer/${volunteerId}/disable`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+        }
+      });
+      
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      
+      const data = await response.json();
+      return data;
+    } catch (error) {
+      console.error('Error disabling volunteer:', error);
+      throw error;
+    }
+  }
+
+  async enableVolunteer(volunteerId) {
+    try {
+      const response = await fetch(`${API_BASE_URL}/volunteer-requests/volunteer/${volunteerId}/enable`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+        }
+      });
+      
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      
+      const data = await response.json();
+      return data;
+    } catch (error) {
+      console.error('Error enabling volunteer:', error);
+      throw error;
+    }
+  }
 }
 
 const volunteerApiService = new VolunteerApiService();

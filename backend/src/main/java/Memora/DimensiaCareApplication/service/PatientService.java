@@ -66,4 +66,11 @@ public class PatientService {
         }
         return resp;
     }
+
+    public List<PatientDetailsResponse> getAllPatients() {
+        List<Patient> patients = patientRepository.findAll();
+        return patients.stream()
+                .map(PatientDetailsResponse::fromPatient)
+                .collect(java.util.stream.Collectors.toList());
+    }
 }

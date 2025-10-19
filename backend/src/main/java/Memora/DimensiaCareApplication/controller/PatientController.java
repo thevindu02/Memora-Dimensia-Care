@@ -13,6 +13,7 @@ import java.util.stream.Collectors;
 import Memora.DimensiaCareApplication.dto.response.PatientDetailsResponse;
 
 @RestController
+@CrossOrigin(origins = "*")
 @RequestMapping("/api/patients")
 public class PatientController {
 
@@ -46,5 +47,11 @@ public class PatientController {
             return ResponseEntity.notFound().build();
         }
         return ResponseEntity.ok(resp);
+    }
+
+    @GetMapping
+    public ResponseEntity<List<PatientDetailsResponse>> getAllPatients() {
+        List<PatientDetailsResponse> patients = patientService.getAllPatients();
+        return ResponseEntity.ok(patients);
     }
 }
