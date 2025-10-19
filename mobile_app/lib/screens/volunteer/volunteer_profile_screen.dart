@@ -4,6 +4,7 @@ import '../../constants/color_constants.dart';
 import '../../routes/app_routes.dart';
 import '../../services/auth_service.dart';
 import '../../services/user_service.dart';
+import '../../services/volunteer_service.dart';
 import '../../services/image_upload_service.dart';
 import 'package:image_picker/image_picker.dart';
 import 'dart:io';
@@ -29,6 +30,8 @@ class _VolunteerProfileScreenState extends State<VolunteerProfileScreen> {
   // Form key and controllers
   final _formKey = GlobalKey<FormState>();
   final TextEditingController _fullNameController = TextEditingController();
+  final TextEditingController _firstNameController = TextEditingController();
+  final TextEditingController _lastNameController = TextEditingController();
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _phoneController = TextEditingController();
   final TextEditingController _genderController = TextEditingController();

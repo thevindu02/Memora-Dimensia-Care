@@ -99,7 +99,14 @@ class _PatientDashboardScreenState extends State<PatientDashboardScreen> {
 
     try {
       // Load patient profile
-      final profile = await PatientService.getPatientProfile(patientId!);
+      final profileResult = await PatientService.getPatientProfile(patientId!);
+      
+      if (!profileResult.success || profileResult.data == null) {
+        throw Exception('Failed to load profile: ${profileResult.message}');
+      }
+      
+      // Convert PatientResult data to PatientProfile
+      final profile = PatientProfile.fromJson(profileResult.data);
       
       // Get or create schedule for selected date
       final dateStr = PatientService.formatDateForApi(selectedDate);
