@@ -33,6 +33,12 @@ public class CareActivity {
     @OneToMany(mappedBy = "careActivity", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private Set<Task> tasks = new HashSet<>();
 
+    @OneToMany(mappedBy = "careActivity", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    private Set<MedicationReminder> medicationReminders = new HashSet<>();
+
+    @OneToMany(mappedBy = "careActivity", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    private Set<Appointment> appointments = new HashSet<>();
+
     // Default constructor
     public CareActivity() {
     }
@@ -99,5 +105,21 @@ public class CareActivity {
 
     public void setTasks(Set<Task> tasks) {
         this.tasks = tasks;
+    }
+
+    public Set<MedicationReminder> getMedicationReminders() {
+        return medicationReminders;
+    }
+
+    public void setMedicationReminders(Set<MedicationReminder> medicationReminders) {
+        this.medicationReminders = medicationReminders;
+    }
+
+    public Set<Appointment> getAppointments() {
+        return appointments;
+    }
+
+    public void setAppointments(Set<Appointment> appointments) {
+        this.appointments = appointments;
     }
 }

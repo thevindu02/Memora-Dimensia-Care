@@ -1,5 +1,26 @@
 package Memora.DimensiaCareApplication.service;
 
+<<<<<<< HEAD
+=======
+import Memora.DimensiaCareApplication.model.Patient;
+import Memora.DimensiaCareApplication.model.User;
+import Memora.DimensiaCareApplication.model.Guardian;
+import Memora.DimensiaCareApplication.model.Caregiver;
+import Memora.DimensiaCareApplication.repository.PatientRepository;
+import Memora.DimensiaCareApplication.repository.UserRepository;
+import Memora.DimensiaCareApplication.repository.GuardianRepository;
+import Memora.DimensiaCareApplication.repository.CaregiverRepository;
+import Memora.DimensiaCareApplication.repository.GuardianPatientCaregiverConnectionRepository;
+import Memora.DimensiaCareApplication.model.GuardianPatientCaregiverConnection;
+import Memora.DimensiaCareApplication.repository.GuardianPatientCaregiverConnectionRepository;
+import Memora.DimensiaCareApplication.dto.response.PatientDetailsResponse;
+import Memora.DimensiaCareApplication.dto.*;
+import Memora.DimensiaCareApplication.model.*;
+import Memora.DimensiaCareApplication.repository.*;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+>>>>>>> abd3212abbb42cceddd8f4bac2e0b146c27d3c37
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.ArrayList;
@@ -57,6 +78,9 @@ public class PatientService {
 
     @Autowired
     private GuardianPatientCaregiverConnectionRepository connectionRepository;
+    
+    @Autowired
+    private CaregiverRepository caregiverRepository;
 
     @Autowired
     private ScheduleRepository scheduleRepository;

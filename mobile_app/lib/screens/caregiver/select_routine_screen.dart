@@ -147,7 +147,8 @@ class Approute {
 class SelectTypeWithErrorHandling extends StatefulWidget {
   final int? patientId;
 
-  const SelectTypeWithErrorHandling({Key? key, this.patientId}) : super(key: key);
+  const SelectTypeWithErrorHandling({Key? key, this.patientId})
+    : super(key: key);
 
   @override
   _SelectTypeWithErrorHandlingState createState() =>
@@ -576,9 +577,7 @@ class _SelectTypeWithErrorHandlingState
                           ),
                           child: Text(
                             '${_selectedDate.year}-${_selectedDate.month.toString().padLeft(2, '0')}-${_selectedDate.day.toString().padLeft(2, '0')}',
-                            style: TextStyle(
-                              color: Colors.black87,
-                            ),
+                            style: TextStyle(color: Colors.black87),
                           ),
                         ),
                       ),
@@ -662,7 +661,9 @@ class _SelectTypeWithErrorHandlingState
                               if (widget.patientId == null) {
                                 ScaffoldMessenger.of(context).showSnackBar(
                                   SnackBar(
-                                    content: Text('Patient information not available'),
+                                    content: Text(
+                                      'Patient information not available',
+                                    ),
                                     backgroundColor: Colors.red,
                                   ),
                                 );
@@ -678,12 +679,14 @@ class _SelectTypeWithErrorHandlingState
 
                               // Get or create schedule for the selected date
                               final scheduleResult =
-                                  await ScheduleAPI.ScheduleService.getOrCreateSchedule(
-                                widget.patientId!,
-                                dateString,
-                              );
+                                  await ScheduleAPI
+                                      .ScheduleService.getOrCreateSchedule(
+                                    widget.patientId!,
+                                    dateString,
+                                  );
 
-                              if (!scheduleResult.success || scheduleResult.data == null) {
+                              if (!scheduleResult.success ||
+                                  scheduleResult.data == null) {
                                 ScaffoldMessenger.of(context).showSnackBar(
                                   SnackBar(
                                     content: Text(
@@ -699,8 +702,10 @@ class _SelectTypeWithErrorHandlingState
                                 return;
                               }
 
-                              final scheduleData = scheduleResult.data as Map<String, dynamic>;
-                              final scheduleId = scheduleData['scheduleId'] as int;
+                              final scheduleData =
+                                  scheduleResult.data as Map<String, dynamic>;
+                              final scheduleId =
+                                  scheduleData['scheduleId'] as int;
 
                               // Format time as HH:mm
                               String timeString =
@@ -1125,10 +1130,14 @@ class _SelectTypeWithErrorHandlingState
                                 try {
                                   // First, check if patient ID is available
                                   if (widget.patientId == null) {
-                                    Navigator.pop(context); // Close loading dialog
+                                    Navigator.pop(
+                                      context,
+                                    ); // Close loading dialog
                                     ScaffoldMessenger.of(context).showSnackBar(
                                       SnackBar(
-                                        content: Text('Patient information not available'),
+                                        content: Text(
+                                          'Patient information not available',
+                                        ),
                                         backgroundColor: Colors.red,
                                       ),
                                     );
@@ -1141,13 +1150,17 @@ class _SelectTypeWithErrorHandlingState
 
                                   // Get or create schedule for the selected date
                                   final scheduleResult =
-                                      await ScheduleAPI.ScheduleService.getOrCreateSchedule(
-                                    widget.patientId!,
-                                    dateString,
-                                  );
+                                      await ScheduleAPI
+                                          .ScheduleService.getOrCreateSchedule(
+                                        widget.patientId!,
+                                        dateString,
+                                      );
 
-                                  if (!scheduleResult.success || scheduleResult.data == null) {
-                                    Navigator.pop(context); // Close loading dialog
+                                  if (!scheduleResult.success ||
+                                      scheduleResult.data == null) {
+                                    Navigator.pop(
+                                      context,
+                                    ); // Close loading dialog
                                     ScaffoldMessenger.of(context).showSnackBar(
                                       SnackBar(
                                         content: Text(
@@ -1159,8 +1172,11 @@ class _SelectTypeWithErrorHandlingState
                                     return;
                                   }
 
-                                  final scheduleData = scheduleResult.data as Map<String, dynamic>;
-                                  final scheduleId = scheduleData['scheduleId'] as int;
+                                  final scheduleData =
+                                      scheduleResult.data
+                                          as Map<String, dynamic>;
+                                  final scheduleId =
+                                      scheduleData['scheduleId'] as int;
 
                                   // Format time as HH:mm for the backend
                                   String timeString =
@@ -1646,9 +1662,13 @@ class _SelectTypeWithErrorHandlingState
 
                                         // Check if patient ID is available
                                         if (widget.patientId == null) {
-                                          ScaffoldMessenger.of(context).showSnackBar(
+                                          ScaffoldMessenger.of(
+                                            context,
+                                          ).showSnackBar(
                                             SnackBar(
-                                              content: Text('Patient information not available'),
+                                              content: Text(
+                                                'Patient information not available',
+                                              ),
                                               backgroundColor: Colors.red,
                                             ),
                                           );
@@ -1659,25 +1679,31 @@ class _SelectTypeWithErrorHandlingState
                                         }
 
                                         // Use from date as the schedule date (default to today if not set)
-                                        DateTime scheduleDate = _fromDate ?? DateTime.now();
+                                        DateTime scheduleDate =
+                                            _fromDate ?? DateTime.now();
                                         String scheduleDateString =
                                             '${scheduleDate.year}-${scheduleDate.month.toString().padLeft(2, '0')}-${scheduleDate.day.toString().padLeft(2, '0')}';
 
                                         // Get or create schedule for the date
                                         final scheduleResult =
-                                            await ScheduleAPI.ScheduleService.getOrCreateSchedule(
-                                          widget.patientId!,
-                                          scheduleDateString,
-                                        );
+                                            await ScheduleAPI
+                                                .ScheduleService.getOrCreateSchedule(
+                                              widget.patientId!,
+                                              scheduleDateString,
+                                            );
 
-                                        if (!scheduleResult.success || scheduleResult.data == null) {
-                                          ScaffoldMessenger.of(context).showSnackBar(
+                                        if (!scheduleResult.success ||
+                                            scheduleResult.data == null) {
+                                          ScaffoldMessenger.of(
+                                            context,
+                                          ).showSnackBar(
                                             SnackBar(
                                               content: Text(
                                                 'Failed to get schedule: ${scheduleResult.message}',
                                               ),
                                               backgroundColor: Colors.red,
-                                              behavior: SnackBarBehavior.floating,
+                                              behavior:
+                                                  SnackBarBehavior.floating,
                                             ),
                                           );
                                           setState(() {
@@ -1686,8 +1712,11 @@ class _SelectTypeWithErrorHandlingState
                                           return;
                                         }
 
-                                        final scheduleData = scheduleResult.data as Map<String, dynamic>;
-                                        final scheduleId = scheduleData['scheduleId'] as int;
+                                        final scheduleData =
+                                            scheduleResult.data
+                                                as Map<String, dynamic>;
+                                        final scheduleId =
+                                            scheduleData['scheduleId'] as int;
 
                                         MedicationReminderRequest
                                         medicationRequest =
@@ -2106,10 +2135,14 @@ class _SelectTypeWithErrorHandlingState
                                 try {
                                   // Check if patient ID is available
                                   if (widget.patientId == null) {
-                                    Navigator.pop(context); // Close loading dialog
+                                    Navigator.pop(
+                                      context,
+                                    ); // Close loading dialog
                                     ScaffoldMessenger.of(context).showSnackBar(
                                       SnackBar(
-                                        content: Text('Patient information not available'),
+                                        content: Text(
+                                          'Patient information not available',
+                                        ),
                                         backgroundColor: Colors.red,
                                       ),
                                     );
@@ -2122,13 +2155,17 @@ class _SelectTypeWithErrorHandlingState
 
                                   // Get or create schedule for the selected date
                                   final scheduleResult =
-                                      await ScheduleAPI.ScheduleService.getOrCreateSchedule(
-                                    widget.patientId!,
-                                    formattedDate,
-                                  );
+                                      await ScheduleAPI
+                                          .ScheduleService.getOrCreateSchedule(
+                                        widget.patientId!,
+                                        formattedDate,
+                                      );
 
-                                  if (!scheduleResult.success || scheduleResult.data == null) {
-                                    Navigator.pop(context); // Close loading dialog
+                                  if (!scheduleResult.success ||
+                                      scheduleResult.data == null) {
+                                    Navigator.pop(
+                                      context,
+                                    ); // Close loading dialog
                                     ScaffoldMessenger.of(context).showSnackBar(
                                       SnackBar(
                                         content: Text(
@@ -2140,19 +2177,25 @@ class _SelectTypeWithErrorHandlingState
                                     return;
                                   }
 
-                                  final scheduleData = scheduleResult.data as Map<String, dynamic>;
-                                  final scheduleId = scheduleData['scheduleId'] as int;
+                                  final scheduleData =
+                                      scheduleResult.data
+                                          as Map<String, dynamic>;
+                                  final scheduleId =
+                                      scheduleData['scheduleId'] as int;
 
                                   // Format time for backend (HH:mm)
                                   String formattedTime =
                                       '${_selectedTime!.hour.toString().padLeft(2, '0')}:${_selectedTime!.minute.toString().padLeft(2, '0')}';
 
                                   // Create appointment
-                                  AppointmentRequest appointmentRequest = AppointmentRequest(
+                                  AppointmentRequest
+                                  appointmentRequest = AppointmentRequest(
                                     taskName: _taskNameController.text.trim(),
                                     hospital: _hospitalController.text.trim(),
-                                    doctorName: _doctorNameController.text.trim(),
-                                    description: _descriptionController.text.trim(),
+                                    doctorName: _doctorNameController.text
+                                        .trim(),
+                                    description: _descriptionController.text
+                                        .trim(),
                                     date: formattedDate,
                                     time: formattedTime,
                                   );

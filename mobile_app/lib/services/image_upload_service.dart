@@ -2,29 +2,43 @@ import 'dart:convert';
 import 'dart:io';
 import 'package:http/http.dart' as http;
 import 'api_constants.dart';
+import 'package:image_picker/image_picker.dart';
 
 class ImageUploadService {
   static final String uploadUrl = '${ApiConstants.baseUrl}/api/upload';
 
-  static Future<ImageUploadResult> uploadImage(File imageFile) async {
+  /// Upload image (mobile only)
+  static Future<ImageUploadResult> uploadImage(
+    dynamic imageFile, {
+    String type = 'profile',
+  }) async {
     try {
       // Create multipart request
       var request = http.MultipartRequest(
         'POST',
-        Uri.parse('$uploadUrl/image'),
+        Uri.parse('$uploadUrl/image?type=$type'),
       );
 
-      // Add the image file
-      var stream = http.ByteStream(imageFile.openRead());
-      var length = await imageFile.length();
-      var multipartFile = http.MultipartFile(
-        'image',
-        stream,
-        length,
-        filename: 'volunteer_id_${DateTime.now().millisecondsSinceEpoch}.jpg',
-      );
+      // Generate filename
+      String filename = '${type}_${DateTime.now().millisecondsSinceEpoch}.jpg';
 
-      request.files.add(multipartFile);
+      // Support both File and XFile
+      if (imageFile is File) {
+        var multipartFile = await http.MultipartFile.fromPath(
+          'image',
+          imageFile.path,
+          filename: filename,
+        );
+        request.files.add(multipartFile);
+      } else if (imageFile is XFile) {
+        // Support XFile from image_picker
+        var multipartFile = await http.MultipartFile.fromPath(
+          'image',
+          imageFile.path,
+          filename: filename,
+        );
+        request.files.add(multipartFile);
+      }
 
       // Send the request
       var response = await request.send();
@@ -32,9 +46,15 @@ class ImageUploadService {
 
       if (response.statusCode == 200 || response.statusCode == 201) {
         final data = jsonDecode(responseData);
+        // Construct full URL if imageUrl is relative
+        String imageUrl = data['imageUrl'];
+        if (!imageUrl.startsWith('http')) {
+          imageUrl = '${ApiConstants.baseUrl}/api$imageUrl';
+        }
+
         return ImageUploadResult(
           success: true,
-          imageUrl: data['imageUrl'],
+          imageUrl: imageUrl,
           message: 'Image uploaded successfully',
         );
       } else {
@@ -42,11 +62,13 @@ class ImageUploadService {
         return ImageUploadResult(
           success: false,
           message:
+              errorData['message'] ??
               errorData['error'] ??
               'Failed to upload image: ${response.statusCode}',
         );
       }
     } catch (e) {
+      print('Error uploading image: $e');
       return ImageUploadResult(
         success: false,
         message: 'Error uploading image: $e',
