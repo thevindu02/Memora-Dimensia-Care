@@ -10,7 +10,8 @@ import '../../services/auth_service.dart';
 import '../../services/article_service.dart';
 
 class VolunteerCreateContentScreen extends StatelessWidget {
-  const VolunteerCreateContentScreen({Key? key}) : super(key: key);
+  final int volunteerId;
+  const VolunteerCreateContentScreen({Key? key, required this.volunteerId}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -152,7 +153,10 @@ class VolunteerCreateContentScreen extends StatelessWidget {
           ],
         ),
       ),
-      bottomNavigationBar: VolunteerBottomNavigation(currentPage: 'content'),
+      bottomNavigationBar: VolunteerBottomNavigation(
+        currentPage: 'home',
+        volunteerId: volunteerId, // <-- Use volunteerId here
+      ),
     );
   }
 

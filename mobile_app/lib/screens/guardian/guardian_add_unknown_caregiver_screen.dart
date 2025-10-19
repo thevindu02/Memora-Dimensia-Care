@@ -2,8 +2,10 @@ import 'package:flutter/material.dart';
 import '../../routes/app_routes.dart';
 import '../../services/caregiver_service.dart';
 import '../../services/guardian_service.dart';
+import '../../services/chat_db.dart';
 import '../../constants/color_constants.dart';
 import '../../utils/name_utils.dart';
+import '../../services/auth_service.dart';
 
 class GuardianAddUnknownCaregiverScreen extends StatefulWidget {
   @override
@@ -349,7 +351,7 @@ class _GuardianAddUnknownCaregiverScreenState
     }
   }
 
-  void _viewProfile(Map<String, dynamic> caregiver) {
+  void _viewProfile(Map<String, dynamic> caregiver) async {
     // Auto-generate description if empty
     String description = caregiver['description'] ?? '';
     if (description.trim().isEmpty) {
@@ -365,6 +367,27 @@ class _GuardianAddUnknownCaregiverScreenState
       if (skills.isNotEmpty) description += ', skilled in $skills';
       description += '.';
     }
+
+    // Resolve caregiver id robustly
+    final int? caregiverId = caregiver['id'] ??
+        caregiver['caregiverId'] ??
+        caregiver['caregiver_id'];
+
+    // Fetch reviews before showing dialog
+    List<Map<String, dynamic>> reviews = [];
+    bool reviewsFetchError = false;
+    if (caregiverId != null) {
+      try {
+        final fetched = await CaregiverService.getCaregiverReviews(caregiverId);
+        // normalize to List<Map<String, dynamic>>
+        reviews = fetched.map<Map<String, dynamic>>((r) => Map<String, dynamic>.from(r)).toList();
+      } catch (e) {
+        reviewsFetchError = true;
+        reviews = [];
+        print('Failed to load caregiver reviews: $e');
+      }
+    }
+
     showDialog(
       context: context,
       builder: (BuildContext context) {
@@ -463,8 +486,93 @@ class _GuardianAddUnknownCaregiverScreenState
                     description,
                     style: TextStyle(fontSize: 14, color: Colors.grey[600]),
                   ),
-                  SizedBox(height: 24),
-                  // Removed action buttons; only X closes the dialog
+                  SizedBox(height: 18),
+
+                  // Reviews section
+                  Text(
+                    'Reviews',
+                    style: TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.bold,
+                      color: AppColors.info,
+                    ),
+                  ),
+                  SizedBox(height: 8),
+
+                  if (caregiverId == null)
+                    Padding(
+                      padding: const EdgeInsets.symmetric(vertical: 8.0),
+                      child: Text(
+                        'Caregiver ID not available; cannot load reviews.',
+                        style: TextStyle(color: Colors.red[700]),
+                      ),
+                    )
+                  else if (reviewsFetchError)
+                    Padding(
+                      padding: const EdgeInsets.symmetric(vertical: 8.0),
+                      child: Text(
+                        'Failed to load reviews.',
+                        style: TextStyle(color: Colors.red[700]),
+                      ),
+                    )
+                  else if (reviews.isEmpty)
+                    Padding(
+                      padding: const EdgeInsets.symmetric(vertical: 8.0),
+                      child: Text(
+                        'No reviews yet',
+                        style: TextStyle(color: Colors.grey[700]),
+                      ),
+                    )
+                  else
+                    Column(
+                      children: reviews.map((r) {
+                        final rating = r['rating'] ?? r['rating_value'] ?? r['score'] ?? 0;
+                        final reviewText = (r['review_text'] ?? r['reviewText'] ?? r['text'] ?? r['comment'] ?? '').toString().trim();
+                        final createdAt = r['created_at'] ?? r['createdAt'] ?? r['date'] ?? '';
+                        return Container(
+                          width: double.infinity,
+                          margin: EdgeInsets.only(top: 8, bottom: 8),
+                          padding: EdgeInsets.all(12),
+                          decoration: BoxDecoration(
+                            color: Colors.white,
+                            borderRadius: BorderRadius.circular(8),
+                            border: Border.all(color: Colors.grey.withOpacity(0.12)),
+                          ),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Row(
+                                children: [
+                                  Row(
+                                    children: List.generate(5, (i) {
+                                      return Icon(
+                                        i < (rating is num ? rating.toInt() : 0)
+                                            ? Icons.star
+                                            : Icons.star_border,
+                                        color: Colors.amber,
+                                        size: 16,
+                                      );
+                                    }),
+                                  ),
+                                  SizedBox(width: 8),
+                                  Text(
+                                    createdAt.toString(),
+                                    style: TextStyle(fontSize: 12, color: Colors.grey[600]),
+                                  ),
+                                ],
+                              ),
+                              SizedBox(height: 8),
+                              Text(
+                                reviewText.isNotEmpty ? reviewText : 'No review text',
+                                style: TextStyle(fontSize: 14, color: Colors.grey[800]),
+                              ),
+                            ],
+                          ),
+                        );
+                      }).toList(),
+                    ),
+
+                  SizedBox(height: 8),
                 ],
               ),
             ),
@@ -630,8 +738,23 @@ class _GuardianAddUnknownCaregiverScreenState
             ),
             Column(
               children: [
+                // Messages button
                 ElevatedButton(
-                  onPressed: () => _viewProfile(caregiver),
+                  onPressed: () async {
+                    final partnerId = caregiver['id'] ?? caregiver['caregiverId'] ?? caregiver['user_id'] ?? caregiver['userId'];
+                    final currentUserId = await AuthService.getCurrentUserId();
+                    if (currentUserId == null) return;
+                    Navigator.pushNamed(
+                      context,
+                      AppRoutes.chatConversation,
+                      arguments: {
+                        'id': partnerId,
+                        'name': NameUtils.formatPatientName(caregiver),
+                        'currentUser': 'guardian',
+                        'currentUserId': currentUserId,
+                      },
+                    );
+                  },
                   style: ElevatedButton.styleFrom(
                     backgroundColor: AppColors.primaryLight,
                     foregroundColor: AppColors.info,
@@ -640,34 +763,46 @@ class _GuardianAddUnknownCaregiverScreenState
                       borderRadius: BorderRadius.circular(8),
                     ),
                   ),
-                  child: Text(
-                    'View Profile',
-                    style: TextStyle(fontSize: 12, fontWeight: FontWeight.w600),
-                  ),
+                  child: Text('Chat', style: TextStyle(fontSize: 12, fontWeight: FontWeight.w600)),
                 ),
-                SizedBox(height: 8),
-                ElevatedButton(
-                  onPressed: () => _showConnectionRequestDialog(caregiver),
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: AppColors.primaryLight,
-                    foregroundColor: AppColors.info,
-                    padding: EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(8),
-                    ),
-                  ),
-                  child: Text(
-                    'Send Request',
-                    style: TextStyle(fontSize: 12, fontWeight: FontWeight.w600),
-                  ),
-                ),
-              ],
-            ),
-          ],
-        ),
-      ),
-    );
-  }
+                 ElevatedButton(
+                   onPressed: () => _viewProfile(caregiver),
+                   style: ElevatedButton.styleFrom(
+                     backgroundColor: AppColors.primaryLight,
+                     foregroundColor: AppColors.info,
+                     padding: EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                     shape: RoundedRectangleBorder(
+                       borderRadius: BorderRadius.circular(8),
+                     ),
+                   ),
+                   child: Text(
+                     'View Profile',
+                     style: TextStyle(fontSize: 12, fontWeight: FontWeight.w600),
+                   ),
+                 ),
+                 SizedBox(height: 8),
+                 ElevatedButton(
+                   onPressed: () => _showConnectionRequestDialog(caregiver),
+                   style: ElevatedButton.styleFrom(
+                     backgroundColor: AppColors.primaryLight,
+                     foregroundColor: AppColors.info,
+                     padding: EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                     shape: RoundedRectangleBorder(
+                       borderRadius: BorderRadius.circular(8),
+                     ),
+                   ),
+                   child: Text(
+                     'Send Request',
+                     style: TextStyle(fontSize: 12, fontWeight: FontWeight.w600),
+                   ),
+                 ),
+               ],
+             ),
+           ],
+         ),
+       ),
+     );
+   }
 
   @override
   Widget build(BuildContext context) {
@@ -689,6 +824,18 @@ class _GuardianAddUnknownCaregiverScreenState
         ),
         backgroundColor: AppColors.surface,
         iconTheme: IconThemeData(color: Colors.black),
+        actions: [
+          TextButton(
+            onPressed: () {
+              Navigator.pushNamed(context, AppRoutes.guardianChatHistory);
+            },
+            style: TextButton.styleFrom(
+              foregroundColor: Colors.black87,
+              padding: EdgeInsets.symmetric(horizontal: 16),
+            ),
+            child: Text('Meesseges'), // label as requested
+          ),
+        ],
       ),
       body: Padding(
         padding: EdgeInsets.all(16),

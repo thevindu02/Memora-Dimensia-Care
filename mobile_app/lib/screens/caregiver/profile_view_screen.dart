@@ -15,6 +15,7 @@ class _CaregiverProfileScreenState extends State<CaregiverProfileScreen> {
   int _currentIndex = 3; // Profile tab index
   bool _isEditing = false;
   bool _isLoading = false;
+  bool _isLoadingReviews = false;
   File? _profileImage;
   File? _originalProfileImage;
   final ImagePicker _imagePicker = ImagePicker();
@@ -55,6 +56,9 @@ class _CaregiverProfileScreenState extends State<CaregiverProfileScreen> {
   String _originalQualifications = 'Nursing, CPR Certified';
   String _originalSkills = 'Elder Care, Medical Care, Cooking';
 
+  // Reviews
+  List<Map<String, dynamic>> _reviews = [];
+
   bool _showCurrentPassword = false;
   bool _showNewPassword = false;
   bool _showConfirmPassword = false;
@@ -67,6 +71,7 @@ class _CaregiverProfileScreenState extends State<CaregiverProfileScreen> {
   void initState() {
     super.initState();
     _fetchCaregiverProfile();
+    _fetchReviews();
   }
 
   Future<void> _fetchCaregiverProfile() async {
@@ -134,6 +139,23 @@ class _CaregiverProfileScreenState extends State<CaregiverProfileScreen> {
       });
       _updateNameDisplay();
     }
+  }
+
+  Future<void> _fetchReviews() async {
+    setState(() {
+      _isLoadingReviews = true;
+    });
+    try {
+      final caregiverId = await AuthService.getCurrentCaregiverId();
+      if (caregiverId != null) {
+        _reviews = await CaregiverService.getCaregiverReviews(caregiverId);
+      }
+    } catch (e) {
+      _reviews = [];
+    }
+    setState(() {
+      _isLoadingReviews = false;
+    });
   }
 
   @override
@@ -993,6 +1015,71 @@ class _CaregiverProfileScreenState extends State<CaregiverProfileScreen> {
                     ),
 
                     SizedBox(height: 24),
+
+                    // Reviews Section
+                    Container(
+                      color: Colors.white,
+                      padding: EdgeInsets.all(20),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            'Reviews',
+                            style: TextStyle(
+                              fontSize: 18,
+                              fontWeight: FontWeight.w600,
+                              color: Colors.black87,
+                            ),
+                          ),
+                          SizedBox(height: 16),
+                          if (_isLoadingReviews)
+                            Center(child: CircularProgressIndicator())
+                          else if (_reviews.isEmpty)
+                            Padding(
+                              padding: EdgeInsets.all(20),
+                              child: Text('No reviews yet.', style: TextStyle(color: Colors.grey)),
+                            )
+                          else
+                            Padding(
+                              padding: EdgeInsets.all(20),
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text('Reviews', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+                                  SizedBox(height: 12),
+                                  ..._reviews.map((review) => Card(
+                                    margin: EdgeInsets.only(bottom: 12),
+                                    child: ListTile(
+                                      title: Text(review['guardianName'] ?? 'Guardian'),
+                                      subtitle: Column(
+                                        crossAxisAlignment: CrossAxisAlignment.start,
+                                        children: [
+                                          Row(
+                                            children: List.generate(5, (i) => Icon(
+                                              Icons.star,
+                                              color: i < (review['rating'] ?? 0) ? Colors.amber : Colors.grey[300],
+                                              size: 18,
+                                            )),
+                                          ),
+                                          SizedBox(height: 4),
+                                          Text(review['reviewText'] ?? ''),
+                                          SizedBox(height: 4),
+                                          Text(
+                                            review['createdAt'] != null
+                                                ? DateTime.parse(review['createdAt']).toLocal().toString().split('.')[0]
+                                                : '',
+                                            style: TextStyle(fontSize: 12, color: Colors.grey),
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+                                  )),
+                                ],
+                              ),
+                            ),
+                        ],
+                      ),
+                    ),
                   ],
                 ),
               ),

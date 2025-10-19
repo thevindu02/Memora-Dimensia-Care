@@ -9,7 +9,8 @@ import 'package:image_picker/image_picker.dart';
 import 'dart:io';
 
 class VolunteerProfileScreen extends StatefulWidget {
-  const VolunteerProfileScreen({Key? key}) : super(key: key);
+  final int volunteerId;
+  const VolunteerProfileScreen({Key? key, required this.volunteerId}) : super(key: key);
 
   @override
   State<VolunteerProfileScreen> createState() => _VolunteerProfileScreenState();
@@ -151,7 +152,8 @@ class _VolunteerProfileScreenState extends State<VolunteerProfileScreen> {
 
   @override
   void dispose() {
-    _fullNameController.dispose();
+    _firstNameController.dispose();
+    _lastNameController.dispose();
     _emailController.dispose();
     _phoneController.dispose();
     _genderController.dispose();
@@ -163,6 +165,27 @@ class _VolunteerProfileScreenState extends State<VolunteerProfileScreen> {
     _newPasswordController.dispose();
     _confirmPasswordController.dispose();
     super.dispose();
+  }
+
+  Future<void> _loadVolunteerProfile() async {
+    setState(() => _isLoading = true);
+    final data = await VolunteerService.getVolunteerProfile(widget.volunteerId);
+    if (data != null) {
+      setState(() {
+        _firstNameController.text = data['FName'] ?? data['f_name'] ?? data['fname'] ?? '';
+        _lastNameController.text = data['LName'] ?? data['l_name'] ?? data['lname'] ?? '';
+        _emailController.text = data['email'] ?? '';
+        _phoneController.text = data['phoneNumber'] ?? data['phone_number'] ?? '';
+        _genderController.text = data['gender'] ?? '';
+        _originalName = '${data['FName']} ${data['LName']}';
+        _originalEmail = _emailController.text;
+        _originalPhone = _phoneController.text;
+        _originalGender = _genderController.text;
+        _isLoading = false;
+      });
+    } else {
+      setState(() => _isLoading = false);
+    }
   }
 
   // Image picker functions
@@ -337,7 +360,8 @@ class _VolunteerProfileScreenState extends State<VolunteerProfileScreen> {
   void _cancelEdit() {
     // Reset to original values but STAY in editing mode
     setState(() {
-      _fullNameController.text = _originalName;
+      _firstNameController.text = _originalName.split(' ').first;
+      _lastNameController.text = _originalName.split(' ').length > 1 ? _originalName.split(' ').sublist(1).join(' ') : '';
       _emailController.text = _originalEmail;
       _phoneController.text = _originalPhone;
       _genderController.text = _originalGender;
@@ -872,19 +896,13 @@ class _VolunteerProfileScreenState extends State<VolunteerProfileScreen> {
                       SizedBox(height: 24),
                     ],
 
-                    _buildTextField(
-                      controller: _fullNameController,
-                      label: 'Full Name',
-                      icon: Icons.person,
-                      originalValue: _originalName,
-                      fieldName: 'name',
-                      validator: (value) {
-                        if (value == null || value.isEmpty) {
-                          return 'Please enter your full name';
-                        }
-                        return null;
-                      },
-                    ),
+                  _buildTextField(
+                    controller: _fullNameController,
+                    label: 'Full Name',
+                    icon: Icons.person,
+                    originalValue: _originalName,
+                    fieldName: 'name',
+                  ),
 
                     _buildTextField(
                       controller: _emailController,
@@ -1155,7 +1173,10 @@ class _VolunteerProfileScreenState extends State<VolunteerProfileScreen> {
           ],
         ),
       ),
-      bottomNavigationBar: VolunteerBottomNavigation(currentPage: 'profile'),
+      bottomNavigationBar: VolunteerBottomNavigation(
+        currentPage: 'profile',
+        volunteerId: widget.volunteerId, // <-- Pass volunteerId here
+      ),
     );
   }
 }

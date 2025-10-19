@@ -1,23 +1,6 @@
 package Memora.DimensiaCareApplication.controller;
 
-import java.time.LocalDate;
-import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
-
+import Memora.DimensiaCareApplication.dto.response.CaregiverSummaryResponse;
 import Memora.DimensiaCareApplication.dto.request.GuardianProfileUpdateRequest;
 import Memora.DimensiaCareApplication.dto.response.GuardianDetailsResponse;
 import Memora.DimensiaCareApplication.model.Caregiver;
@@ -31,6 +14,16 @@ import Memora.DimensiaCareApplication.repository.GuardianRepository;
 import Memora.DimensiaCareApplication.repository.PatientRepository;
 import Memora.DimensiaCareApplication.repository.UserRepository;
 import Memora.DimensiaCareApplication.service.GuardianService;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
+
+import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import Memora.DimensiaCareApplication.service.GmailEmailService;
 import Memora.DimensiaCareApplication.model.GuardianConnectionRequest;
 import Memora.DimensiaCareApplication.repository.GuardianConnectionRequestRepository;
@@ -64,11 +57,10 @@ public class GuardianController {
     @GetMapping("/by-user/{userId}")
     public ResponseEntity<Long> getGuardianIdByUserId(@PathVariable Long userId) {
         Guardian guardian = guardianRepository.findByUser_Id(userId);
-        if (guardian != null) {
-            return ResponseEntity.ok(guardian.getGuardianId());
-        } else {
+        if (guardian == null) {
             return ResponseEntity.notFound().build();
         }
+        return ResponseEntity.ok(guardian.getGuardianId());
     }
 
     @GetMapping("/{guardianId}")
@@ -191,7 +183,8 @@ public class GuardianController {
         if (exists) {
             return ResponseEntity.badRequest().body("A pending request already exists.");
         }
-        GuardianPatientCaregiverConnection connection = guardianService.sendCaregiverConnectionRequest(guardianId, patientId, caregiverId);
+        GuardianPatientCaregiverConnection connection = guardianService.sendCaregiverConnectionRequest(guardianId,
+                patientId, caregiverId);
         return ResponseEntity.ok(connection);
     }
 
@@ -311,6 +304,18 @@ public class GuardianController {
         }
     }
 
+    @GetMapping("/{guardianId}/expired-caregivers")
+    public ResponseEntity<List<CaregiverSummaryResponse>> getExpiredCaregivers(@PathVariable("guardianId") Long guardianId) {
+        List<CaregiverSummaryResponse> caregivers = guardianService.getExpiredCaregiversForGuardian(guardianId);
+        return ResponseEntity.ok(caregivers);
+    }
+
+    @GetMapping("/{guardianId}/all-caregivers")
+    public ResponseEntity<List<CaregiverSummaryResponse>> getAllCaregiversForGuardian(@PathVariable("guardianId") Long guardianId) {
+        List<CaregiverSummaryResponse> caregivers = guardianService.getAllCaregiversForGuardian(guardianId);
+        return ResponseEntity.ok(caregivers);
+    }
+        
     @PostMapping("/send-guardian-connection-email")
     public ResponseEntity<?> sendGuardianConnectionEmail(@RequestBody Map<String, Object> request) {
         try {
