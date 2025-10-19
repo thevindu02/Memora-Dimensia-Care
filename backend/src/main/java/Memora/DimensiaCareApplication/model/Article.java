@@ -1,5 +1,6 @@
 
 package Memora.DimensiaCareApplication.model;
+
 import java.time.LocalDateTime;
 
 import jakarta.persistence.*;
@@ -10,7 +11,7 @@ public class Article {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "article_id")
-    private Long articleId;
+    private Integer articleId;
 
     @Column(name = "volunteer_id")
     private Integer volunteerId;
@@ -29,13 +30,13 @@ public class Article {
 
     @Column(name = "tagname")
     private String tagname;
-    
+
     @Column(name = "img")
     private String img;
-    
+
     @Column(name = "firebase_doc_id")
     private String firebaseDocId;
-    
+
     @Column(name = "created_at")
     private LocalDateTime createdAt;
 
@@ -43,11 +44,11 @@ public class Article {
         this.createdAt = LocalDateTime.now();
     }
 
-    public Long getArticleId() {
+    public Integer getArticleId() {
         return articleId;
     }
 
-    public void setArticleId(Long articleId) {
+    public void setArticleId(Integer articleId) {
         this.articleId = articleId;
     }
 
