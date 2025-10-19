@@ -34,7 +34,7 @@ public class PatientController {
     public ResponseEntity<List<PatientDetailsResponse>> getPatientsByGuardian(@PathVariable Long guardianId) {
         List<Patient> patients = patientService.getPatientsByGuardian(guardianId);
         List<PatientDetailsResponse> response = patients.stream()
-                .map(PatientDetailsResponse::fromPatient)
+                .map(patient -> patientService.getPatientDetailsWithAcceptedDate(patient.getPatientID()))
                 .collect(Collectors.toList());
         return ResponseEntity.ok(response);
     }

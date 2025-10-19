@@ -3,9 +3,11 @@ package Memora.DimensiaCareApplication.service;
 import Memora.DimensiaCareApplication.model.Patient;
 import Memora.DimensiaCareApplication.model.User;
 import Memora.DimensiaCareApplication.model.Guardian;
+import Memora.DimensiaCareApplication.model.Caregiver;
 import Memora.DimensiaCareApplication.repository.PatientRepository;
 import Memora.DimensiaCareApplication.repository.UserRepository;
 import Memora.DimensiaCareApplication.repository.GuardianRepository;
+import Memora.DimensiaCareApplication.repository.CaregiverRepository;
 import Memora.DimensiaCareApplication.repository.GuardianPatientCaregiverConnectionRepository;
 import Memora.DimensiaCareApplication.model.GuardianPatientCaregiverConnection;
 import Memora.DimensiaCareApplication.dto.response.PatientDetailsResponse;
@@ -28,6 +30,9 @@ public class PatientService {
 
     @Autowired
     private GuardianPatientCaregiverConnectionRepository connectionRepository;
+    
+    @Autowired
+    private CaregiverRepository caregiverRepository;
 
     public Patient addPatient(Patient patient, Long userId, Long guardianId) {
         User user = userRepository.findById(userId)
@@ -63,7 +68,31 @@ public class PatientService {
             .findFirst().orElse(null);
         if (acceptedConn != null && acceptedConn.getConnectedDateTime() != null) {
             resp.setAcceptedDate(acceptedConn.getConnectedDateTime().toString());
+            // Add caregiver information if available
+            if (acceptedConn.getCaregiverId() != null) {
+                addCaregiverInfo(resp, acceptedConn.getCaregiverId());
+            }
         }
         return resp;
+    }
+    
+    // Helper method to add caregiver information to the response
+    private void addCaregiverInfo(PatientDetailsResponse resp, Long caregiverId) {
+        try {
+            // caregiverId is the caregiver's ID, not the user ID
+            // We need to fetch the Caregiver entity first, then get the User from it
+            Caregiver caregiver = caregiverRepository.findById(caregiverId.intValue()).orElse(null);
+            if (caregiver != null && caregiver.getUser() != null) {
+                User caregiverUser = caregiver.getUser();
+                resp.setCaregiverId(caregiverId);
+                resp.setCaregiverName(caregiverUser.getFName() + " " + caregiverUser.getLName());
+                resp.setCaregiverEmail(caregiverUser.getEmail());
+                resp.setCaregiverPhone(caregiverUser.getPhoneNumber());
+                resp.setCaregiverCity(caregiverUser.getCity());
+            }
+        } catch (Exception e) {
+            // Silently fail if caregiver info is not available
+            System.err.println("Error fetching caregiver info: " + e.getMessage());
+        }
     }
 }

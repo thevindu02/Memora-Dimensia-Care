@@ -32,6 +32,13 @@ public class PatientDetailsResponse {
     private String guardianPhone;
     private String guardianCity;
     
+    // Caregiver details
+    private Long caregiverId;
+    private String caregiverName;
+    private String caregiverEmail;
+    private String caregiverPhone;
+    private String caregiverCity;
+    
     // Relationship
     private String relationship;
 
@@ -252,4 +259,15 @@ public class PatientDetailsResponse {
     public void setPatientAge(Integer patientAge) { this.patientAge = patientAge; }
     public String getAcceptedDate() { return acceptedDate; }
     public void setAcceptedDate(String acceptedDate) { this.acceptedDate = acceptedDate; }
+    
+    public Long getCaregiverId() { return caregiverId; }
+    public void setCaregiverId(Long caregiverId) { this.caregiverId = caregiverId; }
+    public String getCaregiverName() { return caregiverName; }
+    public void setCaregiverName(String caregiverName) { this.caregiverName = caregiverName; }
+    public String getCaregiverEmail() { return caregiverEmail; }
+    public void setCaregiverEmail(String caregiverEmail) { this.caregiverEmail = caregiverEmail; }
+    public String getCaregiverPhone() { return caregiverPhone; }
+    public void setCaregiverPhone(String caregiverPhone) { this.caregiverPhone = caregiverPhone; }
+    public String getCaregiverCity() { return caregiverCity; }
+    public void setCaregiverCity(String caregiverCity) { this.caregiverCity = caregiverCity; }
 }
