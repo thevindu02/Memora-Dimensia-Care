@@ -10,16 +10,16 @@ const articlesData = [
   { id: 8, title: 'Exercise and Physical Activity for Memory Health', author: 'Physiotherapist Malini Dissanayake', category: 'Exercise', status: 'Published', publishDate: '2025-07-13', type: 'article' }
 ];
 
-const blogPostsData = [
-  { id: 1, title: 'Understanding Alzheimer\'s Disease', subject: 'Health Education', postedBy: 'Dr. Sarah Johnson', date: '2025-07-19', status: 'Pending', type: 'blog' },
-  { id: 2, title: 'Managing Dementia Symptoms', subject: 'Care Tips', postedBy: 'Nurse Mary Davis', date: '2025-07-19', status: 'Pending', type: 'blog' },
-  { id: 3, title: 'Family Support Guide', subject: 'Family Care', postedBy: 'Dr. Michael Wilson', date: '2025-07-18', status: 'Posted', type: 'blog' },
-  { id: 4, title: 'Memory Exercises for Seniors', subject: 'Activities', postedBy: 'Therapist Lisa Brown', date: '2025-07-17', status: 'Posted', type: 'blog' },
-  { id: 5, title: 'Nutrition for Brain Health', subject: 'Health Education', postedBy: 'Dr. James Miller', date: '2025-07-16', status: 'Rejected', type: 'blog' },
-  { id: 6, title: 'Early Signs of Dementia', subject: 'Health Education', postedBy: 'Dr. Sarah Johnson', date: '2025-07-15', status: 'Posted', type: 'blog' },
-  { id: 7, title: 'Caregiver Stress Management', subject: 'Care Tips', postedBy: 'Counselor Anna Lee', date: '2025-07-14', status: 'Pending', type: 'blog' },
-  { id: 8, title: 'Safe Home Environment', subject: 'Safety', postedBy: 'Dr. Robert Taylor', date: '2025-07-13', status: 'Posted', type: 'blog' }
-];
+// const blogPostsData = [
+//   { id: 1, title: 'Understanding Alzheimer\'s Disease', subject: 'Health Education', postedBy: 'Dr. Sarah Johnson', date: '2025-07-19', status: 'Pending', type: 'blog' },
+//   { id: 2, title: 'Managing Dementia Symptoms', subject: 'Care Tips', postedBy: 'Nurse Mary Davis', date: '2025-07-19', status: 'Pending', type: 'blog' },
+//   { id: 3, title: 'Family Support Guide', subject: 'Family Care', postedBy: 'Dr. Michael Wilson', date: '2025-07-18', status: 'Posted', type: 'blog' },
+//   { id: 4, title: 'Memory Exercises for Seniors', subject: 'Activities', postedBy: 'Therapist Lisa Brown', date: '2025-07-17', status: 'Posted', type: 'blog' },
+//   { id: 5, title: 'Nutrition for Brain Health', subject: 'Health Education', postedBy: 'Dr. James Miller', date: '2025-07-16', status: 'Rejected', type: 'blog' },
+//   { id: 6, title: 'Early Signs of Dementia', subject: 'Health Education', postedBy: 'Dr. Sarah Johnson', date: '2025-07-15', status: 'Posted', type: 'blog' },
+//   { id: 7, title: 'Caregiver Stress Management', subject: 'Care Tips', postedBy: 'Counselor Anna Lee', date: '2025-07-14', status: 'Pending', type: 'blog' },
+//   { id: 8, title: 'Safe Home Environment', subject: 'Safety', postedBy: 'Dr. Robert Taylor', date: '2025-07-13', status: 'Posted', type: 'blog' }
+// ];
 
 const patientsData = [
   { id: 1, name: 'John Doe', age: 72, registeredDate: '2025-07-19', type: 'patient' },
@@ -64,7 +64,7 @@ export const getDateBasedStats = (selectedDate) => {
   const patientsCount = patientsData.filter(patient => patient.registeredDate === dateString).length;
   const caregiversCount = caregiversData.filter(caregiver => caregiver.joinDate === dateString).length;
   const volunteersCount = volunteersData.filter(volunteer => volunteer.joinDate === dateString).length;
-  const blogPostsCount = blogPostsData.filter(blog => blog.date === dateString).length;
+  // const blogPostsCount = blogPostsData.filter(blog => blog.date === dateString).length;
   const articlesCount = articlesData.filter(article => article.publishDate === dateString).length;
   const videosCount = videosData.filter(video => video.uploadDate === dateString).length;
 
@@ -72,7 +72,7 @@ export const getDateBasedStats = (selectedDate) => {
     { number: patientsCount, label: 'New Patients', icon: '👥' },
     { number: caregiversCount, label: 'New Caregivers', icon: '👩‍⚕️' },
     { number: volunteersCount, label: 'New Volunteers', icon: '🤝' },
-    { number: blogPostsCount, label: 'Blog Posts', icon: '📝' },
+    // { number: blogPostsCount, label: 'Blog Posts', icon: '📝' },
     { number: articlesCount, label: 'Articles', icon: '📄' },
     { number: videosCount, label: 'Videos', icon: '🎬' }
   ];
@@ -83,7 +83,7 @@ export const getTotalStats = () => {
     { number: patientsData.length, label: 'Total Patients', icon: '👥' },
     { number: caregiversData.length, label: 'Total Caregivers', icon: '👩‍⚕️' },
     { number: volunteersData.length, label: 'Total Volunteers', icon: '🤝' },
-    { number: blogPostsData.length, label: 'Total Blog Posts', icon: '📝' },
+    // { number: blogPostsData.length, label: 'Total Blog Posts', icon: '📝' },
     { number: articlesData.length, label: 'Total Articles', icon: '📄' },
     { number: videosData.length, label: 'Total Videos', icon: '🎬' }
   ];
@@ -135,15 +135,15 @@ export const getActivitiesForDate = (selectedDate) => {
     }
   });
   
-  blogPostsData.forEach(blog => {
-    if (blog.date === dateString) {
-      activities.push({
-        type: 'blog_posted',
-        title: `Blog post created: ${blog.title}`,
-        time: '03:30 PM'
-      });
-    }
-  });
+  // blogPostsData.forEach(blog => {
+  //   if (blog.date === dateString) {
+  //     activities.push({
+  //       type: 'blog_posted',
+  //       title: `Blog post created: ${blog.title}`,
+  //       time: '03:30 PM'
+  //     });
+  //   }
+  // });
   
   videosData.forEach(video => {
     if (video.uploadDate === dateString) {

@@ -4,7 +4,7 @@ import AuthWrapper from './components/AuthWrapper';
 import Dashboard from './pages/Dashboard';
 import Patients from './pages/Patients';
 import Caregiver from './pages/Caregiver';
-import BlogPost from './pages/BlogPost';
+// import BlogPost from './pages/BlogPost';
 import RevenueAnalytics from './pages/RevenueAnalytics';
 import UsageReport from './pages/UsageReport';
 import VolunteerEngagement from './pages/VolunteerEngagement';
@@ -25,7 +25,7 @@ function App() {
           <Route path="/" element={<AuthWrapper><Dashboard /></AuthWrapper>} />
           <Route path="/patients" element={<AuthWrapper><Patients /></AuthWrapper>} />
           <Route path="/caregiver" element={<AuthWrapper><Caregiver /></AuthWrapper>} />
-          <Route path="/blogpost" element={<AuthWrapper><BlogPost /></AuthWrapper>} />
+          {/* <Route path="/blogpost" element={<AuthWrapper><BlogPost /></AuthWrapper>} /> */}
           <Route path="/revenue" element={<AuthWrapper><RevenueAnalytics /></AuthWrapper>} />
           <Route path="/usage-report" element={<AuthWrapper><UsageReport /></AuthWrapper>} />
           <Route path="/volunteer-engagement" element={<AuthWrapper><VolunteerEngagement /></AuthWrapper>} />

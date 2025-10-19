@@ -1,25 +1,32 @@
 package Memora.DimensiaCareApplication.service;
 
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Optional;
+import java.util.concurrent.ExecutionException;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import com.google.api.core.ApiFuture;
+import com.google.cloud.firestore.DocumentReference;
+import com.google.cloud.firestore.DocumentSnapshot;
+import com.google.cloud.firestore.Firestore;
+import com.google.cloud.firestore.Query;
+import com.google.cloud.firestore.QuerySnapshot;
+import com.google.cloud.firestore.WriteResult;
+import com.google.firebase.cloud.FirestoreClient;
+
 import Memora.DimensiaCareApplication.dto.ArticleDTO;
 import Memora.DimensiaCareApplication.dto.ArticleDetailDTO;
 import Memora.DimensiaCareApplication.model.Article;
 import Memora.DimensiaCareApplication.model.ArticleCategory;
 import Memora.DimensiaCareApplication.model.User;
 import Memora.DimensiaCareApplication.model.Volunteer;
-import Memora.DimensiaCareApplication.repository.ArticleRepository;
 import Memora.DimensiaCareApplication.repository.ArticleCategoryRepository;
-import Memora.DimensiaCareApplication.repository.VolunteerRepository;
+import Memora.DimensiaCareApplication.repository.ArticleRepository;
 import Memora.DimensiaCareApplication.repository.UserRepository;
-import com.google.api.core.ApiFuture;
-import com.google.cloud.firestore.*;
-import com.google.firebase.cloud.FirestoreClient;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
-
-import java.util.HashMap;
-import java.util.Map;
-import java.util.concurrent.ExecutionException;
-import java.util.Optional;
+import Memora.DimensiaCareApplication.repository.VolunteerRepository;
 
 @Service
 public class ArticleService {
@@ -43,21 +50,21 @@ public class ArticleService {
         if (article.getStatus() == null || article.getStatus().isEmpty()) {
             article.setStatus("disapproved");
         }
-        
+
         System.out.println("=== Starting article creation process ===");
-        System.out.println("Article DTO received: " + 
-                          "Title: " + article.getTitle() + 
-                          ", Volunteer ID: " + article.getVolunteerId() + 
-                          ", Category ID: " + article.getCategoryId() + 
-                          ", Draft: " + article.getDraft());
-        
+        System.out.println("Article DTO received: "
+                + "Title: " + article.getTitle()
+                + ", Volunteer ID: " + article.getVolunteerId()
+                + ", Category ID: " + article.getCategoryId()
+                + ", Draft: " + article.getDraft());
+
         try {
             // 1. Save content to Firestore
             System.out.println("Step 1: Saving to Firestore...");
             Firestore db = FirestoreClient.getFirestore();
             DocumentReference docRef = db.collection("articles").document();
             String firebaseDocId = docRef.getId();
-            
+
             // Prepare data for Firestore
             Map<String, Object> firestoreData = new HashMap<>();
             firestoreData.put("title", article.getTitle());
@@ -69,13 +76,13 @@ public class ArticleService {
             firestoreData.put("summary", article.getSummary());
             firestoreData.put("articleImg", article.getArticleImg()); // Add article image
             firestoreData.put("created_at", System.currentTimeMillis());
-            
+
             System.out.println("Firestore data prepared (including articleImg: " + article.getArticleImg() + "): " + firestoreData);
-            
+
             // Save to Firestore
             ApiFuture<WriteResult> firestoreResult = docRef.set(firestoreData);
             System.out.println("Firestore save initiated with document ID: " + firebaseDocId);
-            
+
             // 2. Save metadata to PostgreSQL
             System.out.println("Step 2: Saving to PostgreSQL...");
             Article articleEntity = new Article();
@@ -85,31 +92,31 @@ public class ArticleService {
             articleEntity.setStatus(article.getStatus());
             articleEntity.setDraft(article.getDraft());
             articleEntity.setFirebaseDocId(firebaseDocId);
-            
+
             // Handle article image
             if (article.getArticleImg() != null && !article.getArticleImg().trim().isEmpty()) {
                 articleEntity.setImg(article.getArticleImg());
             }
-            
-            System.out.println("PostgreSQL entity prepared: " + 
-                             "Title: " + articleEntity.getTitle() + 
-                             ", Firebase Doc ID: " + articleEntity.getFirebaseDocId() + 
-                             ", Volunteer ID: " + articleEntity.getVolunteerId() + 
-                             ", Category ID: " + articleEntity.getCategoryId() + 
-                             ", Status: " + articleEntity.getStatus() + 
-                             ", Draft: " + articleEntity.getDraft());
-            
+
+            System.out.println("PostgreSQL entity prepared: "
+                    + "Title: " + articleEntity.getTitle()
+                    + ", Firebase Doc ID: " + articleEntity.getFirebaseDocId()
+                    + ", Volunteer ID: " + articleEntity.getVolunteerId()
+                    + ", Category ID: " + articleEntity.getCategoryId()
+                    + ", Status: " + articleEntity.getStatus()
+                    + ", Draft: " + articleEntity.getDraft());
+
             // Save to PostgreSQL
             Article savedArticle = articleRepository.save(articleEntity);
             System.out.println("SUCCESS: Article saved to PostgreSQL with ID: " + savedArticle.getArticleId());
-            
+
             // Wait for Firestore operation to complete
             String updateTime = firestoreResult.get().getUpdateTime().toString();
             System.out.println("SUCCESS: Firestore save completed at: " + updateTime);
             System.out.println("=== Article creation process completed successfully ===");
-            
+
             return updateTime;
-            
+
         } catch (Exception e) {
             System.err.println("ERROR: Failed to save article");
             System.err.println("Error message: " + e.getMessage());
@@ -158,18 +165,18 @@ public class ArticleService {
     public ArticleDetailDTO getArticleDetail(String firebaseDocId) throws ExecutionException, InterruptedException {
         try {
             System.out.println("=== Getting article detail for firebase doc ID: " + firebaseDocId + " ===");
-            
+
             // 1. Get article content from Firebase
             Firestore db = FirestoreClient.getFirestore();
             DocumentReference docRef = db.collection(COLLECTION_NAME).document(firebaseDocId);
             ApiFuture<DocumentSnapshot> future = docRef.get();
             DocumentSnapshot document = future.get();
-            
+
             if (!document.exists()) {
                 System.err.println("Article not found in Firebase with ID: " + firebaseDocId);
                 return null;
             }
-            
+
             // 2. Map Firebase data to ArticleDetailDTO
             ArticleDetailDTO articleDetail = new ArticleDetailDTO();
             articleDetail.setArticleId(document.getId());
@@ -177,11 +184,11 @@ public class ArticleService {
             articleDetail.setContent(document.getString("content"));
             articleDetail.setSummary(document.getString("summary"));
             articleDetail.setStatus(document.getString("status"));
-            
+
             String articleImg = document.getString("articleImg");
             System.out.println("Article image from Firebase: " + articleImg);
             articleDetail.setArticleImg(articleImg);
-            
+
             // Handle volunteerId
             Object volIdObj = document.get("volunteerId");
             Long volunteerId = null;
@@ -193,7 +200,7 @@ public class ArticleService {
                 }
                 articleDetail.setVolunteerId(volunteerId);
             }
-            
+
             // Handle categoryId
             Object catIdObj = document.get("categoryId");
             Integer categoryId = null;
@@ -205,41 +212,52 @@ public class ArticleService {
                 }
                 articleDetail.setCategoryId(categoryId);
             }
-            
+
             // Handle draft
             Object draftObj = document.get("draft");
             if (draftObj instanceof Boolean) {
                 articleDetail.setDraft((Boolean) draftObj);
             }
-            
+
             // Handle created_at
             Object createdAtObj = document.get("created_at");
             if (createdAtObj instanceof Long) {
                 articleDetail.setCreated_at((Long) createdAtObj);
             }
-            
+
             // 3. Get author information
-            // volunteer_id in articles table directly maps to user_id in users table
+            // volunteer_id in articles table maps to volunteer_id in volunteers table,
+            // then we get user_id from volunteers to fetch user details
             if (volunteerId != null) {
-                System.out.println("Looking up author with user ID (volunteer_id): " + volunteerId);
-                
-                Optional<User> userOpt = userRepository.findById(volunteerId);
-                if (userOpt.isPresent()) {
-                    User user = userOpt.get();
-                    String authorName = user.getFName() + " " + user.getLName();
-                    System.out.println("Found user: " + authorName + " (Email: " + user.getEmail() + ")");
-                    articleDetail.setAuthorName(authorName);
-                    articleDetail.setAuthorEmail(user.getEmail());
-                    articleDetail.setAuthorProfilePic(user.getProfilePic());
+                System.out.println("Looking up volunteer with volunteer_id: " + volunteerId);
+
+                Optional<Volunteer> volunteerOpt = volunteerRepository.findById(volunteerId);
+                if (volunteerOpt.isPresent()) {
+                    Volunteer volunteer = volunteerOpt.get();
+                    Long userId = volunteer.getUserId();
+                    System.out.println("Found volunteer, now looking up user with ID: " + userId);
+
+                    Optional<User> userOpt = userRepository.findById(userId);
+                    if (userOpt.isPresent()) {
+                        User user = userOpt.get();
+                        String authorName = user.getFName() + " " + user.getLName();
+                        System.out.println("Found user: " + authorName + " (Email: " + user.getEmail() + ")");
+                        articleDetail.setAuthorName(authorName);
+                        articleDetail.setAuthorEmail(user.getEmail());
+                        articleDetail.setAuthorProfilePic(user.getProfilePic());
+                    } else {
+                        System.err.println("User not found with ID: " + userId);
+                        articleDetail.setAuthorName("Unknown Author");
+                    }
                 } else {
-                    System.err.println("User not found with ID: " + volunteerId);
+                    System.err.println("Volunteer not found with ID: " + volunteerId);
                     articleDetail.setAuthorName("Unknown Author");
                 }
             } else {
                 System.err.println("Volunteer ID is null in article");
                 articleDetail.setAuthorName("Unknown Author");
             }
-            
+
             // 4. Get category information
             if (categoryId != null) {
                 Optional<ArticleCategory> categoryOpt = articleCategoryRepository.findById(categoryId);
@@ -249,10 +267,10 @@ public class ArticleService {
                     articleDetail.setCategoryName("Uncategorized");
                 }
             }
-            
+
             System.out.println("Article detail retrieved successfully: " + articleDetail.getTitle());
             return articleDetail;
-            
+
         } catch (Exception e) {
             System.err.println("ERROR: Failed to get article detail for " + firebaseDocId);
             System.err.println("Error message: " + e.getMessage());
@@ -265,9 +283,9 @@ public class ArticleService {
             throws ExecutionException, InterruptedException {
         try {
             System.out.println("=== Getting draft articles for volunteer ID: " + volunteerId + " ===");
-            
+
             Firestore db = FirestoreClient.getFirestore();
-            
+
             // First, try with simple query to get all articles
             // Then filter in Java to avoid Firestore index issues
             Query query = db.collection(COLLECTION_NAME)
@@ -282,7 +300,7 @@ public class ArticleService {
                 if (document.exists()) {
                     try {
                         ArticleDTO article = new ArticleDTO();
-                        
+
                         // Manually map fields from document to avoid deserialization issues
                         article.setArticleId(document.getId());
                         article.setTitle(document.getString("title"));
@@ -290,7 +308,7 @@ public class ArticleService {
                         article.setSummary(document.getString("summary"));
                         article.setStatus(document.getString("status"));
                         article.setArticleImg(document.getString("articleImg"));
-                        
+
                         // Handle Long/Integer conversion for volunteerId
                         Object volIdObj = document.get("volunteerId");
                         if (volIdObj != null) {
@@ -300,7 +318,7 @@ public class ArticleService {
                                 article.setVolunteerId(((Integer) volIdObj).longValue());
                             }
                         }
-                        
+
                         // Handle categoryId
                         Object catIdObj = document.get("categoryId");
                         if (catIdObj != null) {
@@ -310,27 +328,27 @@ public class ArticleService {
                                 article.setCategoryId(((Long) catIdObj).intValue());
                             }
                         }
-                        
+
                         // Handle draft field
                         Object draftObj = document.get("draft");
                         if (draftObj instanceof Boolean) {
                             article.setDraft((Boolean) draftObj);
                         }
-                        
+
                         // Handle created_at timestamp
                         Object createdAtObj = document.get("created_at");
                         if (createdAtObj instanceof Long) {
                             article.setCreated_at((Long) createdAtObj);
                         }
-                        
+
                         // Generate thumbnail from content if no articleImg is set
                         if (article.getArticleImg() == null || article.getArticleImg().trim().isEmpty()) {
                             article.setArticleImg("https://images.unsplash.com/photo-1434030216411-0b793f4b4173?w=64&h=64&fit=crop");
                         }
-                        
+
                         System.out.println("Found draft: " + article.getTitle() + " (ID: " + article.getArticleId() + ")");
                         drafts.add(article);
-                        
+
                     } catch (Exception docError) {
                         System.err.println("Error processing document " + document.getId() + ": " + docError.getMessage());
                         docError.printStackTrace();
@@ -338,23 +356,23 @@ public class ArticleService {
                     }
                 }
             }
-            
+
             // Sort by created_at descending (most recent first)
             drafts.sort((a, b) -> {
                 Long timeA = a.getCreated_at() != null ? a.getCreated_at() : 0L;
                 Long timeB = b.getCreated_at() != null ? b.getCreated_at() : 0L;
                 return timeB.compareTo(timeA);
             });
-            
+
             System.out.println("Total drafts found: " + drafts.size());
             return drafts;
-            
+
         } catch (Exception e) {
             System.err.println("ERROR: Failed to get draft articles for volunteer " + volunteerId);
             System.err.println("Error message: " + e.getMessage());
             System.err.println("Error type: " + e.getClass().getName());
             e.printStackTrace();
-            
+
             // Return empty list instead of throwing exception
             return new java.util.ArrayList<>();
         }
@@ -364,9 +382,9 @@ public class ArticleService {
             throws ExecutionException, InterruptedException {
         try {
             System.out.println("=== Getting published articles for volunteer ID: " + volunteerId + " ===");
-            
+
             Firestore db = FirestoreClient.getFirestore();
-            
+
             // Query for non-draft, approved articles by the volunteer
             Query query = db.collection(COLLECTION_NAME)
                     .whereEqualTo("volunteerId", volunteerId)
@@ -381,7 +399,7 @@ public class ArticleService {
                 if (document.exists()) {
                     try {
                         ArticleDTO article = new ArticleDTO();
-                        
+
                         // Manually map fields from document
                         article.setArticleId(document.getId());
                         article.setTitle(document.getString("title"));
@@ -389,7 +407,7 @@ public class ArticleService {
                         article.setSummary(document.getString("summary"));
                         article.setStatus(document.getString("status"));
                         article.setArticleImg(document.getString("articleImg"));
-                        
+
                         // Handle Long/Integer conversion for volunteerId
                         Object volIdObj = document.get("volunteerId");
                         if (volIdObj != null) {
@@ -399,7 +417,7 @@ public class ArticleService {
                                 article.setVolunteerId(((Integer) volIdObj).longValue());
                             }
                         }
-                        
+
                         // Handle categoryId
                         Object catIdObj = document.get("categoryId");
                         if (catIdObj != null) {
@@ -409,27 +427,27 @@ public class ArticleService {
                                 article.setCategoryId(((Long) catIdObj).intValue());
                             }
                         }
-                        
+
                         // Handle draft field
                         Object draftObj = document.get("draft");
                         if (draftObj instanceof Boolean) {
                             article.setDraft((Boolean) draftObj);
                         }
-                        
+
                         // Handle created_at timestamp
                         Object createdAtObj = document.get("created_at");
                         if (createdAtObj instanceof Long) {
                             article.setCreated_at((Long) createdAtObj);
                         }
-                        
+
                         // Generate thumbnail from content if no articleImg is set
                         if (article.getArticleImg() == null || article.getArticleImg().trim().isEmpty()) {
                             article.setArticleImg("https://images.unsplash.com/photo-1434030216411-0b793f4b4173?w=64&h=64&fit=crop");
                         }
-                        
+
                         System.out.println("Found published article: " + article.getTitle() + " (ID: " + article.getArticleId() + ")");
                         publishedArticles.add(article);
-                        
+
                     } catch (Exception docError) {
                         System.err.println("Error processing document " + document.getId() + ": " + docError.getMessage());
                         docError.printStackTrace();
@@ -437,49 +455,47 @@ public class ArticleService {
                     }
                 }
             }
-            
+
             // Sort by created_at descending (most recent first)
             publishedArticles.sort((a, b) -> {
                 Long timeA = a.getCreated_at() != null ? a.getCreated_at() : 0L;
                 Long timeB = b.getCreated_at() != null ? b.getCreated_at() : 0L;
                 return timeB.compareTo(timeA);
             });
-            
+
             System.out.println("Total published articles found: " + publishedArticles.size());
             return publishedArticles;
-            
+
         } catch (Exception e) {
             System.err.println("ERROR: Failed to get published articles for volunteer " + volunteerId);
             System.err.println("Error message: " + e.getMessage());
             System.err.println("Error type: " + e.getClass().getName());
             e.printStackTrace();
-            
+
             // Return empty list instead of throwing exception
             return new java.util.ArrayList<>();
         }
     }
 
-    public java.util.List<ArticleDetailDTO> getAllPublishedArticles()
+    public java.util.List<ArticleDetailDTO> getAllArticles()
             throws ExecutionException, InterruptedException {
         try {
-            System.out.println("=== Getting ALL published articles from ALL volunteers ===");
-            
+            System.out.println("=== Getting ALL articles from ALL volunteers (all statuses) ===");
+
             Firestore db = FirestoreClient.getFirestore();
-            
-            // Query for non-draft, approved articles from ALL volunteers
-            Query query = db.collection(COLLECTION_NAME)
-                    .whereEqualTo("draft", false)
-                    .whereEqualTo("status", "approved");
+
+            // Query for ALL articles regardless of draft or status
+            Query query = db.collection(COLLECTION_NAME);
 
             ApiFuture<QuerySnapshot> future = query.get();
             QuerySnapshot documents = future.get();
 
-            java.util.List<ArticleDetailDTO> publishedArticles = new java.util.ArrayList<>();
+            java.util.List<ArticleDetailDTO> allArticles = new java.util.ArrayList<>();
             for (DocumentSnapshot document : documents) {
                 if (document.exists()) {
                     try {
                         ArticleDetailDTO article = new ArticleDetailDTO();
-                        
+
                         // Manually map fields from document
                         article.setArticleId(document.getId());
                         article.setTitle(document.getString("title"));
@@ -487,7 +503,7 @@ public class ArticleService {
                         article.setSummary(document.getString("summary"));
                         article.setStatus(document.getString("status"));
                         article.setArticleImg(document.getString("articleImg"));
-                        
+
                         // Handle Long/Integer conversion for volunteerId
                         Object volIdObj = document.get("volunteerId");
                         if (volIdObj != null) {
@@ -497,7 +513,7 @@ public class ArticleService {
                                 article.setVolunteerId(((Integer) volIdObj).longValue());
                             }
                         }
-                        
+
                         // Handle categoryId
                         Object catIdObj = document.get("categoryId");
                         if (catIdObj != null) {
@@ -507,7 +523,7 @@ public class ArticleService {
                                 article.setCategoryId(((Long) catIdObj).intValue());
                             }
                         }
-                        
+
                         // Handle created_at timestamp
                         Object createdAtObj = document.get("created_at");
                         if (createdAtObj != null) {
@@ -517,34 +533,42 @@ public class ArticleService {
                                 article.setCreated_at(((Integer) createdAtObj).longValue());
                             }
                         }
-                        
+
                         // Handle draft flag
                         Object draftObj = document.get("draft");
                         if (draftObj instanceof Boolean) {
                             article.setDraft((Boolean) draftObj);
                         }
-                        
+
                         // Generate thumbnail from content if no articleImg is set
                         if (article.getArticleImg() == null || article.getArticleImg().trim().isEmpty()) {
                             article.setArticleImg("https://images.unsplash.com/photo-1434030216411-0b793f4b4173?w=64&h=64&fit=crop");
                         }
-                        
-                        // Get author information from User table
+
+                        // Get author information from Volunteer -> User table
                         if (article.getVolunteerId() != null) {
                             try {
-                                User author = userRepository.findById(article.getVolunteerId()).orElse(null);
-                                if (author != null) {
-                                    article.setAuthorName(author.getFName() + " " + author.getLName());
-                                    article.setAuthorEmail(author.getEmail());
+                                Optional<Volunteer> volunteerOpt = volunteerRepository.findById(article.getVolunteerId());
+                                if (volunteerOpt.isPresent()) {
+                                    Volunteer volunteer = volunteerOpt.get();
+                                    Long userId = volunteer.getUserId();
+
+                                    User author = userRepository.findById(userId).orElse(null);
+                                    if (author != null) {
+                                        article.setAuthorName(author.getFName() + " " + author.getLName());
+                                        article.setAuthorEmail(author.getEmail());
+                                    } else {
+                                        article.setAuthorName("Unknown Author");
+                                    }
                                 } else {
-                                    article.setAuthorName("Unknown Author");
+                                    article.setAuthorName("Unknown Author (Volunteer ID: " + article.getVolunteerId() + ")");
                                 }
                             } catch (Exception userError) {
                                 System.err.println("Error fetching author for volunteer ID " + article.getVolunteerId());
                                 article.setAuthorName("Unknown Author");
                             }
                         }
-                        
+
                         // Get category information
                         if (article.getCategoryId() != null) {
                             try {
@@ -559,10 +583,10 @@ public class ArticleService {
                                 article.setCategoryName("Uncategorized");
                             }
                         }
-                        
-                        System.out.println("Found published article: " + article.getTitle() + " (ID: " + article.getArticleId() + ") by " + article.getAuthorName());
-                        publishedArticles.add(article);
-                        
+
+                        System.out.println("Found article: " + article.getTitle() + " (ID: " + article.getArticleId() + ") by " + article.getAuthorName() + " - Status: " + article.getStatus() + ", Draft: " + article.getDraft());
+                        allArticles.add(article);
+
                     } catch (Exception docError) {
                         System.err.println("Error processing document " + document.getId() + ": " + docError.getMessage());
                         docError.printStackTrace();
@@ -570,23 +594,164 @@ public class ArticleService {
                     }
                 }
             }
-            
+
+            // Sort by created_at descending (most recent first)
+            allArticles.sort((a, b) -> {
+                Long timeA = a.getCreated_at() != null ? a.getCreated_at() : 0L;
+                Long timeB = b.getCreated_at() != null ? b.getCreated_at() : 0L;
+                return timeB.compareTo(timeA);
+            });
+
+            System.out.println("Total articles found (all statuses): " + allArticles.size());
+            return allArticles;
+
+        } catch (Exception e) {
+            System.err.println("ERROR: Failed to get all articles");
+            System.err.println("Error message: " + e.getMessage());
+            System.err.println("Error type: " + e.getClass().getName());
+            e.printStackTrace();
+
+            // Return empty list instead of throwing exception
+            return new java.util.ArrayList<>();
+        }
+    }
+
+    public java.util.List<ArticleDetailDTO> getAllPublishedArticles()
+            throws ExecutionException, InterruptedException {
+        try {
+            System.out.println("=== Getting ALL published articles from ALL volunteers ===");
+
+            Firestore db = FirestoreClient.getFirestore();
+
+            // Query for non-draft, approved articles from ALL volunteers
+            Query query = db.collection(COLLECTION_NAME)
+                    .whereEqualTo("draft", false)
+                    .whereEqualTo("status", "approved");
+
+            ApiFuture<QuerySnapshot> future = query.get();
+            QuerySnapshot documents = future.get();
+
+            java.util.List<ArticleDetailDTO> publishedArticles = new java.util.ArrayList<>();
+            for (DocumentSnapshot document : documents) {
+                if (document.exists()) {
+                    try {
+                        ArticleDetailDTO article = new ArticleDetailDTO();
+
+                        // Manually map fields from document
+                        article.setArticleId(document.getId());
+                        article.setTitle(document.getString("title"));
+                        article.setContent(document.getString("content"));
+                        article.setSummary(document.getString("summary"));
+                        article.setStatus(document.getString("status"));
+                        article.setArticleImg(document.getString("articleImg"));
+
+                        // Handle Long/Integer conversion for volunteerId
+                        Object volIdObj = document.get("volunteerId");
+                        if (volIdObj != null) {
+                            if (volIdObj instanceof Long) {
+                                article.setVolunteerId((Long) volIdObj);
+                            } else if (volIdObj instanceof Integer) {
+                                article.setVolunteerId(((Integer) volIdObj).longValue());
+                            }
+                        }
+
+                        // Handle categoryId
+                        Object catIdObj = document.get("categoryId");
+                        if (catIdObj != null) {
+                            if (catIdObj instanceof Integer) {
+                                article.setCategoryId((Integer) catIdObj);
+                            } else if (catIdObj instanceof Long) {
+                                article.setCategoryId(((Long) catIdObj).intValue());
+                            }
+                        }
+
+                        // Handle created_at timestamp
+                        Object createdAtObj = document.get("created_at");
+                        if (createdAtObj != null) {
+                            if (createdAtObj instanceof Long) {
+                                article.setCreated_at((Long) createdAtObj);
+                            } else if (createdAtObj instanceof Integer) {
+                                article.setCreated_at(((Integer) createdAtObj).longValue());
+                            }
+                        }
+
+                        // Handle draft flag
+                        Object draftObj = document.get("draft");
+                        if (draftObj instanceof Boolean) {
+                            article.setDraft((Boolean) draftObj);
+                        }
+
+                        // Generate thumbnail from content if no articleImg is set
+                        if (article.getArticleImg() == null || article.getArticleImg().trim().isEmpty()) {
+                            article.setArticleImg("https://images.unsplash.com/photo-1434030216411-0b793f4b4173?w=64&h=64&fit=crop");
+                        }
+
+                        // Get author information from Volunteer -> User table
+                        if (article.getVolunteerId() != null) {
+                            try {
+                                Optional<Volunteer> volunteerOpt = volunteerRepository.findById(article.getVolunteerId());
+                                if (volunteerOpt.isPresent()) {
+                                    Volunteer volunteer = volunteerOpt.get();
+                                    Long userId = volunteer.getUserId();
+
+                                    User author = userRepository.findById(userId).orElse(null);
+                                    if (author != null) {
+                                        article.setAuthorName(author.getFName() + " " + author.getLName());
+                                        article.setAuthorEmail(author.getEmail());
+                                    } else {
+                                        article.setAuthorName("Unknown Author");
+                                    }
+                                } else {
+                                    article.setAuthorName("Unknown Author (Volunteer ID: " + article.getVolunteerId() + ")");
+                                }
+                            } catch (Exception userError) {
+                                System.err.println("Error fetching author for volunteer ID " + article.getVolunteerId());
+                                article.setAuthorName("Unknown Author");
+                            }
+                        }
+
+                        // Get category information
+                        if (article.getCategoryId() != null) {
+                            try {
+                                ArticleCategory category = articleCategoryRepository.findById(article.getCategoryId()).orElse(null);
+                                if (category != null) {
+                                    article.setCategoryName(category.getCategoryName());
+                                } else {
+                                    article.setCategoryName("Uncategorized");
+                                }
+                            } catch (Exception catError) {
+                                System.err.println("Error fetching category for ID " + article.getCategoryId());
+                                article.setCategoryName("Uncategorized");
+                            }
+                        }
+
+                        System.out.println("Found published article: " + article.getTitle() + " (ID: " + article.getArticleId() + ") by " + article.getAuthorName());
+                        publishedArticles.add(article);
+
+                    } catch (Exception docError) {
+                        System.err.println("Error processing document " + document.getId() + ": " + docError.getMessage());
+                        docError.printStackTrace();
+                        // Continue to next document
+                    }
+                }
+            }
+
             // Sort by created_at descending (most recent first)
             publishedArticles.sort((a, b) -> {
                 Long timeA = a.getCreated_at() != null ? a.getCreated_at() : 0L;
                 Long timeB = b.getCreated_at() != null ? b.getCreated_at() : 0L;
                 return timeB.compareTo(timeA);
             });
-            
+
             System.out.println("Total published articles found from all volunteers: " + publishedArticles.size());
             return publishedArticles;
-            
+
         } catch (Exception e) {
             System.err.println("ERROR: Failed to get all published articles");
             System.err.println("Error message: " + e.getMessage());
             System.err.println("Error type: " + e.getClass().getName());
             e.printStackTrace();
-            
+
             // Return empty list instead of throwing exception
             return new java.util.ArrayList<>();
         }
@@ -596,19 +761,19 @@ public class ArticleService {
             throws ExecutionException, InterruptedException {
         try {
             System.out.println("=== Updating article with ID: " + articleId + " ===");
-            System.out.println("Update data: " + "Title: " + articleDTO.getTitle() + 
-                             ", Draft: " + articleDTO.getDraft() + 
-                             ", Status: " + articleDTO.getStatus());
-            
+            System.out.println("Update data: " + "Title: " + articleDTO.getTitle()
+                    + ", Draft: " + articleDTO.getDraft()
+                    + ", Status: " + articleDTO.getStatus());
+
             Firestore db = FirestoreClient.getFirestore();
             DocumentReference docRef = db.collection(COLLECTION_NAME).document(articleId);
-            
+
             // Check if document exists
             DocumentSnapshot doc = docRef.get().get();
             if (!doc.exists()) {
                 throw new RuntimeException("Article not found with ID: " + articleId);
             }
-            
+
             // Prepare updated data for Firestore
             Map<String, Object> firestoreData = new HashMap<>();
             firestoreData.put("title", articleDTO.getTitle());
@@ -620,11 +785,11 @@ public class ArticleService {
             firestoreData.put("summary", articleDTO.getSummary());
             firestoreData.put("articleImg", articleDTO.getArticleImg());
             firestoreData.put("updated_at", System.currentTimeMillis());
-            
+
             // Update in Firestore
             ApiFuture<WriteResult> firestoreResult = docRef.update(firestoreData);
             System.out.println("Firestore update initiated for document ID: " + articleId);
-            
+
             // Update metadata in PostgreSQL
             Article articleEntity = articleRepository.findByFirebaseDocId(articleId);
             if (articleEntity != null) {
@@ -632,24 +797,24 @@ public class ArticleService {
                 articleEntity.setStatus(articleDTO.getStatus());
                 articleEntity.setDraft(articleDTO.getDraft());
                 articleEntity.setCategoryId(articleDTO.getCategoryId());
-                
+
                 if (articleDTO.getArticleImg() != null && !articleDTO.getArticleImg().trim().isEmpty()) {
                     articleEntity.setImg(articleDTO.getArticleImg());
                 }
-                
+
                 articleRepository.save(articleEntity);
                 System.out.println("PostgreSQL metadata updated for article ID: " + articleEntity.getArticleId());
             } else {
                 System.out.println("WARNING: No PostgreSQL record found for Firebase doc ID: " + articleId);
             }
-            
+
             // Wait for Firestore operation to complete
             String updateTime = firestoreResult.get().getUpdateTime().toString();
             System.out.println("SUCCESS: Article updated at: " + updateTime);
             System.out.println("=== Article update process completed successfully ===");
-            
+
             return updateTime;
-            
+
         } catch (Exception e) {
             System.err.println("ERROR: Failed to update article " + articleId);
             System.err.println("Error message: " + e.getMessage());
@@ -662,30 +827,30 @@ public class ArticleService {
     public int syncArticleImagesToFirebase() throws ExecutionException, InterruptedException {
         try {
             System.out.println("=== Starting sync of article images to Firebase ===");
-            
+
             // Get all articles from PostgreSQL that have images
             java.util.List<Article> articlesWithImages = articleRepository.findAll().stream()
                     .filter(article -> article.getImg() != null && !article.getImg().trim().isEmpty())
                     .toList();
-            
+
             System.out.println("Found " + articlesWithImages.size() + " articles with images in PostgreSQL");
-            
+
             Firestore db = FirestoreClient.getFirestore();
             int syncedCount = 0;
-            
+
             for (Article article : articlesWithImages) {
                 try {
                     String firebaseDocId = article.getFirebaseDocId();
                     String imageUrl = article.getImg();
-                    
+
                     if (firebaseDocId != null && !firebaseDocId.trim().isEmpty()) {
                         // Update the articleImg field in Firebase
                         DocumentReference docRef = db.collection(COLLECTION_NAME).document(firebaseDocId);
                         Map<String, Object> updates = new HashMap<>();
                         updates.put("articleImg", imageUrl);
-                        
+
                         docRef.update(updates).get();
-                        
+
                         System.out.println("Synced image for article: " + article.getTitle() + " (Firebase ID: " + firebaseDocId + ")");
                         syncedCount++;
                     } else {
@@ -695,15 +860,126 @@ public class ArticleService {
                     System.err.println("Error syncing image for article " + article.getArticleId() + ": " + e.getMessage());
                 }
             }
-            
+
             System.out.println("=== Sync completed. Synced " + syncedCount + " images ===");
             return syncedCount;
-            
+
         } catch (Exception e) {
             System.err.println("ERROR: Failed to sync article images");
             System.err.println("Error message: " + e.getMessage());
             e.printStackTrace();
             throw new RuntimeException("Failed to sync article images: " + e.getMessage(), e);
+        }
+    }
+
+    public java.util.List<ArticleDetailDTO> getAllArticlesFromPostgreSQL() {
+        try {
+            System.out.println("=== Getting ALL articles from PostgreSQL database ===");
+
+            // Get all articles from PostgreSQL
+            java.util.List<Article> articles = articleRepository.findAll();
+            System.out.println("Found " + articles.size() + " articles in PostgreSQL database");
+
+            java.util.List<ArticleDetailDTO> articleDTOs = new java.util.ArrayList<>();
+
+            for (Article article : articles) {
+                try {
+                    ArticleDetailDTO dto = new ArticleDetailDTO();
+
+                    // Map basic fields from PostgreSQL
+                    dto.setArticleId(article.getFirebaseDocId() != null ? article.getFirebaseDocId() : article.getArticleId().toString());
+                    dto.setTitle(article.getTitle());
+                    dto.setStatus(article.getStatus());
+                    dto.setDraft(article.getDraft());
+                    dto.setArticleImg(article.getImg());
+                    dto.setVolunteerId(article.getVolunteerId() != null ? article.getVolunteerId().longValue() : null);
+                    dto.setCategoryId(article.getCategoryId());
+
+                    // Convert LocalDateTime to timestamp
+                    if (article.getCreatedAt() != null) {
+                        dto.setCreated_at(article.getCreatedAt().atZone(java.time.ZoneId.systemDefault()).toInstant().toEpochMilli());
+                    }
+
+                    // Set a default content if no Firebase doc
+                    if (article.getFirebaseDocId() != null) {
+                        try {
+                            // Try to get content from Firebase
+                            String content = getArticleContent(article.getFirebaseDocId());
+                            dto.setContent(content);
+                        } catch (Exception e) {
+                            dto.setContent("Content not available");
+                            System.out.println("Could not fetch Firebase content for article: " + article.getTitle());
+                        }
+                    } else {
+                        dto.setContent("Content stored in PostgreSQL only");
+                    }
+
+                    // Generate summary from title if not available
+                    dto.setSummary("Article summary for: " + article.getTitle());
+
+                    // Get author information from Volunteer -> User table
+                    if (article.getVolunteerId() != null) {
+                        try {
+                            Optional<Volunteer> volunteerOpt = volunteerRepository.findById(article.getVolunteerId().longValue());
+                            if (volunteerOpt.isPresent()) {
+                                Volunteer volunteer = volunteerOpt.get();
+                                Long userId = volunteer.getUserId();
+
+                                User author = userRepository.findById(userId).orElse(null);
+                                if (author != null) {
+                                    dto.setAuthorName(author.getFName() + " " + author.getLName());
+                                    dto.setAuthorEmail(author.getEmail());
+                                } else {
+                                    dto.setAuthorName("Unknown Author (User ID: " + userId + ")");
+                                }
+                            } else {
+                                dto.setAuthorName("Unknown Author (Volunteer ID: " + article.getVolunteerId() + ")");
+                            }
+                        } catch (Exception userError) {
+                            System.err.println("Error fetching author for volunteer ID " + article.getVolunteerId());
+                            dto.setAuthorName("Unknown Author");
+                        }
+                    }
+
+                    // Get category information
+                    if (article.getCategoryId() != null) {
+                        try {
+                            ArticleCategory category = articleCategoryRepository.findById(article.getCategoryId()).orElse(null);
+                            if (category != null) {
+                                dto.setCategoryName(category.getCategoryName());
+                            } else {
+                                dto.setCategoryName("Uncategorized");
+                            }
+                        } catch (Exception catError) {
+                            System.err.println("Error fetching category for ID " + article.getCategoryId());
+                            dto.setCategoryName("Uncategorized");
+                        }
+                    }
+
+                    System.out.println("Processed article: " + dto.getTitle() + " by " + dto.getAuthorName() + " - Status: " + dto.getStatus() + ", Draft: " + dto.getDraft());
+                    articleDTOs.add(dto);
+
+                } catch (Exception articleError) {
+                    System.err.println("Error processing article " + article.getArticleId() + ": " + articleError.getMessage());
+                    articleError.printStackTrace();
+                }
+            }
+
+            // Sort by created_at descending (most recent first)
+            articleDTOs.sort((a, b) -> {
+                Long timeA = a.getCreated_at() != null ? a.getCreated_at() : 0L;
+                Long timeB = b.getCreated_at() != null ? b.getCreated_at() : 0L;
+                return timeB.compareTo(timeA);
+            });
+
+            System.out.println("Total articles processed from PostgreSQL: " + articleDTOs.size());
+            return articleDTOs;
+
+        } catch (Exception e) {
+            System.err.println("ERROR: Failed to get articles from PostgreSQL");
+            System.err.println("Error message: " + e.getMessage());
+            e.printStackTrace();
+            return new java.util.ArrayList<>();
         }
     }
 }
