@@ -40,13 +40,6 @@ public class PatientDetailsResponse {
     private String caregiverEmail;
     private String caregiverPhone;
     private String caregiverCity;
-    
-    // Relationship
-    private String relationship;
-
-    private String patientName;
-    private Integer patientAge;
-    private String acceptedDate;
 
     public static PatientDetailsResponse fromPatient(Patient patient) {
         PatientDetailsResponse resp = new PatientDetailsResponse();
@@ -267,21 +260,6 @@ public class PatientDetailsResponse {
     public void setGuardianCity(String guardianCity) {
         this.guardianCity = guardianCity;
     }
-    
-    public String getRelationship() {
-        return relationship;
-    }
-    
-    public void setRelationship(String relationship) {
-        this.relationship = relationship;
-    }
-
-    public String getPatientName() { return patientName; }
-    public void setPatientName(String patientName) { this.patientName = patientName; }
-    public Integer getPatientAge() { return patientAge; }
-    public void setPatientAge(Integer patientAge) { this.patientAge = patientAge; }
-    public String getAcceptedDate() { return acceptedDate; }
-    public void setAcceptedDate(String acceptedDate) { this.acceptedDate = acceptedDate; }
     
     public Long getCaregiverId() { return caregiverId; }
     public void setCaregiverId(Long caregiverId) { this.caregiverId = caregiverId; }

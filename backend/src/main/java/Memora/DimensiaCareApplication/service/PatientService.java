@@ -63,9 +63,6 @@ public class PatientService {
     private AppointmentRepository appointmentRepository;
 
     @Autowired
-    private CaregiverRepository caregiverRepository;
-
-    @Autowired
     private GameRepository gameRepository;
 
     @Autowired
