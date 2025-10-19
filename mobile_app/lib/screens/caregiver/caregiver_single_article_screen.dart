@@ -4,19 +4,19 @@ import '../../services/comment_service.dart';
 import '../../services/auth_service.dart';
 import 'dart:async';
 
-class VolunteerSingleArticleScreen extends StatefulWidget {
+class CaregiverSingleArticleScreen extends StatefulWidget {
   final String articleId;
 
-  const VolunteerSingleArticleScreen({Key? key, required this.articleId})
+  const CaregiverSingleArticleScreen({Key? key, required this.articleId})
     : super(key: key);
 
   @override
-  _VolunteerSingleArticleScreenState createState() =>
-      _VolunteerSingleArticleScreenState();
+  _CaregiverSingleArticleScreenState createState() =>
+      _CaregiverSingleArticleScreenState();
 }
 
-class _VolunteerSingleArticleScreenState
-    extends State<VolunteerSingleArticleScreen> {
+class _CaregiverSingleArticleScreenState
+    extends State<CaregiverSingleArticleScreen> {
   TextEditingController _commentController = TextEditingController();
   bool _isLiked = false;
   bool _isUnliked = false;
@@ -32,7 +32,7 @@ class _VolunteerSingleArticleScreenState
 
   // Article author information
   String articleAuthor = 'Loading...';
-  String articleAuthorType = 'Volunteer';
+  String articleAuthorType = 'Caregiver';
   String articleTitle = '';
   String articleContent = '';
   String articleImage = '';
@@ -40,7 +40,7 @@ class _VolunteerSingleArticleScreenState
   // Current user information
   int? currentUserId;
   String currentUserName = 'Loading...';
-  String currentUserType = 'Volunteer';
+  String currentUserType = 'Caregiver';
 
   String? _replyingToCommentId;
   TextEditingController _replyController = TextEditingController();
@@ -78,7 +78,7 @@ class _VolunteerSingleArticleScreenState
               article['articleImg'] ??
               'https://images.unsplash.com/photo-1434030216411-0b793f4b4173?w=400&h=200&fit=crop';
           articleAuthor = article['authorName'] ?? 'Unknown Author';
-          articleAuthorType = 'Volunteer';
+          articleAuthorType = 'Caregiver';
           isLoading = false;
         });
       } else {
@@ -108,7 +108,7 @@ class _VolunteerSingleArticleScreenState
             currentUserName = user['email'] ?? 'User';
           }
           // Get user type from role
-          String role = user['role']?.toString().toLowerCase() ?? 'volunteer';
+          String role = user['role']?.toString().toLowerCase() ?? 'Caregiver';
           currentUserType =
               role.substring(0, 1).toUpperCase() + role.substring(1);
         });
@@ -429,7 +429,7 @@ class _VolunteerSingleArticleScreenState
               Icon(Icons.reply, size: 18, color: Color(0xFF2B3F99)),
               SizedBox(width: 6),
               Text(
-                'Reply as volunteer',
+                'Reply as Caregiver',
                 style: TextStyle(
                   fontSize: 14,
                   fontWeight: FontWeight.w600,
@@ -531,13 +531,13 @@ class _VolunteerSingleArticleScreenState
             children: [
               CircleAvatar(
                 radius: 20,
-                backgroundColor: comment['userType'] == 'Volunteer'
+                backgroundColor: comment['userType'] == 'Caregiver'
                     ? Colors.green[100]
                     : Color(0xFFA0C4FD).withOpacity(0.35),
                 child: Icon(
                   Icons.person,
                   size: 20,
-                  color: comment['userType'] == 'Volunteer'
+                  color: comment['userType'] == 'Caregiver'
                       ? Colors.green[700]
                       : Color(0xFF2B3F99),
                 ),
@@ -564,7 +564,7 @@ class _VolunteerSingleArticleScreenState
                             vertical: 2,
                           ),
                           decoration: BoxDecoration(
-                            color: comment['userType'] == 'Volunteer'
+                            color: comment['userType'] == 'Caregiver'
                                 ? Colors.green[100]
                                 : Color(0xFFA0C4FD).withOpacity(0.35),
                             borderRadius: BorderRadius.circular(8),
@@ -573,7 +573,7 @@ class _VolunteerSingleArticleScreenState
                             comment['userType'] ?? 'User',
                             style: TextStyle(
                               fontSize: 10,
-                              color: comment['userType'] == 'Volunteer'
+                              color: comment['userType'] == 'Caregiver'
                                   ? Colors.green[700]
                                   : Color(0xFF2B3F99),
                               fontWeight: FontWeight.w500,
@@ -597,7 +597,7 @@ class _VolunteerSingleArticleScreenState
             comment['content'] ?? '',
             style: TextStyle(fontSize: 14, color: Colors.black87, height: 1.4),
           ),
-          // Reply button for volunteers
+          // Reply button for Caregivers
           SizedBox(height: 12),
           TextButton(
             style: TextButton.styleFrom(
@@ -650,13 +650,13 @@ class _VolunteerSingleArticleScreenState
                           children: [
                             CircleAvatar(
                               radius: 16,
-                              backgroundColor: reply['userType'] == 'Volunteer'
+                              backgroundColor: reply['userType'] == 'Caregiver'
                                   ? Colors.green[100]
                                   : Color(0xFFA0C4FD).withOpacity(0.35),
                               child: Icon(
                                 Icons.person,
                                 size: 16,
-                                color: reply['userType'] == 'Volunteer'
+                                color: reply['userType'] == 'Caregiver'
                                     ? Colors.green[700]
                                     : Color(0xFF2B3F99),
                               ),
@@ -684,7 +684,7 @@ class _VolunteerSingleArticleScreenState
                                         ),
                                         decoration: BoxDecoration(
                                           color:
-                                              reply['userType'] == 'Volunteer'
+                                              reply['userType'] == 'Caregiver'
                                               ? Colors.green[100]
                                               : Color(
                                                   0xFFA0C4FD,
@@ -698,7 +698,7 @@ class _VolunteerSingleArticleScreenState
                                           style: TextStyle(
                                             fontSize: 8,
                                             color:
-                                                reply['userType'] == 'Volunteer'
+                                                reply['userType'] == 'Caregiver'
                                                 ? Colors.green[700]
                                                 : Color(0xFF2B3F99),
                                             fontWeight: FontWeight.w500,

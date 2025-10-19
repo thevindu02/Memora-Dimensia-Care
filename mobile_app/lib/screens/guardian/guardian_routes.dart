@@ -92,9 +92,10 @@ class GuardianRoutes {
           settings: settings,
         );
       case AppRoutes.guardianArticleDetail:
-        final arguments = settings.arguments as Map<String, dynamic>?;
+        final arguments = settings.arguments as String?;
         return MaterialPageRoute(
-          builder: (_) => GuardianSingleArticleScreen(articleData: arguments),
+          builder: (_) =>
+              GuardianSingleArticleScreen(articleId: arguments ?? ''),
           settings: settings,
         );
       case AppRoutes.guardianProfile:
