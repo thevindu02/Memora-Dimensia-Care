@@ -36,6 +36,9 @@ public class TaskReminderScheduler {
     @Autowired
     private UserFCMTokenService userFCMTokenService;
 
+    @Autowired
+    private NotificationService notificationService;
+
     // Track sent reminders to avoid duplicates (in-memory, could be moved to
     // database)
     private Set<String> sentReminders = Collections.synchronizedSet(new HashSet<>());
@@ -222,6 +225,19 @@ public class TaskReminderScheduler {
                     "task_reminder",
                     String.valueOf(activity.getCareActivityId()));
 
+            // Save notification to database
+            try {
+                notificationService.createTaskReminderNotification(
+                        Long.valueOf(caregiver.getCaregiverId()),
+                        patient.getPatientID(),
+                        patient.getUser().getFName() + " " + patient.getUser().getLName(),
+                        taskName,
+                        activity.getCareActivityId(),
+                        "TASK_REMINDER");
+            } catch (Exception e) {
+                logger.error("Error saving daily activity notification to database: {}", e.getMessage(), e);
+            }
+
             sentReminders.add(reminderKey);
             logger.info("✅ Successfully sent reminder for activity ID: {} - {}", activity.getCareActivityId(),
                     taskName);
@@ -275,6 +291,19 @@ public class TaskReminderScheduler {
                     taskName,
                     "medication_reminder",
                     String.valueOf(medication.getMedicationReminderId()));
+
+            // Save notification to database
+            try {
+                notificationService.createTaskReminderNotification(
+                        Long.valueOf(caregiver.getCaregiverId()),
+                        patient.getPatientID(),
+                        patient.getUser().getFName() + " " + patient.getUser().getLName(),
+                        taskName + (dosage != null ? " (" + dosage + ")" : ""),
+                        medication.getMedicationReminderId(),
+                        "MEDICATION_REMINDER");
+            } catch (Exception e) {
+                logger.error("Error saving medication notification to database: {}", e.getMessage(), e);
+            }
 
             sentReminders.add(reminderKey);
             logger.info("✅ Successfully sent medication reminder for ID: {} - {}", medication.getMedicationReminderId(),
@@ -330,6 +359,19 @@ public class TaskReminderScheduler {
                     taskName,
                     "appointment_reminder",
                     String.valueOf(appointment.getAppointmentId()));
+
+            // Save notification to database
+            try {
+                notificationService.createTaskReminderNotification(
+                        Long.valueOf(caregiver.getCaregiverId()),
+                        patient.getPatientID(),
+                        patient.getUser().getFName() + " " + patient.getUser().getLName(),
+                        taskName + (doctorName != null ? " with Dr. " + doctorName : ""),
+                        appointment.getAppointmentId(),
+                        "APPOINTMENT_REMINDER");
+            } catch (Exception e) {
+                logger.error("Error saving appointment notification to database: {}", e.getMessage(), e);
+            }
 
             sentReminders.add(reminderKey);
             logger.info("Sent reminder for appointment ID: {}", appointment.getAppointmentId());
