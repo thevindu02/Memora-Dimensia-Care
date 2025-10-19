@@ -971,46 +971,34 @@ class _QuestionDetailScreenState extends State<QuestionDetailScreen> {
                     final answerId = reply['id'];
                     final isLiked = reply['isLiked'] ?? false;
                     final currentLikes = reply['likes'] ?? 0;
+                    bool success = false;
 
-                    // Once liked, cannot unlike (permanent like)
                     if (isLiked) {
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        SnackBar(
-                          content: Text('You have already liked this reply'),
-                          backgroundColor: Colors.orange,
-                          duration: Duration(seconds: 2),
-                        ),
+                      // Unlike - decrement like count
+                      success = await ForumAnswerService.unlikeAnswer(
+                        answerId.toString(),
+                        1, // TODO: Replace with actual guardian ID from session
                       );
-                      return;
-                    }
 
-                    // Like - increment like count
-                    final success = await ForumAnswerService.likeAnswer(
-                      answerId.toString(),
-                      1, // TODO: Replace with actual guardian ID from session
-                    );
-
-                    if (success) {
-                      setState(() {
-                        reply['isLiked'] = true;
-                        reply['likes'] = currentLikes + 1;
-                      });
-
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        SnackBar(
-                          content: Text('Liked successfully!'),
-                          backgroundColor: Colors.green,
-                          duration: Duration(seconds: 1),
-                        ),
-                      );
+                      if (success) {
+                        setState(() {
+                          reply['isLiked'] = false;
+                          reply['likes'] = currentLikes - 1;
+                        });
+                      }
                     } else {
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        SnackBar(
-                          content: Text('You have already liked this reply'),
-                          backgroundColor: Colors.orange,
-                          duration: Duration(seconds: 2),
-                        ),
+                      // Like - increment like count
+                      success = await ForumAnswerService.likeAnswer(
+                        answerId.toString(),
+                        1, // TODO: Replace with actual guardian ID from session
                       );
+
+                      if (success) {
+                        setState(() {
+                          reply['isLiked'] = true;
+                          reply['likes'] = currentLikes + 1;
+                        });
+                      }
                     }
                   } catch (e) {
                     print('Error toggling like: $e');

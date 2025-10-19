@@ -44,6 +44,9 @@ public class ScheduleService {
     @Autowired
     private GuardianPatientCaregiverConnectionRepository connectionRepository;
 
+    @Autowired
+    private DailyReportService dailyReportService;
+
     // Create a new schedule with default daily routine tasks
     public Schedule createScheduleWithDefaultTasks(Patient patient, Guardian guardian, Caregiver caregiver,
             LocalDate date) {
@@ -113,7 +116,20 @@ public class ScheduleService {
         if (optionalSchedule.isPresent()) {
             Schedule schedule = optionalSchedule.get();
             schedule.setIsCompleted(isCompleted);
-            return scheduleRepository.save(schedule);
+            Schedule savedSchedule = scheduleRepository.save(schedule);
+            
+            // Generate daily report when schedule is marked as complete
+            if (isCompleted) {
+                try {
+                    dailyReportService.generateReportFromSchedule(scheduleId);
+                    System.out.println("Daily report generated successfully for schedule " + scheduleId);
+                } catch (Exception e) {
+                    System.err.println("Error generating daily report for schedule " + scheduleId + ": " + e.getMessage());
+                    e.printStackTrace();
+                }
+            }
+            
+            return savedSchedule;
         }
         throw new RuntimeException("Schedule not found with ID: " + scheduleId);
     }

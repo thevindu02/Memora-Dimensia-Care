@@ -3,9 +3,12 @@ package Memora.DimensiaCareApplication.service;
 import Memora.DimensiaCareApplication.model.Patient;
 import Memora.DimensiaCareApplication.model.User;
 import Memora.DimensiaCareApplication.model.Guardian;
+import Memora.DimensiaCareApplication.model.Caregiver;
 import Memora.DimensiaCareApplication.repository.PatientRepository;
 import Memora.DimensiaCareApplication.repository.UserRepository;
 import Memora.DimensiaCareApplication.repository.GuardianRepository;
+import Memora.DimensiaCareApplication.repository.CaregiverRepository;
+import Memora.DimensiaCareApplication.repository.GuardianPatientCaregiverConnectionRepository;
 import Memora.DimensiaCareApplication.model.GuardianPatientCaregiverConnection;
 import Memora.DimensiaCareApplication.repository.GuardianPatientCaregiverConnectionRepository;
 import Memora.DimensiaCareApplication.dto.response.PatientDetailsResponse;
@@ -37,6 +40,9 @@ public class PatientService {
 
     @Autowired
     private GuardianPatientCaregiverConnectionRepository connectionRepository;
+    
+    @Autowired
+    private CaregiverRepository caregiverRepository;
 
     @Autowired
     private ScheduleRepository scheduleRepository;

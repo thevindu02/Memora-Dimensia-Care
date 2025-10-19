@@ -53,6 +53,17 @@ class _CareDetailsScreenState extends State<CareDetailsScreen> {
     }
   }
 
+  String _capitalizeName(String name) {
+    if (name.isEmpty) return name;
+    return name
+        .split(' ')
+        .map((word) {
+          if (word.isEmpty) return word;
+          return word[0].toUpperCase() + word.substring(1).toLowerCase();
+        })
+        .join(' ');
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -122,7 +133,9 @@ class _CareDetailsScreenState extends State<CareDetailsScreen> {
                         SizedBox(width: 16),
                         Expanded(
                           child: Text(
-                            patientData?['patientName'] ?? 'Unknown',
+                            _capitalizeName(
+                              patientData?['patientName'] ?? 'Unknown',
+                            ),
                             style: TextStyle(
                               fontSize: 20,
                               fontWeight: FontWeight.w600,
@@ -193,7 +206,9 @@ class _CareDetailsScreenState extends State<CareDetailsScreen> {
                         SizedBox(height: 16),
                         _buildContactRow(
                           Icons.person,
-                          patientData?['guardianName'] ?? 'N/A',
+                          _capitalizeName(
+                            patientData?['guardianName'] ?? 'N/A',
+                          ),
                         ),
                         SizedBox(height: 12),
                         _buildContactRow(

@@ -101,6 +101,19 @@ class _CaregiverConnectionRequestsScreenState
     }
   }
 
+  /// Capitalizes the first letter of each word in a name
+  String _capitalizeName(String? name) {
+    if (name == null || name.isEmpty) return '-';
+    return name
+        .split(' ')
+        .map(
+          (word) => word.isEmpty
+              ? ''
+              : word[0].toUpperCase() + word.substring(1).toLowerCase(),
+        )
+        .join(' ');
+  }
+
   String _timeLeft(DateTime requestTime) {
     final expiry = requestTime.add(const Duration(hours: 24));
     final now = DateTime.now();
@@ -182,7 +195,7 @@ class _CaregiverConnectionRequestsScreenState
                       ),
                       const SizedBox(height: 8),
                       Text(
-                        '${req['guardianName'] ?? 'A guardian'} is inviting you to connect and provide care for their ${req['relationship']?.toString().isNotEmpty == true ? req['relationship']!.toLowerCase() : 'family member'}. Please review the details below and respond to the request.',
+                        '${_capitalizeName(req['guardianName'])} is inviting you to connect and provide care for their ${req['relationship']?.toString().isNotEmpty == true ? req['relationship']!.toLowerCase() : 'family member'}. Please review the details below and respond to the request.',
                         style: const TextStyle(
                           fontSize: 15,
                           color: Colors.black87,
@@ -210,7 +223,7 @@ class _CaregiverConnectionRequestsScreenState
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
                                 Text(
-                                  req['guardianName'] ?? '-',
+                                  _capitalizeName(req['guardianName']),
                                   style: const TextStyle(
                                     fontSize: 15,
                                     fontWeight: FontWeight.w500,
@@ -277,7 +290,7 @@ class _CaregiverConnectionRequestsScreenState
                       ),
                       const SizedBox(height: 6),
                       Text(
-                        'Name: ${req['patientName'] ?? '-'}',
+                        'Name: ${_capitalizeName(req['patientName'])}',
                         style: const TextStyle(
                           fontSize: 14,
                           color: Colors.black87,

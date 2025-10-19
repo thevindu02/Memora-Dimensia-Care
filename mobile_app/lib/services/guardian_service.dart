@@ -122,6 +122,7 @@ class GuardianService {
     return response.statusCode == 200;
   }
 
+
   static Future<List<Map<String, dynamic>>> getAllCaregiversForGuardian(int guardianId) async {
     try {
       final response = await http.get(
@@ -138,6 +139,7 @@ class GuardianService {
       throw Exception('Failed to load caregivers: $e');
     }
   }
+
 
   /// Sends a guardian connection email to the patient. Returns true if successful, false otherwise.
   static Future<Map<String, dynamic>> sendGuardianConnectionEmail({

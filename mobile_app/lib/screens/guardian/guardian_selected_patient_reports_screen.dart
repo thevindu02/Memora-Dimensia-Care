@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../../constants/color_constants.dart';
 import '../../utils/name_utils.dart';
+import '../../services/daily_report_service.dart';
 
 class GuardianSelectedPatientReportsScreen extends StatefulWidget {
   @override
@@ -14,6 +15,7 @@ class _GuardianSelectedPatientReportsScreenState
   List<Map<String, dynamic>> allReports = [];
   List<Map<String, dynamic>> filteredReports = [];
   DateTime? _selectedDate;
+  bool _isLoading = false;
 
   @override
   void initState() {
@@ -25,112 +27,38 @@ class _GuardianSelectedPatientReportsScreenState
     });
   }
 
-  void _loadReports() {
-    // Mock data for daily reports - in real app, this would come from API/database
-    allReports = [
-      {
-        'date': '2024-07-04',
-        'time': '11:45 PM',
-        'routineSummary': {
-          'completed': ['Morning medication', 'Breakfast', 'Physical therapy'],
-          'notCompleted': ['Evening walk'],
-          'skipped': ['Afternoon snack'],
-          'completionRate': 75,
-        },
-        'biometricsSummary': {
-          'heartRate': {'avg': 72, 'min': 58, 'max': 89, 'status': 'Normal'},
-          'bloodPressure': {
-            'systolic': 120,
-            'diastolic': 80,
-            'status': 'Normal',
-          },
-          'steps': 8500,
-          'sleepHours': 7.5,
-          'anomalies': [],
-          'overallStatus': 'Good',
-        },
-      },
-      {
-        'date': '2024-07-03',
-        'time': '11:30 PM',
-        'routineSummary': {
-          'completed': [
-            'Morning medication',
-            'Breakfast',
-            'Physical therapy',
-            'Evening walk',
-          ],
-          'notCompleted': [],
-          'skipped': ['Afternoon snack'],
-          'completionRate': 100,
-        },
-        'biometricsSummary': {
-          'heartRate': {'avg': 68, 'min': 55, 'max': 85, 'status': 'Normal'},
-          'bloodPressure': {
-            'systolic': 118,
-            'diastolic': 78,
-            'status': 'Normal',
-          },
-          'steps': 9200,
-          'sleepHours': 8.0,
-          'anomalies': [],
-          'overallStatus': 'Excellent',
-        },
-      },
-      {
-        'date': '2024-07-02',
-        'time': '11:20 PM',
-        'routineSummary': {
-          'completed': ['Morning medication', 'Breakfast'],
-          'notCompleted': ['Physical therapy', 'Evening walk'],
-          'skipped': ['Afternoon snack'],
-          'completionRate': 40,
-        },
-        'biometricsSummary': {
-          'heartRate': {'avg': 78, 'min': 62, 'max': 95, 'status': 'Normal'},
-          'bloodPressure': {
-            'systolic': 135,
-            'diastolic': 88,
-            'status': 'Elevated',
-          },
-          'steps': 4200,
-          'sleepHours': 6.2,
-          'anomalies': ['Elevated blood pressure detected at 3:15 PM'],
-          'overallStatus': 'Needs Attention',
-        },
-      },
-      {
-        'date': '2024-07-01',
-        'time': '11:55 PM',
-        'routineSummary': {
-          'completed': [
-            'Morning medication',
-            'Breakfast',
-            'Physical therapy',
-            'Evening walk',
-          ],
-          'notCompleted': [],
-          'skipped': [],
-          'completionRate': 100,
-        },
-        'biometricsSummary': {
-          'heartRate': {'avg': 70, 'min': 56, 'max': 87, 'status': 'Normal'},
-          'bloodPressure': {
-            'systolic': 115,
-            'diastolic': 75,
-            'status': 'Normal',
-          },
-          'steps': 10500,
-          'sleepHours': 8.5,
-          'anomalies': [],
-          'overallStatus': 'Excellent',
-        },
-      },
-    ];
+  void _loadReports() async {
+    if (patient == null) return;
 
     setState(() {
-      filteredReports = List.from(allReports);
+      _isLoading = true;
     });
+
+    try {
+      final reports = await DailyReportService.getReportsByPatientId(
+        patient!['patientId'],
+      );
+
+      setState(() {
+        allReports = reports;
+        filteredReports = List.from(allReports);
+        _isLoading = false;
+      });
+    } catch (e) {
+      print('Error loading reports: $e');
+      setState(() {
+        _isLoading = false;
+      });
+
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Failed to load reports. Please try again.'),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
+    }
   }
 
   void _filterReportsByDate(DateTime? date) {
@@ -181,24 +109,29 @@ class _GuardianSelectedPatientReportsScreenState
     _filterReportsByDate(null);
   }
 
-  Color _getStatusColor(String status) {
-    switch (status.toLowerCase()) {
-      case 'excellent':
-        return Colors.green;
-      case 'good':
-        return Colors.blue;
-      case 'needs attention':
-        return Colors.orange;
-      case 'critical':
-        return Colors.red;
-      default:
-        return Colors.grey;
+  Color _getCompletionColor(int completionRate) {
+    if (completionRate >= 80) {
+      return Colors.green;
+    } else if (completionRate >= 50) {
+      return Colors.orange;
+    } else {
+      return Colors.red;
     }
   }
 
+  int _countTotalActivities(List taskGroups) {
+    int total = 0;
+    for (var group in taskGroups) {
+      final details = group['details'] as List? ?? [];
+      total += details.length;
+    }
+    return total;
+  }
+
   Widget _buildReportCard(Map<String, dynamic> report) {
-    final routine = report['routineSummary'];
-    final biometrics = report['biometricsSummary'];
+    final routine = report['routineSummary'] as Map<String, dynamic>?;
+    final completionRate = report['completionRate'] ?? 0;
+    final generatedAt = report['generatedAt'] ?? 'N/A';
 
     return Container(
       margin: EdgeInsets.only(bottom: 16),
@@ -233,7 +166,7 @@ class _GuardianSelectedPatientReportsScreenState
                   ),
                   SizedBox(height: 4),
                   Text(
-                    'Generated at ${report['time']}',
+                    'Generated at $generatedAt',
                     style: TextStyle(
                       fontSize: 12,
                       color: AppColors.onSurfaceVariant,
@@ -245,17 +178,15 @@ class _GuardianSelectedPatientReportsScreenState
             Container(
               padding: EdgeInsets.symmetric(horizontal: 12, vertical: 6),
               decoration: BoxDecoration(
-                color: _getStatusColor(
-                  biometrics['overallStatus'],
-                ).withOpacity(0.1),
+                color: _getCompletionColor(completionRate).withOpacity(0.1),
                 borderRadius: BorderRadius.circular(20),
               ),
               child: Text(
-                biometrics['overallStatus'],
+                '$completionRate% Complete',
                 style: TextStyle(
                   fontSize: 12,
                   fontWeight: FontWeight.w500,
-                  color: _getStatusColor(biometrics['overallStatus']),
+                  color: _getCompletionColor(completionRate),
                 ),
               ),
             ),
@@ -286,277 +217,161 @@ class _GuardianSelectedPatientReportsScreenState
                     ),
                     Spacer(),
                     Text(
-                      '${routine['completionRate']}% Complete',
+                      '$completionRate% Complete',
                       style: TextStyle(
                         fontSize: 14,
                         fontWeight: FontWeight.w500,
-                        color: Colors.green,
+                        color: _getCompletionColor(completionRate),
                       ),
                     ),
                   ],
                 ),
                 SizedBox(height: 12),
 
-                // Completed tasks
-                if (routine['completed'].isNotEmpty) ...[
-                  Text(
-                    'Completed (${routine['completed'].length}):',
-                    style: TextStyle(
-                      fontSize: 14,
-                      fontWeight: FontWeight.w500,
-                      color: Colors.green[700],
-                    ),
-                  ),
-                  SizedBox(height: 4),
-                  for (var task in routine['completed'])
-                    Padding(
-                      padding: EdgeInsets.only(left: 16, bottom: 2),
-                      child: Row(
-                        children: [
-                          Icon(Icons.check, color: Colors.green, size: 16),
-                          SizedBox(width: 8),
-                          Text(
-                            task,
-                            style: TextStyle(
-                              fontSize: 13,
-                              color: AppColors.onSurfaceVariant,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                  SizedBox(height: 8),
-                ],
-
-                // Not completed tasks
-                if (routine['notCompleted'].isNotEmpty) ...[
-                  Text(
-                    'Not Completed (${routine['notCompleted'].length}):',
-                    style: TextStyle(
-                      fontSize: 14,
-                      fontWeight: FontWeight.w500,
-                      color: Colors.orange[700],
-                    ),
-                  ),
-                  SizedBox(height: 4),
-                  for (var task in routine['notCompleted'])
-                    Padding(
-                      padding: EdgeInsets.only(left: 16, bottom: 2),
-                      child: Row(
-                        children: [
-                          Icon(Icons.close, color: Colors.orange, size: 16),
-                          SizedBox(width: 8),
-                          Text(
-                            task,
-                            style: TextStyle(
-                              fontSize: 13,
-                              color: Colors.grey[700],
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                  SizedBox(height: 8),
-                ],
-
-                // Skipped tasks
-                if (routine['skipped'].isNotEmpty) ...[
-                  Text(
-                    'Skipped (${routine['skipped'].length}):',
-                    style: TextStyle(
-                      fontSize: 14,
-                      fontWeight: FontWeight.w500,
-                      color: Colors.red[700],
-                    ),
-                  ),
-                  SizedBox(height: 4),
-                  for (var task in routine['skipped'])
-                    Padding(
-                      padding: EdgeInsets.only(left: 16, bottom: 2),
-                      child: Row(
-                        children: [
-                          Icon(Icons.remove, color: Colors.red, size: 16),
-                          SizedBox(width: 8),
-                          Text(
-                            task,
-                            style: TextStyle(
-                              fontSize: 13,
-                              color: Colors.grey[700],
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                ],
-              ],
-            ),
-          ),
-
-          SizedBox(height: 16),
-
-          // Biometrics Summary Section
-          Container(
-            padding: EdgeInsets.all(16),
-            decoration: BoxDecoration(
-              color: Colors.blue[50],
-              borderRadius: BorderRadius.circular(8),
-            ),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Row(
-                  children: [
-                    Icon(Icons.favorite, color: Colors.red, size: 20),
-                    SizedBox(width: 8),
-                    Text(
-                      'Biometrics Summary',
-                      style: TextStyle(
-                        fontSize: 16,
-                        fontWeight: FontWeight.w600,
-                        color: AppColors.onSurface,
-                      ),
-                    ),
-                  ],
-                ),
-                SizedBox(height: 12),
-
-                // Heart Rate
-                Row(
-                  children: [
-                    Text(
-                      'Heart Rate:',
-                      style: TextStyle(
-                        fontSize: 14,
-                        fontWeight: FontWeight.w500,
-                        color: AppColors.onSurface,
-                      ),
-                    ),
-                    SizedBox(width: 8),
-                    Text(
-                      '${biometrics['heartRate']['avg']} bpm avg (${biometrics['heartRate']['min']}-${biometrics['heartRate']['max']})',
+                if (routine == null || routine.isEmpty)
+                  Padding(
+                    padding: EdgeInsets.all(8),
+                    child: Text(
+                      'No routine data available',
                       style: TextStyle(
                         fontSize: 13,
                         color: AppColors.onSurfaceVariant,
                       ),
                     ),
-                  ],
-                ),
-                SizedBox(height: 4),
-
-                // Blood Pressure
-                Row(
-                  children: [
+                  )
+                else ...[
+                  // Completed tasks
+                  if (routine['completed'] != null &&
+                      (routine['completed'] as List).isNotEmpty) ...[
                     Text(
-                      'Blood Pressure:',
+                      'Completed (${_countTotalActivities(routine['completed'] as List)}):',
                       style: TextStyle(
                         fontSize: 14,
                         fontWeight: FontWeight.w500,
-                        color: AppColors.onSurface,
+                        color: Colors.green[700],
                       ),
                     ),
-                    SizedBox(width: 8),
-                    Text(
-                      '${biometrics['bloodPressure']['systolic']}/${biometrics['bloodPressure']['diastolic']} mmHg',
-                      style: TextStyle(
-                        fontSize: 13,
-                        color: AppColors.onSurfaceVariant,
-                      ),
-                    ),
-                  ],
-                ),
-                SizedBox(height: 4),
-
-                // Steps
-                Row(
-                  children: [
-                    Text(
-                      'Steps:',
-                      style: TextStyle(
-                        fontSize: 14,
-                        fontWeight: FontWeight.w500,
-                        color: AppColors.onSurface,
-                      ),
-                    ),
-                    SizedBox(width: 8),
-                    Text(
-                      '${biometrics['steps']} steps',
-                      style: TextStyle(
-                        fontSize: 13,
-                        color: AppColors.onSurfaceVariant,
-                      ),
-                    ),
-                  ],
-                ),
-                SizedBox(height: 4),
-
-                // Sleep
-                Row(
-                  children: [
-                    Text(
-                      'Sleep:',
-                      style: TextStyle(
-                        fontSize: 14,
-                        fontWeight: FontWeight.w500,
-                        color: AppColors.onSurface,
-                      ),
-                    ),
-                    SizedBox(width: 8),
-                    Text(
-                      '${biometrics['sleepHours']} hours',
-                      style: TextStyle(
-                        fontSize: 13,
-                        color: AppColors.onSurfaceVariant,
-                      ),
-                    ),
-                  ],
-                ),
-
-                // Anomalies
-                if (biometrics['anomalies'].isNotEmpty) ...[
-                  SizedBox(height: 12),
-                  Text(
-                    'Anomalies Detected:',
-                    style: TextStyle(
-                      fontSize: 14,
-                      fontWeight: FontWeight.w500,
-                      color: Colors.red[700],
-                    ),
-                  ),
-                  SizedBox(height: 4),
-                  for (var anomaly in biometrics['anomalies'])
-                    Padding(
-                      padding: EdgeInsets.only(left: 16, bottom: 2),
-                      child: Row(
-                        children: [
-                          Icon(Icons.warning, color: Colors.red, size: 16),
-                          SizedBox(width: 8),
-                          Expanded(
-                            child: Text(
-                              anomaly,
-                              style: TextStyle(
-                                fontSize: 13,
-                                color: Colors.red[700],
-                              ),
+                    SizedBox(height: 4),
+                    for (var taskGroup in (routine['completed'] as List))
+                      ...() {
+                        final time = taskGroup['time'] ?? '';
+                        final details = taskGroup['details'] as List? ?? [];
+                        return details.map(
+                          (detail) => Padding(
+                            padding: EdgeInsets.only(left: 16, bottom: 2),
+                            child: Row(
+                              children: [
+                                Icon(
+                                  Icons.check,
+                                  color: Colors.green,
+                                  size: 16,
+                                ),
+                                SizedBox(width: 8),
+                                Expanded(
+                                  child: Text(
+                                    time.isNotEmpty
+                                        ? '$time - $detail'
+                                        : detail.toString(),
+                                    style: TextStyle(
+                                      fontSize: 13,
+                                      color: AppColors.onSurfaceVariant,
+                                    ),
+                                  ),
+                                ),
+                              ],
                             ),
                           ),
-                        ],
+                        );
+                      }(),
+                    SizedBox(height: 8),
+                  ],
+
+                  // Not completed tasks
+                  if (routine['notCompleted'] != null &&
+                      (routine['notCompleted'] as List).isNotEmpty) ...[
+                    Text(
+                      'Not Completed (${_countTotalActivities(routine['notCompleted'] as List)}):',
+                      style: TextStyle(
+                        fontSize: 14,
+                        fontWeight: FontWeight.w500,
+                        color: Colors.orange[700],
                       ),
                     ),
-                ] else ...[
-                  SizedBox(height: 8),
-                  Row(
-                    children: [
-                      Icon(Icons.check_circle, color: Colors.green, size: 16),
-                      SizedBox(width: 8),
-                      Text(
-                        'No anomalies detected',
-                        style: TextStyle(
-                          fontSize: 13,
-                          color: Colors.green[700],
-                        ),
+                    SizedBox(height: 4),
+                    for (var taskGroup in (routine['notCompleted'] as List))
+                      ...() {
+                        final time = taskGroup['time'] ?? '';
+                        final details = taskGroup['details'] as List? ?? [];
+                        return details.map(
+                          (detail) => Padding(
+                            padding: EdgeInsets.only(left: 16, bottom: 2),
+                            child: Row(
+                              children: [
+                                Icon(
+                                  Icons.close,
+                                  color: Colors.orange,
+                                  size: 16,
+                                ),
+                                SizedBox(width: 8),
+                                Expanded(
+                                  child: Text(
+                                    time.isNotEmpty
+                                        ? '$time - $detail'
+                                        : detail.toString(),
+                                    style: TextStyle(
+                                      fontSize: 13,
+                                      color: Colors.grey[700],
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        );
+                      }(),
+                    SizedBox(height: 8),
+                  ],
+
+                  // Skipped tasks
+                  if (routine['skipped'] != null &&
+                      (routine['skipped'] as List).isNotEmpty) ...[
+                    Text(
+                      'Skipped (${_countTotalActivities(routine['skipped'] as List)}):',
+                      style: TextStyle(
+                        fontSize: 14,
+                        fontWeight: FontWeight.w500,
+                        color: Colors.red[700],
                       ),
-                    ],
-                  ),
+                    ),
+                    SizedBox(height: 4),
+                    for (var taskGroup in (routine['skipped'] as List))
+                      ...() {
+                        final time = taskGroup['time'] ?? '';
+                        final details = taskGroup['details'] as List? ?? [];
+                        return details.map(
+                          (detail) => Padding(
+                            padding: EdgeInsets.only(left: 16, bottom: 2),
+                            child: Row(
+                              children: [
+                                Icon(Icons.remove, color: Colors.red, size: 16),
+                                SizedBox(width: 8),
+                                Expanded(
+                                  child: Text(
+                                    time.isNotEmpty
+                                        ? '$time - $detail'
+                                        : detail.toString(),
+                                    style: TextStyle(
+                                      fontSize: 13,
+                                      color: Colors.grey[700],
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        );
+                      }(),
+                  ],
                 ],
               ],
             ),
@@ -589,399 +404,170 @@ class _GuardianSelectedPatientReportsScreenState
         ),
         centerTitle: false,
       ),
-      body: Column(
-        children: [
-          // Date filter section
-          Container(
-            padding: EdgeInsets.all(16),
-            color: Colors.white,
-            child: Row(
+      body: _isLoading
+          ? Center(child: CircularProgressIndicator())
+          : Column(
               children: [
-                Expanded(
-                  child: Container(
-                    padding: EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-                    decoration: BoxDecoration(
-                      color: Colors.grey[100],
-                      borderRadius: BorderRadius.circular(12),
-                      border: Border.all(color: Colors.grey[300]!),
-                    ),
-                    child: Row(
-                      children: [
-                        Icon(Icons.filter_list, color: Colors.grey[600]),
-                        SizedBox(width: 12),
-                        Text(
-                          _selectedDate == null
-                              ? 'Select a date to filter reports'
-                              : '${_selectedDate!.day}/${_selectedDate!.month}/${_selectedDate!.year}',
-                          style: TextStyle(
-                            fontSize: 14,
-                            color: _selectedDate == null
-                                ? Colors.grey[600]
-                                : Colors.black87,
-                            fontWeight: _selectedDate == null
-                                ? FontWeight.normal
-                                : FontWeight.w500,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
-                SizedBox(width: 12),
-                Material(
-                  color: Colors.transparent,
-                  child: InkWell(
-                    onTap: () => _selectDate(context),
-                    borderRadius: BorderRadius.circular(12),
-                    child: Container(
-                      padding: EdgeInsets.all(12),
-                      decoration: BoxDecoration(
-                        color: Color(0xFF2B3F99),
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                      child: Icon(
-                        Icons.calendar_today,
-                        color: Colors.white,
-                        size: 20,
-                      ),
-                    ),
-                  ),
-                ),
-                if (_selectedDate != null) ...[
-                  SizedBox(width: 8),
-                  Material(
-                    color: Colors.transparent,
-                    child: InkWell(
-                      onTap: _clearDateFilter,
-                      borderRadius: BorderRadius.circular(12),
-                      child: Container(
-                        padding: EdgeInsets.all(12),
-                        decoration: BoxDecoration(
-                          color: Colors.grey[400],
-                          borderRadius: BorderRadius.circular(12),
-                        ),
-                        child: Icon(Icons.clear, color: Colors.white, size: 20),
-                      ),
-                    ),
-                  ),
-                ],
-              ],
-            ),
-          ),
-
-          // Weekly Summary Chart
-          _buildDailyReportChart(),
-
-          // Reports list
-          Expanded(
-            child: SingleChildScrollView(
-              padding: EdgeInsets.all(16),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  if (filteredReports.isEmpty)
-                    Container(
-                      padding: EdgeInsets.all(40),
-                      decoration: BoxDecoration(
-                        color: Colors.white,
-                        borderRadius: BorderRadius.circular(12),
-                        boxShadow: [
-                          BoxShadow(
-                            color: Colors.grey.withOpacity(0.1),
-                            spreadRadius: 1,
-                            blurRadius: 4,
-                            offset: Offset(0, 2),
-                          ),
-                        ],
-                      ),
-                      child: Column(
-                        children: [
-                          Icon(
-                            _selectedDate == null
-                                ? Icons.calendar_today
-                                : Icons.search_off,
-                            size: 48,
-                            color: Colors.grey[400],
-                          ),
-                          SizedBox(height: 16),
-                          Text(
-                            _selectedDate == null
-                                ? 'Select a date to view reports'
-                                : 'No reports found for selected date',
-                            style: TextStyle(
-                              fontSize: 16,
-                              fontWeight: FontWeight.w500,
-                              color: Colors.grey[600],
-                            ),
-                          ),
-                          SizedBox(height: 8),
-                          Text(
-                            _selectedDate == null
-                                ? 'Use the calendar button to choose a date'
-                                : 'Try selecting a different date',
-                            style: TextStyle(
-                              fontSize: 14,
-                              color: Colors.grey[500],
-                            ),
-                            textAlign: TextAlign.center,
-                          ),
-                        ],
-                      ),
-                    )
-                  else
-                    Column(
-                      children: [
-                        for (var report in filteredReports)
-                          _buildReportCard(report),
-                      ],
-                    ),
-                ],
-              ),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  // Hardcoded daily report chart widget
-  Widget _buildDailyReportChart() {
-    // Hardcoded sample data for daily reports
-    final List<Map<String, dynamic>> weeklyData = [
-      {'day': 'Mon', 'mood': 8, 'sleep': 7, 'activity': 6},
-      {'day': 'Tue', 'mood': 7, 'sleep': 8, 'activity': 7},
-      {'day': 'Wed', 'mood': 6, 'sleep': 6, 'activity': 8},
-      {'day': 'Thu', 'mood': 9, 'sleep': 9, 'activity': 5},
-      {'day': 'Fri', 'mood': 8, 'sleep': 7, 'activity': 9},
-      {'day': 'Sat', 'mood': 9, 'sleep': 8, 'activity': 8},
-      {'day': 'Sun', 'mood': 7, 'sleep': 9, 'activity': 6},
-    ];
-
-    return Container(
-      padding: EdgeInsets.all(16),
-      margin: EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(12),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.grey.withOpacity(0.1),
-            spreadRadius: 1,
-            blurRadius: 8,
-            offset: Offset(0, 2),
-          ),
-        ],
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            children: [
-              Icon(Icons.bar_chart, color: AppColors.info),
-              SizedBox(width: 8),
-              Text(
-                'Weekly Summary Report',
-                style: TextStyle(
-                  fontSize: 18,
-                  fontWeight: FontWeight.w600,
-                  color: AppColors.info,
-                ),
-              ),
-            ],
-          ),
-          SizedBox(height: 16),
-          Row(
-            children: [
-              // Legend
-              Expanded(
-                flex: 1,
-                child: Column(
-                  children: [
-                    _buildLegendItem('Mood Score', Color(0xFF4CAF50)),
-                    SizedBox(height: 8),
-                    _buildLegendItem('Sleep Quality', Color(0xFF2196F3)),
-                    SizedBox(height: 8),
-                    _buildLegendItem('Activity Level', Color(0xFFFF9800)),
-                  ],
-                ),
-              ),
-              SizedBox(width: 16),
-              // Chart area
-              Expanded(
-                flex: 3,
-                child: Container(
-                  height: 140, // Reduced from 160 to 140
+                // Date filter section
+                Container(
+                  padding: EdgeInsets.all(16),
+                  color: Colors.white,
                   child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                    crossAxisAlignment: CrossAxisAlignment.end,
-                    children: weeklyData.map((data) {
-                      return Expanded(
-                        child: Column(
-                          mainAxisAlignment: MainAxisAlignment.end,
-                          children: [
-                            // Score labels on top
-                            Container(
-                              height: 30, // Reduced from 36 to 30
-                              child: Column(
-                                mainAxisAlignment:
-                                    MainAxisAlignment.spaceEvenly,
-                                children: [
-                                  Text(
-                                    '${data['mood']}',
-                                    style: TextStyle(
-                                      fontSize: 8, // Reduced from 9 to 8
-                                      color: Color(0xFF4CAF50),
-                                      fontWeight: FontWeight.w600,
-                                    ),
-                                  ),
-                                  Text(
-                                    '${data['sleep']}',
-                                    style: TextStyle(
-                                      fontSize: 8, // Reduced from 9 to 8
-                                      color: Color(0xFF2196F3),
-                                      fontWeight: FontWeight.w600,
-                                    ),
-                                  ),
-                                  Text(
-                                    '${data['activity']}',
-                                    style: TextStyle(
-                                      fontSize: 8, // Reduced from 9 to 8
-                                      color: Color(0xFFFF9800),
-                                      fontWeight: FontWeight.w600,
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ),
-                            SizedBox(height: 4),
-                            // Bars
-                            Container(
-                              width: 24,
-                              height: 60, // Reduced height for bars area
-                              child: Row(
-                                mainAxisAlignment:
-                                    MainAxisAlignment.spaceEvenly,
-                                crossAxisAlignment: CrossAxisAlignment.end,
-                                children: [
-                                  // Mood bar
-                                  Container(
-                                    width: 6,
-                                    height:
-                                        (data['mood'] as int) *
-                                        5.0, // Further reduced multiplier (max 45px)
-                                    decoration: BoxDecoration(
-                                      color: Color(0xFF4CAF50),
-                                      borderRadius: BorderRadius.circular(3),
-                                    ),
-                                  ),
-                                  // Sleep bar
-                                  Container(
-                                    width: 6,
-                                    height:
-                                        (data['sleep'] as int) *
-                                        5.0, // Further reduced multiplier (max 45px)
-                                    decoration: BoxDecoration(
-                                      color: Color(0xFF2196F3),
-                                      borderRadius: BorderRadius.circular(3),
-                                    ),
-                                  ),
-                                  // Activity bar
-                                  Container(
-                                    width: 6,
-                                    height:
-                                        (data['activity'] as int) *
-                                        5.0, // Further reduced multiplier (max 45px)
-                                    decoration: BoxDecoration(
-                                      color: Color(0xFFFF9800),
-                                      borderRadius: BorderRadius.circular(3),
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ),
-                            SizedBox(height: 4), // Reduced spacing
-                            // Day label
-                            Container(
-                              height: 16, // Reduced from 18 to 16
-                              child: Text(
-                                data['day'],
+                    children: [
+                      Expanded(
+                        child: Container(
+                          padding: EdgeInsets.symmetric(
+                            horizontal: 16,
+                            vertical: 12,
+                          ),
+                          decoration: BoxDecoration(
+                            color: Colors.grey[100],
+                            borderRadius: BorderRadius.circular(12),
+                            border: Border.all(color: Colors.grey[300]!),
+                          ),
+                          child: Row(
+                            children: [
+                              Icon(Icons.filter_list, color: Colors.grey[600]),
+                              SizedBox(width: 12),
+                              Text(
+                                _selectedDate == null
+                                    ? 'Select a date to filter reports'
+                                    : '${_selectedDate!.day}/${_selectedDate!.month}/${_selectedDate!.year}',
                                 style: TextStyle(
-                                  fontSize: 10, // Reduced from 11 to 10
-                                  color: Colors.grey[600],
-                                  fontWeight: FontWeight.w500,
+                                  fontSize: 14,
+                                  color: _selectedDate == null
+                                      ? Colors.grey[600]
+                                      : Colors.black87,
+                                  fontWeight: _selectedDate == null
+                                      ? FontWeight.normal
+                                      : FontWeight.w500,
                                 ),
                               ),
-                            ),
-                          ],
+                            ],
+                          ),
                         ),
-                      );
-                    }).toList(),
+                      ),
+                      SizedBox(width: 12),
+                      Material(
+                        color: Colors.transparent,
+                        child: InkWell(
+                          onTap: () => _selectDate(context),
+                          borderRadius: BorderRadius.circular(12),
+                          child: Container(
+                            padding: EdgeInsets.all(12),
+                            decoration: BoxDecoration(
+                              color: Color(0xFF2B3F99),
+                              borderRadius: BorderRadius.circular(12),
+                            ),
+                            child: Icon(
+                              Icons.calendar_today,
+                              color: Colors.white,
+                              size: 20,
+                            ),
+                          ),
+                        ),
+                      ),
+                      if (_selectedDate != null) ...[
+                        SizedBox(width: 8),
+                        Material(
+                          color: Colors.transparent,
+                          child: InkWell(
+                            onTap: _clearDateFilter,
+                            borderRadius: BorderRadius.circular(12),
+                            child: Container(
+                              padding: EdgeInsets.all(12),
+                              decoration: BoxDecoration(
+                                color: Colors.grey[400],
+                                borderRadius: BorderRadius.circular(12),
+                              ),
+                              child: Icon(
+                                Icons.clear,
+                                color: Colors.white,
+                                size: 20,
+                              ),
+                            ),
+                          ),
+                        ),
+                      ],
+                    ],
                   ),
                 ),
-              ),
-            ],
-          ),
-          SizedBox(height: 12),
-          // Summary stats
-          Container(
-            padding: EdgeInsets.all(12),
-            decoration: BoxDecoration(
-              color: Color(0xFFF8F9FA),
-              borderRadius: BorderRadius.circular(8),
-            ),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceAround,
-              children: [
-                _buildStatItem('Avg Mood', '7.7', Color(0xFF4CAF50)),
-                _buildStatItem('Avg Sleep', '7.7', Color(0xFF2196F3)),
-                _buildStatItem('Avg Activity', '7.0', Color(0xFFFF9800)),
+
+                // Reports list
+                Expanded(
+                  child: RefreshIndicator(
+                    onRefresh: () async {
+                      await Future.delayed(Duration(milliseconds: 500));
+                      _loadReports();
+                    },
+                    child: SingleChildScrollView(
+                      padding: EdgeInsets.all(16),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          if (filteredReports.isEmpty)
+                            Container(
+                              padding: EdgeInsets.all(40),
+                              decoration: BoxDecoration(
+                                color: Colors.white,
+                                borderRadius: BorderRadius.circular(12),
+                                boxShadow: [
+                                  BoxShadow(
+                                    color: Colors.grey.withOpacity(0.1),
+                                    spreadRadius: 1,
+                                    blurRadius: 4,
+                                    offset: Offset(0, 2),
+                                  ),
+                                ],
+                              ),
+                              child: Column(
+                                children: [
+                                  Icon(
+                                    _selectedDate == null
+                                        ? Icons.calendar_today
+                                        : Icons.search_off,
+                                    size: 48,
+                                    color: Colors.grey[400],
+                                  ),
+                                  SizedBox(height: 16),
+                                  Text(
+                                    _selectedDate == null
+                                        ? 'No reports available yet'
+                                        : 'No reports found for selected date',
+                                    style: TextStyle(
+                                      fontSize: 16,
+                                      fontWeight: FontWeight.w500,
+                                      color: Colors.grey[600],
+                                    ),
+                                  ),
+                                  SizedBox(height: 8),
+                                  Text(
+                                    _selectedDate == null
+                                        ? 'Reports will appear here when routines are completed'
+                                        : 'Try selecting a different date',
+                                    style: TextStyle(
+                                      fontSize: 14,
+                                      color: Colors.grey[500],
+                                    ),
+                                    textAlign: TextAlign.center,
+                                  ),
+                                ],
+                              ),
+                            )
+                          else
+                            Column(
+                              children: [
+                                for (var report in filteredReports)
+                                  _buildReportCard(report),
+                              ],
+                            ),
+                        ],
+                      ),
+                    ),
+                  ),
+                ),
               ],
             ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildLegendItem(String label, Color color) {
-    return Row(
-      children: [
-        Container(
-          width: 10,
-          height: 10,
-          decoration: BoxDecoration(
-            color: color,
-            borderRadius: BorderRadius.circular(2),
-          ),
-        ),
-        SizedBox(width: 6),
-        Expanded(
-          child: Text(
-            label,
-            style: TextStyle(
-              fontSize: 12,
-              color: Colors.grey[700],
-              fontWeight: FontWeight.w500,
-            ),
-          ),
-        ),
-      ],
-    );
-  }
-
-  Widget _buildStatItem(String label, String value, Color color) {
-    return Column(
-      children: [
-        Text(
-          value,
-          style: TextStyle(
-            fontSize: 16,
-            fontWeight: FontWeight.w700,
-            color: color,
-          ),
-        ),
-        Text(label, style: TextStyle(fontSize: 10, color: Colors.grey[600])),
-      ],
     );
   }
 
