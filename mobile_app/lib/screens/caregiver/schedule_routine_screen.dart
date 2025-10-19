@@ -340,9 +340,13 @@ class _ScheduleRoutineScreenState extends State<ScheduleRoutineScreen> {
     if (result.success && result.data != null) {
       final data = result.data;
       setState(() {
-        final rawName = ((data['fName'] ?? '') + ' ' + (data['lName'] ?? ''))
-            .trim();
-        _patientName = _capitalizeName(rawName);
+        // Use patientName if available (backend now returns it), else fall back to FName/LName
+        _patientName = (data['patientName'] != null && data['patientName'].toString().trim().isNotEmpty)
+            ? data['patientName'].toString().trim()
+            : ((data['FName'] ?? data['fName'] ?? '') + ' ' + (data['LName'] ?? data['lName'] ?? '')).trim();
+        if (_patientName == null || _patientName!.isEmpty) {
+          _patientName = 'Unknown';
+        }
         _isPatientLoading = false;
       });
     } else {

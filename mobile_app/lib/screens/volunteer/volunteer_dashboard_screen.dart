@@ -10,7 +10,8 @@ import 'volunteer_settings_screen.dart';
 import '../../constants/color_constants.dart';
 
 class VolunteerDashboardScreen extends StatefulWidget {
-  const VolunteerDashboardScreen({Key? key}) : super(key: key);
+  final int volunteerId;
+  const VolunteerDashboardScreen({Key? key, required this.volunteerId}) : super(key: key);
 
   @override
   State<VolunteerDashboardScreen> createState() =>
@@ -126,8 +127,7 @@ class _VolunteerDashboardScreenState extends State<VolunteerDashboardScreen> {
                       () => Navigator.push(
                         context,
                         MaterialPageRoute(
-                          builder: (context) =>
-                              VolunteerScheduleSessionScreen(),
+                          builder: (context) => VolunteerScheduleSessionScreen(volunteerId: widget.volunteerId), // <-- FIXED
                         ),
                       ),
                     ),
@@ -139,7 +139,7 @@ class _VolunteerDashboardScreenState extends State<VolunteerDashboardScreen> {
                       () => Navigator.push(
                         context,
                         MaterialPageRoute(
-                          builder: (context) => VolunteerSettingsScreen(),
+                          builder: (context) => VolunteerSettingsScreen(volunteerId: widget.volunteerId), // <-- FIXED
                         ),
                       ),
                     ),
@@ -187,7 +187,10 @@ class _VolunteerDashboardScreenState extends State<VolunteerDashboardScreen> {
           ),
         ),
       ),
-      bottomNavigationBar: VolunteerBottomNavigation(currentPage: 'home'),
+      bottomNavigationBar: VolunteerBottomNavigation(
+        currentPage: 'home', // or 'content', etc.
+        volunteerId: widget.volunteerId, // <-- Pass volunteerId here
+      ),
     );
   }
 

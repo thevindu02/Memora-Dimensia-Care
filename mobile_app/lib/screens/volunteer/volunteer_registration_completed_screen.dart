@@ -2,7 +2,8 @@ import 'package:flutter/material.dart';
 import 'volunteer_dashboard_screen.dart';
 
 class VolunteerRegistrationCompletedScreen extends StatelessWidget {
-  const VolunteerRegistrationCompletedScreen({Key? key}) : super(key: key);
+  final int volunteerId;
+  const VolunteerRegistrationCompletedScreen({Key? key, required this.volunteerId}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -66,7 +67,9 @@ class VolunteerRegistrationCompletedScreen extends StatelessWidget {
                   Navigator.pushReplacement(
                     context,
                     MaterialPageRoute(
-                      builder: (context) => const VolunteerDashboardScreen(),
+                      builder: (context) => VolunteerDashboardScreen(
+                          volunteerId:
+                              volunteerId), // <-- Pass volunteerId here
                     ),
                   );
                 },

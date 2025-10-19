@@ -17,4 +17,8 @@ public interface CaregiverRepository extends JpaRepository<Caregiver, Integer> {
     
     @Query("SELECT c FROM Caregiver c WHERE LOWER(c.user.city) = LOWER(:city)")
     List<Caregiver> findByUserCity(@Param("city") String city);
-} 
+    
+    default Caregiver findByIdOrNull(Integer id) {
+        return findById(id).orElse(null);
+    }
+}

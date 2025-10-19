@@ -3,17 +3,111 @@ import 'package:http/http.dart' as http;
 import 'api_constants.dart';
 
 class CaregiverService {
-  static final String url = '${ApiConstants.baseUrl}/api/caregivers';
+  static final String baseUrl = '${ApiConstants.baseUrl}/api/caregivers';
+  static final String guardianEndpoint = '${ApiConstants.baseUrl}/api/guardians';
 
-  static Future<List<Map<String, dynamic>>> getCaregiversByCity(
-    String city,
-  ) async {
+  /// Primary: call backend endpoint added: GET /api/guardians/{guardianId}/expired-caregivers
+  /// Fallback: try multiple endpoint variants and flexible JSON parsing.
+  static Future<List<Map<String, dynamic>>> getExpiredInactiveCaregiversByGuardianId(int guardianId) async {
+    final primaryUrl = '$guardianEndpoint/$guardianId/expired-caregivers';
+    try {
+      final resp = await http.get(Uri.parse(primaryUrl), headers: {'Content-Type': 'application/json'});
+      if (resp.statusCode == 200 && resp.body.trim().isNotEmpty) {
+        final parsed = jsonDecode(resp.body);
+        if (parsed is List) {
+          return parsed.map<Map<String, dynamic>>((e) => Map<String, dynamic>.from(e as Map)).toList();
+        }
+        if (parsed is Map<String, dynamic>) {
+          // accept wrapper { data: [...] }
+          for (final key in ['data', 'caregivers', 'items', 'results']) {
+            if (parsed.containsKey(key) && parsed[key] is List) {
+              return List<Map<String, dynamic>>.from(parsed[key].map((e) => Map<String, dynamic>.from(e as Map)));
+            }
+          }
+          return [Map<String, dynamic>.from(parsed)];
+        }
+      } else {
+        print('CaregiverService: primary endpoint returned ${resp.statusCode} - ${resp.body}');
+      }
+    } catch (e) {
+      print('CaregiverService: primary endpoint error: $e');
+    }
+
+    // Primary endpoint failed — use robust candidates search
+    return _getExpiredInactiveCaregiversCandidates(guardianId);
+  }
+
+  /// Internal: try multiple candidate URLs and flexible JSON parsing.
+  static Future<List<Map<String, dynamic>>> _getExpiredInactiveCaregiversCandidates(int guardianId) async {
+    final candidates = <String>[
+      '$baseUrl/expired-inactive?guardianId=$guardianId',
+      '$baseUrl/expired-inactive?guardian_id=$guardianId',
+      '${ApiConstants.baseUrl}/api/guardians/$guardianId/caregivers/expired',
+      '$baseUrl/expired-inactive/$guardianId',
+      '$baseUrl/by-guardian/$guardianId/expired',
+    ];
+
+    for (final url in candidates) {
+      try {
+        print('CaregiverService: trying $url');
+        final resp = await http.get(Uri.parse(url), headers: {'Content-Type': 'application/json'});
+
+        if (resp.statusCode == 200) {
+          final body = resp.body.trim();
+          if (body.isEmpty) continue;
+
+          final parsed = jsonDecode(body);
+          if (parsed is List) {
+            return parsed.map<Map<String, dynamic>>((e) => Map<String, dynamic>.from(e as Map)).toList();
+          }
+          if (parsed is Map<String, dynamic>) {
+            for (final key in ['data', 'caregivers', 'items', 'results']) {
+              if (parsed.containsKey(key) && parsed[key] is List) {
+                return List<Map<String, dynamic>>.from(parsed[key].map((e) => Map<String, dynamic>.from(e as Map)));
+              }
+            }
+            return [Map<String, dynamic>.from(parsed)];
+          }
+        } else {
+          print('CaregiverService: $url returned ${resp.statusCode}');
+          continue;
+        }
+      } catch (e) {
+        print('CaregiverService: request to $url failed: $e');
+        continue;
+      }
+    }
+
+    return <Map<String, dynamic>>[];
+  }
+
+  /// Backwards-compatible method used previously in the app.
+  static Future<List<Map<String, dynamic>>> getExpiredInactiveCaregivers() async {
+    final uri = Uri.parse('$baseUrl/expired-inactive');
+    final resp = await http.get(uri, headers: {'Content-Type': 'application/json'});
+    if (resp.statusCode == 200) {
+      final data = jsonDecode(resp.body);
+      if (data is List) {
+        return List<Map<String, dynamic>>.from(data.map((e) => Map<String, dynamic>.from(e as Map)));
+      }
+      if (data is Map<String, dynamic>) {
+        for (final key in ['data', 'caregivers', 'items', 'results']) {
+          if (data.containsKey(key) && data[key] is List) {
+            return List<Map<String, dynamic>>.from(data[key].map((e) => Map<String, dynamic>.from(e as Map)));
+          }
+        }
+        return [Map<String, dynamic>.from(data)];
+      }
+    }
+    return <Map<String, dynamic>>[];
+  }
+
+  static Future<List<Map<String, dynamic>>> getCaregiversByCity(String city) async {
     try {
       final response = await http.get(
-        Uri.parse('$url/by-city/$city'),
+        Uri.parse('$baseUrl/by-city/$city'),
         headers: {'Content-Type': 'application/json'},
       );
-
       if (response.statusCode == 200) {
         final List<dynamic> data = jsonDecode(response.body);
         return data.cast<Map<String, dynamic>>();
@@ -28,13 +122,11 @@ class CaregiverService {
   static Future<List<Map<String, dynamic>>> getAllCaregivers() async {
     try {
       final response = await http.get(
-        Uri.parse('$url/all'),
+        Uri.parse('$baseUrl/all'),
         headers: {'Content-Type': 'application/json'},
       );
-
       if (response.statusCode == 200) {
         final List<dynamic> data = jsonDecode(response.body);
-        // Add 'name' field to each caregiver map
         return data.map<Map<String, dynamic>>((c) {
           final map = Map<String, dynamic>.from(c);
           final fName = map['fName'] ?? '';
@@ -53,10 +145,9 @@ class CaregiverService {
   static Future<Map<String, dynamic>> getCaregiverById(int caregiverId) async {
     try {
       final response = await http.get(
-        Uri.parse('$url/$caregiverId'),
+        Uri.parse('$baseUrl/$caregiverId'),
         headers: {'Content-Type': 'application/json'},
       );
-
       if (response.statusCode == 200) {
         return jsonDecode(response.body);
       } else {
@@ -67,54 +158,44 @@ class CaregiverService {
     }
   }
 
-  static Future<List<Map<String, dynamic>>> getPendingRequests(
-    int caregiverId,
-  ) async {
+  static Future<List<Map<String, dynamic>>> getPendingRequests(int caregiverId) async {
     try {
       final response = await http.get(
-        Uri.parse('$url/$caregiverId/pending-requests'),
+        Uri.parse('$baseUrl/$caregiverId/pending-requests'),
         headers: {'Content-Type': 'application/json'},
       );
       if (response.statusCode == 200) {
         final List<dynamic> data = jsonDecode(response.body);
         return data.cast<Map<String, dynamic>>();
       } else {
-        throw Exception(
-          'Failed to load pending requests: \\${response.statusCode}',
-        );
+        throw Exception('Failed to load pending requests: ${response.statusCode}');
       }
     } catch (e) {
       throw Exception('Failed to load pending requests: $e');
     }
   }
 
-  static Future<List<Map<String, dynamic>>> getConnectedRequests(
-    int caregiverId,
-  ) async {
+  static Future<List<Map<String, dynamic>>> getConnectedRequests(int caregiverId) async {
     try {
       final response = await http.get(
-        Uri.parse('$url/$caregiverId/connected-requests'),
+        Uri.parse('$baseUrl/$caregiverId/connected-requests'),
         headers: {'Content-Type': 'application/json'},
       );
       if (response.statusCode == 200) {
         final List<dynamic> data = jsonDecode(response.body);
         return data.cast<Map<String, dynamic>>();
       } else {
-        throw Exception(
-          'Failed to load connected requests: \\${response.statusCode}',
-        );
+        throw Exception('Failed to load connected requests: ${response.statusCode}');
       }
     } catch (e) {
       throw Exception('Failed to load connected requests: $e');
     }
   }
 
-  static Future<List<Map<String, dynamic>>> getAvailableCaregiversForPatient(
-    int patientId,
-  ) async {
+  static Future<List<Map<String, dynamic>>> getAvailableCaregiversForPatient(int patientId) async {
     try {
       final response = await http.get(
-        Uri.parse('$url/available-for-patient/$patientId'),
+        Uri.parse('$baseUrl/available-for-patient/$patientId'),
         headers: {'Content-Type': 'application/json'},
       );
       if (response.statusCode == 200) {
@@ -127,7 +208,7 @@ class CaregiverService {
           return map;
         }).toList();
       } else {
-        throw Exception('Failed to load caregivers: \\${response.statusCode}');
+        throw Exception('Failed to load caregivers: ${response.statusCode}');
       }
     } catch (e) {
       throw Exception('Failed to load caregivers: $e');
@@ -137,7 +218,7 @@ class CaregiverService {
   static Future<int?> getCaregiverIdByUserId(int userId) async {
     try {
       final response = await http.get(
-        Uri.parse('$url/by-user/$userId'),
+        Uri.parse('$baseUrl/by-user/$userId'),
         headers: {'Content-Type': 'application/json'},
       );
       if (response.statusCode == 200) {
@@ -152,7 +233,7 @@ class CaregiverService {
 
   static Future<void> acceptConnectionRequest(int connectionId) async {
     final response = await http.post(
-      Uri.parse('$url/connection-request/$connectionId/accept'),
+      Uri.parse('$baseUrl/connection-request/$connectionId/accept'),
       headers: {'Content-Type': 'application/json'},
     );
     if (response.statusCode != 200) {
@@ -162,7 +243,7 @@ class CaregiverService {
 
   static Future<void> rejectConnectionRequest(int connectionId) async {
     final response = await http.post(
-      Uri.parse('$url/connection-request/$connectionId/reject'),
+      Uri.parse('$baseUrl/connection-request/$connectionId/reject'),
       headers: {'Content-Type': 'application/json'},
     );
     if (response.statusCode != 200) {
@@ -198,8 +279,7 @@ class CaregiverService {
     required String qualifications,
     required List<String> skills,
   }) async {
-    final url = Uri.parse(
-        '${ApiConstants.baseUrl}/api/caregivers/$caregiverId/edit-profile');
+    final url = Uri.parse('${ApiConstants.baseUrl}/api/caregivers/$caregiverId/edit-profile');
     final body = {
       'fName': fName,
       'lName': lName,
@@ -221,5 +301,57 @@ class CaregiverService {
       body: jsonEncode(body),
     );
     return response.statusCode == 200;
+  }
+
+  static Future<List<Map<String, dynamic>>> getCaregiverReviews(int caregiverId) async {
+    final url = '${ApiConstants.baseUrl}/api/caregivers/$caregiverId/reviews';
+    final response = await http.get(Uri.parse(url), headers: {'Content-Type': 'application/json'});
+    if (response.statusCode != 200) {
+      throw Exception('Failed to load reviews: ${response.statusCode} ${response.body}');
+    }
+
+    final body = response.body.trim();
+    if (body.isEmpty) return <Map<String, dynamic>>[];
+
+    final parsed = jsonDecode(body);
+    List<dynamic> rawList = [];
+    if (parsed is List) {
+      rawList = parsed;
+    } else if (parsed is Map<String, dynamic>) {
+      // common wrappers
+      for (final key in ['data', 'reviews', 'items', 'results']) {
+        if (parsed.containsKey(key) && parsed[key] is List) {
+          rawList = parsed[key];
+          break;
+        }
+      }
+      // single-object response -> return single-item list
+      if (rawList.isEmpty) {
+        return [Map<String, dynamic>.from(parsed)];
+      }
+    } else {
+      return <Map<String, dynamic>>[];
+    }
+
+    // normalize field names so UI can reliably read review_text, rating, created_at
+    final normalized = rawList.map<Map<String, dynamic>>((e) {
+      final m = Map<String, dynamic>.from(e as Map);
+      if (!m.containsKey('review_text')) {
+        if (m.containsKey('reviewText')) m['review_text'] = m['reviewText'];
+        else if (m.containsKey('text')) m['review_text'] = m['text'];
+        else if (m.containsKey('comment')) m['review_text'] = m['comment'];
+      }
+      if (!m.containsKey('rating')) {
+        if (m.containsKey('rating_value')) m['rating'] = m['rating_value'];
+        else if (m.containsKey('score')) m['rating'] = m['score'];
+      }
+      if (!m.containsKey('created_at')) {
+        if (m.containsKey('createdAt')) m['created_at'] = m['createdAt'];
+        else if (m.containsKey('date')) m['created_at'] = m['date'];
+      }
+      return m;
+    }).toList();
+
+    return normalized;
   }
 }

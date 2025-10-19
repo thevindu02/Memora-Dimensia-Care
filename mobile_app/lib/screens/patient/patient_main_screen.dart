@@ -16,13 +16,20 @@ class PatientMainScreen extends StatefulWidget {
 
 class _PatientMainScreenState extends State<PatientMainScreen> {
   int _currentIndex = 0;
+  final int patientId = 1; // Replace with actual patientId from context/provider
 
-  final List<Widget> _screens = [
-    PatientDashboardScreen(),
-    PatientNotificationScreen(),
-    PatientGamesScreen(),
-    PatientProfileScreen(),
-  ];
+  late List<Widget> _screens;
+
+  @override
+  void initState() {
+    super.initState();
+    _screens = [
+      PatientDashboardScreen(),
+      PatientNotificationScreen(),
+      PatientGamesScreen(),
+      PatientProfileScreen(patientId: patientId),
+    ];
+  }
 
   @override
   Widget build(BuildContext context) {

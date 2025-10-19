@@ -591,6 +591,13 @@ class _GuardianDashboardScreenState extends State<GuardianDashboardScreen> {
                   },
                 ),
                 _buildQuickAccessButton(
+                  icon: Icons.group_outlined,
+                  label: 'Caregivers',
+                  onTap: () {
+                    Navigator.pushNamed(context, AppRoutes.guardianCaregiverList);
+                  },
+                ),
+                _buildQuickAccessButton(
                   icon: Icons.assessment_outlined,
                   label: 'Reports',
                   onTap: () {

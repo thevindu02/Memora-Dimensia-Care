@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+
+import 'volunteer_q&a_forum_screen.dart';
 import 'volunteer_bottom_navigation_screen.dart';
 import '../../routes/app_routes.dart';
 import 'volunteer_articles_screen.dart';
@@ -6,7 +8,8 @@ import '../../widgets/volunteer_qa_tab_body.dart';
 import '../../constants/color_constants.dart';
 
 class VolunteerCommunityScreen extends StatefulWidget {
-  const VolunteerCommunityScreen({Key? key}) : super(key: key);
+  final int volunteerId;
+  const VolunteerCommunityScreen({Key? key, required this.volunteerId}) : super(key: key);
 
   @override
   State<VolunteerCommunityScreen> createState() =>
@@ -71,7 +74,10 @@ class _VolunteerCommunityScreenState extends State<VolunteerCommunityScreen>
         controller: _tabController,
         children: [VolunteerArticlesTabBody(), VolunteerQATabBody()],
       ),
-      bottomNavigationBar: VolunteerBottomNavigation(currentPage: 'community'),
+      bottomNavigationBar: VolunteerBottomNavigation(
+        currentPage: 'community',
+        volunteerId: widget.volunteerId, // <-- Pass volunteerId here
+      ),
     );
   }
 }

@@ -8,6 +8,7 @@ public class JwtResponse {
     private String fName;
     private String lName;
     private String role;
+    private Long guardianId;
 
     public JwtResponse(String accessToken, Long id, String email, String fName, String lName, String role) {
         this.token = accessToken;
@@ -72,5 +73,13 @@ public class JwtResponse {
 
     public void setRole(String role) {
         this.role = role;
+    }
+
+    public Long getGuardianId() {
+        return guardianId;
+    }
+
+    public void setGuardianId(Long guardianId) {
+        this.guardianId = guardianId;
     }
 }

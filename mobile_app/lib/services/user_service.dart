@@ -42,13 +42,23 @@ class UserService {
 
     if (response.statusCode == 200 || response.statusCode == 201) {
       final data = jsonDecode(response.body);
-      return UserResult(success: true, message: "User created", userId: data['id']);
-    } else {
-      final responseData = jsonDecode(response.body);
       return UserResult(
-        success: false,
-        message: responseData['message'] ?? 'Failed to add user',
+        success: true,
+        message: "User created",
+        userId: data['id'],
       );
+    } else {
+      // Backend may return plain text or JSON error messages
+      String errorMessage;
+      try {
+        final responseData = jsonDecode(response.body);
+        errorMessage = responseData['message'] ?? response.body;
+      } catch (e) {
+        // If JSON parsing fails, use the raw response body
+        errorMessage = response.body;
+      }
+
+      return UserResult(success: false, message: errorMessage);
     }
   }
 
@@ -68,6 +78,119 @@ class UserService {
     } catch (e) {
       print('Error getting user: $e');
       return null;
+    }
+  }
+
+  static Future<UserResult> updateUser({
+    required int userId,
+    String? FName,
+    String? LName,
+    String? email,
+    String? phoneNumber,
+    String? birthdate,
+    String? profilePic,
+    String? street,
+    String? city,
+    String? state,
+    String? gender,
+  }) async {
+    try {
+      final Map<String, dynamic> updateData = {};
+
+      if (FName != null) updateData['FName'] = FName;
+      if (LName != null) updateData['LName'] = LName;
+      if (email != null) updateData['email'] = email;
+      if (phoneNumber != null) updateData['phoneNumber'] = phoneNumber;
+      if (birthdate != null) updateData['birthdate'] = birthdate;
+      if (profilePic != null) updateData['profilePic'] = profilePic;
+      if (street != null) updateData['street'] = street;
+      if (city != null) updateData['city'] = city;
+      if (state != null) updateData['state'] = state;
+      if (gender != null) updateData['gender'] = gender;
+
+      final response = await http.put(
+        Uri.parse('$url/$userId'),
+        headers: {'Content-Type': 'application/json'},
+        body: jsonEncode(updateData),
+      );
+
+      if (response.statusCode == 200) {
+        final data = jsonDecode(response.body);
+        return UserResult(
+          success: true,
+          message: data['message'] ?? "User updated successfully",
+          userId: userId,
+        );
+      } else if (response.statusCode == 409) {
+        // Conflict - email already in use
+        final responseData = jsonDecode(response.body);
+        return UserResult(
+          success: false,
+          message: responseData['message'] ?? 'Email already in use',
+        );
+      } else {
+        String errorMessage;
+        try {
+          final responseData = jsonDecode(response.body);
+          errorMessage = responseData['message'] ?? response.body;
+        } catch (e) {
+          errorMessage = response.body;
+        }
+        return UserResult(success: false, message: errorMessage);
+      }
+    } catch (e) {
+      print('Error updating user: $e');
+      return UserResult(
+        success: false,
+        message: 'Network error. Please check your connection.',
+      );
+    }
+  }
+
+  static Future<UserResult> changePassword({
+    required int userId,
+    required String currentPassword,
+    required String newPassword,
+  }) async {
+    try {
+      final response = await http.put(
+        Uri.parse('$url/$userId/change-password'),
+        headers: {'Content-Type': 'application/json'},
+        body: jsonEncode({
+          'currentPassword': currentPassword,
+          'newPassword': newPassword,
+        }),
+      );
+
+      if (response.statusCode == 200) {
+        final data = jsonDecode(response.body);
+        return UserResult(
+          success: true,
+          message: data['message'] ?? "Password changed successfully",
+          userId: userId,
+        );
+      } else if (response.statusCode == 400) {
+        final responseData = jsonDecode(response.body);
+        return UserResult(
+          success: false,
+          message: responseData['message'] ?? 'Invalid password',
+        );
+      } else {
+        String errorMessage;
+        try {
+          final responseData = jsonDecode(response.body);
+          errorMessage = responseData['message'] ?? response.body;
+        } catch (e) {
+          errorMessage = response.body;
+        }
+        return UserResult(success: false, message: errorMessage);
+      }
+    } catch (e) {
+      print('Error changing password: $e');
+      return UserResult(
+        success: false,
+        message: 'Network error. Please check your connection.',
+      );
     }
   }
 }

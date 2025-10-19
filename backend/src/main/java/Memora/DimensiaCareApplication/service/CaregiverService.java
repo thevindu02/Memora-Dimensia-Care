@@ -2,6 +2,7 @@ package Memora.DimensiaCareApplication.service;
 
 import Memora.DimensiaCareApplication.dto.response.CaregiverDetailsResponse;
 import Memora.DimensiaCareApplication.dto.response.CaregiverResponse;
+import Memora.DimensiaCareApplication.dto.response.ExpiredCaregiverResponse;
 import Memora.DimensiaCareApplication.model.*;
 import Memora.DimensiaCareApplication.repository.*;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -12,6 +13,7 @@ import org.springframework.scheduling.annotation.Scheduled;
 import java.util.List;
 import java.util.stream.Collectors;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 
 @Service
 public class CaregiverService {
@@ -87,5 +89,27 @@ public class CaregiverService {
             conn.setStatus(GuardianPatientCaregiverConnection.ConnectionStatus.EXPIRED);
         }
         connectionRepository.saveAll(expired);
+    }
+
+    public List<ExpiredCaregiverResponse> getExpiredCaregiversWithInactiveUsers() {
+        List<GuardianPatientCaregiverConnection> connections = connectionRepository.findByStatus(
+            GuardianPatientCaregiverConnection.ConnectionStatus.EXPIRED
+        );
+        List<ExpiredCaregiverResponse> result = new ArrayList<>();
+        for (GuardianPatientCaregiverConnection conn : connections) {
+            Caregiver caregiver = caregiverRepository.findById(conn.getCaregiverId().intValue()).orElse(null);
+            if (caregiver != null && caregiver.getUser().getStatus() == User.UserStatus.INACTIVE) {
+                User user = caregiver.getUser();
+                ExpiredCaregiverResponse resp = new ExpiredCaregiverResponse();
+                resp.setCaregiverId(caregiver.getCaregiverId().longValue());
+                resp.setfName(user.getFName());
+                resp.setlName(user.getLName());
+                resp.setEmail(user.getEmail());
+                resp.setExperience(caregiver.getExperience());
+                resp.setQualifications(caregiver.getQualifications());
+                result.add(resp);
+            }
+        }
+        return result;
     }
 }
