@@ -5,6 +5,7 @@ import '../../services/guardian_service.dart';
 import '../../services/chat_db.dart';
 import '../../constants/color_constants.dart';
 import '../../utils/name_utils.dart';
+import '../../services/auth_service.dart';
 
 class GuardianAddUnknownCaregiverScreen extends StatefulWidget {
   @override
@@ -737,17 +738,20 @@ class _GuardianAddUnknownCaregiverScreenState
             ),
             Column(
               children: [
-                // Messages button (guardian -> open conversation as guardian)
+                // Messages button
                 ElevatedButton(
-                  onPressed: () {
+                  onPressed: () async {
                     final partnerId = caregiver['id'] ?? caregiver['caregiverId'] ?? caregiver['user_id'] ?? caregiver['userId'];
+                    final currentUserId = await AuthService.getCurrentUserId();
+                    if (currentUserId == null) return;
                     Navigator.pushNamed(
                       context,
                       AppRoutes.chatConversation,
                       arguments: {
                         'id': partnerId,
-                        'name': fullName,
+                        'name': NameUtils.formatPatientName(caregiver),
                         'currentUser': 'guardian',
+                        'currentUserId': currentUserId,
                       },
                     );
                   },

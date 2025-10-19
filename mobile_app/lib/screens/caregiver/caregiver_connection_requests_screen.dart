@@ -312,15 +312,22 @@ class _CaregiverConnectionRequestsScreenState
                       Row(
                         mainAxisAlignment: MainAxisAlignment.end,
                         children: [
-                          // Chat button - open conversation with guardian
+                          // Chat button
                           ElevatedButton(
-                            onPressed: () {
+                            onPressed: () async {
                               final guardianName = req['guardianName'] ?? req['guardian_name'] ?? 'Guardian';
                               final guardianId = req['guardianId'] ?? req['guardian_id'] ?? req['guardianUserId'];
+                              final currentUserId = await AuthService.getCurrentCaregiverId();
+                              if (currentUserId == null) return;
                               Navigator.pushNamed(
                                 context,
                                 AppRoutes.chatConversation,
-                                arguments: {'id': guardianId, 'name': guardianName, 'currentUser': 'caregiver'},
+                                arguments: {
+                                  'id': guardianId,
+                                  'name': guardianName,
+                                  'currentUser': 'caregiver',
+                                  'currentUserId': currentUserId,
+                                },
                               );
                             },
                             style: ElevatedButton.styleFrom(

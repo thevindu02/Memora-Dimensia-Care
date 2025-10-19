@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../../constants/color_constants.dart';
 import '../../routes/app_routes.dart';
+import '../../services/auth_service.dart'; // ADD THIS
 
 class GuardianCaregiverDetailsScreen extends StatelessWidget {
   const GuardianCaregiverDetailsScreen({Key? key}) : super(key: key);
@@ -97,14 +98,22 @@ class GuardianCaregiverDetailsScreen extends StatelessWidget {
             _buildDetailRow(Icons.school, 'Qualifications', qualifications),
             SizedBox(height: 32),
             
-            // Messages button (only if active or inactive - has chat history)
+            // Messages button
             if (canShowMessages)
               Center(
                 child: ElevatedButton(
-                  onPressed: () {
+                  onPressed: () async {
                     if (caregiverId == null) {
                       ScaffoldMessenger.of(context).showSnackBar(
                         SnackBar(content: Text('Caregiver ID not available')),
+                      );
+                      return;
+                    }
+                    // Get actual current user ID
+                    final currentUserId = await AuthService.getCurrentUserId();
+                    if (currentUserId == null) {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(content: Text('Please login again')),
                       );
                       return;
                     }
@@ -115,6 +124,7 @@ class GuardianCaregiverDetailsScreen extends StatelessWidget {
                         'id': caregiverId,
                         'name': name,
                         'currentUser': 'guardian',
+                        'currentUserId': currentUserId,
                       },
                     );
                   },

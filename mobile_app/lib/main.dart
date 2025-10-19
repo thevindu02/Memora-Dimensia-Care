@@ -8,11 +8,14 @@ import 'routes/router.dart';
 import 'package:flutter/services.dart';
 import 'utils/navigator_observer.dart';
 import 'constants/color_constants.dart';
+import 'package:firebase_core/firebase_core.dart';
+import 'firebase_options.dart'; // ADD THIS
 
-void main() {
-
-   WidgetsFlutterBinding.ensureInitialized();
-
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  await Firebase.initializeApp(
+    options: DefaultFirebaseOptions.currentPlatform, // WITH THIS
+  );
   // Set system UI overlay style (keeps navigation visible)
   SystemChrome.setEnabledSystemUIMode(SystemUiMode.edgeToEdge);
   
