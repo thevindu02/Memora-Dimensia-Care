@@ -115,7 +115,7 @@ function RoleBadge({ role }) {
         color: colors.deepPurple,
         px: 1.2,
         py: 0.3,
-        borderRadius: '12px',
+        borderRadius: 2,
         fontWeight: 600,
         fontSize: 12,
         userSelect: 'none',
@@ -192,7 +192,7 @@ function DiscussionCard({ discussion }) {
       sx={{
         p: 2,
         mb: 2,
-        borderRadius: 3,
+        borderRadius: 2,
         display: 'flex',
         cursor: 'pointer',
         boxShadow: `0 4px 10px ${colors.softLavender}77`,
@@ -267,7 +267,7 @@ export default function QnAforum() {
   const handleClearSearch = () => setSearchTerm('');
 
   // Volunteer info for sidebar
-  const volunteerName = "Alex Morgan";
+  const volunteerName = "Amanda Nethmini";
   const volunteerProfileImage = "https://randomuser.me/api/portraits/women/44.jpg";
 
   // Handle navigation from sidebar
@@ -283,6 +283,20 @@ export default function QnAforum() {
 
   return (
     <>
+      {/* Top nav spans full width above SideBar */}
+      <Box
+        sx={{
+          position: "fixed",
+          top: 0,
+          left: 0,
+          right: 0,
+          zIndex: 1400,
+          bgcolor: colors.white,
+          boxShadow: "0 2px 8px rgb(0 0 0 / 0.1)",
+        }}
+      >
+        <VolunteerNav />
+      </Box>
       <SideBar
         volunteerName={volunteerName}
         profileImage={volunteerProfileImage}

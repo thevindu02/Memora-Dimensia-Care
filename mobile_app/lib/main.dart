@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'routes/app_routes.dart';
 import 'routes/route_generator.dart';
 import 'services/auth_service.dart';
+import 'services/fcm_notification_service.dart';
 import 'screens/splash_screen.dart';
 import 'package:go_router/go_router.dart';
 import 'routes/router.dart';
@@ -11,9 +12,17 @@ import 'constants/color_constants.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'services/deep_link_service.dart';
 
-void main() async {
+// Global navigator key for navigation from anywhere (e.g., FCM notifications)
+final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
 
-   WidgetsFlutterBinding.ensureInitialized();
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+
+  // Initialize Firebase (will use google-services.json on Android)
+  await Firebase.initializeApp();
+
+  // Initialize FCM Notifications
+  await FCMNotificationService().initialize();
 
   // Initialize Firebase (optional - will fail gracefully if not configured)
   try {
@@ -47,8 +56,6 @@ class MyApp extends StatefulWidget {
 }
 
 class _MyAppState extends State<MyApp> {
-  final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
-
   @override
   void initState() {
     super.initState();

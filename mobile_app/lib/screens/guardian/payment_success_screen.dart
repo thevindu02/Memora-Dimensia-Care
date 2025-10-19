@@ -25,7 +25,7 @@ class PaymentSuccessScreen extends StatelessWidget {
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               const SizedBox(height: 40),
-              
+
               // Success Icon
               Container(
                 width: 120,
@@ -40,9 +40,9 @@ class PaymentSuccessScreen extends StatelessWidget {
                   color: AppColors.success,
                 ),
               ),
-              
+
               const SizedBox(height: 32),
-              
+
               // Success Title
               Text(
                 'Payment Successful!',
@@ -53,9 +53,9 @@ class PaymentSuccessScreen extends StatelessWidget {
                 ),
                 textAlign: TextAlign.center,
               ),
-              
+
               const SizedBox(height: 12),
-              
+
               // Success Message
               Text(
                 'Your $planType plan is now active and ready to use.',
@@ -65,9 +65,9 @@ class PaymentSuccessScreen extends StatelessWidget {
                 ),
                 textAlign: TextAlign.center,
               ),
-              
+
               const SizedBox(height: 32),
-              
+
               // Payment Details Card
               Container(
                 width: double.infinity,
@@ -89,31 +89,34 @@ class PaymentSuccessScreen extends StatelessWidget {
                       ),
                     ),
                     const SizedBox(height: 16),
-                    
+
                     // Plan Type
                     _buildDetailRow('Plan Type', planType),
                     const SizedBox(height: 12),
-                    
+
                     // Duration
                     _buildDetailRow('Duration', duration),
                     const SizedBox(height: 12),
-                    
+
                     // Amount Paid
-                    _buildDetailRow('Amount Paid', '\$${price.toStringAsFixed(2)}'),
+                    _buildDetailRow(
+                      'Amount Paid',
+                      '\$${price.toStringAsFixed(2)}',
+                    ),
                     const SizedBox(height: 12),
-                    
+
                     // Payment Date
                     _buildDetailRow('Payment Date', _getCurrentDate()),
                     const SizedBox(height: 12),
-                    
+
                     // Next Billing Date
                     _buildDetailRow('Next Billing', _getNextBillingDate()),
                   ],
                 ),
               ),
-              
+
               const SizedBox(height: 32),
-              
+
               // Benefits Card
               Container(
                 width: double.infinity,
@@ -135,17 +138,15 @@ class PaymentSuccessScreen extends StatelessWidget {
                       ),
                     ),
                     const SizedBox(height: 16),
-                    
-                    _buildBenefitItem('Access to all premium features'),
-                    _buildBenefitItem('24/7 customer support'),
-                    _buildBenefitItem('Advanced analytics and reports'),
-                    _buildBenefitItem('Priority updates and new features'),
+
+                    // Show plan-specific features
+                    ...(_getPlanFeatures()),
                   ],
                 ),
               ),
-              
+
               const SizedBox(height: 40),
-              
+
               // Action Buttons
               Column(
                 children: [
@@ -178,9 +179,9 @@ class PaymentSuccessScreen extends StatelessWidget {
                       ),
                     ),
                   ),
-                  
+
                   const SizedBox(height: 12),
-                  
+
                   // Download Receipt Button
                   SizedBox(
                     width: double.infinity,
@@ -208,7 +209,7 @@ class PaymentSuccessScreen extends StatelessWidget {
                   ),
                 ],
               ),
-              
+
               const SizedBox(height: 24),
             ],
           ),
@@ -223,10 +224,7 @@ class PaymentSuccessScreen extends StatelessWidget {
       children: [
         Text(
           label,
-          style: TextStyle(
-            fontSize: 14,
-            color: AppColors.onSurfaceVariant,
-          ),
+          style: TextStyle(fontSize: 14, color: AppColors.onSurfaceVariant),
         ),
         Text(
           value,
@@ -240,24 +238,39 @@ class PaymentSuccessScreen extends StatelessWidget {
     );
   }
 
+  List<Widget> _getPlanFeatures() {
+    final isPremium = planType.toLowerCase() == 'premium';
+
+    if (isPremium) {
+      // Premium Plan Features
+      return [
+        _buildBenefitItem('View all caregivers'),
+        _buildBenefitItem('Access to all articles'),
+        _buildBenefitItem('Access to all blog posts'),
+        _buildBenefitItem('Premium scheduling with smart watch integration'),
+      ];
+    } else {
+      // Basic Plan Features
+      return [
+        _buildBenefitItem('View up to 5 caregivers'),
+        _buildBenefitItem('View 1 article per day'),
+        _buildBenefitItem('View 1 blog post per day'),
+        _buildBenefitItem('Basic task scheduling'),
+      ];
+    }
+  }
+
   Widget _buildBenefitItem(String benefit) {
     return Padding(
       padding: const EdgeInsets.only(bottom: 8),
       child: Row(
         children: [
-          Icon(
-            Icons.check_circle,
-            size: 20,
-            color: AppColors.success,
-          ),
+          Icon(Icons.check_circle, size: 20, color: AppColors.success),
           const SizedBox(width: 12),
           Expanded(
             child: Text(
               benefit,
-              style: TextStyle(
-                fontSize: 14,
-                color: AppColors.onSurfaceVariant,
-              ),
+              style: TextStyle(fontSize: 14, color: AppColors.onSurfaceVariant),
             ),
           ),
         ],
@@ -272,7 +285,7 @@ class PaymentSuccessScreen extends StatelessWidget {
 
   String _getNextBillingDate() {
     final now = DateTime.now();
-    final nextBilling = duration.contains('Monthly') 
+    final nextBilling = duration.contains('Monthly')
         ? DateTime(now.year, now.month + 1, now.day)
         : DateTime(now.year + 1, now.month, now.day);
     return '${nextBilling.day}/${nextBilling.month}/${nextBilling.year}';
@@ -285,9 +298,7 @@ class PaymentSuccessScreen extends StatelessWidget {
         content: const Text('Receipt downloaded successfully!'),
         backgroundColor: AppColors.success,
         behavior: SnackBarBehavior.floating,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(8),
-        ),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
       ),
     );
   }

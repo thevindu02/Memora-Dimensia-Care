@@ -22,6 +22,14 @@ public interface GuardianPatientCaregiverConnectionRepository
             LocalDateTime before);
 
     List<GuardianPatientCaregiverConnection> findByPatientId(Long patientId);
+    
+    // Find recent rejections for a specific patient and caregiver within the last 2 days
+    List<GuardianPatientCaregiverConnection> findByPatientIdAndCaregiverIdAndStatusAndRejectedDateTimeAfter(
+        Long patientId, Long caregiverId, 
+        Memora.DimensiaCareApplication.model.GuardianPatientCaregiverConnection.ConnectionStatus status, 
+        LocalDateTime after
+    );
+
 
     List<GuardianPatientCaregiverConnection> findByPatientIdAndStatus(Long patientId,
             Memora.DimensiaCareApplication.model.GuardianPatientCaregiverConnection.ConnectionStatus status);

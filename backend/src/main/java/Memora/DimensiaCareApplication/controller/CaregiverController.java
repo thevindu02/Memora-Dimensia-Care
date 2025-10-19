@@ -13,6 +13,7 @@ import Memora.DimensiaCareApplication.model.Caregiver;
 import Memora.DimensiaCareApplication.dto.response.ConnectedCaregiverRequestDTO;
 import Memora.DimensiaCareApplication.repository.CaregiverRepository;
 import Memora.DimensiaCareApplication.dto.request.CaregiverRegistrationRequest;
+import Memora.DimensiaCareApplication.dto.request.CaregiverProfileUpdateRequest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
@@ -21,6 +22,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.bind.annotation.RequestBody;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.Period;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -204,6 +206,10 @@ public class CaregiverController {
             default:
                 stageScore = 0;
         }
+        
+        // Get timestamp for 2 days ago to filter out recently rejected caregivers
+        LocalDateTime twoDaysAgo = LocalDateTime.now().minusDays(2);
+        
         List<Caregiver> caregivers = caregiverRepository.findAll();
         List<CaregiverDetailsResponse> available = caregivers.stream()
                 .filter(cg -> {
@@ -211,9 +217,22 @@ public class CaregiverController {
                     if (score == null)
                         score = 0;
                     boolean eligible = score < 4 && score + stageScore <= 4;
+                    
+                    // Check if this caregiver has rejected a request from this patient in the last 2 days
+                    List<GuardianPatientCaregiverConnection> recentRejections = connectionRepository
+                        .findByPatientIdAndCaregiverIdAndStatusAndRejectedDateTimeAfter(
+                            patientId, 
+                            cg.getCaregiverId().longValue(), 
+                            GuardianPatientCaregiverConnection.ConnectionStatus.REJECTED, 
+                            twoDaysAgo
+                        );
+                    
+                    boolean notRecentlyRejected = recentRejections.isEmpty();
+                    
                     System.out.println("Caregiver ID: " + cg.getCaregiverId() + ", severityScore: " + score
-                            + ", eligible: " + eligible);
-                    return eligible;
+                            + ", eligible: " + eligible + ", notRecentlyRejected: " + notRecentlyRejected);
+                    
+                    return eligible && notRecentlyRejected;
                 })
                 .map(cg -> {
                     User user = cg.getUser();
@@ -363,7 +382,57 @@ public class CaregiverController {
             return ResponseEntity.badRequest().body("Invalid or already processed request");
         }
         conn.setStatus(GuardianPatientCaregiverConnection.ConnectionStatus.REJECTED);
+        conn.setRejectedDateTime(java.time.LocalDateTime.now());
         connectionRepository.save(conn);
         return ResponseEntity.ok().build();
+    }
+
+    @PostMapping("/{caregiverId}/edit-profile")
+    public ResponseEntity<?> editCaregiverProfile(
+            @PathVariable Long caregiverId,
+            @RequestBody CaregiverProfileUpdateRequest req) {
+        try {
+            Caregiver caregiver = caregiverRepository.findById(caregiverId.intValue()).orElse(null);
+            if (caregiver == null) {
+                return ResponseEntity.notFound().build();
+            }
+            User user = caregiver.getUser();
+            if (user == null) {
+                return ResponseEntity.badRequest().body("Caregiver does not have an associated user.");
+            }
+
+            // Update user fields
+            user.setFName(req.fName);
+            user.setLName(req.lName);
+            user.setEmail(req.email);
+            user.setPhoneNumber(req.phoneNumber);
+            user.setGender(req.gender);
+            user.setStreet(req.street);
+            user.setCity(req.city);
+            user.setState(req.state);
+            user.setProfilePic(req.profilePic);
+            if (req.birthdate != null && !req.birthdate.isEmpty()) {
+                user.setBirthdate(LocalDate.parse(req.birthdate));
+            }
+
+            // Update caregiver fields
+            caregiver.setExperience(req.experience);
+            caregiver.setQualifications(req.qualifications);
+
+            // Update skills
+            if (req.skills != null) {
+                List<Skill> skillEntities = req.skills.stream()
+                    .map(skillName -> skillRepository.findBySkillName(skillName).orElse(null))
+                    .filter(s -> s != null)
+                    .collect(Collectors.toList());
+                caregiver.setSkills(new java.util.HashSet<>(skillEntities));
+            }
+
+            caregiverRepository.save(caregiver);
+
+            return ResponseEntity.ok("Profile updated successfully");
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body("Profile update failed: " + e.getMessage());
+        }
     }
 }

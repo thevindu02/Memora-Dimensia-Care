@@ -1,36 +1,71 @@
 import 'package:flutter/material.dart';
 import '../../routes/app_routes.dart';
+import '../../services/notification_api_service.dart';
+import 'package:timeago/timeago.dart' as timeago;
 
 enum NotificationType {
   taskReminder,
+  medicationReminder,
+  appointmentReminder,
   skipRequest,
   dailyReport,
   emergency,
-  medicationReminder,
 }
 
 class NotificationData {
-  final String id;
+  final int id;
   final String title;
   final String subtitle;
-  final String time;
+  final DateTime createdAt;
   final bool isUnread;
   final NotificationType type;
   final String? patientName;
   final String? taskName;
-  final String? skipReason;
+  final int? taskId;
 
   NotificationData({
     required this.id,
     required this.title,
     required this.subtitle,
-    required this.time,
+    required this.createdAt,
     required this.isUnread,
     required this.type,
     this.patientName,
     this.taskName,
-    this.skipReason,
+    this.taskId,
   });
+
+  // Convert from API model
+  factory NotificationData.fromApiModel(NotificationModel model) {
+    NotificationType type;
+    switch (model.notificationType.toUpperCase()) {
+      case 'TASK_REMINDER':
+        type = NotificationType.taskReminder;
+        break;
+      case 'MEDICATION_REMINDER':
+        type = NotificationType.medicationReminder;
+        break;
+      case 'APPOINTMENT_REMINDER':
+        type = NotificationType.appointmentReminder;
+        break;
+      default:
+        type = NotificationType.taskReminder;
+    }
+
+    return NotificationData(
+      id: model.notificationId,
+      title: model.title,
+      subtitle: model.message,
+      createdAt: model.createdAt,
+      isUnread: !model.isRead,
+      type: type,
+      patientName: model.patientName,
+      taskName: model.taskName,
+      taskId: model.taskId,
+    );
+  }
+
+  String get timeAgo => timeago.format(createdAt);
 }
 
 class CaregiverNotificationScreen extends StatefulWidget {
@@ -44,62 +79,17 @@ class CaregiverNotificationScreen extends StatefulWidget {
 class _NotificationScreenState extends State<CaregiverNotificationScreen>
     with SingleTickerProviderStateMixin {
   late TabController _tabController;
+  final NotificationApiService _apiService = NotificationApiService();
 
-  // Sample notification data
-  List<NotificationData> notifications = [
-    NotificationData(
-      id: '1',
-      title: 'Skip Request: Morning Exercise',
-      subtitle: 'Patient: John Doe',
-      time: '10 min ago',
-      isUnread: true,
-      type: NotificationType.taskReminder,
-      patientName: 'John Doe',
-      taskName: 'Breakfast Time',
-    ),
-    NotificationData(
-      id: '2',
-      title: 'Task Reminder: Breakfast Time',
-      subtitle: 'Patient: Mary Smith wants to skip task',
-      time: '30 min ago',
-      isUnread: true,
-      type: NotificationType.skipRequest,
-      patientName: 'Mary Smith',
-      taskName: 'Morning Exercise',
-    ),
-    NotificationData(
-      id: '3',
-      title: 'Medication Reminder',
-      subtitle: 'Patient: Bob Johnson - Blood pressure medication',
-      time: '1 hr ago',
-      isUnread: true,
-      type: NotificationType.medicationReminder,
-      patientName: 'Bob Johnson',
-    ),
-    NotificationData(
-      id: '4',
-      title: 'Daily Report Generated',
-      subtitle: 'Patient activity summary available',
-      time: '2 days ago',
-      isUnread: false,
-      type: NotificationType.dailyReport,
-    ),
-    NotificationData(
-      id: '5',
-      title: 'Task Completed: Lunch Time',
-      subtitle: 'Patient: John Doe completed task',
-      time: '3 days ago',
-      isUnread: false,
-      type: NotificationType.taskReminder,
-      patientName: 'John Doe',
-      taskName: 'Lunch Time',
-    ),
-  ];
+  List<NotificationData> notifications = [];
+  bool isLoading = true;
+  String? errorMessage;
 
   @override
   void initState() {
     super.initState();
     _tabController = TabController(length: 2, vsync: this);
+    _loadNotifications();
   }
 
   @override
@@ -108,164 +98,78 @@ class _NotificationScreenState extends State<CaregiverNotificationScreen>
     super.dispose();
   }
 
+  Future<void> _loadNotifications() async {
+    setState(() {
+      isLoading = true;
+      errorMessage = null;
+    });
+
+    try {
+      final apiNotifications = await _apiService.getCaregiverNotifications();
+      setState(() {
+        notifications = apiNotifications
+            .map((model) => NotificationData.fromApiModel(model))
+            .toList();
+        isLoading = false;
+      });
+    } catch (e) {
+      setState(() {
+        errorMessage = 'Failed to load notifications: $e';
+        isLoading = false;
+      });
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Error loading notifications: $e'),
+          backgroundColor: Colors.red,
+        ),
+      );
+    }
+  }
+
   List<NotificationData> get unreadNotifications =>
       notifications.where((n) => n.isUnread).toList();
 
   List<NotificationData> get readNotifications =>
       notifications.where((n) => !n.isUnread).toList();
 
-  void _markAsRead(String notificationId) {
-    setState(() {
-      int index = notifications.indexWhere((n) => n.id == notificationId);
-      if (index != -1) {
-        notifications[index] = NotificationData(
-          id: notifications[index].id,
-          title: notifications[index].title,
-          subtitle: notifications[index].subtitle,
-          time: notifications[index].time,
-          isUnread: false,
-          type: notifications[index].type,
-          patientName: notifications[index].patientName,
-          taskName: notifications[index].taskName,
-          skipReason: notifications[index].skipReason,
-        );
-      }
-    });
+  Future<void> _markAsRead(int notificationId) async {
+    try {
+      await _apiService.markAsRead(notificationId);
+      await _loadNotifications(); // Refresh the list
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Notification marked as read'),
+          backgroundColor: Colors.green,
+        ),
+      );
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Error marking as read: $e'),
+          backgroundColor: Colors.red,
+        ),
+      );
+    }
   }
 
-  void _showSkipTaskDialog(NotificationData notification) {
-    final TextEditingController reasonController = TextEditingController();
-
-    showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return Dialog(
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(16),
-          ),
-          child: Container(
-            padding: const EdgeInsets.all(24),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    const Text(
-                      'Skip Task',
-                      style: TextStyle(
-                        fontSize: 20,
-                        fontWeight: FontWeight.w600,
-                      ),
-                    ),
-                    IconButton(
-                      onPressed: () => Navigator.pop(context),
-                      icon: const Icon(Icons.close),
-                      padding: EdgeInsets.zero,
-                      constraints: const BoxConstraints(),
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 16),
-                Text(
-                  'You are about to skip:',
-                  style: TextStyle(fontSize: 14, color: Colors.grey[600]),
-                ),
-                const SizedBox(height: 4),
-                Text(
-                  notification.taskName ?? 'Task',
-                  style: const TextStyle(
-                    fontSize: 16,
-                    fontWeight: FontWeight.w500,
-                  ),
-                ),
-                const SizedBox(height: 16),
-                Text(
-                  'Reason for skipping:',
-                  style: TextStyle(fontSize: 14, color: Colors.grey[600]),
-                ),
-                const SizedBox(height: 8),
-                TextField(
-                  controller: reasonController,
-                  maxLines: 3,
-                  decoration: InputDecoration(
-                    hintText: 'Please provide a reason...',
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(8),
-                      borderSide: BorderSide(color: Colors.grey[300]!),
-                    ),
-                    focusedBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(8),
-                      borderSide: const BorderSide(color: Colors.blue),
-                    ),
-                  ),
-                ),
-                const SizedBox(height: 24),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.end,
-                  children: [
-                    TextButton(
-                      onPressed: () => Navigator.pop(context),
-                      child: const Text(
-                        'Cancel',
-                        style: TextStyle(color: Colors.grey),
-                      ),
-                    ),
-                    const SizedBox(width: 12),
-                    ElevatedButton(
-                      onPressed: () {
-                        // Handle skip task logic here
-                        Navigator.pop(context);
-                        _markAsRead(notification.id);
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          SnackBar(
-                            content: Text(
-                              'Task skipped: ${notification.taskName}',
-                            ),
-                            backgroundColor: Colors.orange,
-                          ),
-                        );
-                      },
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: Colors.red,
-                        foregroundColor: Colors.white,
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(8),
-                        ),
-                      ),
-                      child: const Text('Skip Task'),
-                    ),
-                  ],
-                ),
-              ],
-            ),
-          ),
-        );
-      },
-    );
-  }
-
-  void _approveSkipRequest(NotificationData notification) {
-    // Handle approve skip request logic here
-    _markAsRead(notification.id);
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text('Skip request approved for ${notification.patientName}'),
-        backgroundColor: Colors.green,
-      ),
-    );
-  }
-
-  void _denySkipRequest(NotificationData notification) {
-    // Handle deny skip request logic here
-    _markAsRead(notification.id);
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text('Skip request denied for ${notification.patientName}'),
-        backgroundColor: Colors.red,
-      ),
-    );
+  Future<void> _deleteNotification(int notificationId) async {
+    try {
+      await _apiService.deleteNotification(notificationId);
+      await _loadNotifications(); // Refresh the list
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Notification deleted'),
+          backgroundColor: Colors.green,
+        ),
+      );
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Error deleting notification: $e'),
+          backgroundColor: Colors.red,
+        ),
+      );
+    }
   }
 
   @override
@@ -332,57 +236,82 @@ class _NotificationScreenState extends State<CaregiverNotificationScreen>
           ),
         ),
       ),
-      body: TabBarView(
-        controller: _tabController,
-        children: [
-          // Unread notifications tab
-          ListView.builder(
-            padding: const EdgeInsets.all(16),
-            itemCount: unreadNotifications.length,
-            itemBuilder: (context, index) {
-              return NotificationCard(
-                notification: unreadNotifications[index],
-                onMarkAsRead: _markAsRead,
-                onSkipTask: _showSkipTaskDialog,
-                onApproveSkip: _approveSkipRequest,
-                onDenySkip: _denySkipRequest,
-              );
-            },
-          ),
-          // Read notifications tab
-          ListView.builder(
-            padding: const EdgeInsets.all(16),
-            itemCount: readNotifications.length,
-            itemBuilder: (context, index) {
-              return NotificationCard(
-                notification: readNotifications[index],
-                onMarkAsRead: _markAsRead,
-                onSkipTask: _showSkipTaskDialog,
-                onApproveSkip: _approveSkipRequest,
-                onDenySkip: _denySkipRequest,
-              );
-            },
-          ),
-        ],
-      ),
+      body: isLoading
+          ? const Center(child: CircularProgressIndicator())
+          : errorMessage != null
+          ? Center(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Text(
+                    errorMessage!,
+                    style: const TextStyle(color: Colors.red),
+                    textAlign: TextAlign.center,
+                  ),
+                  const SizedBox(height: 16),
+                  ElevatedButton(
+                    onPressed: _loadNotifications,
+                    child: const Text('Retry'),
+                  ),
+                ],
+              ),
+            )
+          : RefreshIndicator(
+              onRefresh: _loadNotifications,
+              child: TabBarView(
+                controller: _tabController,
+                children: [
+                  // Unread notifications tab
+                  unreadNotifications.isEmpty
+                      ? const Center(child: Text('No unread notifications'))
+                      : ListView.builder(
+                          padding: const EdgeInsets.all(16),
+                          itemCount: unreadNotifications.length,
+                          itemBuilder: (context, index) {
+                            return NotificationCard(
+                              notification: unreadNotifications[index],
+                              onMarkAsRead: _markAsRead,
+                              onDelete: _deleteNotification,
+                            );
+                          },
+                        ),
+                  // Read notifications tab
+                  readNotifications.isEmpty
+                      ? const Center(child: Text('No read notifications'))
+                      : ListView.builder(
+                          padding: const EdgeInsets.all(16),
+                          itemCount: readNotifications.length,
+                          itemBuilder: (context, index) {
+                            return NotificationCard(
+                              notification: readNotifications[index],
+                              onMarkAsRead: _markAsRead,
+                              onDelete: _deleteNotification,
+                            );
+                          },
+                        ),
+                ],
+              ),
+            ),
     );
   }
 }
 
 class NotificationCard extends StatelessWidget {
   final NotificationData notification;
-  final Function(String) onMarkAsRead;
-  final Function(NotificationData) onSkipTask;
-  final Function(NotificationData) onApproveSkip;
-  final Function(NotificationData) onDenySkip;
+  final Function(int) onMarkAsRead;
+  final Function(int) onDelete;
+  final Function(NotificationData)? onSkipTask;
+  final Function(NotificationData)? onApproveSkip;
+  final Function(NotificationData)? onDenySkip;
 
   const NotificationCard({
     Key? key,
     required this.notification,
     required this.onMarkAsRead,
-    required this.onSkipTask,
-    required this.onApproveSkip,
-    required this.onDenySkip,
+    required this.onDelete,
+    this.onSkipTask,
+    this.onApproveSkip,
+    this.onDenySkip,
   }) : super(key: key);
 
   IconData _getNotificationIcon() {
@@ -481,19 +410,6 @@ class NotificationCard extends StatelessWidget {
                       style: TextStyle(fontSize: 12, color: Colors.grey[600]),
                       overflow: TextOverflow.ellipsis,
                     ),
-                    if (notification.type == NotificationType.skipRequest &&
-                        notification.skipReason != null) ...[
-                      const SizedBox(height: 4),
-                      Text(
-                        'Reason: ${notification.skipReason}',
-                        style: TextStyle(
-                          fontSize: 11,
-                          color: Colors.orange[700],
-                          fontStyle: FontStyle.italic,
-                        ),
-                        overflow: TextOverflow.ellipsis,
-                      ),
-                    ],
                   ],
                 ),
               ),
@@ -502,7 +418,7 @@ class NotificationCard extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.end,
                 children: [
                   Text(
-                    notification.time,
+                    notification.timeAgo,
                     style: TextStyle(fontSize: 12, color: Colors.grey[500]),
                   ),
                   if (notification.isUnread) ...[
@@ -525,74 +441,22 @@ class NotificationCard extends StatelessWidget {
           Row(
             mainAxisAlignment: MainAxisAlignment.end,
             children: [
-              if (notification.type == NotificationType.skipRequest &&
-                  notification.isUnread) ...[
-                TextButton(
-                  onPressed: () => onDenySkip(notification),
-                  style: TextButton.styleFrom(
-                    foregroundColor: Colors.red,
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 12,
-                      vertical: 4,
-                    ),
+              // Remove button (always shown)
+              TextButton.icon(
+                onPressed: () => onDelete(notification.id),
+                icon: const Icon(Icons.delete_outline, size: 16),
+                label: const Text('Remove', style: TextStyle(fontSize: 12)),
+                style: TextButton.styleFrom(
+                  foregroundColor: Colors.red,
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 8,
+                    vertical: 4,
                   ),
-                  child: const Text('Deny', style: TextStyle(fontSize: 12)),
                 ),
+              ),
+              // Mark as read button (only for unread notifications)
+              if (notification.isUnread) ...[
                 const SizedBox(width: 8),
-                ElevatedButton(
-                  onPressed: () => onApproveSkip(notification),
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Color(0xFFA0C4FD), // Light Sky Blue
-                    foregroundColor: Color(0xFF2B3F99), // Calm Navy
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 12,
-                      vertical: 4,
-                    ),
-                    minimumSize: const Size(0, 32),
-                  ),
-                  child: const Text(
-                    'Approve',
-                    style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold),
-                  ),
-                ),
-              ] else if (notification.type == NotificationType.taskReminder &&
-                  notification.isUnread) ...[
-                TextButton(
-                  onPressed: () => onSkipTask(notification),
-                  style: TextButton.styleFrom(
-                    foregroundColor: Colors.red,
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 12,
-                      vertical: 4,
-                    ),
-                  ),
-                  child: const Text(
-                    'Skip Task',
-                    style: TextStyle(fontSize: 12),
-                  ),
-                ),
-                const SizedBox(width: 8),
-                ElevatedButton(
-                  onPressed: () => onMarkAsRead(notification.id),
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Color(0xFFA0C4FD), // Light Sky Blue
-                    foregroundColor: Color(0xFF2B3F99), // Calm Navy
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 12,
-                      vertical: 4,
-                    ),
-                    minimumSize: const Size(0, 32),
-                  ),
-                  child: const Text(
-                    'Mark as Read',
-                    style: TextStyle(
-                      fontSize: 12,
-                      fontWeight: FontWeight.bold,
-                      color: Color(0xFF2B3F99),
-                    ),
-                  ),
-                ),
-              ] else if (notification.isUnread) ...[
                 ElevatedButton(
                   onPressed: () => onMarkAsRead(notification.id),
                   style: ElevatedButton.styleFrom(
@@ -700,7 +564,10 @@ class _MainScreenState extends State<MainScren> {
         items: const [
           BottomNavigationBarItem(icon: Icon(Icons.home), label: 'Home'),
           BottomNavigationBarItem(icon: Icon(Icons.people), label: 'Patients'),
-          BottomNavigationBarItem(icon: Icon(Icons.article), label: 'Community'),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.article),
+            label: 'Community',
+          ),
           BottomNavigationBarItem(icon: Icon(Icons.person), label: 'Profile'),
         ],
       ),

@@ -4,6 +4,7 @@ import 'dart:io';
 import '../../routes/app_routes.dart';
 import '../../services/auth_service.dart';
 import '../../services/caregiver_service.dart';
+import '../../utils/name_utils.dart';
 
 class CaregiverProfileScreen extends StatefulWidget {
   @override
@@ -27,9 +28,9 @@ class _CaregiverProfileScreenState extends State<CaregiverProfileScreen> {
   final _phoneController = TextEditingController(text: '+1 234 567 890');
   final _genderController = TextEditingController(text: 'Male');
   final _birthdayController = TextEditingController(text: '2001-01-14');
-  final _addressController = TextEditingController(
-    text: 'No. 123, Galle Road, Colombo, Western Province',
-  );
+  final _streetController = TextEditingController(text: 'No. 123, Galle Road');
+  final _cityController = TextEditingController(text: 'Colombo');
+  final _stateController = TextEditingController(text: 'Western Province');
   final _experienceController = TextEditingController(text: '3-5 years');
   final _qualificationsController = TextEditingController(
     text: 'Nursing, CPR Certified',
@@ -47,7 +48,9 @@ class _CaregiverProfileScreenState extends State<CaregiverProfileScreen> {
   String _originalPhone = '+1 234 567 890';
   String _originalGender = 'Male';
   String _originalBirthday = '2001-01-14';
-  String _originalAddress = 'No. 123, Galle Road, Colombo, Western Province';
+  String _originalStreet = 'No. 123, Galle Road';
+  String _originalCity = 'Colombo';
+  String _originalState = 'Western Province';
   String _originalExperience = '3-5 years';
   String _originalQualifications = 'Nursing, CPR Certified';
   String _originalSkills = 'Elder Care, Medical Care, Cooking';
@@ -82,7 +85,24 @@ class _CaregiverProfileScreenState extends State<CaregiverProfileScreen> {
         _phoneController.text = data['phoneNumber'] ?? '';
         _genderController.text = data['gender'] ?? '';
         _birthdayController.text = data['birthdate'] ?? '';
-        _addressController.text = data['address'] ?? '';
+
+        // Split address into street, city, state
+        String fullAddress = data['address'] ?? '';
+        List<String> addressParts = fullAddress.split(', ');
+        if (addressParts.length >= 3) {
+          _streetController.text = addressParts[0];
+          _cityController.text = addressParts[1];
+          _stateController.text = addressParts.sublist(2).join(', ');
+        } else if (addressParts.length == 2) {
+          _streetController.text = addressParts[0];
+          _cityController.text = addressParts[1];
+          _stateController.text = '';
+        } else if (addressParts.length == 1) {
+          _streetController.text = addressParts[0];
+          _cityController.text = '';
+          _stateController.text = '';
+        }
+
         _experienceController.text = data['experience'] ?? '';
         _qualificationsController.text = data['qualifications'] ?? '';
         _skillsController.text = (data['skills'] is List)
@@ -94,7 +114,9 @@ class _CaregiverProfileScreenState extends State<CaregiverProfileScreen> {
         _originalPhone = _phoneController.text;
         _originalGender = _genderController.text;
         _originalBirthday = _birthdayController.text;
-        _originalAddress = _addressController.text;
+        _originalStreet = _streetController.text;
+        _originalCity = _cityController.text;
+        _originalState = _stateController.text;
         _originalExperience = _experienceController.text;
         _originalQualifications = _qualificationsController.text;
         _originalSkills = _skillsController.text;
@@ -110,6 +132,7 @@ class _CaregiverProfileScreenState extends State<CaregiverProfileScreen> {
       setState(() {
         _isLoading = false;
       });
+      _updateNameDisplay();
     }
   }
 
@@ -120,7 +143,9 @@ class _CaregiverProfileScreenState extends State<CaregiverProfileScreen> {
     _phoneController.dispose();
     _genderController.dispose();
     _birthdayController.dispose();
-    _addressController.dispose();
+    _streetController.dispose();
+    _cityController.dispose();
+    _stateController.dispose();
     _experienceController.dispose();
     _qualificationsController.dispose();
     _skillsController.dispose();
@@ -130,21 +155,9 @@ class _CaregiverProfileScreenState extends State<CaregiverProfileScreen> {
     super.dispose();
   }
 
-  // Check if any changes have been made
-  bool _hasChanges() {
-    return _nameController.text != _originalName ||
-        _emailController.text != _originalEmail ||
-        _phoneController.text != _originalPhone ||
-        _genderController.text != _originalGender ||
-        _birthdayController.text != _originalBirthday ||
-        _addressController.text != _originalAddress ||
-        _experienceController.text != _originalExperience ||
-        _qualificationsController.text != _originalQualifications ||
-        _skillsController.text != _originalSkills ||
-        _currentPasswordController.text.isNotEmpty ||
-        _newPasswordController.text.isNotEmpty ||
-        _confirmPasswordController.text.isNotEmpty ||
-        _profileImage != _originalProfileImage;
+  void _updateNameDisplay() {
+    // Always show capitalized version, both when viewing and editing (like guardian's profile)
+    _nameController.text = NameUtils.capitalizeName(_originalName);
   }
 
   // Image picker functions
@@ -230,8 +243,16 @@ class _CaregiverProfileScreenState extends State<CaregiverProfileScreen> {
       return Colors.black87;
     }
 
-    if (currentValue == originalValue) {
-      return Colors.grey[500]!;
+    // Special handling for name field - compare capitalized versions
+    if (fieldName == 'name') {
+      String capitalizedOriginal = NameUtils.capitalizeName(originalValue);
+      if (currentValue == capitalizedOriginal) {
+        return Colors.grey[500]!;
+      }
+    } else {
+      if (currentValue == originalValue) {
+        return Colors.grey[500]!;
+      }
     }
 
     return Colors.black87;
@@ -240,6 +261,7 @@ class _CaregiverProfileScreenState extends State<CaregiverProfileScreen> {
   void _toggleEdit() {
     setState(() {
       _isEditing = !_isEditing;
+      _updateNameDisplay();
     });
   }
 
@@ -250,7 +272,9 @@ class _CaregiverProfileScreenState extends State<CaregiverProfileScreen> {
       _phoneController.text = _originalPhone;
       _genderController.text = _originalGender;
       _birthdayController.text = _originalBirthday;
-      _addressController.text = _originalAddress;
+      _streetController.text = _originalStreet;
+      _cityController.text = _originalCity;
+      _stateController.text = _originalState;
       _experienceController.text = _originalExperience;
       _qualificationsController.text = _originalQualifications;
       _skillsController.text = _originalSkills;
@@ -260,6 +284,8 @@ class _CaregiverProfileScreenState extends State<CaregiverProfileScreen> {
       _modifiedFields.clear();
       _focusedFields.clear();
       _profileImage = _originalProfileImage;
+      _isEditing = false;
+      _updateNameDisplay();
     });
   }
 
@@ -269,37 +295,65 @@ class _CaregiverProfileScreenState extends State<CaregiverProfileScreen> {
         _isLoading = true;
       });
 
-      // Simulate API call
-      await Future.delayed(Duration(seconds: 2));
+      // Split name into first and last name
+      final nameParts = _nameController.text.trim().split(' ');
+      final fName = nameParts.isNotEmpty ? nameParts.first : '';
+      final lName = nameParts.length > 1 ? nameParts.sublist(1).join(' ') : '';
 
-      // Update original values
-      _originalName = _nameController.text;
-      _originalEmail = _emailController.text;
-      _originalPhone = _phoneController.text;
-      _originalGender = _genderController.text;
-      _originalBirthday = _birthdayController.text;
-      _originalAddress = _addressController.text;
-      _originalExperience = _experienceController.text;
-      _originalQualifications = _qualificationsController.text;
-      _originalSkills = _skillsController.text;
-      _originalProfileImage = _profileImage;
+      // Prepare skills as a list
+      final skillsList = _skillsController.text.split(',').map((s) => s.trim()).where((s) => s.isNotEmpty).toList();
 
-      setState(() {
-        _isLoading = false;
-        _isEditing = false;
-      });
+      // Get caregiverId (implement AuthService.getCurrentCaregiverId if needed)
+      final caregiverId = await AuthService.getCurrentCaregiverId();
+      if (caregiverId == null) {
+        // Handle the error (show a message or return)
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Caregiver ID not found!')),
+        );
+        return;
+      }
 
-      // Clear password fields
-      _currentPasswordController.clear();
-      _newPasswordController.clear();
-      _confirmPasswordController.clear();
-
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text('Profile updated successfully!'),
-          backgroundColor: Colors.green,
-        ),
+      final success = await CaregiverService.updateProfile(
+        caregiverId: caregiverId, // Now guaranteed to be non-null
+        fName: fName,
+        lName: lName,
+        email: _emailController.text,
+        phoneNumber: _phoneController.text,
+        gender: _genderController.text,
+        birthdate: _birthdayController.text,
+        street: _streetController.text,
+        city: _cityController.text,
+        state: _stateController.text,
+        profilePic: '',
+        experience: _experienceController.text,
+        qualifications: _qualificationsController.text,
+        skills: skillsList,
       );
+
+      if (success) {
+        // Update original values and UI
+        setState(() {
+          _isLoading = false;
+          _isEditing = false;
+          _updateNameDisplay();
+        });
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Profile updated successfully!'),
+            backgroundColor: Colors.green,
+          ),
+        );
+      } else {
+        setState(() {
+          _isLoading = false;
+        });
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Failed to update profile.'),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
     }
   }
 
@@ -558,7 +612,7 @@ class _CaregiverProfileScreenState extends State<CaregiverProfileScreen> {
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               Text(
-                                _nameController.text,
+                                NameUtils.capitalizeName(_nameController.text),
                                 style: TextStyle(
                                   fontSize: 20,
                                   fontWeight: FontWeight.w600,
@@ -567,7 +621,7 @@ class _CaregiverProfileScreenState extends State<CaregiverProfileScreen> {
                               ),
                               SizedBox(height: 4),
                               Text(
-                                'Primary Caregiver',
+                                'Caregiver',
                                 style: TextStyle(
                                   fontSize: 14,
                                   color: Colors.grey[600],
@@ -677,19 +731,64 @@ class _CaregiverProfileScreenState extends State<CaregiverProfileScreen> {
                               ],
                             ),
 
+                            Text(
+                              'Address',
+                              style: TextStyle(
+                                fontSize: 18,
+                                fontWeight: FontWeight.w600,
+                                color: Colors.black87,
+                              ),
+                            ),
+                            SizedBox(height: 16),
+
                             _buildTextField(
-                              controller: _addressController,
-                              label: 'Address',
+                              controller: _streetController,
+                              label: 'Street',
                               icon: Icons.location_on,
-                              originalValue: _originalAddress,
-                              fieldName: 'address',
-                              maxLines: 3,
+                              originalValue: _originalStreet,
+                              fieldName: 'street',
                               validator: (value) {
                                 if (value == null || value.isEmpty) {
-                                  return 'Please enter your address';
+                                  return 'Please enter your street address';
                                 }
                                 return null;
                               },
+                            ),
+
+                            Row(
+                              children: [
+                                Expanded(
+                                  child: _buildTextField(
+                                    controller: _cityController,
+                                    label: 'City',
+                                    icon: Icons.location_city,
+                                    originalValue: _originalCity,
+                                    fieldName: 'city',
+                                    validator: (value) {
+                                      if (value == null || value.isEmpty) {
+                                        return 'Please enter your city';
+                                      }
+                                      return null;
+                                    },
+                                  ),
+                                ),
+                                SizedBox(width: 16),
+                                Expanded(
+                                  child: _buildTextField(
+                                    controller: _stateController,
+                                    label: 'State/Province',
+                                    icon: Icons.map,
+                                    originalValue: _originalState,
+                                    fieldName: 'state',
+                                    validator: (value) {
+                                      if (value == null || value.isEmpty) {
+                                        return 'Please enter your state/province';
+                                      }
+                                      return null;
+                                    },
+                                  ),
+                                ),
+                              ],
                             ),
 
                             Text(

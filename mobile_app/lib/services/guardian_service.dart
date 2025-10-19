@@ -131,7 +131,7 @@ class GuardianService {
     required String relationship,
   }) async {
     final url = Uri.parse('$baseUrl/send-guardian-connection-email');
-    
+
     try {
       final response = await http.post(
         url,
@@ -160,38 +160,33 @@ class GuardianService {
         };
       }
     } catch (e) {
-      return {
-        'success': false,
-        'message': 'Network error: $e',
-      };
+      return {'success': false, 'message': 'Network error: $e'};
     }
   }
 
   /// Gets guardian connection details by token for the patient guardian request screen
-  static Future<Map<String, dynamic>> getGuardianConnectionDetails(String token) async {
+  static Future<Map<String, dynamic>> getGuardianConnectionDetails(
+    String token,
+  ) async {
     final url = Uri.parse('$baseUrl/connection-request/$token');
-    
+
     try {
       final response = await http.get(url);
 
       if (response.statusCode == 200) {
         final responseData = jsonDecode(response.body) as Map<String, dynamic>;
-        return {
-          'success': true,
-          'data': responseData,
-        };
+        return {'success': true, 'data': responseData};
       } else {
         final errorData = jsonDecode(response.body);
         return {
           'success': false,
-          'message': errorData is String ? errorData : errorData['message'] ?? 'Failed to get connection details',
+          'message': errorData is String
+              ? errorData
+              : errorData['message'] ?? 'Failed to get connection details',
         };
       }
     } catch (e) {
-      return {
-        'success': false,
-        'message': 'Network error: $e',
-      };
+      return {'success': false, 'message': 'Network error: $e'};
     }
   }
 }

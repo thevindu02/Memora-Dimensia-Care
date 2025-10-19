@@ -13,7 +13,7 @@ import 'complete_routine_screen.dart';
 import 'care_details_screen.dart';
 import 'register_screen.dart';
 import 'caregiver_connection_requests_screen.dart';
-import 'discussion_forum_screen.dart';
+import 'caregiver_qaForums_screen.dart';
 import 'settings_screen.dart';
 import 'caregiver_settings_privacy_screen.dart';
 import 'caregiver_settings_help_support_screen.dart';
@@ -56,9 +56,8 @@ class CaregiverRoutes {
         );
       case AppRoutes.viewArticleList:
         return MaterialPageRoute(
-            builder: (_) => ViewArticleScreen(),
-            settings: settings,
-
+          builder: (_) => ViewArticleScreen(),
+          settings: settings,
         );
       case AppRoutes.caregiverNotification:
         return MaterialPageRoute(
@@ -102,7 +101,7 @@ class CaregiverRoutes {
         );
       case AppRoutes.discussionForum:
         return MaterialPageRoute(
-          builder: (_) => DiscussionForumScreen(),
+          builder: (_) => CaregiverQAForumsScreen(),
           settings: settings,
         );
       case AppRoutes.settings:

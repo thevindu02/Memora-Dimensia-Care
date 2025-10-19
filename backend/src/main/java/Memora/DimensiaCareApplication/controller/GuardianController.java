@@ -1,26 +1,36 @@
 package Memora.DimensiaCareApplication.controller;
 
-import Memora.DimensiaCareApplication.model.Guardian;
-import Memora.DimensiaCareApplication.repository.GuardianRepository;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
-import Memora.DimensiaCareApplication.model.User;
-import org.springframework.web.bind.annotation.PathVariable;
-import Memora.DimensiaCareApplication.dto.response.GuardianDetailsResponse;
-import Memora.DimensiaCareApplication.model.GuardianPatientCaregiverConnection;
-import Memora.DimensiaCareApplication.service.GuardianService;
-import Memora.DimensiaCareApplication.repository.PatientRepository;
-import Memora.DimensiaCareApplication.repository.CaregiverRepository;
+import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.Comparator;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.ArrayList;
-import java.util.HashMap;
-import Memora.DimensiaCareApplication.model.Patient;
-import Memora.DimensiaCareApplication.repository.GuardianPatientCaregiverConnectionRepository;
+import java.util.Optional;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
+
+import Memora.DimensiaCareApplication.dto.request.GuardianProfileUpdateRequest;
+import Memora.DimensiaCareApplication.dto.response.GuardianDetailsResponse;
 import Memora.DimensiaCareApplication.model.Caregiver;
+import Memora.DimensiaCareApplication.model.Guardian;
+import Memora.DimensiaCareApplication.model.GuardianPatientCaregiverConnection;
+import Memora.DimensiaCareApplication.model.Patient;
+import Memora.DimensiaCareApplication.model.User;
+import Memora.DimensiaCareApplication.repository.CaregiverRepository;
+import Memora.DimensiaCareApplication.repository.GuardianPatientCaregiverConnectionRepository;
+import Memora.DimensiaCareApplication.repository.GuardianRepository;
+import Memora.DimensiaCareApplication.repository.PatientRepository;
+import Memora.DimensiaCareApplication.repository.UserRepository;
+import Memora.DimensiaCareApplication.service.GuardianService;
 import Memora.DimensiaCareApplication.service.GmailEmailService;
 import Memora.DimensiaCareApplication.model.GuardianConnectionRequest;
 import Memora.DimensiaCareApplication.repository.GuardianConnectionRequestRepository;
@@ -48,6 +58,9 @@ public class GuardianController {
     @Autowired
     private GuardianConnectionRequestRepository guardianConnectionRequestRepository;
 
+    @Autowired
+    private UserRepository userRepository;
+
     @GetMapping("/by-user/{userId}")
     public ResponseEntity<Long> getGuardianIdByUserId(@PathVariable Long userId) {
         Guardian guardian = guardianRepository.findByUser_Id(userId);
@@ -71,10 +84,42 @@ public class GuardianController {
             resp.setCity(user.getCity());
             resp.setStreet(user.getStreet());
             resp.setState(user.getState());
+            resp.setGender(user.getGender());
+            resp.setBirthday(user.getBirthdate() != null ? user.getBirthdate().toString() : null);
             return ResponseEntity.ok(resp);
         } else {
             return ResponseEntity.notFound().build();
         }
+    }
+
+    @PutMapping("/{guardianId}/edit-profile")
+    public ResponseEntity<?> editGuardianProfile(
+            @PathVariable Long guardianId,
+            @RequestBody GuardianProfileUpdateRequest req) {
+        Guardian guardian = guardianRepository.findById(guardianId).orElse(null);
+        if (guardian == null) {
+            return ResponseEntity.notFound().build();
+        }
+        User user = guardian.getUser();
+        if (user == null) {
+            return ResponseEntity.badRequest().body("Guardian does not have an associated user.");
+        }
+
+        // Update only editable fields
+        user.setFName(req.fName);
+        user.setLName(req.lName);
+        user.setEmail(req.email);
+        user.setPhoneNumber(req.phoneNumber);
+        user.setGender(req.gender);
+        user.setBirthdate(req.birthdate != null ? LocalDate.parse(req.birthdate) : null);
+        user.setStreet(req.street);
+        user.setCity(req.city);
+        user.setState(req.state);
+        user.setProfilePic(req.profilePic);
+
+        userRepository.save(user);
+
+        return ResponseEntity.ok(user);
     }
 
     @GetMapping("/{guardianId}/patients-with-request-status")
@@ -113,12 +158,11 @@ public class GuardianController {
                     .orElse(null);
             if (latest != null) {
                 map.put("latestRequestStatus", latest.getStatus().name());
-                // Include connection ID and request time for pending requests (needed for
-                // cancel functionality)
+                // Include connection ID and request time for pending requests (needed for cancel functionality)
                 if (latest.getStatus() == GuardianPatientCaregiverConnection.ConnectionStatus.PENDING) {
                     map.put("connectionId", latest.getConnectionId());
-                    map.put("requestDateTime",
-                            latest.getConnectedDateTime() != null ? latest.getConnectedDateTime().toString() : null);
+                    map.put("requestDateTime", latest.getConnectedDateTime() != null ? 
+                        latest.getConnectedDateTime().toString() : null);
                 }
             } else {
                 map.put("latestRequestStatus", "NONE");
@@ -159,24 +203,25 @@ public class GuardianController {
             if (conn == null) {
                 return ResponseEntity.badRequest().body("Connection request not found");
             }
-
+            
             if (conn.getStatus() != GuardianPatientCaregiverConnection.ConnectionStatus.PENDING) {
                 return ResponseEntity.badRequest().body("Can only cancel pending requests");
             }
-
+            
             // Check if request is within 24 hours
             if (conn.getConnectedDateTime() != null) {
                 java.time.LocalDateTime now = java.time.LocalDateTime.now();
                 java.time.LocalDateTime requestTime = conn.getConnectedDateTime();
                 long hoursElapsed = java.time.Duration.between(requestTime, now).toHours();
-
+                
                 if (hoursElapsed >= 24) {
                     return ResponseEntity.badRequest().body("Cannot cancel request after 24 hours");
                 }
             }
-
-            // Set status to REJECTED (cancellation by guardian)
-            conn.setStatus(GuardianPatientCaregiverConnection.ConnectionStatus.REJECTED);
+            
+            // Set status to CANCELLED and record cancellation time
+            conn.setStatus(GuardianPatientCaregiverConnection.ConnectionStatus.CANCELLED);
+            conn.setCancelledDateTime(java.time.LocalDateTime.now());
             connectionRepository.save(conn);
             return ResponseEntity.ok().body("Connection request cancelled successfully");
         } catch (Exception e) {
@@ -207,14 +252,16 @@ public class GuardianController {
 
             // Check for duplicate pending requests
             boolean exists = guardianService.hasPendingConnectionRequest(
-                    guardianId, patientId, caregiverId);
+                guardianId, patientId, caregiverId
+            );
             if (exists) {
                 return ResponseEntity.badRequest().body("A pending request already exists with this caregiver");
             }
-
+            
             // Check for existing active connections
             boolean activeExists = connectionRepository.existsByGuardianIdAndPatientIdAndCaregiverIdAndStatus(
-                    guardianId, patientId, caregiverId, GuardianPatientCaregiverConnection.ConnectionStatus.ACTIVE);
+                guardianId, patientId, caregiverId, GuardianPatientCaregiverConnection.ConnectionStatus.ACTIVE
+            );
             if (activeExists) {
                 return ResponseEntity.badRequest().body("This caregiver is already connected to this patient");
             }
@@ -245,33 +292,21 @@ public class GuardianController {
             }
 
             Integer currentScore = caregiver.getSeverityScore();
-            if (currentScore == null)
-                currentScore = 0;
+            if (currentScore == null) currentScore = 0;
 
             // Check if caregiver can handle this patient
             if (currentScore + stageScore > 4) {
-                return ResponseEntity.badRequest().body(
-                        "This caregiver has reached their maximum patient capacity and cannot take on additional patients with this severity level");
+                return ResponseEntity.badRequest().body("This caregiver has reached their maximum patient capacity and cannot take on additional patients with this severity level");
             }
 
             // Create direct active connection and update severity score
-            GuardianPatientCaregiverConnection newConn = new GuardianPatientCaregiverConnection();
-            newConn.setGuardianId(guardianId);
-            newConn.setPatientId(patientId);
-            newConn.setCaregiverId(caregiverId);
-            newConn.setStatus(GuardianPatientCaregiverConnection.ConnectionStatus.ACTIVE);
-            newConn.setConnectedDateTime(java.time.LocalDateTime.now());
-            connectionRepository.save(newConn);
-
-            // Update caregiver's severity score
-            caregiver.setSeverityScore(currentScore + stageScore);
-            caregiverRepository.save(caregiver);
-
+            guardianService.createDirectConnection(guardianId, patientId, caregiverId, stageScore);
+            
             // Get caregiver name for response
             String caregiverName = caregiver.getUser().getFName() + " " + caregiver.getUser().getLName();
-
+            
             return ResponseEntity.ok("Patient successfully connected to " + caregiverName);
-
+            
         } catch (Exception e) {
             return ResponseEntity.badRequest().body("Error processing request: " + e.getMessage());
         }

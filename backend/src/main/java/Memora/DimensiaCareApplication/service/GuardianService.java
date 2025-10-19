@@ -32,4 +32,30 @@ public class GuardianService {
             guardianId, patientId, caregiverId, ConnectionStatus.PENDING
         );
     }
+
+    public GuardianPatientCaregiverConnection createDirectConnection(Long guardianId, Long patientId, Long caregiverId, int stageScore) {
+        // Create active connection directly
+        GuardianPatientCaregiverConnection connection = new GuardianPatientCaregiverConnection();
+        connection.setGuardianId(guardianId);
+        connection.setPatientId(patientId);
+        connection.setCaregiverId(caregiverId);
+        connection.setStatus(ConnectionStatus.ACTIVE);
+        connection.setConnectedDateTime(LocalDateTime.now());
+        
+        // Save the connection
+        GuardianPatientCaregiverConnection savedConnection = connectionRepository.save(connection);
+        
+        // Update caregiver severity score immediately
+        Caregiver caregiver = caregiverRepository.findById(caregiverId.intValue()).orElse(null);
+        if (caregiver != null) {
+            Integer currentScore = caregiver.getSeverityScore();
+            if (currentScore == null) currentScore = 0;
+            int newScore = currentScore + stageScore;
+            if (newScore > 4) newScore = 4;
+            caregiver.setSeverityScore(newScore);
+            caregiverRepository.save(caregiver);
+        }
+        
+        return savedConnection;
+    }
 } 

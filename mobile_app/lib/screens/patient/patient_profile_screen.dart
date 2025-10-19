@@ -2,8 +2,27 @@ import 'package:flutter/material.dart';
 import '../../constants/color_constants.dart';
 import '../../routes/app_routes.dart';
 
-class PatientProfileScreen extends StatelessWidget {
+class PatientProfileScreen extends StatefulWidget {
   const PatientProfileScreen({Key? key}) : super(key: key);
+
+  @override
+  State<PatientProfileScreen> createState() => _PatientProfileScreenState();
+}
+
+class _PatientProfileScreenState extends State<PatientProfileScreen> {
+  final _nameController = TextEditingController(text: 'Sarah Johnson');
+  final _emailController = TextEditingController(text: 'sarah.johnson@email.com');
+  final _phoneController = TextEditingController(text: '+1 (555) 123-4567');
+  final _genderController = TextEditingController(text: 'Female');
+  final _birthdayController = TextEditingController(text: 'March 15, 1985');
+  final _addressController = TextEditingController(text: '123 Oak Street, Apt 4B\nSpringfield, IL 62701');
+  final _emergencyContactNameController = TextEditingController(text: 'Michael Johnson (Spouse)');
+  final _emergencyContactPhoneController = TextEditingController(text: '+1 (555) 987-6543');
+  final _allergiesController = TextEditingController(text: 'Penicillin, Shellfish');
+  final _medicationsController = TextEditingController(text: 'Lisinopril 10mg daily\nMetformin 500mg twice daily');
+  final _conditionsController = TextEditingController(text: 'Type 2 Diabetes, Hypertension');
+  final _insuranceProviderController = TextEditingController(text: 'Blue Cross Blue Shield');
+  final _policyNumberController = TextEditingController(text: 'BCBS123456789');
 
   @override
   Widget build(BuildContext context) {
@@ -13,15 +32,21 @@ class PatientProfileScreen extends StatelessWidget {
         backgroundColor: PatientColors.surface,
         automaticallyImplyLeading: false,
         elevation: 0,
-        centerTitle: true,
+        leading: IconButton(
+          icon: Icon(Icons.arrow_back, color: PatientColors.onSurface),
+          onPressed: () {
+            Navigator.of(context).pop();
+          },
+        ),
         title: const Text(
           'Profile',
           style: TextStyle(
             color: PatientColors.onSurface,
-            fontSize: 18,
+            fontSize: 20,
             fontWeight: FontWeight.w600,
           ),
         ),
+        centerTitle: false,
         actions: [
           IconButton(
             icon: const Icon(Icons.notifications_outlined, color: PatientColors.onSurface),
@@ -37,20 +62,20 @@ class PatientProfileScreen extends StatelessWidget {
       ),
       body: SingleChildScrollView(
         child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             // Profile Header
             Container(
-              width: double.infinity,
               color: PatientColors.surface,
-              padding: const EdgeInsets.all(24),
-              child: Column(
+              padding: const EdgeInsets.all(20),
+              child: Row(
                 children: [
-                  // Profile Image
                   Stack(
                     children: [
                       const CircleAvatar(
-                        radius: 40,
+                        radius: 30,
                         backgroundImage: AssetImage('assets/images/profile_avatar.png'),
+                        backgroundColor: PatientColors.onSurfaceVariant,
                       ),
                       Positioned(
                         bottom: 0,
@@ -71,49 +96,31 @@ class PatientProfileScreen extends StatelessWidget {
                       ),
                     ],
                   ),
-                  const SizedBox(height: 16),
-                  // Name and ID
-                  const Text(
-                    'Sarah Johnson',
-                    style: TextStyle(
-                      fontSize: 24,
-                      fontWeight: FontWeight.bold,
-                      color: PatientColors.onSurface,
-                    ),
-                  ),
-                  const SizedBox(height: 4),
-                  const Text(
-                    'Patient ID: #P12345',
-                    style: TextStyle(
-                      fontSize: 14,
-                      color: PatientColors.onSurfaceVariant,
-                    ),
-                  ),
-                  const SizedBox(height: 12),
-                  // Status
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
+                  const SizedBox(width: 16),
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-                        decoration: BoxDecoration(
-                          color: PatientColors.successBackground,
-                          borderRadius: BorderRadius.circular(16),
-                        ),
-                        child: const Text(
-                          'Active',
-                          style: TextStyle(
-                            color: PatientColors.success,
-                            fontSize: 12,
-                            fontWeight: FontWeight.w600,
-                          ),
+                      Text(
+                        _nameController.text,
+                        style: const TextStyle(
+                          fontSize: 20,
+                          fontWeight: FontWeight.w600,
+                          color: Colors.black87,
                         ),
                       ),
-                      const SizedBox(width: 16),
+                      const SizedBox(height: 4),
                       const Text(
-                        'Member since 2023',
+                        'Patient',
                         style: TextStyle(
-                          fontSize: 12,
+                          fontSize: 14,
+                          color: Colors.grey,
+                        ),
+                      ),
+                      const SizedBox(height: 4),
+                      const Text(
+                        'Patient ID: #P12345',
+                        style: TextStyle(
+                          fontSize: 14,
                           color: PatientColors.onSurfaceVariant,
                         ),
                       ),
@@ -123,113 +130,143 @@ class PatientProfileScreen extends StatelessWidget {
               ),
             ),
 
-            const SizedBox(height: 16),
+            const SizedBox(height: 24),
 
-            // Personal Information
-            _buildSection(
-              title: 'Personal Information',
-              children: [
-                _buildInfoRow(
-                  icon: Icons.cake_outlined,
-                  label: 'Date of Birth',
-                  value: 'March 15, 1985',
-                  trailing: '38 years old',
-                ),
-                _buildInfoRow(
-                  icon: Icons.person_outline,
-                  label: 'Gender',
-                  value: 'Female',
-                ),
-              ],
-            ),
+            // Profile Form
+            Container(
+              color: Colors.white,
+              padding: const EdgeInsets.all(20),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const Text(
+                    'Personal Information',
+                    style: TextStyle(
+                      fontSize: 18,
+                      fontWeight: FontWeight.w600,
+                      color: Colors.black87,
+                    ),
+                  ),
+                  const SizedBox(height: 24),
 
-            const SizedBox(height: 16),
+                  _buildLabeledTextField(
+                    label: 'Full Name',
+                    icon: Icons.person,
+                    controller: _nameController,
+                  ),
+                  _buildLabeledTextField(
+                    label: 'Date of Birth',
+                    icon: Icons.cake_outlined,
+                    controller: _birthdayController,
+                  ),
+                  _buildLabeledTextField(
+                    label: 'Gender',
+                    icon: Icons.person_outline,
+                    controller: _genderController,
+                  ),
 
-            // Contact Information
-            _buildSection(
-              title: 'Contact Information',
-              children: [
-                _buildInfoRow(
-                  icon: Icons.phone_outlined,
-                  label: 'Phone Number',
-                  value: '+1 (555) 123-4567',
-                ),
-                _buildInfoRow(
-                  icon: Icons.email_outlined,
-                  label: 'Email Address',
-                  value: 'sarah.johnson@email.com',
-                ),
-                _buildInfoRow(
-                  icon: Icons.location_on_outlined,
-                  label: 'Address',
-                  value: '123 Oak Street, Apt 4B\nSpringfield, IL 62701',
-                ),
-              ],
-            ),
+                  const SizedBox(height: 24),
+                  const Text(
+                    'Contact Information',
+                    style: TextStyle(
+                      fontSize: 18,
+                      fontWeight: FontWeight.w600,
+                      color: Colors.black87,
+                    ),
+                  ),
+                  const SizedBox(height: 16),
 
-            const SizedBox(height: 16),
+                  _buildLabeledTextField(
+                    label: 'Phone Number',
+                    icon: Icons.phone_outlined,
+                    controller: _phoneController,
+                  ),
+                  _buildLabeledTextField(
+                    label: 'Email Address',
+                    icon: Icons.email_outlined,
+                    controller: _emailController,
+                  ),
+                  _buildLabeledTextField(
+                    label: 'Address',
+                    icon: Icons.location_on_outlined,
+                    controller: _addressController,
+                  ),
 
-            // Emergency Contact
-            _buildSection(
-              title: 'Emergency Contact',
-              children: [
-                _buildInfoRow(
-                  icon: Icons.person_outline,
-                  label: 'Contact Name',
-                  value: 'Michael Johnson (Spouse)',
-                ),
-                _buildInfoRow(
-                  icon: Icons.phone_outlined,
-                  label: 'Phone Number',
-                  value: '+1 (555) 987-6543',
-                ),
-              ],
-            ),
+                  const SizedBox(height: 24),
+                  const Text(
+                    'Emergency Contact',
+                    style: TextStyle(
+                      fontSize: 18,
+                      fontWeight: FontWeight.w600,
+                      color: Colors.black87,
+                    ),
+                  ),
+                  const SizedBox(height: 16),
 
-            const SizedBox(height: 16),
+                  _buildLabeledTextField(
+                    label: 'Contact Name',
+                    icon: Icons.person_outline,
+                    controller: _emergencyContactNameController,
+                  ),
+                  _buildLabeledTextField(
+                    label: 'Phone Number',
+                    icon: Icons.phone_outlined,
+                    controller: _emergencyContactPhoneController,
+                  ),
 
-            // Medical Information
-            _buildSection(
-              title: 'Medical Information',
-              children: [
-                _buildInfoRow(
-                  icon: Icons.warning_amber_outlined,
-                  label: 'Allergies',
-                  value: 'Penicillin, Shellfish',
-                  iconColor: PatientColors.error,
-                ),
-                _buildInfoRow(
-                  icon: Icons.medication_outlined,
-                  label: 'Current Medications',
-                  value: 'Lisinopril 10mg daily\nMetformin 500mg twice daily',
-                  iconColor: PatientColors.primary,
-                ),
-                _buildInfoRow(
-                  icon: Icons.favorite_outline,
-                  label: 'Medical Conditions',
-                  value: 'Type 2 Diabetes, Hypertension',
-                  iconColor: PatientColors.primary,
-                ),
-              ],
-            ),
+                  const SizedBox(height: 24),
+                  const Text(
+                    'Medical Information',
+                    style: TextStyle(
+                      fontSize: 18,
+                      fontWeight: FontWeight.w600,
+                      color: Colors.black87,
+                    ),
+                  ),
+                  const SizedBox(height: 16),
 
-            const SizedBox(height: 16),
+                  _buildLabeledTextField(
+                    label: 'Allergies',
+                    icon: Icons.warning_amber_outlined,
+                    controller: _allergiesController,
+                    iconColor: PatientColors.error,
+                  ),
+                  _buildLabeledTextField(
+                    label: 'Current Medications',
+                    icon: Icons.medication_outlined,
+                    controller: _medicationsController,
+                    iconColor: PatientColors.primary,
+                  ),
+                  _buildLabeledTextField(
+                    label: 'Medical Conditions',
+                    icon: Icons.favorite_outline,
+                    controller: _conditionsController,
+                    iconColor: PatientColors.primary,
+                  ),
 
-            // Insurance Information
-            _buildSection(
-              title: 'Insurance Information',
-              children: [
-                _buildInfoRow(
-                  icon: Icons.shield_outlined,
-                  label: 'Insurance Provider',
-                  value: 'Blue Cross Blue Shield',
-                ),
-                _buildInfoRow(
-                  icon: Icons.credit_card_outlined,
-                  label: 'Policy Number',
-                  value: 'BCBS123456789',
-                ),
-              ],
+                  const SizedBox(height: 24),
+                  const Text(
+                    'Insurance Information',
+                    style: TextStyle(
+                      fontSize: 18,
+                      fontWeight: FontWeight.w600,
+                      color: Colors.black87,
+                    ),
+                  ),
+                  const SizedBox(height: 16),
+
+                  _buildLabeledTextField(
+                    label: 'Insurance Provider',
+                    icon: Icons.shield_outlined,
+                    controller: _insuranceProviderController,
+                  ),
+                  _buildLabeledTextField(
+                    label: 'Policy Number',
+                    icon: Icons.credit_card_outlined,
+                    controller: _policyNumberController,
+                  ),
+                ],
+              ),
             ),
 
             const SizedBox(height: 24),
@@ -336,95 +373,45 @@ class PatientProfileScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildSection({
-    required String title,
-    required List<Widget> children,
-  }) {
-    return Container(
-      width: double.infinity,
-      margin: const EdgeInsets.symmetric(horizontal: 16),
-      padding: const EdgeInsets.all(20),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(12),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.grey.withOpacity(0.1),
-            spreadRadius: 1,
-            blurRadius: 4,
-            offset: const Offset(0, 2),
-          ),
-        ],
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            title,
-            style: const TextStyle(
-              fontSize: 18,
-              fontWeight: FontWeight.bold,
-              color: Colors.black,
-            ),
-          ),
-          const SizedBox(height: 16),
-          ...children,
-        ],
-      ),
-    );
-  }
-
-  Widget _buildInfoRow({
-    required IconData icon,
+  Widget _buildLabeledTextField({
     required String label,
-    required String value,
-    String? trailing,
+    required IconData icon,
+    required TextEditingController controller,
     Color? iconColor,
   }) {
-    return Padding(
-      padding: const EdgeInsets.only(bottom: 16),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Icon(
-            icon,
-            color: iconColor ?? Colors.grey[600],
-            size: 20,
+    return Container(
+      margin: const EdgeInsets.only(bottom: 16),
+      child: TextFormField(
+        controller: controller,
+        readOnly: true,
+        style: TextStyle(
+          fontSize: 14,
+          color: Colors.grey[600],
+          height: 1.4,
+        ),
+        decoration: InputDecoration(
+          labelText: label,
+          labelStyle: const TextStyle(
+            color: Colors.black87,
+            fontSize: 16,
+            fontWeight: FontWeight.w500,
           ),
-          const SizedBox(width: 12),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  label,
-                  style: const TextStyle(
-                    fontSize: 14,
-                    fontWeight: FontWeight.w500,
-                    color: Colors.black,
-                  ),
-                ),
-                const SizedBox(height: 4),
-                Text(
-                  value,
-                  style: TextStyle(
-                    fontSize: 14,
-                    color: Colors.grey[600],
-                    height: 1.4,
-                  ),
-                ),
-              ],
-            ),
+          prefixIcon: Icon(icon, color: iconColor ?? Colors.grey[600]),
+          border: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(8),
+            borderSide: BorderSide(color: Colors.grey[300]!),
           ),
-          if (trailing != null)
-            Text(
-              trailing,
-              style: TextStyle(
-                fontSize: 14,
-                color: Colors.grey[600],
-              ),
-            ),
-        ],
+          focusedBorder: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(8),
+            borderSide: BorderSide(color: PatientColors.primary, width: 2),
+          ),
+          disabledBorder: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(8),
+            borderSide: BorderSide(color: Colors.grey[200]!),
+          ),
+          filled: true,
+          fillColor: Colors.grey[100],
+        ),
       ),
     );
   }

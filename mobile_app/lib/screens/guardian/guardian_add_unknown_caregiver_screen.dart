@@ -3,6 +3,7 @@ import '../../routes/app_routes.dart';
 import '../../services/caregiver_service.dart';
 import '../../services/guardian_service.dart';
 import '../../constants/color_constants.dart';
+import '../../utils/name_utils.dart';
 
 class GuardianAddUnknownCaregiverScreen extends StatefulWidget {
   @override
@@ -32,109 +33,7 @@ class _GuardianAddUnknownCaregiverScreenState
     'Anuradhapura',
     'Polonnaruwa',
     'Kurunegala',
-    'Ratnapura',
-    'Batticaloa',
-    'Trincomalee',
-    'Matara',
-    'Badulla',
-    'Kalutara',
-    'Gampaha',
-    'Nuwara Eliya',
-    'Chilaw',
-    'Embilipitiya',
-    'Wattala',
-    'Moratuwa',
   ];
-
-  // Mock caregiver data
-  // final List<Map<String, dynamic>> allCaregivers = [
-  //   {
-  //     'id': 1,
-  //     'name': 'Sarah Johnson',
-  //     'location': 'Colombo',
-  //     'experience': '5 years',
-  //     'specialization': 'Elderly Care',
-  //     'rating': 4.8,
-  //     'avatar': 'assets/images/caregiver1.jpg',
-  //     'verified': true,
-  //     'phone': '+94 77 123 4567',
-  //     'description':
-  //         'Experienced caregiver specializing in elderly care with compassionate approach.',
-  //   },
-  //   {
-  //     'id': 2,
-  //     'name': 'Michael Fernando',
-  //     'location': 'Kandy',
-  //     'experience': '3 years',
-  //     'specialization': 'Disability Care',
-  //     'rating': 4.6,
-  //     'avatar': 'assets/images/caregiver2.jpg',
-  //     'verified': true,
-  //     'phone': '+94 77 234 5678',
-  //     'description':
-  //         'Dedicated caregiver with expertise in disability support and rehabilitation.',
-  //   },
-  //   {
-  //     'id': 3,
-  //     'name': 'Priya Perera',
-  //     'location': 'Galle',
-  //     'experience': '7 years',
-  //     'specialization': 'Medical Care',
-  //     'rating': 4.9,
-  //     'avatar': 'assets/images/caregiver3.jpg',
-  //     'verified': false,
-  //     'phone': '+94 77 345 6789',
-  //     'description':
-  //         'Skilled medical caregiver with extensive experience in patient care.',
-  //   },
-  //   {
-  //     'id': 4,
-  //     'name': 'David Silva',
-  //     'location': 'Colombo',
-  //     'experience': '4 years',
-  //     'specialization': 'Elderly Care',
-  //     'rating': 4.7,
-  //     'avatar': 'assets/images/caregiver4.jpg',
-  //     'verified': true,
-  //     'phone': '+94 77 456 7890',
-  //     'description':
-  //         'Professional caregiver focusing on elderly care and daily living assistance.',
-  //   },
-  //   {
-  //     'id': 5,
-  //     'name': 'Nimali Rathnayake',
-  //     'location': 'Kandy',
-  //     'experience': '6 years',
-  //     'specialization': 'Rehabilitation',
-  //     'rating': 4.5,
-  //     'avatar': 'assets/images/caregiver5.jpg',
-  //     'verified': true,
-  //     'phone': '+94 77 567 8901',
-  //     'description':
-  //         'Rehabilitation specialist with focus on recovery and mobility support.',
-  //   },
-  //   {
-  //     'id': 6,
-  //     'name': 'James Rodrigo',
-  //     'location': 'Negombo',
-  //     'experience': '2 years',
-  //     'specialization': 'Personal Care',
-  //     'rating': 4.3,
-  //     'avatar': 'assets/images/caregiver6.jpg',
-  //     'verified': false,
-  //     'phone': '+94 77 678 9012',
-  //     'description':
-  //         'Personal care assistant with attention to individual needs and preferences.',
-  //   },
-  // ];
-
-  // Mock guardian data (this would be fetched from database)
-  // final Map<String, dynamic> guardianInfo = {
-  //   'name': 'John Smith',
-  //   'email': 'john.smith@email.com',
-  //   'phone': '+94 77 123 4567',
-  //   'relationship': 'Son',
-  // };
 
   int? _getPatientId(Map<String, dynamic>? patient) {
     if (patient == null) return null;
@@ -145,8 +44,6 @@ class _GuardianAddUnknownCaregiverScreenState
   void initState() {
     super.initState();
     selectedCity = 'All Cities';
-    // Remove the eager fetch here:
-    // _fetchCaregivers();
 
     // Get the selected patient from arguments
     WidgetsBinding.instance.addPostFrameCallback((_) {
@@ -277,7 +174,10 @@ class _GuardianAddUnknownCaregiverScreenState
                     ),
                   ),
                   SizedBox(height: 8),
-                  _buildInfoRow('Name:', caregiver['name'] ?? ''),
+                  _buildInfoRow(
+                    'Name:',
+                    NameUtils.formatPatientName(caregiver),
+                  ),
                   _buildInfoRow(
                     'Location:',
                     caregiver['city'] ?? caregiver['location'] ?? '',
@@ -309,7 +209,9 @@ class _GuardianAddUnknownCaregiverScreenState
                   SizedBox(height: 8),
                   _buildInfoRow(
                     'Name:',
-                    selectedPatient?['guardianName'] ?? 'N/A',
+                    NameUtils.capitalizeName(
+                      selectedPatient?['guardianName'] ?? 'N/A',
+                    ),
                   ),
                   _buildInfoRow(
                     'Email:',
@@ -333,7 +235,10 @@ class _GuardianAddUnknownCaregiverScreenState
                     ),
                   ),
                   SizedBox(height: 8),
-                  _buildInfoRow('Name:', selectedPatient?['name'] ?? 'N/A'),
+                  _buildInfoRow(
+                    'Name:',
+                    NameUtils.formatPatientName(selectedPatient ?? {}),
+                  ),
                   _buildInfoRow(
                     'Relationship:',
                     selectedPatient?['relationship'] ?? 'N/A',
@@ -507,7 +412,7 @@ class _GuardianAddUnknownCaregiverScreenState
                   SizedBox(height: 16),
                   Center(
                     child: Text(
-                      caregiver['name'] ?? '',
+                      NameUtils.formatPatientName(caregiver),
                       style: TextStyle(
                         fontSize: 20,
                         fontWeight: FontWeight.bold,
@@ -627,8 +532,7 @@ class _GuardianAddUnknownCaregiverScreenState
   }
 
   Widget _buildCaregiverCard(Map<String, dynamic> caregiver) {
-    final String fullName =
-        ((caregiver['fName'] ?? '') + ' ' + (caregiver['lName'] ?? '')).trim();
+    final String fullName = NameUtils.formatPatientName(caregiver);
     final String city = caregiver['city'] ?? '';
     final String qualifications = caregiver['qualifications'] ?? '';
     final String experience = caregiver['experience'] ?? '';
@@ -785,70 +689,71 @@ class _GuardianAddUnknownCaregiverScreenState
         ),
         backgroundColor: AppColors.surface,
         iconTheme: IconThemeData(color: Colors.black),
-        elevation: 0,
-        centerTitle: false,
       ),
-      body: Container(
+      body: Padding(
         padding: EdgeInsets.all(16),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // Always show selected patient info above the search bar
-            Padding(
-              padding: const EdgeInsets.only(bottom: 16.0),
-              child: Card(
-                color: AppColors.primaryLight.withOpacity(0.18),
-                elevation: 0,
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(10),
-                ),
-                child: Padding(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 16,
-                    vertical: 12,
-                  ),
-                  child: Row(
-                    children: [
-                      Icon(Icons.person, color: AppColors.info),
-                      SizedBox(width: 12),
-                      Expanded(
-                        child: selectedPatient != null
-                            ? Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
+            // Patient Information Card
+            Card(
+              elevation: 2,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(12),
+              ),
+              child: Padding(
+                padding: EdgeInsets.all(16),
+                child: Row(
+                  children: [
+                    CircleAvatar(
+                      radius: 24,
+                      backgroundColor: AppColors.primaryLight.withOpacity(0.3),
+                      child: Icon(
+                        Icons.person,
+                        size: 24,
+                        color: AppColors.info,
+                      ),
+                    ),
+                    SizedBox(width: 12),
+                    Expanded(
+                      child: selectedPatient != null
+                          ? Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  NameUtils.capitalizeName(selectedPatient!['name'] ?? 'Unknown'),
+                                  style: TextStyle(
+                                    fontSize: 16,
+                                    fontWeight: FontWeight.bold,
+                                    color: AppColors.info,
+                                  ),
+                                ),
+                                if ((selectedPatient!['city'] ?? '')
+                                    .toString()
+                                    .isNotEmpty)
                                   Text(
-                                    selectedPatient!['name'] ?? 'Unknown',
+                                    selectedPatient!['city'],
                                     style: TextStyle(
-                                      fontSize: 16,
-                                      fontWeight: FontWeight.bold,
-                                      color: AppColors.info,
+                                      fontSize: 14,
+                                      color: AppColors.onSurfaceVariant,
                                     ),
                                   ),
-                                  if ((selectedPatient!['city'] ?? '')
-                                      .toString()
-                                      .isNotEmpty)
-                                    Text(
-                                      selectedPatient!['city'],
-                                      style: TextStyle(
-                                        fontSize: 14,
-                                        color: AppColors.onSurfaceVariant,
-                                      ),
-                                    ),
-                                ],
-                              )
-                            : Text(
-                                'No patient selected',
-                                style: TextStyle(
-                                  fontSize: 16,
-                                  color: AppColors.onSurfaceVariant,
-                                ),
+                              ],
+                            )
+                          : Text(
+                              NameUtils.capitalizeName(selectedPatient?['name'] ?? ''),
+                              style: TextStyle(
+                                fontSize: 18,
+                                fontWeight: FontWeight.w600,
+                                color: Colors.blue[900],
                               ),
-                      ),
-                    ],
-                  ),
+                            ),
+                    ),
+                  ],
                 ),
               ),
             ),
+            SizedBox(height: 20),
             Text(
               'Filter by Location',
               style: TextStyle(

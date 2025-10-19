@@ -1,8 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import '../../routes/app_routes.dart';
-import '../../services/patient_service.dart'; // Update the path as needed
-import '../../services/user_service.dart';
 import '../../services/auth_service.dart';
 import '../../services/guardian_service.dart';
 import '../../constants/color_constants.dart';
@@ -26,7 +24,6 @@ class _GuardianAddPatientScreenState extends State<GuardianAddPatientScreen> {
   final _diagnosisDateController = TextEditingController();
   final _emailController = TextEditingController();
   //final _passwordController = TextEditingController();
-  final _relationshipController = TextEditingController();
   final _customRelationshipController = TextEditingController();
 
   String? _selectedDementiaStage;
@@ -35,7 +32,26 @@ class _GuardianAddPatientScreenState extends State<GuardianAddPatientScreen> {
   DateTime? _selectedDOB;
   DateTime? _selectedDiagnosisDate;
   String? _selectedGender;
+  String? _selectedRelationship;
   bool _isLoading = false;
+
+  final List<String> _relationshipOptions = [
+    'Mother',
+    'Father',
+    'Spouse',
+    'Daughter',
+    'Son',
+    'Grandmother',
+    'Grandfather',
+    'Sister',
+    'Brother',
+    'Aunt',
+    'Uncle',
+    'Cousin',
+    'Friend',
+    'Caregiver',
+    'Other',
+  ];
 
   final List<String> _dementiaStages = [
     'Mild',
@@ -72,7 +88,6 @@ class _GuardianAddPatientScreenState extends State<GuardianAddPatientScreen> {
     _diagnosisDateController.dispose();
     _emailController.dispose();
     //_passwordController.dispose();
-    _relationshipController.dispose();
     _customRelationshipController.dispose();
     super.dispose();
   }
@@ -103,19 +118,6 @@ class _GuardianAddPatientScreenState extends State<GuardianAddPatientScreen> {
     return null;
   }
 
-  String? _validatePassword(String? value) {
-    if (value == null || value.isEmpty) {
-      return 'Password is required';
-    }
-    if (value.length < 8) {
-      return 'Password must be at least 8 characters';
-    }
-    if (!RegExp(r'^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)').hasMatch(value)) {
-      return 'Password must contain uppercase, lowercase, and number';
-    }
-    return null;
-  }
-
   String? _validatePhone(String? value) {
     if (value == null || value.trim().isEmpty) {
       return 'Contact number is required';
@@ -142,13 +144,22 @@ class _GuardianAddPatientScreenState extends State<GuardianAddPatientScreen> {
 
   String? _validateRelationship(String? value) {
     if (value == null || value.trim().isEmpty) {
-      return 'Relationship is required';
+      return 'Please select a relationship';
     }
-    if (value.trim().length < 2) {
-      return 'Relationship must be at least 2 characters';
-    }
-    if (!RegExp(r'^[a-zA-Z\s]+$').hasMatch(value.trim())) {
-      return 'Relationship can only contain letters and spaces';
+    return null;
+  }
+
+  String? _validateCustomRelationship(String? value) {
+    if (_selectedRelationship == 'Other') {
+      if (value == null || value.trim().isEmpty) {
+        return 'Please specify the relationship';
+      }
+      if (value.trim().length < 2) {
+        return 'Relationship must be at least 2 characters';
+      }
+      if (!RegExp(r'^[a-zA-Z\s]+$').hasMatch(value.trim())) {
+        return 'Relationship can only contain letters and spaces';
+      }
     }
     return null;
   }
@@ -317,50 +328,7 @@ class _GuardianAddPatientScreenState extends State<GuardianAddPatientScreen> {
         setState(() {
           _isLoading = true;
         });
-        print('Form validated, starting user creation');
-
-        // 1. Create user
-        final userResult = await UserService.addUser(
-          FName: _firstNameController.text,
-          LName: _lastNameController.text,
-          email: _emailController.text,
-          //password: _passwordController.text,
-          phoneNumber: _contactController.text,
-          role: "PATIENT",
-          status: "ACTIVE",
-          birthdate: _selectedDOB != null
-              ? "${_selectedDOB!.toIso8601String().split('T')[0]}"
-              : "",
-          profilePic: "", // Add profile pic logic if needed
-          street: _streetController.text,
-          city: _cityController.text,
-          state: _stateController.text,
-          gender: _selectedGender ?? "",
-        );
-
-        print(
-          'User creation result:  [1m [38;5;2m${userResult.success}, ${userResult.message} [0m',
-        );
-
-        if (!userResult.success || userResult.userId == null) {
-          setState(() {
-            _isLoading = false;
-          });
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text('Failed to create user: ${userResult.message}'),
-              backgroundColor: Colors.red,
-            ),
-          );
-          return;
-        }
-
-        // 2. Create patient
-        final dementiaStage = _selectedDementiaStage?.toUpperCase();
-        final backendDementiaType = dementiaTypeMap[_selectedDementiaType];
-        final dateOfDiagnosis = _selectedDiagnosisDate != null
-            ? "${_selectedDiagnosisDate!.toIso8601String().split('T')[0]}"
-            : null;
+        print('Form validated, preparing patient data for payment');
 
         // Get the current user id (from user table)
         final int? currentUserId = await AuthService.getCurrentUserId();
@@ -389,13 +357,42 @@ class _GuardianAddPatientScreenState extends State<GuardianAddPatientScreen> {
           return;
         }
 
-        final patientResult = await PatientService.addPatient(
-          userId: userResult.userId!,
-          dementiaStage: dementiaStage ?? "",
-          dateOfDiagnosis: dateOfDiagnosis ?? "",
-          dementiaType: backendDementiaType ?? "",
-          guardianId: guardianId, // <-- Use guardian table id here
-          relationship: _relationshipController.text.trim(),
+        // Collect all form data to pass to subscription screen
+        // Patient will be created AFTER successful payment
+        final String? backendDementiaType = _selectedDementiaType != null
+            ? dementiaTypeMap[_selectedDementiaType]
+            : null;
+
+        final Map<String, dynamic> patientData = {
+          'firstName': _firstNameController.text.trim(),
+          'lastName': _lastNameController.text.trim(),
+          'dateOfBirth': _dobController.text.trim(),
+          'gender': _selectedGender ?? '',
+          'contactNumber': _contactController.text.trim(),
+          'email': _emailController.text.trim(),
+          'street': _streetController.text.trim(),
+          'city': _cityController.text.trim(),
+          'state': _stateController.text.trim(),
+          'dementiaType': backendDementiaType ?? '',
+          'dementiaStage': _selectedDementiaStage ?? '',
+          'dateOfDiagnosis': _diagnosisDateController.text.trim(),
+          'relationship': _selectedRelationship == 'Other'
+              ? _customRelationshipController.text.trim()
+              : (_selectedRelationship ?? ''),
+        };
+
+        setState(() {
+          _isLoading = false;
+        });
+
+        print('Navigating to subscription plans with patient data');
+
+        // Navigate to subscription plans with data (patient created after payment)
+        Navigator.pushNamedAndRemoveUntil(
+          context,
+          AppRoutes.guardianSubscriptionPlans,
+          (route) => false,
+          arguments: {'guardianId': guardianId, 'patientData': patientData},
         );
 
         print(
@@ -406,30 +403,37 @@ class _GuardianAddPatientScreenState extends State<GuardianAddPatientScreen> {
           // Send guardian connection email to patient
           try {
             // Get current guardian's user information
-            final guardianUserData = await UserService.getUserById(currentUserId!);
-            
+            final guardianUserData = await UserService.getUserById(
+              currentUserId!,
+            );
+
             if (guardianUserData != null) {
-              final guardianName = '${guardianUserData['fname']} ${guardianUserData['lname']}';
+              final guardianName =
+                  '${guardianUserData['fname']} ${guardianUserData['lname']}';
               final guardianEmail = guardianUserData['email'];
-              final patientName = '${_firstNameController.text} ${_lastNameController.text}';
+              final patientName =
+                  '${_firstNameController.text} ${_lastNameController.text}';
               final patientEmail = _emailController.text;
               final relationship = _selectedRelationship == 'Other'
                   ? _customRelationshipController.text.trim()
                   : (_selectedRelationship ?? '');
 
               print('Sending guardian connection email...');
-              final emailResult = await GuardianService.sendGuardianConnectionEmail(
-                patientEmail: patientEmail,
-                patientName: patientName,
-                guardianName: guardianName,
-                guardianEmail: guardianEmail,
-                relationship: relationship,
-              );
+              final emailResult =
+                  await GuardianService.sendGuardianConnectionEmail(
+                    patientEmail: patientEmail,
+                    patientName: patientName,
+                    guardianName: guardianName,
+                    guardianEmail: guardianEmail,
+                    relationship: relationship,
+                  );
 
               if (emailResult['success']) {
                 print('Guardian connection email sent successfully');
               } else {
-                print('Failed to send guardian connection email: ${emailResult['message']}');
+                print(
+                  'Failed to send guardian connection email: ${emailResult['message']}',
+                );
                 // Don't fail the whole process if email fails, just log it
               }
             }
@@ -444,7 +448,9 @@ class _GuardianAddPatientScreenState extends State<GuardianAddPatientScreen> {
 
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
-              content: Text('Patient saved successfully! Connection request email sent.'),
+              content: Text(
+                'Patient saved successfully! Connection request email sent.',
+              ),
               backgroundColor: Colors.green,
             ),
           );
@@ -567,7 +573,7 @@ class _GuardianAddPatientScreenState extends State<GuardianAddPatientScreen> {
               //   validator: _validatePassword,
               // ),
 
-              // Relationship field with clear instructions
+              // Relationship field with dropdown
               Container(
                 margin: EdgeInsets.only(bottom: 16),
                 child: Column(
@@ -581,21 +587,58 @@ class _GuardianAddPatientScreenState extends State<GuardianAddPatientScreen> {
                         color: AppColors.onSurface,
                       ),
                     ),
-                    SizedBox(height: 4),
-                    Text(
-                      'e.g., Mother, Father, Spouse, Grandmother, etc.',
-                      style: TextStyle(
-                        fontSize: 12,
-                        color: AppColors.onSurfaceVariant,
-                        fontStyle: FontStyle.italic,
+                    SizedBox(height: 8),
+                    Container(
+                      margin: EdgeInsets.only(bottom: 16),
+                      decoration: BoxDecoration(
+                        color: Colors.grey[100],
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      child: DropdownButtonFormField<String>(
+                        value: _selectedRelationship,
+                        decoration: InputDecoration(
+                          hintText: 'Select relationship',
+                          hintStyle: TextStyle(
+                            color: Colors.grey[500],
+                            fontSize: 16,
+                          ),
+                          border: InputBorder.none,
+                          contentPadding: EdgeInsets.symmetric(
+                            horizontal: 16,
+                            vertical: 16,
+                          ),
+                        ),
+                        items: _relationshipOptions.map((String relationship) {
+                          return DropdownMenuItem<String>(
+                            value: relationship,
+                            child: Text(
+                              relationship,
+                              style: TextStyle(
+                                color: Colors.black,
+                                fontSize: 16,
+                              ),
+                            ),
+                          );
+                        }).toList(),
+                        onChanged: (String? newValue) {
+                          setState(() {
+                            _selectedRelationship = newValue;
+                            if (newValue != 'Other') {
+                              _customRelationshipController.clear();
+                            }
+                          });
+                        },
+                        validator: _validateRelationship,
                       ),
                     ),
-                    SizedBox(height: 8),
-                    _buildTextField(
-                      controller: _relationshipController,
-                      hintText: 'e.g., Mother, Father, Spouse, etc.',
-                      validator: _validateRelationship,
-                    ),
+                    if (_selectedRelationship == 'Other') ...[
+                      SizedBox(height: 12),
+                      _buildTextField(
+                        controller: _customRelationshipController,
+                        hintText: 'Please specify the relationship',
+                        validator: _validateCustomRelationship,
+                      ),
+                    ],
                   ],
                 ),
               ),
