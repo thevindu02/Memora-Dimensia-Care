@@ -5,13 +5,13 @@ import 'guardian_service.dart';
 import '../routes/app_routes.dart';
 import 'api_constants.dart';
 import '../services/caregiver_service.dart'; // Added import for CaregiverService
+import '../services/patient_service.dart'; // Added import for PatientService
 import 'fcm_notification_service.dart'; // Added for FCM token registration
 
 class AuthService {
   static const String _userKey = 'current_user';
   static const String _roleKey = 'user_role';
   static const String _tokenKey = 'auth_token';
-
 
   static const String baseUrl = 'http://192.168.8.100:8080/api/auth';
 
@@ -138,6 +138,22 @@ class AuthService {
             }
           } catch (e) {
             print('Failed to save guardianId: $e');
+          }
+        }
+
+        // If patient, save patientId to SharedPreferences
+        if (role.toLowerCase() == 'patient') {
+          try {
+            final patientId = await PatientService.getPatientIdByUserId(id);
+            if (patientId != null) {
+              SharedPreferences prefs = await SharedPreferences.getInstance();
+              await prefs.setInt('patientId', patientId);
+              print('✅ Saved patientId=$patientId to prefs');
+            } else {
+              print('⚠️  patientId not found for user $id');
+            }
+          } catch (e) {
+            print('❌ Failed to save patientId: $e');
           }
         }
 
@@ -523,7 +539,10 @@ class AuthService {
   }
 
   // Ensure guardian ID is saved in SharedPreferences
-  static Future<void> _ensureGuardianIdSaved(int userId, int? maybeGuardianId) async {
+  static Future<void> _ensureGuardianIdSaved(
+    int userId,
+    int? maybeGuardianId,
+  ) async {
     try {
       final prefs = await SharedPreferences.getInstance();
       if (maybeGuardianId != null) {
@@ -535,13 +554,18 @@ class AuthService {
 
       // Try fetch guardian record from backend (adjust path if your API differs)
       final uri = Uri.parse('${ApiConstants.baseUrl}/guardians/user/$userId');
-      final resp = await http.get(uri, headers: {'Content-Type': 'application/json'});
+      final resp = await http.get(
+        uri,
+        headers: {'Content-Type': 'application/json'},
+      );
       if (resp.statusCode == 200) {
         final data = jsonDecode(resp.body);
         // try multiple possible field names
         final fetched = data['guardianId'] ?? data['id'] ?? data['guardian_id'];
         if (fetched != null) {
-          final int gid = fetched is int ? fetched : int.parse(fetched.toString());
+          final int gid = fetched is int
+              ? fetched
+              : int.parse(fetched.toString());
           await prefs.setInt('guardianId', gid);
         }
       }
@@ -550,6 +574,7 @@ class AuthService {
       print('Failed to fetch/save guardianId: $e');
     }
   }
+
   static Future<AuthResult> authenticatePatientWithCode(
     String email,
     String code,
@@ -584,6 +609,31 @@ class AuthService {
           // Save session data
           await login(role, token: token, userData: userData);
           currentUserId = id;
+
+          // Save userId to SharedPreferences
+          SharedPreferences prefs = await SharedPreferences.getInstance();
+          await prefs.setInt('userId', id);
+
+          // Save patientId to SharedPreferences
+          try {
+            final patientId = await PatientService.getPatientIdByUserId(id);
+            if (patientId != null) {
+              await prefs.setInt('patientId', patientId);
+              print('✅ Saved patientId=$patientId to prefs');
+            } else {
+              print('⚠️  patientId not found for user $id');
+            }
+          } catch (e) {
+            print('❌ Failed to save patientId: $e');
+          }
+
+          // Register FCM token after successful login
+          try {
+            await FCMNotificationService().sendTokenToBackendOnLogin();
+            print('✅ FCM token sent to backend after patient login');
+          } catch (e) {
+            print('⚠️  Failed to send FCM token after patient login: $e');
+          }
 
           return AuthResult(
             success: true,

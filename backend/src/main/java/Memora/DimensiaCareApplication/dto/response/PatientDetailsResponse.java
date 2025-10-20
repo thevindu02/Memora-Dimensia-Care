@@ -21,7 +21,6 @@ public class PatientDetailsResponse {
     private String state;
     private String dementiaType;
     private String dementiaStage;
-    private String label;
     private String profilePic;
 
     // guardian info (new)
@@ -30,14 +29,14 @@ public class PatientDetailsResponse {
     private String guardianEmail;
     private String guardianPhone;
     private String guardianCity;
-    
+
     // Caregiver details
     private Long caregiverId;
     private String caregiverName;
     private String caregiverEmail;
     private String caregiverPhone;
     private String caregiverCity;
-    
+
     // Relationship
     private String relationship;
 
@@ -51,8 +50,8 @@ public class PatientDetailsResponse {
         resp.FName = user.getFName();
         resp.LName = user.getLName();
         // compute full name
-        resp.patientName = (user.getFName() != null ? user.getFName() : "") + 
-                          (user.getLName() != null ? " " + user.getLName() : "");
+        resp.patientName = (user.getFName() != null ? user.getFName() : "") +
+                (user.getLName() != null ? " " + user.getLName() : "");
         resp.email = user.getEmail();
         resp.phoneNumber = user.getPhoneNumber();
         resp.gender = user.getGender();
@@ -73,7 +72,6 @@ public class PatientDetailsResponse {
         resp.profilePic = user.getProfilePic();
         resp.dementiaType = patient.getDementiaType() != null ? patient.getDementiaType().name() : "";
         resp.dementiaStage = patient.getDementiaStage() != null ? patient.getDementiaStage().name() : "";
-        resp.label = patient.getLabel();
         resp.relationship = patient.getRelationship();
 
         Guardian guardian = patient.getGuardian();
@@ -86,7 +84,7 @@ public class PatientDetailsResponse {
             User gUser = guardian.getUser();
             if (gUser != null) {
                 resp.guardianName = (gUser.getFName() != null ? gUser.getFName() : "") +
-                                   (gUser.getLName() != null ? " " + gUser.getLName() : "");
+                        (gUser.getLName() != null ? " " + gUser.getLName() : "");
                 resp.guardianEmail = gUser.getEmail();
                 resp.guardianPhone = gUser.getPhoneNumber();
             }
@@ -95,12 +93,29 @@ public class PatientDetailsResponse {
         return resp;
     }
 
-    public String getPatientName() { return patientName; }
-    public void setPatientName(String patientName) { this.patientName = patientName; }
-    public Integer getPatientAge() { return patientAge; }
-    public void setPatientAge(Integer patientAge) { this.patientAge = patientAge; }
-    public String getRelationship() { return relationship; }
-    public void setRelationship(String relationship) { this.relationship = relationship; }
+    public String getPatientName() {
+        return patientName;
+    }
+
+    public void setPatientName(String patientName) {
+        this.patientName = patientName;
+    }
+
+    public Integer getPatientAge() {
+        return patientAge;
+    }
+
+    public void setPatientAge(Integer patientAge) {
+        this.patientAge = patientAge;
+    }
+
+    public String getRelationship() {
+        return relationship;
+    }
+
+    public void setRelationship(String relationship) {
+        this.relationship = relationship;
+    }
 
     // Getters and Setters
     public Long getPatientId() {
@@ -199,15 +214,6 @@ public class PatientDetailsResponse {
         this.dementiaStage = dementiaStage;
     }
 
-    public String getLabel() {
-        
-        return label;
-    }
-
-    public void setLabel(String label) {
-        this.label = label;
-    }
-
     public String getProfilePic() {
         return profilePic;
     }
@@ -255,23 +261,52 @@ public class PatientDetailsResponse {
     public void setGuardianPhone(String guardianPhone) {
         this.guardianPhone = guardianPhone;
     }
-    
+
     public String getGuardianCity() {
         return guardianCity;
     }
-    
+
     public void setGuardianCity(String guardianCity) {
         this.guardianCity = guardianCity;
     }
 
-    public Long getCaregiverId() { return caregiverId; }
-    public void setCaregiverId(Long caregiverId) { this.caregiverId = caregiverId; }
-    public String getCaregiverName() { return caregiverName; }
-    public void setCaregiverName(String caregiverName) { this.caregiverName = caregiverName; }
-    public String getCaregiverEmail() { return caregiverEmail; }
-    public void setCaregiverEmail(String caregiverEmail) { this.caregiverEmail = caregiverEmail; }
-    public String getCaregiverPhone() { return caregiverPhone; }
-    public void setCaregiverPhone(String caregiverPhone) { this.caregiverPhone = caregiverPhone; }
-    public String getCaregiverCity() { return caregiverCity; }
-    public void setCaregiverCity(String caregiverCity) { this.caregiverCity = caregiverCity; }
+    public Long getCaregiverId() {
+        return caregiverId;
+    }
+
+    public void setCaregiverId(Long caregiverId) {
+        this.caregiverId = caregiverId;
+    }
+
+    public String getCaregiverName() {
+        return caregiverName;
+    }
+
+    public void setCaregiverName(String caregiverName) {
+        this.caregiverName = caregiverName;
+    }
+
+    public String getCaregiverEmail() {
+        return caregiverEmail;
+    }
+
+    public void setCaregiverEmail(String caregiverEmail) {
+        this.caregiverEmail = caregiverEmail;
+    }
+
+    public String getCaregiverPhone() {
+        return caregiverPhone;
+    }
+
+    public void setCaregiverPhone(String caregiverPhone) {
+        this.caregiverPhone = caregiverPhone;
+    }
+
+    public String getCaregiverCity() {
+        return caregiverCity;
+    }
+
+    public void setCaregiverCity(String caregiverCity) {
+        this.caregiverCity = caregiverCity;
+    }
 }

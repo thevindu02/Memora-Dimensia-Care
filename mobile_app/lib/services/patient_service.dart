@@ -4,7 +4,6 @@ import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'api_constants.dart';
 import '../models/patient_profile.dart';
 import '../models/schedule_task.dart';
-import 'api_constants.dart';
 
 class PatientService {
   static final String url = '${ApiConstants.baseUrl}/api/patients';
@@ -52,7 +51,10 @@ class PatientService {
       );
 
       if (response.statusCode == 200) {
-        return PatientResult(success: true, message: "Patient updated successfully");
+        return PatientResult(
+          success: true,
+          message: "Patient updated successfully",
+        );
       } else {
         final responseData = jsonDecode(response.body);
         return PatientResult(
@@ -68,7 +70,7 @@ class PatientService {
   // Add a new patient
   static final String baseUrl = '${ApiConstants.baseUrl}/api/patients';
 
-  // Add a new patient 
+  // Add a new patient
   static Future<PatientResult> addPatient({
     required int userId,
     required String dementiaStage,
@@ -220,7 +222,7 @@ class PatientService {
         print('Warning: Could not read auth token: $e');
         // Continue without token
       }
-      
+
       final response = await http.get(
         Uri.parse('$url/$patientId/profile'),
         headers: {
@@ -233,7 +235,9 @@ class PatientService {
         final data = json.decode(response.body);
         return PatientProfile.fromJson(data);
       } else {
-        throw Exception('Failed to load patient profile: ${response.statusCode}');
+        throw Exception(
+          'Failed to load patient profile: ${response.statusCode}',
+        );
       }
     } catch (e) {
       throw Exception('Error loading patient profile: $e');
@@ -243,25 +247,39 @@ class PatientService {
   // Get patient ID by user ID
   static Future<int?> getPatientIdByUserId(int userId) async {
     try {
+      final url = '${ApiConstants.baseUrl}/api/patients/user/$userId';
+      print('🔍 Fetching patientId from: $url');
+
       final response = await http.get(
-        Uri.parse('${ApiConstants.baseUrl}/api/patients/user/$userId'),
+        Uri.parse(url),
         headers: {'Content-Type': 'application/json'},
       );
 
+      print('📡 Response status: ${response.statusCode}');
+      print('📡 Response body: ${response.body}');
+
       if (response.statusCode == 200) {
         final data = json.decode(response.body);
-        return data['patientId'] as int?;
+        final patientId = data['patientId'] as int?;
+        print('✅ Successfully retrieved patientId: $patientId');
+        return patientId;
       } else {
+        print(
+          '❌ Failed to get patientId. Status: ${response.statusCode}, Body: ${response.body}',
+        );
         return null;
       }
     } catch (e) {
-      print('Error getting patient ID: $e');
+      print('❌ Error getting patient ID: $e');
       return null;
     }
   }
 
   // Get schedule for a specific date
-  static Future<List<ScheduleTask>> getScheduleForDate(int patientId, String date) async {
+  static Future<List<ScheduleTask>> getScheduleForDate(
+    int patientId,
+    String date,
+  ) async {
     try {
       String? token;
       try {
@@ -270,7 +288,7 @@ class PatientService {
         print('Warning: Could not read auth token: $e');
         // Continue without token
       }
-      
+
       final response = await http.get(
         Uri.parse('$url/$patientId/schedule?date=$date'),
         headers: {
@@ -291,7 +309,10 @@ class PatientService {
   }
 
   // Create a new task
-  static Future<ScheduleTask> createTask(int patientId, Map<String, dynamic> taskData) async {
+  static Future<ScheduleTask> createTask(
+    int patientId,
+    Map<String, dynamic> taskData,
+  ) async {
     try {
       String? token;
       try {
@@ -300,7 +321,7 @@ class PatientService {
         print('Warning: Could not read auth token: $e');
         // Continue without token
       }
-      
+
       final response = await http.post(
         Uri.parse('$url/$patientId/tasks'),
         headers: {
@@ -336,14 +357,16 @@ class PatientService {
         print('Warning: Could not read auth token: $e');
         // Continue without token
       }
-      
+
       final body = {
         'status': status,
         if (skipReason != null) 'skipReason': skipReason,
       };
 
       final response = await http.put(
-        Uri.parse('${ApiConstants.baseUrl}/api/patients/tasks/$careActivityId/status'),
+        Uri.parse(
+          '${ApiConstants.baseUrl}/api/patients/tasks/$careActivityId/status',
+        ),
         headers: {
           if (token != null) 'Authorization': 'Bearer $token',
           'Content-Type': 'application/json',

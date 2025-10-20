@@ -28,47 +28,102 @@ public class PatientProfileUpdateRequest {
     @JsonProperty("dementiaStage")
     private Patient.DementiaStage dementiaStage;
 
-    private String label;
     private String profilePic;
 
     // --- Getters and Setters ---
-    public String getFName() { return FName; }
-    public void setFName(String FName) { this.FName = FName; }
+    public String getFName() {
+        return FName;
+    }
 
-    public String getLName() { return LName; }
-    public void setLName(String LName) { this.LName = LName; }
+    public void setFName(String FName) {
+        this.FName = FName;
+    }
 
-    public LocalDate getBirthdate() { return birthdate; }
-    public void setBirthdate(LocalDate birthdate) { this.birthdate = birthdate; }
+    public String getLName() {
+        return LName;
+    }
 
-    public String getGender() { return gender; }
-    public void setGender(String gender) { this.gender = gender; }
+    public void setLName(String LName) {
+        this.LName = LName;
+    }
 
-    public String getPhoneNumber() { return phoneNumber; }
-    public void setPhoneNumber(String phoneNumber) { this.phoneNumber = phoneNumber; }
+    public LocalDate getBirthdate() {
+        return birthdate;
+    }
 
-    public String getStreet() { return street; }
-    public void setStreet(String street) { this.street = street; }
+    public void setBirthdate(LocalDate birthdate) {
+        this.birthdate = birthdate;
+    }
 
-    public String getCity() { return city; }
-    public void setCity(String city) { this.city = city; }
+    public String getGender() {
+        return gender;
+    }
 
-    public String getState() { return state; }
-    public void setState(String state) { this.state = state; }
+    public void setGender(String gender) {
+        this.gender = gender;
+    }
 
-    public String getEmail() { return email; }
-    public void setEmail(String email) { this.email = email; }
+    public String getPhoneNumber() {
+        return phoneNumber;
+    }
 
-    public Patient.DementiaType getDementiaType() { return dementiaType; }
-    public void setDementiaType(Patient.DementiaType dementiaType) { this.dementiaType = dementiaType; }
+    public void setPhoneNumber(String phoneNumber) {
+        this.phoneNumber = phoneNumber;
+    }
 
-    public Patient.DementiaStage getDementiaStage() { return dementiaStage; }
-    public void setDementiaStage(Patient.DementiaStage dementiaStage) { this.dementiaStage = dementiaStage; }
+    public String getStreet() {
+        return street;
+    }
 
-    public String getLabel() { return label; }
-    public void setLabel(String label) { this.label = label; }
+    public void setStreet(String street) {
+        this.street = street;
+    }
 
-    public String getProfilePic() { return profilePic; }
-    public void setProfilePic(String profilePic) { this.profilePic = profilePic; }
+    public String getCity() {
+        return city;
+    }
+
+    public void setCity(String city) {
+        this.city = city;
+    }
+
+    public String getState() {
+        return state;
+    }
+
+    public void setState(String state) {
+        this.state = state;
+    }
+
+    public String getEmail() {
+        return email;
+    }
+
+    public void setEmail(String email) {
+        this.email = email;
+    }
+
+    public Patient.DementiaType getDementiaType() {
+        return dementiaType;
+    }
+
+    public void setDementiaType(Patient.DementiaType dementiaType) {
+        this.dementiaType = dementiaType;
+    }
+
+    public Patient.DementiaStage getDementiaStage() {
+        return dementiaStage;
+    }
+
+    public void setDementiaStage(Patient.DementiaStage dementiaStage) {
+        this.dementiaStage = dementiaStage;
+    }
+
+    public String getProfilePic() {
+        return profilePic;
+    }
+
+    public void setProfilePic(String profilePic) {
+        this.profilePic = profilePic;
+    }
 }
-

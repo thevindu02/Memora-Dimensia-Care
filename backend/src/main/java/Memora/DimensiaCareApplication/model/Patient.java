@@ -31,11 +31,9 @@ public class Patient {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "guardian_id", referencedColumnName = "guardian_id")
     private Guardian guardian;
-    
+
     @Column(name = "relationship")
     private String relationship;
-    
-    private String label;
 
     // Getters and setters
 
@@ -86,21 +84,13 @@ public class Patient {
     public void setGuardian(Guardian guardian) {
         this.guardian = guardian;
     }
-    
+
     public String getRelationship() {
         return relationship;
     }
-    
+
     public void setRelationship(String relationship) {
         this.relationship = relationship;
-    }
-
-    public String getLabel() {
-        return label;
-    }
-
-    public void setLabel(String label) {
-        this.label = label;
     }
 
     // Enums
