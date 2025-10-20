@@ -12,7 +12,6 @@ import 'volunteer_create_content_screen.dart';
 import 'volunteer_forum_screen.dart';
 import 'volunteer_schedule_session_screen.dart';
 import 'article_draft_screen.dart';
-import 'view_article_screen.dart';
 
 class VolunteerRoutes {
   static Route<dynamic> generateRoute(RouteSettings settings) {
@@ -93,7 +92,7 @@ class VolunteerRoutes {
         );
       case AppRoutes.volunteerArticlesTab:
         return MaterialPageRoute(
-          builder: (_) => VolunteerArticlesTab(),
+          builder: (_) => VolunteerArticlesTabBody(),
           settings: settings,
         );
       default:
