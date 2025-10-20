@@ -12,26 +12,32 @@ class _ChatConversationScreenState extends State<ChatConversationScreen> {
   final TextEditingController _controller = TextEditingController();
   final FirebaseChatService _chatService = FirebaseChatService();
   
-  late String conversationId;
-  late String currentUserId;
-  late String currentUserRole;
-  late String partnerName;
+  String? conversationId;
+  String? currentUserId;
+  String? currentUserRole;
+  String partnerName = 'Chat';
+  bool _isInitialized = false;
 
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
+    
+    if (_isInitialized) return;
+    
+    _isInitialized = true; // Mark as initialized immediately to prevent re-runs
+    
     final args = ModalRoute.of(context)?.settings.arguments as Map<String, dynamic>?;
     
-    final partnerId = args?['id']?.toString() ?? 'unknown';
+    final partnerId = args?['id']?.toString();
     partnerName = args?['name'] ?? 'Chat';
     currentUserRole = args?['currentUser'] ?? 'guardian';
-    currentUserId = args?['currentUserId']?.toString() ?? '';
+    currentUserId = args?['currentUserId']?.toString();
     
-    // Validate currentUserId
-    if (currentUserId.isEmpty) {
+    // Validate required parameters
+    if (currentUserId == null || currentUserId!.isEmpty || partnerId == null || partnerId == 'unknown' || partnerId.isEmpty) {
       WidgetsBinding.instance.addPostFrameCallback((_) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('User ID not found. Please login again.')),
+          SnackBar(content: Text('Invalid chat parameters. Please try again.')),
         );
         Navigator.pop(context);
       });
@@ -45,20 +51,27 @@ class _ChatConversationScreenState extends State<ChatConversationScreen> {
       conversationId = 'guardian_${partnerId}_caregiver_$currentUserId';
     }
     
+    print('=== CHAT DEBUG ===');
+    print('Current User Role: $currentUserRole');
+    print('Current User ID: $currentUserId');
+    print('Partner ID: $partnerId');
+    print('Generated Conversation ID: $conversationId');
+    print('==================');
+    
     // Ensure conversation exists
     _chatService.createOrGetConversation(
-      currentUserRole == 'guardian' ? currentUserId : partnerId,
-      currentUserRole == 'caregiver' ? currentUserId : partnerId,
+      currentUserRole == 'guardian' ? currentUserId! : partnerId,
+      currentUserRole == 'caregiver' ? currentUserId! : partnerId,
     );
   }
 
   Future<void> _sendMessage(String text) async {
-    if (text.trim().isEmpty) return;
+    if (text.trim().isEmpty || conversationId == null || currentUserId == null || currentUserRole == null) return;
     
     await _chatService.sendMessage(
-      conversationId,
-      currentUserId,
-      currentUserRole,
+      conversationId!,
+      currentUserId!,
+      currentUserRole!,
       text,
     );
     
@@ -67,6 +80,20 @@ class _ChatConversationScreenState extends State<ChatConversationScreen> {
 
   @override
   Widget build(BuildContext context) {
+    // If not initialized properly, show loading or error screen
+    if (!_isInitialized || conversationId == null) {
+      return Scaffold(
+        appBar: AppBar(
+          title: Text('Chat', style: TextStyle(color: AppColors.info)),
+          backgroundColor: AppColors.surface,
+          iconTheme: IconThemeData(color: AppColors.info),
+        ),
+        body: Center(
+          child: CircularProgressIndicator(),
+        ),
+      );
+    }
+    
     return Scaffold(
       appBar: AppBar(
         title: Text(partnerName, style: TextStyle(color: AppColors.info)),
@@ -77,7 +104,7 @@ class _ChatConversationScreenState extends State<ChatConversationScreen> {
         children: [
           Expanded(
             child: StreamBuilder<QuerySnapshot>(
-              stream: _chatService.getMessagesStream(conversationId),
+              stream: _chatService.getMessagesStream(conversationId!),
               builder: (context, snapshot) {
                 if (snapshot.connectionState == ConnectionState.waiting) {
                   return Center(child: CircularProgressIndicator());

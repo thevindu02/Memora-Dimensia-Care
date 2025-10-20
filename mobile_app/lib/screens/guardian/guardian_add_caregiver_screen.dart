@@ -61,14 +61,68 @@ class _GuardianAddCaregiverScreenState
     }
   }
 
-  void _openChat(Map<String, dynamic> patient) {
+  void _openChat(Map<String, dynamic> patient) async {
+    final status = patient['latestRequestStatus'] ?? 'NONE';
+    
+    // Debug: Print all patient data to see what's available
+    print('=== DEBUG: Opening chat for patient ===');
+    print('Full patient data: $patient');
+    print('Status: $status');
+    print('caregiverUserId: ${patient['caregiverUserId']}');
+    print('caregiverId: ${patient['caregiverId']}');
+    print('caregiverName: ${patient['caregiverName']}');
+    print('connectionId: ${patient['connectionId']}');
+    
+    // For PENDING status, we need caregiver info from the connection
+    // For ACTIVE status, we need the caregiverId
+    String? caregiverId;
+    String? caregiverName;
+    
+    if (status == 'PENDING') {
+      // Get caregiver info from connection request
+      caregiverId = patient['caregiverUserId']?.toString() ?? 
+                    patient['caregiverId']?.toString();
+      caregiverName = patient['caregiverName'] ?? 'Caregiver';
+      print('PENDING status - caregiverId resolved to: $caregiverId');
+    } else if (status == 'ACTIVE') {
+      caregiverId = patient['caregiverId']?.toString();
+      caregiverName = patient['caregiverName'] ?? 'Caregiver';
+      print('ACTIVE status - caregiverId resolved to: $caregiverId');
+    }
+    
+    // Validate that we have caregiver information
+    if (caregiverId == null || caregiverId.isEmpty) {
+      print('ERROR: caregiverId is null or empty!');
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Unable to start chat. Caregiver information not available.'),
+          backgroundColor: Colors.orange,
+        ),
+      );
+      return;
+    }
+    
+    // Get current user ID (guardian)
+    final userId = await AuthService.getCurrentUserId();
+    if (userId == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Unable to open chat. Please login again.'),
+          backgroundColor: Colors.red,
+        ),
+      );
+      return;
+    }
+    
     Navigator.pushNamed(
       context,
       AppRoutes.chatConversation,
       arguments: {
-        'id': patient['caregiverId'],
-        'name': patient['caregiverName'] ?? 'Caregiver',
+        'id': caregiverId,
+        'name': caregiverName,
         'role': 'Caregiver',
+        'currentUserId': userId.toString(),
+        'currentUser': 'guardian',
       },
     );
   }

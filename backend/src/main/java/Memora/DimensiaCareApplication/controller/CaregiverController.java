@@ -89,13 +89,16 @@ public class CaregiverController {
         resp.setGender(user.getGender());
         resp.setBirthdate(user.getBirthdate() != null ? user.getBirthdate().toString() : null);
         String address = "";
-        if (user.getStreet() != null && !user.getStreet().isEmpty()) address += user.getStreet();
-        if (user.getCity() != null && !user.getCity().isEmpty()) address += (address.isEmpty() ? "" : ", ") + user.getCity();
-        if (user.getState() != null && !user.getState().isEmpty()) address += (address.isEmpty() ? "" : ", ") + user.getState();
+        if (user.getStreet() != null && !user.getStreet().isEmpty())
+            address += user.getStreet();
+        if (user.getCity() != null && !user.getCity().isEmpty())
+            address += (address.isEmpty() ? "" : ", ") + user.getCity();
+        if (user.getState() != null && !user.getState().isEmpty())
+            address += (address.isEmpty() ? "" : ", ") + user.getState();
         resp.setAddress(address);
         List<String> skills = caregiverSkillRepository.findByCaregiverId(caregiver.getCaregiverId()).stream()
-            .map(cs -> skillRepository.findById(cs.getSkillId()).map(Skill::getSkillName).orElse(""))
-            .collect(Collectors.toList());
+                .map(cs -> skillRepository.findById(cs.getSkillId()).map(Skill::getSkillName).orElse(""))
+                .collect(Collectors.toList());
         resp.setSkills(skills);
         return ResponseEntity.ok(resp);
     }
@@ -122,6 +125,7 @@ public class CaregiverController {
                 dto.setGuardianName(gUser.getFName() + " " + gUser.getLName());
                 dto.setGuardianEmail(gUser.getEmail());
                 dto.setGuardianPhone(gUser.getPhoneNumber());
+                dto.setGuardianUserId(gUser.getId());
             }
             Patient patient = patientRepository.findById(conn.getPatientId()).orElse(null);
             if (patient != null && patient.getUser() != null) {
@@ -134,7 +138,8 @@ public class CaregiverController {
                 dto.setDementiaStage(patient.getDementiaStage() != null ? patient.getDementiaStage().name() : null);
                 dto.setRelationship(patient.getRelationship());
             }
-            dto.setDiagnosis(patient != null && patient.getDementiaType() != null ? patient.getDementiaType().name() : "");
+            dto.setDiagnosis(
+                    patient != null && patient.getDementiaType() != null ? patient.getDementiaType().name() : "");
             dto.setStatus(conn.getStatus().name());
             dto.setConnectedDateTime(conn.getConnectedDateTime() != null ? conn.getConnectedDateTime().toString() : "");
             return dto;
@@ -166,7 +171,8 @@ public class CaregiverController {
                 dto.setDementiaType(patient.getDementiaType() != null ? patient.getDementiaType().name() : null);
                 dto.setDementiaStage(patient.getDementiaStage() != null ? patient.getDementiaStage().name() : null);
             }
-            dto.setDiagnosis(patient != null && patient.getDementiaType() != null ? patient.getDementiaType().name() : "");
+            dto.setDiagnosis(
+                    patient != null && patient.getDementiaType() != null ? patient.getDementiaType().name() : "");
             dto.setRelationship(patient != null ? patient.getRelationship() : "");
             dto.setStatus(conn.getStatus().name());
             dto.setConnectedDateTime(conn.getConnectedDateTime() != null ? conn.getConnectedDateTime().toString() : "");
@@ -176,7 +182,8 @@ public class CaregiverController {
     }
 
     @GetMapping("/available-for-patient/{patientId}")
-    public ResponseEntity<List<CaregiverDetailsResponse>> getAvailableCaregiversForPatient(@PathVariable Long patientId) {
+    public ResponseEntity<List<CaregiverDetailsResponse>> getAvailableCaregiversForPatient(
+            @PathVariable Long patientId) {
         System.out.println("[API] getAvailableCaregiversForPatient called with patientId: " + patientId);
         Patient patient = patientRepository.findById(patientId).orElse(null);
         if (patient == null) {
@@ -208,12 +215,11 @@ public class CaregiverController {
                         score = 0;
                     boolean eligible = score < 4 && score + stageScore <= 4;
                     List<GuardianPatientCaregiverConnection> recentRejections = connectionRepository
-                        .findByPatientIdAndCaregiverIdAndStatusAndRejectedDateTimeAfter(
-                            patientId, 
-                            cg.getCaregiverId().longValue(), 
-                            GuardianPatientCaregiverConnection.ConnectionStatus.REJECTED, 
-                            twoDaysAgo
-                        );
+                            .findByPatientIdAndCaregiverIdAndStatusAndRejectedDateTimeAfter(
+                                    patientId,
+                                    cg.getCaregiverId().longValue(),
+                                    GuardianPatientCaregiverConnection.ConnectionStatus.REJECTED,
+                                    twoDaysAgo);
                     boolean notRecentlyRejected = recentRejections.isEmpty();
                     System.out.println("Caregiver ID: " + cg.getCaregiverId() + ", severityScore: " + score
                             + ", eligible: " + eligible + ", notRecentlyRejected: " + notRecentlyRejected);
@@ -365,7 +371,8 @@ public class CaregiverController {
     }
 
     @PostMapping("/{caregiverId}/edit-profile")
-    public ResponseEntity<?> editCaregiverProfile(@PathVariable Long caregiverId, @RequestBody CaregiverProfileUpdateRequest req) {
+    public ResponseEntity<?> editCaregiverProfile(@PathVariable Long caregiverId,
+            @RequestBody CaregiverProfileUpdateRequest req) {
         try {
             Caregiver caregiver = caregiverRepository.findById(caregiverId.intValue()).orElse(null);
             if (caregiver == null) {
@@ -391,9 +398,9 @@ public class CaregiverController {
             caregiver.setQualifications(req.qualifications);
             if (req.skills != null) {
                 List<Skill> skillEntities = req.skills.stream()
-                    .map(skillName -> skillRepository.findBySkillName(skillName).orElse(null))
-                    .filter(s -> s != null)
-                    .collect(Collectors.toList());
+                        .map(skillName -> skillRepository.findBySkillName(skillName).orElse(null))
+                        .filter(s -> s != null)
+                        .collect(Collectors.toList());
                 caregiver.setSkills(new java.util.HashSet<>(skillEntities));
             }
             caregiverRepository.save(caregiver);

@@ -110,7 +110,16 @@ class _GuardianChatHistoryScreenState extends State<GuardianChatHistoryScreen> {
                   createdAt.toString(),
                   style: const TextStyle(fontSize: 12, color: Colors.grey),
                 ),
-                onTap: () {
+                onTap: () async {
+                  // Get current user ID for chat
+                  final currentUserId = await AuthService.getCurrentUserId();
+                  if (currentUserId == null) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(content: Text('Please login again')),
+                    );
+                    return;
+                  }
+                  
                   // Navigate to conversation screen with guardian context
                   Navigator.pushNamed(
                     context,
@@ -119,6 +128,7 @@ class _GuardianChatHistoryScreenState extends State<GuardianChatHistoryScreen> {
                       'id': otherId,
                       'name': otherName,
                       'currentUser': 'guardian',
+                      'currentUserId': currentUserId.toString(),
                     },
                   );
                 },
