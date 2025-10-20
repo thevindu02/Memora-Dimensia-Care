@@ -16,12 +16,12 @@ import VolunteerRoutes from './components/volunteer/VolunteerRoutes';
 import VolunteerDashboard from './components/volunteer/VolunteerDashboard';
 import CreateBlog from './components/volunteer/CreateBlog';
 import ScheduleSession from './components/volunteer/ScheduleSession';
-import QnAforum from './components/volunteer/QnAforum';
 import VolunteerSettings from './components/volunteer/VolunteerSettings';
 import ArticleDrafts from './components/volunteer/ArticleDrafts'; 
 import Articles from './components/volunteer/Articles'; 
 import PublishedArticles from './components/volunteer/PublishedArticles'; 
 import ViewArticle from './components/volunteer/ViewArticle'; 
+import SingleArticle from './components/volunteer/SingleArticle';
 import ViewDraft from './components/volunteer/ViewDraft';
 import EditDraft from './components/volunteer/EditDraft';
 import VolunteerProfile from './components/volunteer/VolunteerProfile';
@@ -55,12 +55,13 @@ function App() {
           <Route path="/VolunteerDashboard" element={<VolunteerDashboard />} />
           <Route path="/CreateBlog" element={<CreateBlog />} />
           <Route path="/ScheduleSession" element={<ScheduleSession />} />
-          <Route path="/QnAforum" element={<QnAforum />} />
           <Route path= "/VolunteerSettings" element={<VolunteerSettings />} />
           <Route path="/ArticleDrafts" element={<ArticleDrafts />} />
           <Route path="/Articles" element={<Articles />} />
           <Route path="/PublishedArticles" element={<PublishedArticles />} />
           <Route path="/ViewArticle/:id" element={<ViewArticle />} />
+          <Route path="/volunteer/articles" element={<Articles />} />
+          <Route path="/volunteer/articles/:id" element={<SingleArticle />} />
           <Route path="/ViewDraft/:id" element={<ViewDraft />} />
           <Route path="/EditDraft/:id" element={<EditDraft />} />
           <Route path="/VolunteerProfile" element={<VolunteerProfile />} />

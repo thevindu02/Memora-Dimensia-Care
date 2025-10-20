@@ -1,24 +1,28 @@
 // src/components/volunteers/Articles.js
-import React, { useState, useMemo } from "react";
+import React, { useState, useMemo, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import {
   Box,
   Typography,
   Paper,
-  Select,
-  MenuItem,
   InputBase,
   IconButton,
   Grid,
   InputAdornment,
   Container,
+  CircularProgress,
+  Alert,
 } from "@mui/material";
 import SearchIcon from "@mui/icons-material/Search";
 import ClearIcon from "@mui/icons-material/Clear";
 import PersonIcon from "@mui/icons-material/Person";
 import CalendarTodayIcon from "@mui/icons-material/CalendarToday";
+import ThumbUpIcon from "@mui/icons-material/ThumbUp";
+import ChatBubbleOutlineIcon from "@mui/icons-material/ChatBubbleOutline";
 import Footer from "../home/Footer";
 import SideBar from "./SideBar";
 import VolunteerNav from "./VolunteerNav";
+import articleService from "../../services/articleService";
 
 const colors = {
   softLavender: "#C3B1E1",
@@ -28,60 +32,41 @@ const colors = {
   backgroundLight: "#FFFFFF",
 };
 
-const categories = ["All", "Awareness", "Daily Tips", "Nutrition", "Stories"];
+function ArticleCard({ article, onClick }) {
+  const formatDate = (timestamp) => {
+    if (!timestamp) return 'Recently';
+    try {
+      // timestamp is in milliseconds from backend
+      const date = new Date(timestamp);
+      
+      // Check if date is valid
+      if (isNaN(date.getTime())) {
+        return 'Recently';
+      }
+      
+      return date.toLocaleDateString('en-US', { 
+        month: 'short', 
+        day: 'numeric', 
+        year: 'numeric' 
+      });
+    } catch (error) {
+      console.error('Error formatting date:', error);
+      return 'Recently';
+    }
+  };
 
-const exampleArticles = [
-  {
-    id: 1,
-    title: "Understanding Dementia Care Basics",
-    description:
-      "An introductory overview of dementia care, its challenges and how volunteers can help caregivers at home.",
-    author: "Emily Rogers",
-    publishedDate: "August 1, 2025",
-    thumbnail:
-      "https://images.unsplash.com/photo-1506744038136-46273834b3fb?auto=format&fit=crop&w=600&q=80",
-    category: "Awareness",
-    tags: ["Caregiving", "Basics"],
-  },
-  {
-    id: 2,
-    title: "5 Tips For Volunteers",
-    description:
-      "Practical ways to provide meaningful support and communicate effectively with dementia patients.",
-    author: "John Doe",
-    publishedDate: "July 26, 2025",
-    thumbnail:
-      "https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&w=600&q=80",
-    category: "Daily Tips",
-    tags: ["Volunteering", "Support"],
-  },
-  {
-    id: 3,
-    title: "Healthy Nutrition for Dementia",
-    description:
-      "A guide to balanced diets and food types that can help improve overall wellbeing for dementia patients.",
-    author: "Sarah Kim",
-    publishedDate: "July 15, 2025",
-    thumbnail:
-      "https://images.unsplash.com/photo-1526045612212-70caf35c14df?auto=format&fit=crop&w=600&q=80",
-    category: "Nutrition",
-    tags: ["Diet", "Health"],
-  },
-];
-
-function ArticleCard({ article }) {
   return (
     <Paper
       elevation={3}
       component="article"
       role="button"
       tabIndex={0}
-      aria-label={`Article titled ${article.title} by ${article.author}`}
-      onClick={() => alert(`Open article: ${article.title} (demo)`)}
+      aria-label={`Article titled ${article.title} by ${article.authorName || 'Unknown'}`}
+      onClick={onClick}
       onKeyDown={(e) => {
         if (e.key === "Enter" || e.key === " ") {
           e.preventDefault();
-          alert(`Open article: ${article.title} (demo)`);
+          onClick();
         }
       }}
       sx={{
@@ -89,40 +74,92 @@ function ArticleCard({ article }) {
         cursor: "pointer",
         display: "flex",
         flexDirection: "column",
-        height: "100%",
-        transition: "box-shadow 0.3s ease",
+        height: 480,
+        width: "100%",
+        transition: "all 0.3s ease",
         "&:hover": {
           boxShadow: `0 10px 25px ${colors.deepPurple}aa`,
+          transform: "translateY(-4px)",
         },
         overflow: "hidden",
         bgcolor: "#fff",
       }}
     >
+      {/* Article Image - Top */}
+      {article.articleImg ? (
+        <Box
+          component="img"
+          src={article.articleImg}
+          alt={`Thumbnail for ${article.title}`}
+          loading="lazy"
+          onError={(e) => {
+            e.target.style.display = 'none';
+            e.target.nextSibling.style.display = 'flex';
+          }}
+          sx={{
+            width: "100%",
+            height: 250,
+            objectFit: "cover",
+            flexShrink: 0,
+          }}
+        />
+      ) : null}
       <Box
-        component="img"
-        src={article.thumbnail}
-        alt={`Thumbnail for ${article.title}`}
-        loading="lazy"
         sx={{
           width: "100%",
-          aspectRatio: "16 / 9",
-          objectFit: "cover",
+          height: 250,
+          bgcolor: colors.softLavender,
+          display: article.articleImg ? "none" : "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          flexDirection: "column",
+          gap: 1,
           flexShrink: 0,
         }}
-      />
-      <Box sx={{ p: 2, display: "flex", flexDirection: "column", flexGrow: 1 }}>
+      >
+        <SearchIcon sx={{ fontSize: 48, color: colors.deepPurple, opacity: 0.5 }} />
+        <Typography variant="body2" sx={{ color: colors.deepPurple, opacity: 0.7 }}>
+          No image available
+        </Typography>
+      </Box>
+      
+      {/* Content - Bottom */}
+      <Box sx={{ p: 3, display: "flex", flexDirection: "column", flexGrow: 1, overflow: "hidden" }}>
+        {/* Category Badge */}
+        {article.categoryName && (
+          <Box sx={{ mb: 1.5 }}>
+            <Typography
+              sx={{
+                display: "inline-block",
+                bgcolor: colors.lightSkyBlue,
+                color: colors.calmNavy,
+                px: 1.5,
+                py: 0.5,
+                borderRadius: 2,
+                fontSize: 11,
+                fontWeight: 600,
+                textTransform: "uppercase",
+                letterSpacing: 0.5,
+              }}
+            >
+              {article.categoryName}
+            </Typography>
+          </Box>
+        )}
+        
         <Typography
           variant="h6"
           component="h2"
           sx={{
             color: colors.deepPurple,
             fontWeight: 700,
-            mb: 1,
+            mb: 1.5,
             overflow: "hidden",
             textOverflow: "ellipsis",
             display: "-webkit-box",
             WebkitLineClamp: 2,
             WebkitBoxOrient: "vertical",
+            lineHeight: 1.3,
             userSelect: "text",
           }}
         >
@@ -133,33 +170,54 @@ function ArticleCard({ article }) {
           sx={{
             color: colors.calmNavy,
             flexGrow: 1,
-            mb: 2,
+            mb: 1.5,
             overflow: "hidden",
             textOverflow: "ellipsis",
             display: "-webkit-box",
-            WebkitLineClamp: 3,
+            WebkitLineClamp: 2,
             WebkitBoxOrient: "vertical",
             userSelect: "text",
           }}
         >
-          {article.description}
+          {article.summary?.substring(0, 100) || article.content?.substring(0, 100) || 'No description available'}...
         </Typography>
-        <Box
-          sx={{
-            display: "flex",
-            justifyContent: "space-between",
-            fontSize: 12,
-            color: colors.calmNavy,
-            userSelect: "none",
-          }}
-        >
-          <Box sx={{ display: "flex", alignItems: "center", gap: 0.5 }}>
-            <PersonIcon sx={{ fontSize: 18, color: colors.lightSkyBlue }} aria-hidden="true" />
-            <Typography variant="caption">{article.author}</Typography>
+        
+        <Box sx={{ mt: "auto" }}>
+          <Box
+            sx={{
+              display: "flex",
+              justifyContent: "space-between",
+              alignItems: "center",
+              fontSize: 12,
+              color: colors.calmNavy,
+              userSelect: "none",
+              mb: 1,
+            }}
+          >
+            <Box sx={{ display: "flex", alignItems: "center", gap: 0.5 }}>
+              <PersonIcon sx={{ fontSize: 18, color: colors.lightSkyBlue }} aria-hidden="true" />
+              <Typography variant="caption">{article.authorName || 'Anonymous'}</Typography>
+            </Box>
+            <Box sx={{ display: "flex", alignItems: "center", gap: 0.5 }}>
+              <CalendarTodayIcon sx={{ fontSize: 18, color: colors.lightSkyBlue }} aria-hidden="true" />
+              <Typography variant="caption">{formatDate(article.created_at || article.createdAt)}</Typography>
+            </Box>
           </Box>
-          <Box sx={{ display: "flex", alignItems: "center", gap: 0.5 }}>
-            <CalendarTodayIcon sx={{ fontSize: 18, color: colors.lightSkyBlue }} aria-hidden="true" />
-            <Typography variant="caption">{article.publishedDate}</Typography>
+          
+          {/* Like and Comment Count */}
+          <Box sx={{ display: "flex", gap: 3, alignItems: "center", pt: 1.5, borderTop: `1px solid ${colors.softLavender}` }}>
+            <Box sx={{ display: "flex", alignItems: "center", gap: 0.5 }}>
+              <ThumbUpIcon sx={{ fontSize: 18, color: colors.lightSkyBlue }} />
+              <Typography variant="body2" sx={{ color: colors.calmNavy, fontWeight: 600 }}>
+                {article.likeCount || 0}
+              </Typography>
+            </Box>
+            <Box sx={{ display: "flex", alignItems: "center", gap: 0.5 }}>
+              <ChatBubbleOutlineIcon sx={{ fontSize: 18, color: colors.lightSkyBlue }} />
+              <Typography variant="body2" sx={{ color: colors.calmNavy, fontWeight: 600 }}>
+                {article.commentCount || 0}
+              </Typography>
+            </Box>
           </Box>
         </Box>
       </Box>
@@ -168,21 +226,63 @@ function ArticleCard({ article }) {
 }
 
 export default function Articles() {
-  const [categoryFilter, setCategoryFilter] = useState("All");
+  const navigate = useNavigate();
   const [searchTerm, setSearchTerm] = useState("");
+  const [articles, setArticles] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+
+  // Fetch articles from backend
+  useEffect(() => {
+    const fetchArticles = async () => {
+      try {
+        setLoading(true);
+        setError(null);
+        
+        console.log('Fetching all published articles...');
+        const response = await articleService.getAllPublishedArticles();
+        
+        if (response.success) {
+          console.log('Articles fetched successfully:', response.data.length, 'articles');
+          // Log first article to check data structure
+          if (response.data.length > 0) {
+            console.log('Sample article data:', response.data[0]);
+            console.log('created_at field:', response.data[0].created_at);
+            console.log('createdAt field:', response.data[0].createdAt);
+          }
+          setArticles(response.data || []);
+        } else {
+          console.error('Failed to fetch articles:', response.message);
+          setError(response.message || 'Failed to load articles');
+        }
+      } catch (err) {
+        console.error('Error fetching articles:', err);
+        setError('Failed to load articles. Please try again.');
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchArticles();
+  }, []);
 
   const filteredArticles = useMemo(() => {
-    return (exampleArticles || []).filter((article) => {
-      const matchCategory = categoryFilter === "All" || article.category === categoryFilter;
+    return (articles || []).filter((article) => {
       const lowerSearch = searchTerm.toLowerCase();
       const matchSearch =
-        article.title.toLowerCase().includes(lowerSearch) ||
-        article.description.toLowerCase().includes(lowerSearch) ||
-        article.author.toLowerCase().includes(lowerSearch) ||
-        article.tags.some((tag) => tag.toLowerCase().includes(lowerSearch));
-      return matchCategory && matchSearch;
+        article.title?.toLowerCase().includes(lowerSearch) ||
+        article.summary?.toLowerCase().includes(lowerSearch) ||
+        article.content?.toLowerCase().includes(lowerSearch) ||
+        article.authorName?.toLowerCase().includes(lowerSearch) ||
+        article.categoryName?.toLowerCase().includes(lowerSearch);
+      return matchSearch;
     });
-  }, [categoryFilter, searchTerm]);
+  }, [articles, searchTerm]);
+
+  const handleArticleClick = (articleId) => {
+    console.log('Navigating to article:', articleId);
+    navigate(`/volunteer/articles/${articleId}`);
+  };
 
   return (
     <Box
@@ -253,50 +353,21 @@ export default function Articles() {
             </Typography>
           </Box>
 
-          {/* Filters & Search */}
+          {/* Search */}
           <Container maxWidth="lg" sx={{ mb: 4 }}>
             <Box
               sx={{
                 display: "flex",
-                flexWrap: "wrap",
-                gap: 2,
                 justifyContent: "center",
                 alignItems: "center",
-                mb: 2,
               }}
             >
-              <Select
-                value={categoryFilter}
-                onChange={(e) => setCategoryFilter(e.target.value)}
-                aria-label="Filter articles by category"
-                sx={{
-                  minWidth: 160,
-                  fontSize: 16,
-                  borderRadius: 2,
-                  boxShadow: "none",
-                  color: colors.deepPurple,
-                  bgcolor: "#fff",
-                  "& .MuiOutlinedInput-notchedOutline": {
-                    borderColor: colors.softLavender,
-                  },
-                  "&:hover .MuiOutlinedInput-notchedOutline": {
-                    borderColor: colors.deepPurple,
-                  },
-                }}
-                size="small"
-              >
-                {categories.map((cat) => (
-                  <MenuItem key={cat} value={cat}>
-                    {cat}
-                  </MenuItem>
-                ))}
-              </Select>
               <Paper
                 component="form"
                 sx={{
                   borderRadius: 3,
                   bgcolor: colors.softLavender,
-                  width: { xs: "100%", sm: 320 },
+                  width: { xs: "100%", sm: 400 },
                   display: "flex",
                   alignItems: "center",
                   pl: 1,
@@ -340,12 +411,33 @@ export default function Articles() {
           </Container>
 
           {/* Articles Grid */}
-          <Container maxWidth="lg" sx={{ flexGrow: 1, display: "flex", flexDirection: "column" }}>
-            {filteredArticles.length > 0 ? (
-              <Grid container spacing={4} aria-label="Articles grid" sx={{ pb: 6 }}>
+          <Container maxWidth={false} sx={{ flexGrow: 1, display: "flex", flexDirection: "column", px: 4 }}>
+            {loading ? (
+              <Box sx={{ display: "flex", justifyContent: "center", alignItems: "center", minHeight: "400px" }}>
+                <CircularProgress sx={{ color: colors.deepPurple }} />
+                <Typography variant="body1" sx={{ ml: 2, color: colors.calmNavy }}>
+                  Loading articles...
+                </Typography>
+              </Box>
+            ) : error ? (
+              <Box sx={{ mt: 4 }}>
+                <Alert severity="error" sx={{ mb: 2 }}>
+                  {error}
+                </Alert>
+                <Box sx={{ textAlign: "center" }}>
+                  <Typography variant="body2" sx={{ color: colors.calmNavy }}>
+                    Please try refreshing the page or contact support if the problem persists.
+                  </Typography>
+                </Box>
+              </Box>
+            ) : filteredArticles.length > 0 ? (
+              <Grid container spacing={3} aria-label="Articles grid" sx={{ pb: 6, width: '100%' }}>
                 {filteredArticles.map((article) => (
-                  <Grid item xs={12} sm={6} md={4} key={article.id}>
-                    <ArticleCard article={article} />
+                  <Grid item xs={12} key={article.articleId} sx={{ width: '100%' }}>
+                    <ArticleCard 
+                      article={article} 
+                      onClick={() => handleArticleClick(article.articleId)}
+                    />
                   </Grid>
                 ))}
               </Grid>
@@ -354,19 +446,20 @@ export default function Articles() {
                 sx={{
                   textAlign: "center",
                   mt: 12,
-                  color: colors.softLavender,
+                  color: colors.calmNavy,
                   userSelect: "none",
                 }}
               >
-                <img
-                  src="https://images.unsplash.com/photo-1535223289827-42f1e9919769?auto=format&fit=crop&w=200&q=80"
-                  alt="No articles illustration"
-                  style={{ width: 140, marginBottom: 16, userSelect: "none" }}
-                  aria-hidden="true"
-                  draggable={false}
-                />
-                <Typography variant="body1" sx={{ fontWeight: 600 }}>
-                  No articles available yet.
+                <SearchIcon sx={{ fontSize: 80, color: colors.softLavender, mb: 2 }} />
+                <Typography variant="h6" sx={{ fontWeight: 600, mb: 1, color: colors.deepPurple }}>
+                  {searchTerm 
+                    ? "No articles match your search" 
+                    : "No articles available yet"}
+                </Typography>
+                <Typography variant="body2" sx={{ color: colors.calmNavy, opacity: 0.7 }}>
+                  {searchTerm
+                    ? "Try adjusting your search terms"
+                    : "Check back later for new content"}
                 </Typography>
               </Box>
             )}

@@ -561,7 +561,32 @@ public class ArticleService {
                             }
                         }
                         
-                        System.out.println("Found published article: " + article.getTitle() + " (ID: " + article.getArticleId() + ") by " + article.getAuthorName());
+                        // Get like count for this article
+                        try {
+                            Query likeQuery = db.collection(ARTICLE_LIKES_COLLECTION)
+                                    .whereEqualTo("articleId", article.getArticleId());
+                            ApiFuture<QuerySnapshot> likeFuture = likeQuery.get();
+                            QuerySnapshot likeSnapshot = likeFuture.get();
+                            article.setLikeCount(likeSnapshot.size());
+                        } catch (Exception likeError) {
+                            System.err.println("Error fetching like count for article " + article.getArticleId());
+                            article.setLikeCount(0);
+                        }
+                        
+                        // Get comment count for this article
+                        try {
+                            Query commentQuery = db.collection("articles_comments")
+                                    .whereEqualTo("articleId", article.getArticleId())
+                                    .whereEqualTo("isDeleted", false);
+                            ApiFuture<QuerySnapshot> commentFuture = commentQuery.get();
+                            QuerySnapshot commentSnapshot = commentFuture.get();
+                            article.setCommentCount(commentSnapshot.size());
+                        } catch (Exception commentError) {
+                            System.err.println("Error fetching comment count for article " + article.getArticleId());
+                            article.setCommentCount(0);
+                        }
+                        
+                        System.out.println("Found published article: " + article.getTitle() + " (ID: " + article.getArticleId() + ") by " + article.getAuthorName() + " - " + article.getLikeCount() + " likes, " + article.getCommentCount() + " comments");
                         publishedArticles.add(article);
                         
                     } catch (Exception docError) {

@@ -24,7 +24,6 @@ import { useNavigate } from "react-router-dom";
 import MenuIcon from '@mui/icons-material/Menu';
 import ArticleIcon from '@mui/icons-material/Article';
 import ScheduleIcon from '@mui/icons-material/Schedule';
-import ForumIcon from '@mui/icons-material/Forum';
 import AccessTimeIcon from '@mui/icons-material/AccessTime';
 import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
@@ -75,13 +74,6 @@ const stats = [
     icon: ScheduleIcon,
     bgColor: colors.lightSkyBlue,
     iconColor: colors.calmNavy,
-  },
-  {
-    label: "Total Forum Replies",
-    value: 34,
-    icon: ForumIcon,
-    bgColor: colors.calmNavy,
-    iconColor: colors.white,
   },
   {
     label: "Monthly Contributions",
@@ -145,13 +137,6 @@ const recentContributions = [
     thumbnail: 'https://images.unsplash.com/photo-1506744038136-46273834b3fb?w=64&h=64&fit=crop',
   },
   {
-    id: 2,
-    type: 'Forum Reply',
-    title: 'Re: Helping Caregivers Stay Patient',
-    timestamp: 'July 25, 2025',
-    thumbnail: 'https://randomuser.me/api/portraits/men/32.jpg',
-  },
-  {
     id: 3,
     type: 'Blog Post',
     title: '5 Tips for Volunteers',
@@ -170,11 +155,6 @@ const quickActions = [
     label: 'Schedule Awareness Session',
     icon: <ScheduleIcon sx={{ fontSize: 24 }} />,
     tooltip: 'Plan a new awareness session',
-  },
-  {
-    label: 'Answer a Forum Question',
-    icon: <ForumIcon sx={{ fontSize: 24 }} />,
-    tooltip: 'Respond to questions in the forum',
   },
 ];
 
