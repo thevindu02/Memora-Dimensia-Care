@@ -8,7 +8,6 @@ import 'api_constants.dart';
 
 class PatientService {
   static final String url = '${ApiConstants.baseUrl}/api/patients';
-  static final String baseUrl = '${ApiConstants.baseUrl}/api/patients';
   static const storage = FlutterSecureStorage();
 
   static Future<PatientResult> updateProfile({
