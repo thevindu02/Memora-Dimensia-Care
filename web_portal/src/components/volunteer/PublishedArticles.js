@@ -18,6 +18,10 @@ import {
 import DeleteIcon from "@mui/icons-material/Delete";
 import CalendarTodayIcon from "@mui/icons-material/CalendarToday";
 import VisibilityIcon from "@mui/icons-material/Visibility";
+import PersonIcon from "@mui/icons-material/Person";
+import ThumbUpIcon from "@mui/icons-material/ThumbUp";
+import ChatBubbleOutlineIcon from "@mui/icons-material/ChatBubbleOutline";
+import SearchIcon from "@mui/icons-material/Search";
 
 import SideBar from "./SideBar";
 import VolunteerNav from "./VolunteerNav";
@@ -36,68 +40,33 @@ const colors = {
 
 // Format timestamp to readable date
 const formatDate = (timestamp) => {
-  if (!timestamp) return "Unknown date";
-  
+  if (!timestamp) return 'Recently';
   try {
     const date = new Date(timestamp);
-    return date.toLocaleDateString('en-US', {
-      year: 'numeric',
-      month: 'long',
-      day: 'numeric'
+    if (isNaN(date.getTime())) {
+      return 'Recently';
+    }
+    return date.toLocaleDateString('en-US', { 
+      month: 'short', 
+      day: 'numeric', 
+      year: 'numeric' 
     });
   } catch (error) {
-    return "Unknown date";
+    console.error('Error formatting date:', error);
+    return 'Recently';
   }
 };
 
-// Generate excerpt from content
-const generateExcerpt = (content, summary) => {
-  if (summary && summary.trim() !== '') {
-    return summary.length > 150 ? summary.substring(0, 150) + '...' : summary;
-  }
-  
-  if (content && content.trim() !== '') {
-    // Remove HTML tags and get first 150 characters
-    const cleanContent = content.replace(/<[^>]*>/g, '').trim();
-    return cleanContent.length > 150 ? cleanContent.substring(0, 150) + '...' : cleanContent;
-  }
-  
-  return "No content available";
-};
-
-function ArticleCard({ article }) {
+function ArticleCard({ article, onDelete, isDeleting }) {
   const navigate = useNavigate();
-
-  const fallbackImage =
-    "https://images.unsplash.com/photo-1515377905703-c4788e51af15?auto=format&fit=crop&w=600&q=80";
 
   return (
     <Paper
-      elevation={4}
+      elevation={3}
+      component="article"
+      role="button"
       tabIndex={0}
-      role="article"
-      aria-label={`Published article titled ${article.title}`}
-      sx={{
-        borderRadius: 3,
-        overflow: "hidden",
-        display: "flex",
-        flexDirection: "column",
-        height: "100%",
-        width: "100%",
-        minHeight: 450,
-        maxWidth: "100%",
-        cursor: "pointer",
-        boxShadow: `0 2px 8px ${colors.softLavender}AA`,
-        transition: "box-shadow 0.3s ease",
-        "&:hover": {
-          boxShadow: `0 10px 30px ${colors.deepPurple}88`,
-        },
-        outlineOffset: 2,
-        outline: "none",
-        "&:focus-visible": {
-          outline: `2px solid ${colors.lightSkyBlue}`,
-        },
-      }}
+      aria-label={`Published article titled ${article.title} by ${article.authorName || 'You'}`}
       onClick={() => navigate(`/ViewArticle/${article.articleId}`)}
       onKeyDown={(e) => {
         if (e.key === "Enter" || e.key === " ") {
@@ -105,26 +74,107 @@ function ArticleCard({ article }) {
           navigate(`/ViewArticle/${article.articleId}`);
         }
       }}
+      sx={{
+        borderRadius: 3,
+        cursor: "pointer",
+        display: "flex",
+        flexDirection: "column",
+        height: 480,
+        width: "100%",
+        transition: "all 0.3s ease",
+        "&:hover": {
+          boxShadow: `0 10px 25px ${colors.deepPurple}aa`,
+          transform: "translateY(-4px)",
+        },
+        overflow: "hidden",
+        bgcolor: "#fff",
+      }}
     >
+      {/* Article Image - Top */}
+      {article.articleImg ? (
+        <Box
+          component="img"
+          src={article.articleImg}
+          alt={`Thumbnail for ${article.title}`}
+          loading="lazy"
+          onError={(e) => {
+            e.target.style.display = 'none';
+            e.target.nextSibling.style.display = 'flex';
+          }}
+          sx={{
+            width: "100%",
+            height: 250,
+            objectFit: "cover",
+            flexShrink: 0,
+          }}
+        />
+      ) : null}
       <Box
-        component="img"
-        src={article.articleImg || fallbackImage}
-        alt={article.articleImg ? `Thumbnail of ${article.title}` : "Fallback illustration"}
-        loading="lazy"
         sx={{
           width: "100%",
-          height: 200,
-          objectFit: "cover",
-          backgroundColor: colors.fallbackGray,
+          height: 250,
+          bgcolor: colors.softLavender,
+          display: article.articleImg ? "none" : "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          flexDirection: "column",
+          gap: 1,
           flexShrink: 0,
         }}
-      />
-      <Box sx={{ p: 2.5, flexGrow: 1, display: "flex", flexDirection: "column", minHeight: 0 }}>
+      >
+        <SearchIcon sx={{ fontSize: 48, color: colors.deepPurple, opacity: 0.5 }} />
+        <Typography variant="body2" sx={{ color: colors.deepPurple, opacity: 0.7 }}>
+          No image available
+        </Typography>
+      </Box>
+      
+      {/* Content - Bottom */}
+      <Box sx={{ p: 3, display: "flex", flexDirection: "column", flexGrow: 1, overflow: "hidden" }}>
+        {/* Category Badge */}
+        {article.categoryName && (
+          <Box sx={{ mb: 1.5 }}>
+            <Typography
+              sx={{
+                display: "inline-block",
+                bgcolor: colors.lightSkyBlue,
+                color: colors.calmNavy,
+                px: 1.5,
+                py: 0.5,
+                borderRadius: 2,
+                fontSize: 11,
+                fontWeight: 600,
+                textTransform: "uppercase",
+                letterSpacing: 0.5,
+              }}
+            >
+              {article.categoryName}
+            </Typography>
+          </Box>
+        )}
+        
         <Typography
           variant="h6"
+          component="h2"
           sx={{
-            fontWeight: 700,
             color: colors.deepPurple,
+            fontWeight: 700,
+            mb: 1.5,
+            overflow: "hidden",
+            textOverflow: "ellipsis",
+            display: "-webkit-box",
+            WebkitLineClamp: 2,
+            WebkitBoxOrient: "vertical",
+            lineHeight: 1.3,
+            userSelect: "text",
+          }}
+        >
+          {article.title}
+        </Typography>
+        <Typography
+          variant="body2"
+          sx={{
+            color: colors.calmNavy,
+            flexGrow: 1,
             mb: 1.5,
             overflow: "hidden",
             textOverflow: "ellipsis",
@@ -132,77 +182,90 @@ function ArticleCard({ article }) {
             WebkitLineClamp: 2,
             WebkitBoxOrient: "vertical",
             userSelect: "text",
-            minHeight: "3.6em",
-            lineHeight: 1.4,
           }}
         >
-          {article.title || "Untitled Article"}
+          {article.summary?.substring(0, 100) || article.content?.substring(0, 100) || 'No description available'}...
         </Typography>
-        <Typography
-          variant="body2"
-          sx={{
-            flexGrow: 1,
-            color: colors.calmNavy,
-            mb: 2,
-            overflow: "hidden",
-            textOverflow: "ellipsis",
-            display: "-webkit-box",
-            WebkitLineClamp: 3,
-            WebkitBoxOrient: "vertical",
-            userSelect: "text",
-            minHeight: "4.5em",
-            lineHeight: 1.5,
-          }}
-        >
-          {generateExcerpt(article.content, article.summary)}
-        </Typography>
+        
+        <Box sx={{ mt: "auto" }}>
+          <Box
+            sx={{
+              display: "flex",
+              justifyContent: "space-between",
+              alignItems: "center",
+              fontSize: 12,
+              color: colors.calmNavy,
+              userSelect: "none",
+              mb: 1,
+            }}
+          >
+            <Box sx={{ display: "flex", alignItems: "center", gap: 0.5 }}>
+              <PersonIcon sx={{ fontSize: 18, color: colors.lightSkyBlue }} aria-hidden="true" />
+              <Typography variant="caption">{article.authorName || 'You'}</Typography>
+            </Box>
+            <Box sx={{ display: "flex", alignItems: "center", gap: 0.5 }}>
+              <CalendarTodayIcon sx={{ fontSize: 18, color: colors.lightSkyBlue }} aria-hidden="true" />
+              <Typography variant="caption">{formatDate(article.created_at)}</Typography>
+            </Box>
+          </Box>
+          
+          {/* Like and Comment Count + Action Buttons */}
+          <Box sx={{ 
+            display: "flex", 
+            justifyContent: "space-between",
+            alignItems: "center", 
+            pt: 1.5, 
+            borderTop: `1px solid ${colors.softLavender}` 
+          }}>
+            <Box sx={{ display: "flex", gap: 3, alignItems: "center" }}>
+              <Box sx={{ display: "flex", alignItems: "center", gap: 0.5 }}>
+                <ThumbUpIcon sx={{ fontSize: 18, color: colors.lightSkyBlue }} />
+                <Typography variant="body2" sx={{ color: colors.calmNavy, fontWeight: 600 }}>
+                  {article.likeCount || 0}
+                </Typography>
+              </Box>
+              <Box sx={{ display: "flex", alignItems: "center", gap: 0.5 }}>
+                <ChatBubbleOutlineIcon sx={{ fontSize: 18, color: colors.lightSkyBlue }} />
+                <Typography variant="body2" sx={{ color: colors.calmNavy, fontWeight: 600 }}>
+                  {article.commentCount || 0}
+                </Typography>
+              </Box>
+            </Box>
+            
+            {/* Action Buttons */}
+            <Stack direction="row" spacing={0.5}>
+              <IconButton
+                aria-label={`Delete article titled ${article.title}`}
+                size="small"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  onDelete(article.articleId, article.title);
+                }}
+                disabled={isDeleting}
+                sx={{
+                  padding: "6px",
+                  opacity: isDeleting ? 0.5 : 1,
+                }}
+              >
+                <DeleteIcon sx={{ color: "#E04848", fontSize: 20 }} />
+              </IconButton>
 
-        <Stack
-          direction="row"
-          justifyContent="space-between"
-          alignItems="center"
-          sx={{ fontSize: 12, userSelect: "none", color: colors.calmNavy, mt: "auto" }}
-        >
-          <Stack direction="row" alignItems="center" spacing={0.5}>
-            <CalendarTodayIcon fontSize="small" sx={{ color: colors.lightSkyBlue }} />
-            <time dateTime={article.created_at}>
-              {formatDate(article.created_at)}
-            </time>
-          </Stack>
-
-          <Stack direction="row" spacing={1}>
-            <IconButton
-              aria-label={`Delete article titled ${article.title}`}
-              size="small"
-              onClick={(e) => {
-                e.stopPropagation();
-                /* Confirm before deleting */
-                if (window.confirm(`Are you sure you want to delete "${article.title}"?`)) {
-                  alert(`Deleted article: ${article.title} (dummy)`);
-                }
-              }}
-              sx={{
-                padding: "6px",
-              }}
-            >
-              <DeleteIcon sx={{ color: "#E04848" }} fontSize="small" />
-            </IconButton>
-
-            <IconButton
-              aria-label={`View full article titled ${article.title}`}
-              size="small"
-              onClick={(e) => {
-                e.stopPropagation();
-                navigate(`/ViewArticle/${article.articleId}`);
-              }}
-              sx={{
-                padding: "6px",
-              }}
-            >
-              <VisibilityIcon sx={{ color: colors.calmNavy }} fontSize="small" />
-            </IconButton>
-          </Stack>
-        </Stack>
+              <IconButton
+                aria-label={`View full article titled ${article.title}`}
+                size="small"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  navigate(`/ViewArticle/${article.articleId}`);
+                }}
+                sx={{
+                  padding: "6px",
+                }}
+              >
+                <VisibilityIcon sx={{ color: colors.calmNavy, fontSize: 20 }} />
+              </IconButton>
+            </Stack>
+          </Box>
+        </Box>
       </Box>
     </Paper>
   );
@@ -214,6 +277,7 @@ export default function PublishedArticles() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [currentUser, setCurrentUser] = useState(null);
+  const [deleting, setDeleting] = useState(null); // Track which article is being deleted
 
   const articlesCount = articles.length;
 
@@ -253,6 +317,40 @@ export default function PublishedArticles() {
   useEffect(() => {
     fetchPublishedArticles();
   }, []);
+
+  // Handle article deletion
+  const handleDelete = async (articleId, articleTitle) => {
+    if (!window.confirm(`Are you sure you want to delete "${articleTitle}"?\n\nThis action cannot be undone.`)) {
+      return;
+    }
+
+    try {
+      setDeleting(articleId);
+
+      const user = AuthService.getCurrentUser();
+      if (!user || !user.id) {
+        alert("User not authenticated. Please log in again.");
+        return;
+      }
+
+      console.log("Deleting article:", articleId);
+      const response = await articleService.deleteArticle(articleId, user.id);
+
+      if (response.success) {
+        // Remove the article from the local state
+        setArticles(prevArticles => prevArticles.filter(article => article.articleId !== articleId));
+        alert("Article deleted successfully!");
+      } else {
+        alert(response.message || "Failed to delete article");
+      }
+
+    } catch (error) {
+      console.error("Error deleting article:", error);
+      alert("An error occurred while deleting the article. Please try again.");
+    } finally {
+      setDeleting(null);
+    }
+  };
 
   return (
     <>
@@ -371,7 +469,11 @@ export default function PublishedArticles() {
                 key={article.articleId}
                 sx={{ display: "flex" }}
               >
-                <ArticleCard article={article} />
+                <ArticleCard 
+                  article={article} 
+                  onDelete={handleDelete}
+                  isDeleting={deleting === article.articleId}
+                />
               </Grid>
             ))}
           </Grid>

@@ -56,10 +56,10 @@ public class ArticleController {
     }
 
     @GetMapping("/drafts")
-    public java.util.List<ArticleDTO> getDraftArticles(@RequestParam Long volunteerId) {
+    public java.util.List<ArticleDetailDTO> getDraftArticles(@RequestParam Long volunteerId) {
         try {
             System.out.println("Received request for drafts with volunteerId: " + volunteerId);
-            java.util.List<ArticleDTO> drafts = articleService.getDraftArticles(volunteerId);
+            java.util.List<ArticleDetailDTO> drafts = articleService.getDraftArticles(volunteerId);
             System.out.println("Returning " + drafts.size() + " draft articles");
             return drafts;
         } catch (Exception e) {
@@ -71,10 +71,10 @@ public class ArticleController {
     }
 
     @GetMapping("/published")
-    public java.util.List<ArticleDTO> getPublishedArticles(@RequestParam Long volunteerId) {
+    public java.util.List<ArticleDetailDTO> getPublishedArticles(@RequestParam Long volunteerId) {
         try {
             System.out.println("Received request for published articles with volunteerId: " + volunteerId);
-            java.util.List<ArticleDTO> publishedArticles = articleService.getPublishedArticles(volunteerId);
+            java.util.List<ArticleDetailDTO> publishedArticles = articleService.getPublishedArticles(volunteerId);
             System.out.println("Returning " + publishedArticles.size() + " published articles");
             return publishedArticles;
         } catch (Exception e) {
@@ -260,6 +260,42 @@ public class ArticleController {
             e.printStackTrace();
             Map<String, String> error = new HashMap<>();
             error.put("error", "Failed to get like status: " + e.getMessage());
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(error);
+        }
+    }
+
+    /**
+     * Delete an article (only by the author)
+     * DELETE /api/articles/{articleId}
+     */
+    @DeleteMapping("/{articleId}")
+    public ResponseEntity<?> deleteArticle(
+            @PathVariable String articleId,
+            @RequestParam Long volunteerId) {
+        try {
+            System.out.println("Received request to delete article: " + articleId + " by volunteer: " + volunteerId);
+            
+            if (volunteerId == null) {
+                Map<String, String> error = new HashMap<>();
+                error.put("error", "Volunteer ID is required");
+                return ResponseEntity.badRequest().body(error);
+            }
+            
+            boolean success = articleService.deleteArticle(articleId, volunteerId);
+            
+            if (success) {
+                Map<String, String> response = new HashMap<>();
+                response.put("message", "Article deleted successfully");
+                return ResponseEntity.ok(response);
+            } else {
+                Map<String, String> error = new HashMap<>();
+                error.put("error", "Failed to delete article. Either article not found or you don't have permission.");
+                return ResponseEntity.status(HttpStatus.FORBIDDEN).body(error);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+            Map<String, String> error = new HashMap<>();
+            error.put("error", "Failed to delete article: " + e.getMessage());
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(error);
         }
     }

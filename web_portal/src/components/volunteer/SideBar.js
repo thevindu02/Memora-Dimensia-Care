@@ -15,7 +15,6 @@ import { NavLink } from 'react-router-dom';
 
 import DashboardIcon from '@mui/icons-material/Dashboard';
 import ScheduleIcon from '@mui/icons-material/Schedule';
-import ForumIcon from '@mui/icons-material/Forum';
 import SettingsIcon from '@mui/icons-material/Settings';
 import Article from '@mui/icons-material/Article';
 import ExpandLess from '@mui/icons-material/ExpandLess';
@@ -43,7 +42,6 @@ const navItems = [
     ],
   },
   { label: 'Schedule Session', icon: ScheduleIcon, to: '/ScheduleSession' },
-  { label: 'Forum', icon: ForumIcon, to: '/QnAforum' },
   { label: 'Settings', icon: SettingsIcon, to: '/VolunteerSettings' },
 ];
 

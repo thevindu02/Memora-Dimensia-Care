@@ -13,6 +13,10 @@ public class ArticleDetailDTO {
     private String articleImg;
     private Long created_at;
     
+    // Engagement metrics
+    private Integer likeCount;
+    private Integer commentCount;
+    
     // Author information
     private String authorName;
     private String authorEmail;
@@ -132,5 +136,21 @@ public class ArticleDetailDTO {
 
     public void setAuthorProfilePic(String authorProfilePic) {
         this.authorProfilePic = authorProfilePic;
+    }
+
+    public Integer getLikeCount() {
+        return likeCount;
+    }
+
+    public void setLikeCount(Integer likeCount) {
+        this.likeCount = likeCount;
+    }
+
+    public Integer getCommentCount() {
+        return commentCount;
+    }
+
+    public void setCommentCount(Integer commentCount) {
+        this.commentCount = commentCount;
     }
 }

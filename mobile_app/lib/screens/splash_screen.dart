@@ -17,20 +17,23 @@ class _SplashScreenState extends State<SplashScreen> {
   }
 
   _initializeApp() async {
-    print('🚀 Splash screen: Starting initialization...');
+    print('Splash: Starting initialization...');
 
     // Simulate app initialization (loading user data, preferences, etc.)
     await Future.delayed(Duration(seconds: 2));
 
     print('⏰ Splash screen: 2 seconds elapsed, navigating to login...');
 
-    // Always navigate to login screen after splash (default)
+    print('Splash: Navigation to login...');
+
+    // Check if widget is still mounted before navigating
     if (mounted) {
-      print('✅ Splash screen: Navigating to ${AppRoutes.login}');
-      Navigator.pushReplacementNamed(context, AppRoutes.login);
-      print('🎯 Splash screen: Navigation called!');
-    } else {
-      print('❌ Splash screen: Widget not mounted, cannot navigate!');
+      try {
+        Navigator.pushReplacementNamed(context, AppRoutes.login);
+        print('Splash: Navigation completed');
+      } catch (e) {
+        print('Splash: Navigation error: $e');
+      }
     }
   }
 

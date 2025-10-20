@@ -585,6 +585,213 @@ class ArticleService {
     // In a real app, you might want to sanitize HTML content
     return content.trim();
   }
+
+  /**
+   * Get all published articles (for viewing in articles list)
+   * @returns {Promise<Object>} Response with published articles
+   */
+  async getAllPublishedArticles() {
+    try {
+      console.log('Fetching all published articles...');
+      
+      const response = await fetch(`${this.baseURL}/published/all`, {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to fetch published articles');
+      }
+
+      const articles = await response.json();
+      console.log('All published articles fetched:', articles.length, 'articles');
+      
+      return {
+        success: true,
+        data: articles
+      };
+
+    } catch (error) {
+      console.error('Error fetching all published articles:', error);
+      return {
+        success: false,
+        message: error.message || 'Failed to fetch published articles',
+        error: error.message,
+        data: []
+      };
+    }
+  }
+
+  /**
+   * Like an article
+   * @param {string} articleId - Article ID (Firebase document ID)
+   * @param {number} userId - User ID
+   * @returns {Promise<Object>} Response with success status
+   */
+  async likeArticle(articleId, userId) {
+    try {
+      console.log('Liking article:', articleId, 'by user:', userId);
+      
+      const response = await fetch(`${this.baseURL}/${articleId}/like?userId=${userId}`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to like article');
+      }
+
+      const result = await response.json();
+      console.log('Article liked successfully:', result);
+      
+      return {
+        success: true,
+        message: result.message || 'Article liked successfully'
+      };
+
+    } catch (error) {
+      console.error('Error liking article:', error);
+      return {
+        success: false,
+        message: error.message || 'Failed to like article',
+        error: error.message
+      };
+    }
+  }
+
+  /**
+   * Unlike an article
+   * @param {string} articleId - Article ID (Firebase document ID)
+   * @param {number} userId - User ID
+   * @returns {Promise<Object>} Response with success status
+   */
+  async unlikeArticle(articleId, userId) {
+    try {
+      console.log('Unliking article:', articleId, 'by user:', userId);
+      
+      const response = await fetch(`${this.baseURL}/${articleId}/like?userId=${userId}`, {
+        method: 'DELETE',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to unlike article');
+      }
+
+      const result = await response.json();
+      console.log('Article unliked successfully:', result);
+      
+      return {
+        success: true,
+        message: result.message || 'Article unliked successfully'
+      };
+
+    } catch (error) {
+      console.error('Error unliking article:', error);
+      return {
+        success: false,
+        message: error.message || 'Failed to unlike article',
+        error: error.message
+      };
+    }
+  }
+
+  /**
+   * Get like status for an article
+   * @param {string} articleId - Article ID (Firebase document ID)
+   * @param {number} userId - User ID (optional)
+   * @returns {Promise<Object>} Response with like count and hasLiked status
+   */
+  async getArticleLikeStatus(articleId, userId = null) {
+    try {
+      const url = userId 
+        ? `${this.baseURL}/${articleId}/like-status?userId=${userId}`
+        : `${this.baseURL}/${articleId}/like-status`;
+      
+      console.log('Getting like status for article:', articleId);
+      
+      const response = await fetch(url, {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to get like status');
+      }
+
+      const result = await response.json();
+      console.log('Like status fetched:', result);
+      
+      return {
+        success: true,
+        likeCount: result.likeCount || 0,
+        hasLiked: result.hasLiked || false
+      };
+
+    } catch (error) {
+      console.error('Error getting like status:', error);
+      return {
+        success: false,
+        likeCount: 0,
+        hasLiked: false,
+        error: error.message
+      };
+    }
+  }
+
+  /**
+   * Delete an article (only by the author/volunteer)
+   * @param {string} articleId - Article ID (Firebase document ID)
+   * @param {number} volunteerId - Volunteer ID (for authorization)
+   * @returns {Promise<Object>} Response with success status and message
+   */
+  async deleteArticle(articleId, volunteerId) {
+    try {
+      console.log('Deleting article:', articleId, 'by volunteer:', volunteerId);
+
+      if (!articleId || !volunteerId) {
+        throw new Error('Article ID and Volunteer ID are required');
+      }
+
+      const response = await fetch(`${this.baseURL}/${articleId}?volunteerId=${volunteerId}`, {
+        method: 'DELETE',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      });
+
+      if (response.status === 403) {
+        throw new Error('You don\'t have permission to delete this article');
+      }
+
+      if (!response.ok) {
+        throw new Error('Failed to delete article');
+      }
+
+      const result = await response.json();
+      console.log('Article deleted successfully:', result);
+
+      return {
+        success: true,
+        message: result.message || 'Article deleted successfully'
+      };
+
+    } catch (error) {
+      console.error('Error deleting article:', error);
+      return {
+        success: false,
+        message: error.message || 'Failed to delete article'
+      };
+    }
+  }
 }
 
 // Create and export a singleton instance

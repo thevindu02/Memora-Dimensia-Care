@@ -46,6 +46,7 @@ export default function ArticleDrafts({
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [currentUser, setCurrentUser] = useState(null);
+  const [deleting, setDeleting] = useState(null); // Track which draft is being deleted
 
   // Format timestamp to readable date
   const formatDate = (timestamp) => {
@@ -128,19 +129,35 @@ export default function ArticleDrafts({
   };
 
   const handleDelete = async (draft) => {
-    if (window.confirm(`Are you sure you want to delete the draft "${draft.title}"?`)) {
-      try {
-        // TODO: Implement delete API call
-        console.log("Delete draft:", draft);
-        alert(`Delete functionality not implemented yet for: ${draft.title}`);
-        
-        // For now, just remove from local state
-        // setDrafts(prev => prev.filter(d => d.articleId !== draft.articleId));
-        
-      } catch (error) {
-        console.error("Error deleting draft:", error);
-        alert("Failed to delete draft. Please try again.");
+    if (!window.confirm(`Are you sure you want to delete the draft "${draft.title}"?\n\nThis action cannot be undone.`)) {
+      return;
+    }
+
+    try {
+      setDeleting(draft.articleId);
+
+      const user = AuthService.getCurrentUser();
+      if (!user || !user.id) {
+        alert("User not authenticated. Please log in again.");
+        return;
       }
+
+      console.log("Deleting draft:", draft.articleId);
+      const response = await articleService.deleteArticle(draft.articleId, user.id);
+
+      if (response.success) {
+        // Remove the draft from the local state
+        setDrafts(prevDrafts => prevDrafts.filter(d => d.articleId !== draft.articleId));
+        alert("Draft deleted successfully!");
+      } else {
+        alert(response.message || "Failed to delete draft");
+      }
+
+    } catch (error) {
+      console.error("Error deleting draft:", error);
+      alert("An error occurred while deleting the draft. Please try again.");
+    } finally {
+      setDeleting(null);
     }
   };
 
@@ -262,6 +279,8 @@ export default function ArticleDrafts({
                             onClick={() => handleDelete(draft)}
                             color="error"
                             size="small"
+                            disabled={deleting === draft.articleId}
+                            sx={{ opacity: deleting === draft.articleId ? 0.5 : 1 }}
                           >
                             <DeleteIcon />
                           </IconButton>

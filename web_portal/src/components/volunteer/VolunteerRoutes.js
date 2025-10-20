@@ -5,7 +5,6 @@ import { Box } from '@mui/material';
 import VolunteerDashboard from './VolunteerDashboard';
 import CreateBlog from './CreateBlog';
 import ScheduleSession from './ScheduleSession';
-import QnAforum from './QnAforum';
 import VolunteerSettings from './VolunteerSettings';
 import ArticleDrafts from './ArticleDrafts'; 
 import Articles from './Articles'; 
@@ -48,7 +47,6 @@ export default function VolunteerRoutes() {
         {/* {currentPage === 'Dashboard' && <VolunteerDashboard />} */}
         {currentPage === 'Write Blog' && <CreateBlog />}
         {currentPage === 'Schedule Session' && <ScheduleSession />}
-        {currentPage === 'Forum' && <QnAforum/>}
         {currentPage === 'Settings' && <VolunteerSettings />}
         {currentPage === 'Article Drafts' && <ArticleDrafts/>}
         {currentPage === 'Articles' && <Articles />}

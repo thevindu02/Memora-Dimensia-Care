@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'package:http/http.dart' as http;
 import '../../services/api_constants.dart';
 import '../../services/auth_service.dart';
+import '../../services/article_service.dart';
 import '../../constants/color_constants.dart';
 
 class ArticleDraftScreen extends StatefulWidget {
@@ -147,87 +148,120 @@ class _ArticleDraftScreenState extends State<ArticleDraftScreen> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
+              // Category Badge at the top
+              if (draft['categoryName'] != null)
+                Container(
+                  padding: EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                  decoration: BoxDecoration(
+                    color: Colors.blue[50],
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Icon(
+                        Icons.category_outlined,
+                        size: 14,
+                        color: Colors.blue[700],
+                      ),
+                      SizedBox(width: 4),
+                      Text(
+                        draft['categoryName'],
+                        style: TextStyle(
+                          fontSize: 12,
+                          color: Colors.blue[700],
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              SizedBox(height: 12),
+              // Title Row (without menu)
               Row(
                 children: [
-                  Icon(Icons.drafts, color: AppColors.info),
+                  Icon(Icons.drafts, color: AppColors.info, size: 20),
                   SizedBox(width: 8),
                   Expanded(
                     child: Text(
                       draft['title'] ?? 'Untitled',
                       style: TextStyle(
                         fontWeight: FontWeight.bold,
-                        fontSize: 16,
+                        fontSize: 18,
+                        color: Colors.black87,
                       ),
                       maxLines: 2,
                       overflow: TextOverflow.ellipsis,
                     ),
                   ),
-                  PopupMenuButton<String>(
-                    onSelected: (value) => _handleMenuAction(value, draft),
-                    itemBuilder: (context) => [
-                      PopupMenuItem(
-                        value: 'edit',
-                        child: Row(
-                          children: [
-                            Icon(Icons.edit, size: 20),
-                            SizedBox(width: 8),
-                            Text('Edit'),
-                          ],
-                        ),
-                      ),
-                      PopupMenuItem(
-                        value: 'publish',
-                        child: Row(
-                          children: [
-                            Icon(Icons.publish, size: 20),
-                            SizedBox(width: 8),
-                            Text('Publish'),
-                          ],
-                        ),
-                      ),
-                      PopupMenuItem(
-                        value: 'delete',
-                        child: Row(
-                          children: [
-                            Icon(Icons.delete, size: 20, color: Colors.red),
-                            SizedBox(width: 8),
-                            Text('Delete', style: TextStyle(color: Colors.red)),
-                          ],
-                        ),
-                      ),
-                    ],
-                  ),
                 ],
               ),
-              SizedBox(height: 8),
+              SizedBox(height: 12),
+              // Summary
               if (draft['summary'] != null && draft['summary'].isNotEmpty)
                 Text(
                   draft['summary'],
                   maxLines: 3,
                   overflow: TextOverflow.ellipsis,
-                  style: TextStyle(color: Colors.grey[700]),
+                  style: TextStyle(
+                    color: Colors.grey[700],
+                    fontSize: 14,
+                    height: 1.4,
+                  ),
                 ),
-              SizedBox(height: 8),
+              SizedBox(height: 12),
+              // Action Buttons Row with 3 buttons
               Row(
                 children: [
-                  if (draft['categoryName'] != null)
-                    Container(
-                      padding: EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                      decoration: BoxDecoration(
-                        color: Colors.blue.withOpacity(0.1),
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                      child: Text(
-                        draft['categoryName'],
-                        style: TextStyle(
-                          fontSize: 12,
-                          color: Colors.black,
-                          fontWeight: FontWeight.w500,
+                  // Edit Button
+                  Expanded(
+                    child: OutlinedButton.icon(
+                      onPressed: () => _editDraft(draft),
+                      icon: Icon(Icons.edit, size: 16),
+                      label: Text('Edit', style: TextStyle(fontSize: 13)),
+                      style: OutlinedButton.styleFrom(
+                        foregroundColor: Colors.blue,
+                        padding: EdgeInsets.symmetric(vertical: 10),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(8),
                         ),
                       ),
                     ),
-                  Spacer(),
-                  Icon(Icons.arrow_forward_ios, size: 16, color: Colors.grey),
+                  ),
+                  SizedBox(width: 6),
+                  // Publish Button
+                  Expanded(
+                    child: ElevatedButton.icon(
+                      onPressed: () => _publishDraft(draft),
+                      icon: Icon(Icons.publish, size: 16),
+                      label: Text('Publish', style: TextStyle(fontSize: 13)),
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Colors.green,
+                        foregroundColor: Colors.white,
+                        padding: EdgeInsets.symmetric(vertical: 10),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                      ),
+                    ),
+                  ),
+                  SizedBox(width: 6),
+                  // Delete Button
+                  Expanded(
+                    child: OutlinedButton.icon(
+                      onPressed: () => _deleteDraft(draft),
+                      icon: Icon(Icons.delete_outline, size: 16),
+                      label: Text('Delete', style: TextStyle(fontSize: 13)),
+                      style: OutlinedButton.styleFrom(
+                        foregroundColor: Colors.red,
+                        side: BorderSide(color: Colors.red.withOpacity(0.5)),
+                        padding: EdgeInsets.symmetric(vertical: 10),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                      ),
+                    ),
+                  ),
                 ],
               ),
             ],
@@ -235,20 +269,6 @@ class _ArticleDraftScreenState extends State<ArticleDraftScreen> {
         ),
       ),
     );
-  }
-
-  void _handleMenuAction(String action, Map<String, dynamic> draft) {
-    switch (action) {
-      case 'edit':
-        _editDraft(draft);
-        break;
-      case 'publish':
-        _publishDraft(draft);
-        break;
-      case 'delete':
-        _deleteDraft(draft);
-        break;
-    }
   }
 
   void _editDraft(Map<String, dynamic> draft) {
@@ -267,8 +287,65 @@ class _ArticleDraftScreenState extends State<ArticleDraftScreen> {
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        title: Text('Publish Draft'),
-        content: Text('Are you sure you want to publish "${draft['title']}"?'),
+        title: Row(
+          children: [
+            Icon(Icons.publish, color: Colors.green),
+            SizedBox(width: 8),
+            Text('Publish Draft'),
+          ],
+        ),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text('Are you sure you want to publish this article?'),
+            SizedBox(height: 12),
+            Container(
+              padding: EdgeInsets.all(12),
+              decoration: BoxDecoration(
+                color: Colors.blue[50],
+                borderRadius: BorderRadius.circular(8),
+              ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    draft['title'] ?? 'Untitled',
+                    style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14),
+                  ),
+                  if (draft['categoryName'] != null) ...[
+                    SizedBox(height: 4),
+                    Text(
+                      'Category: ${draft['categoryName']}',
+                      style: TextStyle(fontSize: 12, color: Colors.grey[700]),
+                    ),
+                  ],
+                ],
+              ),
+            ),
+            SizedBox(height: 12),
+            Container(
+              padding: EdgeInsets.all(8),
+              decoration: BoxDecoration(
+                color: Colors.orange[50],
+                borderRadius: BorderRadius.circular(6),
+                border: Border.all(color: Colors.orange[200]!),
+              ),
+              child: Row(
+                children: [
+                  Icon(Icons.info_outline, size: 16, color: Colors.orange[700]),
+                  SizedBox(width: 8),
+                  Expanded(
+                    child: Text(
+                      'Your article will be submitted for admin review',
+                      style: TextStyle(fontSize: 11, color: Colors.orange[700]),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
@@ -280,7 +357,7 @@ class _ArticleDraftScreenState extends State<ArticleDraftScreen> {
               await _performPublish(draft);
             },
             style: ElevatedButton.styleFrom(
-              backgroundColor: Color(0xFF87CEEB), // Sky blue color
+              backgroundColor: Colors.green,
               foregroundColor: Colors.white,
             ),
             child: Text('Publish'),
@@ -317,6 +394,29 @@ class _ArticleDraftScreenState extends State<ArticleDraftScreen> {
   }
 
   Future<void> _performPublish(Map<String, dynamic> draft) async {
+    // Show loading indicator
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (context) => Center(
+        child: Container(
+          padding: EdgeInsets.all(20),
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(12),
+          ),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              CircularProgressIndicator(),
+              SizedBox(height: 16),
+              Text('Publishing article...'),
+            ],
+          ),
+        ),
+      ),
+    );
+
     try {
       final response = await http.put(
         Uri.parse('${ApiConstants.baseUrl}/api/articles/${draft['articleId']}'),
@@ -324,59 +424,147 @@ class _ArticleDraftScreenState extends State<ArticleDraftScreen> {
         body: jsonEncode({
           ...draft,
           'draft': false,
-          'status': 'pending', // Set to pending for admin approval
+          'status': 'pending', // Pending admin review
         }),
       );
 
+      // Close loading dialog
+      Navigator.pop(context);
+
       if (response.statusCode == 200) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Article published successfully!')),
+          SnackBar(
+            content: Row(
+              children: [
+                Icon(Icons.check_circle, color: Colors.white),
+                SizedBox(width: 8),
+                Expanded(
+                  child: Text('Article submitted for review successfully!'),
+                ),
+              ],
+            ),
+            backgroundColor: Colors.green,
+            duration: Duration(seconds: 3),
+          ),
         );
         setState(() {
           _draftsFuture = fetchAllDrafts(_getVolunteerId());
         });
       } else {
-        throw Exception('Failed to publish article');
+        throw Exception('Failed to publish article: ${response.statusCode}');
       }
     } catch (e) {
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(SnackBar(content: Text('Error publishing article: $e')));
+      // Close loading dialog if still open
+      if (Navigator.canPop(context)) {
+        Navigator.pop(context);
+      }
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Row(
+            children: [
+              Icon(Icons.error_outline, color: Colors.white),
+              SizedBox(width: 8),
+              Expanded(child: Text('Error publishing article: $e')),
+            ],
+          ),
+          backgroundColor: Colors.red,
+          duration: Duration(seconds: 4),
+        ),
+      );
     }
   }
 
   Future<void> _performDelete(Map<String, dynamic> draft) async {
+    // Show loading indicator
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (context) => Center(
+        child: Card(
+          child: Padding(
+            padding: EdgeInsets.all(20),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                CircularProgressIndicator(),
+                SizedBox(height: 16),
+                Text('Deleting draft...'),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+
     try {
-      final response = await http.delete(
-        Uri.parse('${ApiConstants.baseUrl}/api/articles/${draft['articleId']}'),
+      final result = await ArticleService.deleteArticle(
+        articleId: draft['articleId'].toString(),
+        volunteerId: _getVolunteerId(),
       );
 
-      if (response.statusCode == 200) {
-        ScaffoldMessenger.of(
-          context,
-        ).showSnackBar(SnackBar(content: Text('Draft deleted successfully!')));
+      Navigator.pop(context); // Close loading dialog
+
+      if (result['success'] == true) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Row(
+              children: [
+                Icon(Icons.check_circle, color: Colors.white),
+                SizedBox(width: 8),
+                Expanded(child: Text('Draft deleted successfully!')),
+              ],
+            ),
+            backgroundColor: Colors.green,
+          ),
+        );
         setState(() {
           _draftsFuture = fetchAllDrafts(_getVolunteerId());
         });
       } else {
-        throw Exception('Failed to delete draft');
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(result['message'] ?? 'Failed to delete draft'),
+            backgroundColor: Colors.red,
+          ),
+        );
       }
     } catch (e) {
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(SnackBar(content: Text('Error deleting draft: $e')));
+      Navigator.pop(context); // Close loading dialog if still open
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Error deleting draft: $e'),
+          backgroundColor: Colors.red,
+        ),
+      );
     }
   }
 }
 
 Future<List<Map<String, dynamic>>> fetchAllDrafts(int volunteerId) async {
+  print('========================================');
+  print('📝 FETCHING DRAFTS');
+  print('Volunteer ID: $volunteerId');
+  print('========================================');
+
   final response = await http.get(
     Uri.parse(
       '${ApiConstants.baseUrl}/api/articles/drafts?volunteerId=$volunteerId',
     ),
   );
+
+  print('Response Status: ${response.statusCode}');
+  print('Response Body: ${response.body}');
+
   if (response.statusCode == 200) {
     final List<dynamic> data = jsonDecode(response.body);
+
+    if (data.isNotEmpty) {
+      print('First draft data: ${data[0]}');
+    }
+    print('Total drafts: ${data.length}');
+    print('========================================');
+
     return data.cast<Map<String, dynamic>>();
   } else {
     throw Exception('Failed to load drafts');

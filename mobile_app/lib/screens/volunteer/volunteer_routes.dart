@@ -12,6 +12,7 @@ import 'volunteer_create_content_screen.dart';
 import 'volunteer_forum_screen.dart';
 import 'volunteer_schedule_session_screen.dart';
 import 'article_draft_screen.dart';
+import 'volunteer_single_article_screen.dart';
 
 class VolunteerRoutes {
   static Route<dynamic> generateRoute(RouteSettings settings) {
@@ -58,7 +59,8 @@ class VolunteerRoutes {
       case AppRoutes.volunteerCompletedRegistration:
         final volunteerId = settings.arguments as int? ?? 1;
         return MaterialPageRoute(
-          builder: (_) => VolunteerRegistrationCompletedScreen(volunteerId: volunteerId),
+          builder: (_) =>
+              VolunteerRegistrationCompletedScreen(volunteerId: volunteerId),
           settings: settings,
         );
       case AppRoutes.volunteerDashboard:
@@ -70,7 +72,8 @@ class VolunteerRoutes {
       case AppRoutes.volunteerCreateContent:
         final volunteerId = settings.arguments as int? ?? 1;
         return MaterialPageRoute(
-          builder: (_) => VolunteerCreateContentScreen(volunteerId: volunteerId),
+          builder: (_) =>
+              VolunteerCreateContentScreen(volunteerId: volunteerId),
           settings: settings,
         );
       case AppRoutes.volunteerForum:
@@ -82,12 +85,24 @@ class VolunteerRoutes {
       case AppRoutes.volunteerScheduleSession:
         final volunteerId = settings.arguments as int? ?? 1;
         return MaterialPageRoute(
-          builder: (_) => VolunteerScheduleSessionScreen(volunteerId: volunteerId),
+          builder: (_) =>
+              VolunteerScheduleSessionScreen(volunteerId: volunteerId),
           settings: settings,
         );
       case AppRoutes.volunteerDraft:
         return MaterialPageRoute(
           builder: (_) => ArticleDraftScreen(),
+          settings: settings,
+        );
+      case AppRoutes.volunteerMyArticles:
+        return MaterialPageRoute(
+          builder: (_) => VolunteerArticlesTabBody(),
+          settings: settings,
+        );
+      case AppRoutes.volunteerArticlesTab:
+        final articleId = settings.arguments as String;
+        return MaterialPageRoute(
+          builder: (_) => VolunteerSingleArticleScreen(articleId: articleId),
           settings: settings,
         );
       case AppRoutes.volunteerArticlesTab:

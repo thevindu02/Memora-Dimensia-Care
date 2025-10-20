@@ -80,6 +80,7 @@ class ArticleService {
     }
   }
 
+  /// Get draft articles for the current volunteer
   static Future<List<Map<String, dynamic>>> getDraftArticles() async {
     try {
       // Get current user ID (volunteer ID)
@@ -112,6 +113,42 @@ class ArticleService {
     } catch (e) {
       print('Error getting draft articles: $e');
       throw Exception('Failed to load draft articles: $e');
+    }
+  }
+
+  /// Get published articles for the current volunteer (their own published articles)
+  static Future<List<Map<String, dynamic>>> getMyPublishedArticles() async {
+    try {
+      // Get current user ID (volunteer ID)
+      final volunteerId = await AuthService.getCurrentUserId();
+      if (volunteerId == null) {
+        throw Exception('User not authenticated');
+      }
+
+      print('=== Getting My Published Articles ===');
+      print('Volunteer ID: $volunteerId');
+      print('Request URL: $baseUrl/published?volunteerId=$volunteerId');
+
+      // Make API call to get only this volunteer's published articles
+      final response = await http.get(
+        Uri.parse('$baseUrl/published?volunteerId=$volunteerId'),
+        headers: {'Content-Type': 'application/json'},
+      );
+
+      print('Response Status: ${response.statusCode}');
+      print('Response Body: ${response.body}');
+
+      if (response.statusCode == 200) {
+        final List<dynamic> articlesJson = jsonDecode(response.body);
+        return articlesJson
+            .map((article) => Map<String, dynamic>.from(article))
+            .toList();
+      } else {
+        throw Exception('Failed to load published articles');
+      }
+    } catch (e) {
+      print('Error getting my published articles: $e');
+      throw Exception('Failed to load published articles: $e');
     }
   }
 
@@ -305,6 +342,48 @@ class ArticleService {
     } catch (e) {
       print('Error getting article like status: $e');
       return null;
+    }
+  }
+
+  /// Delete an article (only by the author/volunteer)
+  static Future<Map<String, dynamic>> deleteArticle({
+    required String articleId,
+    required int volunteerId,
+  }) async {
+    try {
+      print('=== Deleting Article ===');
+      print('Article ID: $articleId');
+      print('Volunteer ID: $volunteerId');
+      print('Request URL: $baseUrl/$articleId?volunteerId=$volunteerId');
+
+      final response = await http.delete(
+        Uri.parse('$baseUrl/$articleId?volunteerId=$volunteerId'),
+        headers: {'Content-Type': 'application/json'},
+      );
+
+      print('Response Status: ${response.statusCode}');
+      print('Response Body: ${response.body}');
+
+      if (response.statusCode == 200) {
+        final responseData = jsonDecode(response.body);
+        return {
+          'success': true,
+          'message': responseData['message'] ?? 'Article deleted successfully',
+        };
+      } else if (response.statusCode == 403) {
+        return {
+          'success': false,
+          'message': 'You don\'t have permission to delete this article',
+        };
+      } else {
+        return {'success': false, 'message': 'Failed to delete article'};
+      }
+    } catch (e) {
+      print('Error deleting article: $e');
+      return {
+        'success': false,
+        'message': 'Network error. Please check your connection.',
+      };
     }
   }
 }
