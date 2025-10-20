@@ -25,13 +25,13 @@ class PatientProfile {
 
   factory PatientProfile.fromJson(Map<String, dynamic> json) {
     return PatientProfile(
-      patientId: json['patientId'] as int,
-      userId: json['userId'] as int,
-      firstName: json['firstName'] as String,
-      lastName: json['lastName'] as String,
-      email: json['email'] as String,
-      dementiaStage: json['dementiaStage'] as String,
-      dementiaType: json['dementiaType'] as String,
+      patientId: (json['patientId'] ?? 0) as int,
+      userId: (json['userId'] ?? 0) as int, // May not be in response, default to 0
+      firstName: (json['FName'] ?? json['firstName'] ?? '') as String,
+      lastName: (json['LName'] ?? json['lastName'] ?? '') as String,
+      email: (json['email'] ?? '') as String,
+      dementiaStage: (json['dementiaStage'] ?? '') as String,
+      dementiaType: (json['dementiaType'] ?? '') as String,
       dateOfDiagnosis: json['dateOfDiagnosis'] as String?,
       guardianId: json['guardianId'] as int?,
       caregiverId: json['caregiverId'] as int?,
