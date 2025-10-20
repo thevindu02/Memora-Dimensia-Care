@@ -257,55 +257,54 @@ class _GuardianDashboardScreenState extends State<GuardianDashboardScreen> {
                   ],
                 ),
               ),
+              // Caregiver information on the right side
               if (patient['caregiverName'] != null) ...[
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
+                SizedBox(width: 12),
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.end,
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Icon(
+                          Icons.person_outline,
+                          size: 14,
+                          color: Colors.grey[600],
+                        ),
+                        SizedBox(width: 4),
+                        Text(
+                          'Caregiver: ${capitalizeName(patient['caregiverName'])}',
+                          style: TextStyle(
+                            fontSize: 11,
+                            color: Colors.grey[700],
+                            fontWeight: FontWeight.w500,
+                          ),
+                        ),
+                      ],
+                    ),
+                    if (patient['caregiverPhone'] != null) ...[
+                      SizedBox(height: 4),
                       Row(
+                        mainAxisSize: MainAxisSize.min,
                         children: [
                           Icon(
-                            Icons.person_outline,
+                            Icons.phone_outlined,
                             size: 14,
                             color: Colors.grey[600],
                           ),
                           SizedBox(width: 4),
-                          Flexible(
-                            child: Text(
-                              'Caregiver: ${capitalizeName(patient['caregiverName'])}',
-                              style: TextStyle(
-                                fontSize: 11,
-                                color: Colors.grey[700],
-                                fontWeight: FontWeight.w500,
-                              ),
-                              overflow: TextOverflow.ellipsis,
+                          Text(
+                            patient['caregiverPhone'],
+                            style: TextStyle(
+                              fontSize: 11,
+                              color: Colors.grey[700],
                             ),
                           ),
                         ],
                       ),
-                      if (patient['caregiverPhone'] != null) ...[
-                        SizedBox(height: 4),
-                        Row(
-                          children: [
-                            Icon(
-                              Icons.phone_outlined,
-                              size: 14,
-                              color: Colors.grey[600],
-                            ),
-                            SizedBox(width: 4),
-                            Text(
-                              patient['caregiverPhone'],
-                              style: TextStyle(
-                                fontSize: 11,
-                                color: Colors.grey[700],
-                              ),
-                            ),
-                          ],
-                        ),
-                      ],
                     ],
-                  ),
+                  ],
                 ),
               ],
               SizedBox(width: 8),
