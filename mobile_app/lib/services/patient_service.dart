@@ -5,6 +5,9 @@ import 'api_constants.dart';
 class PatientService {
   static final String url = '${ApiConstants.baseUrl}/api/patients';
   // Add a new patient
+  static final String baseUrl = '${ApiConstants.baseUrl}/api/patients';
+
+  // Add a new patient 
   static Future<PatientResult> addPatient({
     required int userId,
     required String dementiaStage,
