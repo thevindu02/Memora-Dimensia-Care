@@ -262,7 +262,7 @@ public class ArticleService {
         }
     }
 
-    public java.util.List<ArticleDTO> getDraftArticles(Long volunteerId)
+    public java.util.List<ArticleDetailDTO> getDraftArticles(Long volunteerId)
             throws ExecutionException, InterruptedException {
         try {
             System.out.println("=== Getting draft articles for volunteer ID: " + volunteerId + " ===");
@@ -278,11 +278,11 @@ public class ArticleService {
             ApiFuture<QuerySnapshot> future = query.get();
             QuerySnapshot documents = future.get();
 
-            java.util.List<ArticleDTO> drafts = new java.util.ArrayList<>();
+            java.util.List<ArticleDetailDTO> drafts = new java.util.ArrayList<>();
             for (DocumentSnapshot document : documents) {
                 if (document.exists()) {
                     try {
-                        ArticleDTO article = new ArticleDTO();
+                        ArticleDetailDTO article = new ArticleDetailDTO();
                         
                         // Manually map fields from document to avoid deserialization issues
                         article.setArticleId(document.getId());
@@ -329,7 +329,38 @@ public class ArticleService {
                             article.setArticleImg("https://images.unsplash.com/photo-1434030216411-0b793f4b4173?w=64&h=64&fit=crop");
                         }
                         
-                        System.out.println("Found draft: " + article.getTitle() + " (ID: " + article.getArticleId() + ")");
+                        // Get author information from User table
+                        if (article.getVolunteerId() != null) {
+                            try {
+                                User author = userRepository.findById(article.getVolunteerId()).orElse(null);
+                                if (author != null) {
+                                    article.setAuthorName(author.getFName() + " " + author.getLName());
+                                    article.setAuthorEmail(author.getEmail());
+                                } else {
+                                    article.setAuthorName("Unknown Author");
+                                }
+                            } catch (Exception userError) {
+                                System.err.println("Error fetching author for volunteer ID " + article.getVolunteerId());
+                                article.setAuthorName("Unknown Author");
+                            }
+                        }
+                        
+                        // Get category information
+                        if (article.getCategoryId() != null) {
+                            try {
+                                ArticleCategory category = articleCategoryRepository.findById(article.getCategoryId()).orElse(null);
+                                if (category != null) {
+                                    article.setCategoryName(category.getCategoryName());
+                                } else {
+                                    article.setCategoryName("Uncategorized");
+                                }
+                            } catch (Exception catError) {
+                                System.err.println("Error fetching category for ID " + article.getCategoryId());
+                                article.setCategoryName("Uncategorized");
+                            }
+                        }
+                        
+                        System.out.println("Found draft: " + article.getTitle() + " (ID: " + article.getArticleId() + ") - Category: " + article.getCategoryName());
                         drafts.add(article);
                         
                     } catch (Exception docError) {
@@ -361,7 +392,7 @@ public class ArticleService {
         }
     }
 
-    public java.util.List<ArticleDTO> getPublishedArticles(Long volunteerId)
+    public java.util.List<ArticleDetailDTO> getPublishedArticles(Long volunteerId)
             throws ExecutionException, InterruptedException {
         try {
             System.out.println("=== Getting published articles for volunteer ID: " + volunteerId + " ===");
@@ -377,11 +408,11 @@ public class ArticleService {
             ApiFuture<QuerySnapshot> future = query.get();
             QuerySnapshot documents = future.get();
 
-            java.util.List<ArticleDTO> publishedArticles = new java.util.ArrayList<>();
+            java.util.List<ArticleDetailDTO> publishedArticles = new java.util.ArrayList<>();
             for (DocumentSnapshot document : documents) {
                 if (document.exists()) {
                     try {
-                        ArticleDTO article = new ArticleDTO();
+                        ArticleDetailDTO article = new ArticleDetailDTO();
                         
                         // Manually map fields from document
                         article.setArticleId(document.getId());
@@ -428,7 +459,63 @@ public class ArticleService {
                             article.setArticleImg("https://images.unsplash.com/photo-1434030216411-0b793f4b4173?w=64&h=64&fit=crop");
                         }
                         
-                        System.out.println("Found published article: " + article.getTitle() + " (ID: " + article.getArticleId() + ")");
+                        // Get author information from User table
+                        if (article.getVolunteerId() != null) {
+                            try {
+                                User author = userRepository.findById(article.getVolunteerId()).orElse(null);
+                                if (author != null) {
+                                    article.setAuthorName(author.getFName() + " " + author.getLName());
+                                    article.setAuthorEmail(author.getEmail());
+                                } else {
+                                    article.setAuthorName("Unknown Author");
+                                }
+                            } catch (Exception userError) {
+                                System.err.println("Error fetching author for volunteer ID " + article.getVolunteerId());
+                                article.setAuthorName("Unknown Author");
+                            }
+                        }
+                        
+                        // Get category information
+                        if (article.getCategoryId() != null) {
+                            try {
+                                ArticleCategory category = articleCategoryRepository.findById(article.getCategoryId()).orElse(null);
+                                if (category != null) {
+                                    article.setCategoryName(category.getCategoryName());
+                                } else {
+                                    article.setCategoryName("Uncategorized");
+                                }
+                            } catch (Exception catError) {
+                                System.err.println("Error fetching category for ID " + article.getCategoryId());
+                                article.setCategoryName("Uncategorized");
+                            }
+                        }
+                        
+                        // Get like count for this article
+                        try {
+                            Query likeQuery = db.collection(ARTICLE_LIKES_COLLECTION)
+                                    .whereEqualTo("articleId", article.getArticleId());
+                            ApiFuture<QuerySnapshot> likeFuture = likeQuery.get();
+                            QuerySnapshot likeSnapshot = likeFuture.get();
+                            article.setLikeCount(likeSnapshot.size());
+                        } catch (Exception likeError) {
+                            System.err.println("Error fetching like count for article " + article.getArticleId());
+                            article.setLikeCount(0);
+                        }
+                        
+                        // Get comment count for this article
+                        try {
+                            Query commentQuery = db.collection("articles_comments")
+                                    .whereEqualTo("articleId", article.getArticleId())
+                                    .whereEqualTo("isDeleted", false);
+                            ApiFuture<QuerySnapshot> commentFuture = commentQuery.get();
+                            QuerySnapshot commentSnapshot = commentFuture.get();
+                            article.setCommentCount(commentSnapshot.size());
+                        } catch (Exception commentError) {
+                            System.err.println("Error fetching comment count for article " + article.getArticleId());
+                            article.setCommentCount(0);
+                        }
+                        
+                        System.out.println("Found published article: " + article.getTitle() + " (ID: " + article.getArticleId() + ") by " + article.getAuthorName() + " - " + article.getLikeCount() + " likes, " + article.getCommentCount() + " comments");
                         publishedArticles.add(article);
                         
                     } catch (Exception docError) {
@@ -474,8 +561,12 @@ public class ArticleService {
 
             ApiFuture<QuerySnapshot> future = query.get();
             QuerySnapshot documents = future.get();
+            
+            System.out.println("📊 Total documents found with draft=false and status=approved: " + documents.size());
 
             java.util.List<ArticleDetailDTO> publishedArticles = new java.util.ArrayList<>();
+            java.util.Set<Long> uniqueVolunteerIds = new java.util.HashSet<>();
+            
             for (DocumentSnapshot document : documents) {
                 if (document.exists()) {
                     try {
@@ -494,8 +585,10 @@ public class ArticleService {
                         if (volIdObj != null) {
                             if (volIdObj instanceof Long) {
                                 article.setVolunteerId((Long) volIdObj);
+                                uniqueVolunteerIds.add((Long) volIdObj);
                             } else if (volIdObj instanceof Integer) {
                                 article.setVolunteerId(((Integer) volIdObj).longValue());
+                                uniqueVolunteerIds.add(((Integer) volIdObj).longValue());
                             }
                         }
                         
@@ -604,7 +697,10 @@ public class ArticleService {
                 return timeB.compareTo(timeA);
             });
             
+            System.out.println("📊 SUMMARY:");
             System.out.println("Total published articles found from all volunteers: " + publishedArticles.size());
+            System.out.println("Unique volunteers with published articles: " + uniqueVolunteerIds.size());
+            System.out.println("Volunteer IDs: " + uniqueVolunteerIds);
             return publishedArticles;
             
         } catch (Exception e) {
@@ -856,6 +952,84 @@ public class ArticleService {
         }
         
         return 0L;
+    }
+
+    /**
+     * Delete an article (only by the author/volunteer)
+     * @param articleId The ID of the article to delete
+     * @param volunteerId The ID of the volunteer attempting to delete
+     * @return true if deleted successfully, false otherwise
+     */
+    public boolean deleteArticle(String articleId, Long volunteerId) {
+        try {
+            System.out.println("=== Deleting Article ===");
+            System.out.println("Article ID: " + articleId);
+            System.out.println("Volunteer ID: " + volunteerId);
+            
+            Firestore db = FirestoreClient.getFirestore();
+            DocumentReference articleRef = db.collection(COLLECTION_NAME).document(articleId);
+            
+            // First, verify the article exists and belongs to this volunteer
+            ApiFuture<DocumentSnapshot> future = articleRef.get();
+            DocumentSnapshot document = future.get();
+            
+            if (!document.exists()) {
+                System.err.println("Article not found: " + articleId);
+                return false;
+            }
+            
+            // Check if the volunteer is the author
+            Object volIdObj = document.get("volunteerId");
+            Long articleVolunteerId = null;
+            
+            if (volIdObj instanceof Long) {
+                articleVolunteerId = (Long) volIdObj;
+            } else if (volIdObj instanceof Integer) {
+                articleVolunteerId = ((Integer) volIdObj).longValue();
+            }
+            
+            if (articleVolunteerId == null || !articleVolunteerId.equals(volunteerId)) {
+                System.err.println("Permission denied. Article belongs to volunteer " + articleVolunteerId + 
+                                 ", but delete requested by volunteer " + volunteerId);
+                return false;
+            }
+            
+            // Delete the article
+            ApiFuture<WriteResult> deleteResult = articleRef.delete();
+            WriteResult result = deleteResult.get();
+            
+            System.out.println("Article deleted successfully at: " + result.getUpdateTime());
+            
+            // Optional: Also delete associated likes and comments
+            // Delete likes
+            Query likesQuery = db.collection(ARTICLE_LIKES_COLLECTION)
+                    .whereEqualTo("articleId", articleId);
+            ApiFuture<QuerySnapshot> likesFuture = likesQuery.get();
+            QuerySnapshot likesSnapshot = likesFuture.get();
+            
+            for (DocumentSnapshot likeDoc : likesSnapshot.getDocuments()) {
+                likeDoc.getReference().delete();
+            }
+            System.out.println("Deleted " + likesSnapshot.size() + " likes for article " + articleId);
+            
+            // Delete comments
+            Query commentsQuery = db.collection("articles_comments")
+                    .whereEqualTo("articleId", articleId);
+            ApiFuture<QuerySnapshot> commentsFuture = commentsQuery.get();
+            QuerySnapshot commentsSnapshot = commentsFuture.get();
+            
+            for (DocumentSnapshot commentDoc : commentsSnapshot.getDocuments()) {
+                commentDoc.getReference().delete();
+            }
+            System.out.println("Deleted " + commentsSnapshot.size() + " comments for article " + articleId);
+            
+            return true;
+            
+        } catch (Exception e) {
+            System.err.println("Error deleting article: " + e.getMessage());
+            e.printStackTrace();
+            return false;
+        }
     }
 }
 

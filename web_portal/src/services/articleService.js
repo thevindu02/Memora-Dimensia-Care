@@ -746,6 +746,52 @@ class ArticleService {
       };
     }
   }
+
+  /**
+   * Delete an article (only by the author/volunteer)
+   * @param {string} articleId - Article ID (Firebase document ID)
+   * @param {number} volunteerId - Volunteer ID (for authorization)
+   * @returns {Promise<Object>} Response with success status and message
+   */
+  async deleteArticle(articleId, volunteerId) {
+    try {
+      console.log('Deleting article:', articleId, 'by volunteer:', volunteerId);
+
+      if (!articleId || !volunteerId) {
+        throw new Error('Article ID and Volunteer ID are required');
+      }
+
+      const response = await fetch(`${this.baseURL}/${articleId}?volunteerId=${volunteerId}`, {
+        method: 'DELETE',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      });
+
+      if (response.status === 403) {
+        throw new Error('You don\'t have permission to delete this article');
+      }
+
+      if (!response.ok) {
+        throw new Error('Failed to delete article');
+      }
+
+      const result = await response.json();
+      console.log('Article deleted successfully:', result);
+
+      return {
+        success: true,
+        message: result.message || 'Article deleted successfully'
+      };
+
+    } catch (error) {
+      console.error('Error deleting article:', error);
+      return {
+        success: false,
+        message: error.message || 'Failed to delete article'
+      };
+    }
+  }
 }
 
 // Create and export a singleton instance

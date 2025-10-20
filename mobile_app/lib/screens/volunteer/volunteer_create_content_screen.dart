@@ -11,7 +11,8 @@ import '../../services/article_service.dart';
 
 class VolunteerCreateContentScreen extends StatelessWidget {
   final int volunteerId;
-  const VolunteerCreateContentScreen({Key? key, required this.volunteerId}) : super(key: key);
+  const VolunteerCreateContentScreen({Key? key, required this.volunteerId})
+    : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -124,29 +125,13 @@ class VolunteerCreateContentScreen extends StatelessWidget {
             ),
             SizedBox(height: 16),
 
-            // Two Cards Row
-            Row(
-              children: [
-                Expanded(
-                  child: _buildContentTypeCard(
-                    Icons.add_circle_outline_rounded,
-                    'Create New Article',
-                    'Write and publish new content',
-                    Color(0xFF2B3F99),
-                    onTap: () => _navigateToArticleCreation(context),
-                  ),
-                ),
-                SizedBox(width: 16),
-                Expanded(
-                  child: _buildContentTypeCard(
-                    Icons.drafts_rounded,
-                    'My Drafts',
-                    'Continue working on saved drafts',
-                    Color(0xFF2B3F99),
-                    onTap: () => _navigateToDraft(context, 'Draft List'),
-                  ),
-                ),
-              ],
+            // My Drafts Card
+            _buildContentTypeCard(
+              Icons.drafts_rounded,
+              'My Drafts',
+              'Continue working on saved drafts',
+              Color(0xFF2B3F99),
+              onTap: () => _navigateToDraft(context, 'Draft List'),
             ),
 
             SizedBox(height: 32),
@@ -168,16 +153,11 @@ class VolunteerCreateContentScreen extends StatelessWidget {
   }
 
   void _navigateToViewArticles(BuildContext context) {
-    Navigator.pushNamed(context, AppRoutes.viewArticle);
+    Navigator.pushNamed(context, AppRoutes.volunteerMyArticles);
   }
 
   void _navigateToDraft(BuildContext context, String draftName) {
-    final int volunteerId = 1;
-    Navigator.pushNamed(
-      context,
-      AppRoutes.volunteerDraft,
-      arguments: volunteerId,
-    );
+    Navigator.pushNamed(context, AppRoutes.volunteerDraft);
   }
 
   Widget _buildContentTypeCard(

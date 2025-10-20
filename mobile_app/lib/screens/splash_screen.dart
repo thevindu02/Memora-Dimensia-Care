@@ -17,11 +17,22 @@ class _SplashScreenState extends State<SplashScreen> {
   }
 
   _initializeApp() async {
+    print('Splash: Starting initialization...');
+
     // Simulate app initialization (loading user data, preferences, etc.)
     await Future.delayed(Duration(seconds: 2));
 
-    // Always navigate to login screen after splash (default)
-    Navigator.pushReplacementNamed(context, AppRoutes.login);
+    print('Splash: Navigation to login...');
+
+    // Check if widget is still mounted before navigating
+    if (mounted) {
+      try {
+        Navigator.pushReplacementNamed(context, AppRoutes.login);
+        print('Splash: Navigation completed');
+      } catch (e) {
+        print('Splash: Navigation error: $e');
+      }
+    }
   }
 
   @override
@@ -57,7 +68,6 @@ class _SplashScreenState extends State<SplashScreen> {
             //     return Icon(Icons.error, size: 120);
             //   },
             // ),
-
             SizedBox(height: 30),
             CircularProgressIndicator(),
             SizedBox(height: 20),
