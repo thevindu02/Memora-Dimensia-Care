@@ -28,7 +28,7 @@ const Volunteer = () => {
       console.log('Fetching volunteer data...');
       setLoading(true);
       setError(null);
-      const data = await volunteerApiService.getAllVolunteerRequestsWithUserData();
+      const data = await volunteerApiService.getAllVolunteersAndRequests();
       console.log('Received volunteer data:', data);
       setVolunteers(data);
     } catch (error) {
@@ -47,27 +47,59 @@ const Volunteer = () => {
       volunteerIdImageFilename = volunteerIdImageFilename.split('/').pop();
     }
     
+    // Handle both volunteer requests and accepted volunteers
+    let id, name, status, createdAt, city, birthdate, profilePic;
+    
+    if (volunteer.type === 'request') {
+      // This is from volunteer_requests table
+      id = volunteer.requestId;
+      name = volunteer.volunteerName;
+      status = volunteer.requestStatus;
+      createdAt = volunteer.createdAt;
+      city = 'N/A';
+      birthdate = 'N/A';
+      profilePic = null;
+    } else {
+      // This is from volunteers table (accepted volunteer)
+      id = volunteer.volunteerId;
+      name = volunteer.volunteerName || `${volunteer.firstName || ''} ${volunteer.lastName || ''}`.trim();
+      // Use displayStatus which maps INACTIVE to "pending" and SUSPENDED to "disabled"
+      status = volunteer.displayStatus || volunteer.userStatus || 'active';
+      createdAt = volunteer.createdAt;
+      city = volunteer.city || 'N/A';
+      birthdate = volunteer.birthdate ? new Date(volunteer.birthdate).toLocaleDateString() : 'N/A';
+      profilePic = volunteer.profilePic;
+    }
+    
     return {
-      id: volunteer.requestId,
-      name: volunteer.volunteerName,
+      id: id,
+      name: name,
       email: volunteer.email,
       phone: volunteer.phoneNumber,
       gender: volunteer.gender,
-      status: volunteer.requestStatus,
-      createdAt: volunteer.createdAt,
+      status: status,
+      createdAt: createdAt,
       volunteerIdImage: volunteerIdImageFilename,
-      city: 'N/A', // Not available in current structure
-      birthdate: 'N/A', // Not available in current structure
-      profilePic: null // Not available in current structure
+      city: city,
+      birthdate: birthdate,
+      profilePic: profilePic,
+      type: volunteer.type, // 'request' or 'volunteer'
+      userId: volunteer.userId, // For accepted volunteers
+      volunteerId: volunteer.volunteerId, // For accepted volunteers
+      requestId: volunteer.requestId // For volunteer requests
     };
   };
 
   const transformedVolunteers = volunteers.map(transformVolunteerData);
 
   const totalVolunteers = transformedVolunteers.length;
-  const approvedVolunteers = transformedVolunteers.filter(volunteer => volunteer.status === 'accepted').length;
+  const approvedVolunteers = transformedVolunteers.filter(volunteer => 
+    volunteer.status === 'accepted'
+  ).length;
   const pendingVolunteers = transformedVolunteers.filter(volunteer => volunteer.status === 'pending').length;
-  const rejectedVolunteers = transformedVolunteers.filter(volunteer => volunteer.status === 'rejected').length;
+  const rejectedVolunteers = transformedVolunteers.filter(volunteer => 
+    volunteer.status === 'rejected'
+  ).length;
 
   const handleVolunteerClick = (volunteer) => {
     setSelectedVolunteer(volunteer);
@@ -80,6 +112,12 @@ const Volunteer = () => {
   };
 
   const handleAcceptVolunteer = async (volunteerId) => {
+    // Only allow accepting for volunteer requests (not already accepted volunteers)
+    if (selectedVolunteer && selectedVolunteer.type !== 'request') {
+      alert('This volunteer is already accepted.');
+      return;
+    }
+
     if (!showPasswordInput) {
       // Show password input first
       setShowPasswordInput(true);
@@ -106,6 +144,12 @@ const Volunteer = () => {
   };
 
   const handleRejectVolunteer = async (volunteerId) => {
+    // Only allow rejecting for volunteer requests (not already accepted volunteers)
+    if (selectedVolunteer && selectedVolunteer.type !== 'request') {
+      alert('Cannot reject an already accepted volunteer. Please use user management instead.');
+      return;
+    }
+
     try {
       await volunteerApiService.rejectVolunteerRequest(volunteerId);
       // Refresh the data after updating
@@ -116,20 +160,53 @@ const Volunteer = () => {
     }
   };
 
+  const handleDisableVolunteer = async (volunteerId) => {
+    try {
+      await volunteerApiService.disableVolunteer(volunteerId);
+      // Refresh the data after updating
+      await fetchVolunteers();
+      handleCloseModal();
+    } catch (error) {
+      console.error('Error disabling volunteer:', error);
+      alert('Error disabling volunteer. Please try again.');
+    }
+  };
+
+  const handleEnableVolunteer = async (volunteerId) => {
+    try {
+      await volunteerApiService.enableVolunteer(volunteerId);
+      // Refresh the data after updating
+      await fetchVolunteers();
+      handleCloseModal();
+    } catch (error) {
+      console.error('Error enabling volunteer:', error);
+      alert('Error enabling volunteer. Please try again.');
+    }
+  };
+
   // Filter volunteers based on search term and status
   const filteredVolunteers = transformedVolunteers.filter(volunteer => {
     const matchesSearch = volunteer.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
                          volunteer.email.toLowerCase().includes(searchTerm.toLowerCase());
-    const matchesStatus = statusFilter === '' || volunteer.status === statusFilter;
+    
+    let matchesStatus = statusFilter === '';
+    if (!matchesStatus) {
+      if (statusFilter === 'pending') {
+        matchesStatus = volunteer.status === 'pending';
+      } else if (statusFilter === 'accepted') {
+        matchesStatus = volunteer.status === 'accepted';
+      } else if (statusFilter === 'rejected') {
+        matchesStatus = volunteer.status === 'rejected';
+      } else {
+        matchesStatus = volunteer.status === statusFilter;
+      }
+    }
+    
     return matchesSearch && matchesStatus;
   });
 
-  // Sort volunteers to show pending first
-  const sortedVolunteers = [...filteredVolunteers].sort((a, b) => {
-    if (a.status === 'pending' && b.status !== 'pending') return -1;
-    if (a.status !== 'pending' && b.status === 'pending') return 1;
-    return 0;
-  });
+  // Data is already sorted by backend (pending first, then active, then disabled)
+  const sortedVolunteers = filteredVolunteers;
 
   return (
     <div className="dashboard">
@@ -176,7 +253,7 @@ const Volunteer = () => {
                   >
                     <option value="">All Status</option>
                     <option value="pending">Pending</option>
-                    <option value="accepted">Approved</option>
+                    <option value="accepted">Accepted</option>
                     <option value="rejected">Rejected</option>
                   </select>
                   
@@ -206,7 +283,7 @@ const Volunteer = () => {
                 <div className="um-stat-icon">✅</div>
                 <div className="um-stat-content">
                   <h3>{approvedVolunteers}</h3>
-                  <p>Approved Volunteers</p>
+                  <p>Accepted Volunteers</p>
                 </div>
               </div>
               
@@ -214,7 +291,7 @@ const Volunteer = () => {
                 <div className="um-stat-icon">⏳</div>
                 <div className="um-stat-content">
                   <h3>{pendingVolunteers}</h3>
-                  <p>Pending Approval</p>
+                  <p>Pending</p>
                 </div>
               </div>
               
@@ -222,7 +299,7 @@ const Volunteer = () => {
                 <div className="um-stat-icon">❌</div>
                 <div className="um-stat-content">
                   <h3>{rejectedVolunteers}</h3>
-                  <p>Rejected Volunteers</p>
+                  <p>Rejected</p>
                 </div>
               </div>
             </div>
@@ -265,7 +342,10 @@ const Volunteer = () => {
                           <td>{volunteer.gender || 'N/A'}</td>
                           <td>
                             <span className={`um-status-badge ${volunteer.status.toLowerCase()}`}>
-                              {volunteer.status.charAt(0).toUpperCase() + volunteer.status.slice(1)}
+                              {volunteer.status === 'accepted' ? 'Accepted' :
+                               volunteer.status === 'pending' ? 'Pending' :
+                               volunteer.status === 'rejected' ? 'Rejected' :
+                               volunteer.status.charAt(0).toUpperCase() + volunteer.status.slice(1)}
                             </span>
                           </td>
                           <td>
@@ -292,8 +372,13 @@ const Volunteer = () => {
                     <div className="um-modal-title">
                       <div className="um-modal-icon">🤝</div>
                       <div>
-                        <h2>Volunteer Details</h2>
-                        <div className="um-modal-subtitle">ID: #{selectedVolunteer.id}</div>
+                        <h2>{selectedVolunteer.type === 'request' ? 'Volunteer Request Details' : 'Active Volunteer Details'}</h2>
+                        <div className="um-modal-subtitle">
+                          {selectedVolunteer.type === 'request' 
+                            ? `Request ID: #${selectedVolunteer.requestId}` 
+                            : `Volunteer ID: #${selectedVolunteer.volunteerId} | User ID: #${selectedVolunteer.userId}`
+                          }
+                        </div>
                       </div>
                     </div>
                     <button className="um-modal-close" onClick={handleCloseModal}>×</button>
@@ -348,15 +433,36 @@ const Volunteer = () => {
                         <div className="um-detail-row">
                           <span className="um-detail-label">Status</span>
                           <span className={`um-status-badge ${selectedVolunteer.status.toLowerCase()}`}>
-                            {selectedVolunteer.status.charAt(0).toUpperCase() + selectedVolunteer.status.slice(1)}
+                            {selectedVolunteer.status === 'accepted' ? 'Accepted' :
+                             selectedVolunteer.status === 'pending' ? 'Pending' :
+                             selectedVolunteer.status === 'rejected' ? 'Rejected' :
+                             selectedVolunteer.status.charAt(0).toUpperCase() + selectedVolunteer.status.slice(1)}
                           </span>
                         </div>
                         <div className="um-detail-row">
-                          <span className="um-detail-label">Request Date</span>
+                          <span className="um-detail-label">
+                            {selectedVolunteer.type === 'request' ? 'Request Date' : 'Join Date'}
+                          </span>
                           <span className="um-detail-value">
                             {selectedVolunteer.createdAt ? new Date(selectedVolunteer.createdAt).toLocaleDateString() : 'N/A'}
                           </span>
                         </div>
+                        {selectedVolunteer.type === 'volunteer' && (
+                          <>
+                            <div className="um-detail-row">
+                              <span className="um-detail-label">City</span>
+                              <span className="um-detail-value">{selectedVolunteer.city}</span>
+                            </div>
+                            <div className="um-detail-row">
+                              <span className="um-detail-label">Birth Date</span>
+                              <span className="um-detail-value">{selectedVolunteer.birthdate}</span>
+                            </div>
+                            <div className="um-detail-row">
+                              <span className="um-detail-label">Account Type</span>
+                              <span className="um-detail-value">Active Volunteer</span>
+                            </div>
+                          </>
+                        )}
                       </div>
                     </div>
                   </div>
@@ -384,7 +490,7 @@ const Volunteer = () => {
                       </div>
                     )}
                     <div className="um-modal-actions">
-                      {selectedVolunteer.status === 'pending' && (
+                      {selectedVolunteer.type === 'request' && selectedVolunteer.status === 'pending' && (
                         <>
                           <button 
                             className="um-btn um-btn-success"
@@ -400,13 +506,35 @@ const Volunteer = () => {
                           </button>
                         </>
                       )}
-                      {selectedVolunteer.status === 'accepted' && (
+                      {selectedVolunteer.type === 'request' && selectedVolunteer.status === 'accepted' && (
                         <button 
                           className="um-btn um-btn-danger"
                           onClick={() => handleRejectVolunteer(selectedVolunteer.id)}
                         >
                           Reject Volunteer
                         </button>
+                      )}
+                      {selectedVolunteer.type === 'volunteer' && selectedVolunteer.status === 'accepted' && (
+                        <button 
+                          className="um-btn um-btn-warning"
+                          onClick={() => handleDisableVolunteer(selectedVolunteer.volunteerId)}
+                        >
+                          Disable Volunteer
+                        </button>
+                      )}
+                      {selectedVolunteer.type === 'volunteer' && selectedVolunteer.status === 'pending' && (
+                        <button 
+                          className="um-btn um-btn-success"
+                          onClick={() => handleEnableVolunteer(selectedVolunteer.volunteerId)}
+                        >
+                          Enable Volunteer
+                        </button>
+                      )}
+                      {selectedVolunteer.type === 'volunteer' && selectedVolunteer.status === 'rejected' && (
+                        <div style={{ padding: '1rem', textAlign: 'center', color: '#666' }}>
+                          <p>This volunteer account has been rejected.</p>
+                          <p>Use the User Management section to modify their account status.</p>
+                        </div>
                       )}
                     </div>
                     <button className="um-btn um-btn-secondary" onClick={handleCloseModal}>

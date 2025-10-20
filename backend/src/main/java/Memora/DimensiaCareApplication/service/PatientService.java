@@ -20,11 +20,46 @@ import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
 import java.time.LocalTime;
-import java.time.format.DateTimeFormatter;
-import java.util.List;
 import java.util.ArrayList;
-import java.util.Comparator;
+import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import Memora.DimensiaCareApplication.dto.CreateTaskRequestDTO;
+import Memora.DimensiaCareApplication.dto.PatientProfileDTO;
+import Memora.DimensiaCareApplication.dto.ScheduleTaskDTO;
+import Memora.DimensiaCareApplication.dto.UpdateTaskStatusDTO;
+import Memora.DimensiaCareApplication.dto.response.PatientDetailsResponse;
+import Memora.DimensiaCareApplication.model.Appointment;
+import Memora.DimensiaCareApplication.model.CareActivity;
+import Memora.DimensiaCareApplication.model.CareActivityStatus;
+import Memora.DimensiaCareApplication.model.Caregiver;
+import Memora.DimensiaCareApplication.model.DailyTask;
+import Memora.DimensiaCareApplication.model.Game;
+import Memora.DimensiaCareApplication.model.Guardian;
+import Memora.DimensiaCareApplication.model.GuardianPatientCaregiverConnection;
+import Memora.DimensiaCareApplication.model.Medication;
+import Memora.DimensiaCareApplication.model.MedicationReminder;
+import Memora.DimensiaCareApplication.model.Patient;
+import Memora.DimensiaCareApplication.model.Schedule;
+import Memora.DimensiaCareApplication.model.Task;
+import Memora.DimensiaCareApplication.model.User;
+import Memora.DimensiaCareApplication.repository.AppointmentRepository;
+import Memora.DimensiaCareApplication.repository.CareActivityRepository;
+import Memora.DimensiaCareApplication.repository.CaregiverRepository;
+import Memora.DimensiaCareApplication.repository.DailyTaskRepository;
+import Memora.DimensiaCareApplication.repository.GameRepository;
+import Memora.DimensiaCareApplication.repository.GuardianPatientCaregiverConnectionRepository;
+import Memora.DimensiaCareApplication.repository.GuardianRepository;
+import Memora.DimensiaCareApplication.repository.MedicationReminderRepository;
+import Memora.DimensiaCareApplication.repository.MedicationRepository;
+import Memora.DimensiaCareApplication.repository.PatientRepository;
+import Memora.DimensiaCareApplication.repository.ScheduleRepository;
+import Memora.DimensiaCareApplication.repository.TaskRepository;
+import Memora.DimensiaCareApplication.repository.UserRepository;
 
 @Service
 public class PatientService {
@@ -93,8 +128,9 @@ public class PatientService {
     // Add a new method to get PatientDetailsResponse with acceptedDate and guardian info
     public PatientDetailsResponse getPatientDetailsWithAcceptedDate(Long patientId) {
         Patient patient = patientRepository.findById(patientId).orElse(null);
-        if (patient == null)
+        if (patient == null) {
             return null;
+        }
         PatientDetailsResponse resp = PatientDetailsResponse.fromPatient(patient);
         // Fetch connection for this patient and find active connection
         List<GuardianPatientCaregiverConnection> connections = connectionRepository.findByPatientId(patientId);
@@ -438,5 +474,12 @@ public class PatientService {
 
         // Return the first created medication reminder's activity as DTO
         return convertCareActivityToDTO(firstCareActivity);
+    }
+
+    public List<PatientDetailsResponse> getAllPatients() {
+        List<Patient> patients = patientRepository.findAll();
+        return patients.stream()
+                .map(PatientDetailsResponse::fromPatient)
+                .collect(Collectors.toList());
     }
 }

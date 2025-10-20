@@ -1,34 +1,30 @@
 package Memora.DimensiaCareApplication.controller;
 
-import Memora.DimensiaCareApplication.dto.request.PatientProfileUpdateRequest;
-import Memora.DimensiaCareApplication.dto.request.PatientRequest;
-import Memora.DimensiaCareApplication.model.Patient;
-import Memora.DimensiaCareApplication.model.User;
-import Memora.DimensiaCareApplication.repository.PatientRepository;
-import Memora.DimensiaCareApplication.repository.UserRepository;
-import Memora.DimensiaCareApplication.service.PatientService;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
-
 import java.util.List;
-import java.util.Map;
 import java.util.stream.Collectors;
 
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.CrossOrigin;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
+
+import Memora.DimensiaCareApplication.dto.request.PatientRequest;
 import Memora.DimensiaCareApplication.dto.response.PatientDetailsResponse;
+import Memora.DimensiaCareApplication.model.Patient;
+import Memora.DimensiaCareApplication.service.PatientService;
 
 @RestController
+@CrossOrigin(origins = "*")
 @RequestMapping("/api/patients")
 public class PatientController {
 
     @Autowired
     private PatientService patientService;
-
-    @Autowired
-    private PatientRepository patientRepository;
-
-    @Autowired
-    private UserRepository userRepository;
 
     @PostMapping
     public ResponseEntity<Patient> addPatient(@RequestBody PatientRequest request) {
@@ -59,53 +55,9 @@ public class PatientController {
         return ResponseEntity.ok(resp);
     }
 
-    @PutMapping("/{patientId}/edit-profile")
-    public ResponseEntity<?> editPatientProfile(
-        @PathVariable Long patientId,
-        @RequestBody PatientProfileUpdateRequest req) {
-    try {
-        Patient patient = patientRepository.findById(patientId).orElse(null);
-        if (patient == null) {
-            return ResponseEntity.notFound().build();
-        }
-        User user = patient.getUser();
-        if (user == null) {
-            return ResponseEntity.badRequest().body("Patient does not have an associated user.");
-        }
-
-        // --- Update user fields ---
-        if (req.getFName() != null && !req.getFName().isEmpty()) user.setFName(req.getFName());
-        if (req.getLName() != null && !req.getLName().isEmpty()) user.setLName(req.getLName());
-        if (req.getBirthdate() != null) user.setBirthdate(req.getBirthdate());
-        if (req.getGender() != null) user.setGender(req.getGender());
-        if (req.getPhoneNumber() != null) user.setPhoneNumber(req.getPhoneNumber());
-        if (req.getStreet() != null) user.setStreet(req.getStreet());
-        if (req.getCity() != null) user.setCity(req.getCity());
-        if (req.getState() != null) user.setState(req.getState());
-        if (req.getEmail() != null) user.setEmail(req.getEmail());
-        if (req.getProfilePic() != null) user.setProfilePic(req.getProfilePic());
-
-        userRepository.save(user); // <--- Save user changes
-
-        // --- Update patient fields ---
-        if (req.getLabel() != null) patient.setLabel(req.getLabel());
-        if (req.getDementiaType() != null) patient.setDementiaType(req.getDementiaType());
-        if (req.getDementiaStage() != null) patient.setDementiaStage(req.getDementiaStage());
-
-        patientRepository.save(patient); // <--- Save patient changes
-
-        System.out.println("FName: " + req.getFName());
-        System.out.println("LName: " + req.getLName());
-        System.out.println("birthdate: " + req.getBirthdate());
-        System.out.println("dementiaType: " + req.getDementiaType());
-        System.out.println("dementiaStage: " + req.getDementiaStage());
-
-        return ResponseEntity.ok("Patient profile updated successfully");
-
-    } catch (Exception e) {
-        e.printStackTrace();
-        return ResponseEntity.status(500).body("Error updating patient profile: " + e.getMessage());
+    @GetMapping
+    public ResponseEntity<List<PatientDetailsResponse>> getAllPatients() {
+        List<PatientDetailsResponse> patients = patientService.getAllPatients();
+        return ResponseEntity.ok(patients);
     }
-}
-
 }

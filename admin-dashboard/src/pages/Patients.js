@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import '../styles/Patients.css';
 import '../styles/UserManagement.css';
 import {
@@ -6,84 +6,91 @@ import {
   Sidebar,
   Footer
 } from '../components';
-
-// Enhanced sample patient data with detailed information
-const patientsData = [
-  { 
-    id: 1, 
-    name: 'W.A. Sunil Perera', 
-    dementiaType: 'Alzheimer\'s', 
-    dementiaStage: 'Early', 
-    phone: '+94 77 345 6789', 
-    status: 'Active',
-    address: '12/3 Kandy Road, Kadawatha, Gampaha',
-    gender: 'Male',
-    age: 72,
-    profilePicture: 'https://via.placeholder.com/150/4A90E2/FFFFFF?text=SP',
-    guardian: {
-      name: 'Kamala Perera',
-      address: '12/3 Kandy Road, Kadawatha, Gampaha',
-      phone: '+94 77 345 6790'
-    },
-    caregiver: {
-      name: 'Nirmala Fernando',
-      address: '25 Temple Road, Nugegoda, Colombo',
-      phone: '+94 71 234 5678'
-    }
-  },
-  { 
-    id: 2, 
-    name: 'H.M. Chandrika Silva', 
-    dementiaType: 'Vascular', 
-    dementiaStage: 'Moderate', 
-    phone: '+94 76 456 7890', 
-    status: 'Active',
-    address: '78 Galle Road, Mount Lavinia, Colombo',
-    gender: 'Female',
-    age: 68,
-    profilePicture: 'https://via.placeholder.com/150/FF6B6B/FFFFFF?text=CS',
-    guardian: {
-      name: 'Ajith Silva',
-      address: '78 Galle Road, Mount Lavinia, Colombo',
-      phone: '+94 76 456 7891'
-    },
-    caregiver: {
-      name: 'Malini Rajapaksa',
-      address: '56 High Level Road, Nugegoda, Colombo',
-      phone: '+94 75 567 8901'
-    }
-  },
-  { 
-    id: 3, 
-    name: 'K.D. Lal Wickramasinghe', 
-    dementiaType: 'Lewy Body', 
-    dementiaStage: 'Advanced', 
-    phone: '+94 78 567 8901', 
-    status: 'Disabled',
-    address: '45 Matara Road, Galle, Southern Province',
-    gender: 'Male',
-    age: 75,
-    profilePicture: 'https://via.placeholder.com/150/50C878/FFFFFF?text=LW',
-    guardian: {
-      name: 'Sriyani Wickramasinghe',
-      address: '45 Matara Road, Galle, Southern Province',
-      phone: '+94 78 567 8902'
-    },
-    caregiver: {
-      name: 'Pradeep Gunasekara',
-      address: '89 Wakwella Road, Galle',
-      phone: '+94 70 678 9012'
-    }
-  }
-];
+import patientApiService from '../services/patientApiService';
 
 const Patients = () => {
   const [selectedPatient, setSelectedPatient] = useState(null);
   const [showModal, setShowModal] = useState(false);
-  
-  const totalPatients = patientsData.length;
-  const activePatients = patientsData.filter(patient => patient.status === 'Active').length;
-  const disabledPatients = patientsData.filter(patient => patient.status === 'Disabled').length;
+  const [patients, setPatients] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+  const [searchTerm, setSearchTerm] = useState('');
+  const [statusFilter, setStatusFilter] = useState('');
+  const [dementiaTypeFilter, setDementiaTypeFilter] = useState('');
+  const [dementiaStageFilter, setDementiaStageFilter] = useState('');
+
+  // Fetch patients from API
+  useEffect(() => {
+    fetchPatients();
+  }, []);
+
+  const fetchPatients = async () => {
+    try {
+      setLoading(true);
+      const data = await patientApiService.getAllPatients();
+      setPatients(data || []);
+      setError(null);
+    } catch (error) {
+      console.error('Error fetching patients:', error);
+      setError('Failed to load patients');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Helper functions to format enum values
+  const formatDementiaType = (type) => {
+    if (!type) return 'N/A';
+    return type.replace(/_/g, ' ')
+               .toLowerCase()
+               .replace(/\b\w/g, l => l.toUpperCase());
+  };
+
+  const formatDementiaStage = (stage) => {
+    if (!stage) return 'N/A';
+    return stage.toLowerCase()
+                .replace(/\b\w/g, l => l.toUpperCase());
+  };
+
+  // Transform API data to match frontend expectations
+  const transformedPatients = patients.map(patient => ({
+    id: patient.patientId,
+    name: patient.patientName || `${patient.fName || ''} ${patient.lName || ''}`.trim(),
+    dementiaType: formatDementiaType(patient.dementiaType),
+    dementiaStage: formatDementiaStage(patient.dementiaStage),
+    phone: patient.phoneNumber || 'N/A',
+    status: 'Active', // Assume all patients are active
+    address: `${patient.street || ''} ${patient.city || ''} ${patient.state || ''}`.trim() || 'N/A',
+    gender: patient.gender || 'N/A',
+    age: patient.patientAge || 'N/A',
+    profilePicture: 'https://via.placeholder.com/150/4A90E2/FFFFFF?text=PT',
+    guardian: patient.guardianName ? {
+      name: patient.guardianName,
+      address: patient.guardianCity || 'N/A',
+      phone: patient.guardianPhone || 'N/A'
+    } : null,
+    email: patient.email || 'N/A',
+    birthdate: patient.birthdate || 'N/A',
+    dateOfDiagnosis: patient.dateOfDiagnosis || 'N/A',
+    relationship: patient.relationship || 'N/A'
+  }));
+
+  // Filter patients
+  const filteredPatients = transformedPatients.filter(patient => {
+    const matchesSearch = patient.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                         patient.phone.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                         patient.email.toLowerCase().includes(searchTerm.toLowerCase());
+    
+    const matchesStatus = statusFilter === '' || patient.status.toLowerCase() === statusFilter.toLowerCase();
+    const matchesDementiaType = dementiaTypeFilter === '' || patient.dementiaType.toLowerCase().includes(dementiaTypeFilter.toLowerCase());
+    const matchesDementiaStage = dementiaStageFilter === '' || patient.dementiaStage.toLowerCase() === dementiaStageFilter.toLowerCase();
+    
+    return matchesSearch && matchesStatus && matchesDementiaType && matchesDementiaStage;
+  });
+
+  const totalPatients = transformedPatients.length;
+  const activePatients = transformedPatients.filter(patient => patient.status === 'Active').length;
+  const disabledPatients = transformedPatients.filter(patient => patient.status === 'Disabled').length;
 
   const handlePatientClick = (patient) => {
     setSelectedPatient(patient);
@@ -118,34 +125,75 @@ const Patients = () => {
                     type="text" 
                     placeholder="Search patients..." 
                     className="um-search-input"
+                    value={searchTerm}
+                    onChange={(e) => setSearchTerm(e.target.value)}
                   />
                   <span className="um-search-icon">🔍</span>
                 </div>
                 
                 <div className="um-filters">
-                  <select className="um-filter-select">
+                  <select 
+                    className="um-filter-select"
+                    value={statusFilter}
+                    onChange={(e) => setStatusFilter(e.target.value)}
+                  >
                     <option value="">All Status</option>
                     <option value="active">Active</option>
                     <option value="disabled">Disabled</option>
                   </select>
                   
-                  <select className="um-filter-select">
+                  <select 
+                    className="um-filter-select"
+                    value={dementiaTypeFilter}
+                    onChange={(e) => setDementiaTypeFilter(e.target.value)}
+                  >
                     <option value="">Dementia Type</option>
-                    <option value="alzheimers">Alzheimer's</option>
+                    <option value="alzheimer">Alzheimer's</option>
                     <option value="vascular">Vascular</option>
                     <option value="lewy">Lewy Body</option>
                     <option value="frontotemporal">Frontotemporal</option>
+                    <option value="parkinson">Parkinson's</option>
                   </select>
                   
-                  <select className="um-filter-select">
+                  <select 
+                    className="um-filter-select"
+                    value={dementiaStageFilter}
+                    onChange={(e) => setDementiaStageFilter(e.target.value)}
+                  >
                     <option value="">Dementia Stage</option>
-                    <option value="early">Early</option>
+                    <option value="mild">Mild</option>
                     <option value="moderate">Moderate</option>
-                    <option value="advanced">Advanced</option>
+                    <option value="severe">Severe</option>
+                    <option value="very severe">Very Severe</option>
                   </select>
                 </div>
               </div>
             </div>
+
+            {/* Error Display */}
+            {error && (
+              <div style={{
+                backgroundColor: '#ffebee',
+                border: '1px solid #f44336',
+                color: '#c62828',
+                padding: '1rem',
+                borderRadius: '4px',
+                marginBottom: '1rem'
+              }}>
+                {error}
+              </div>
+            )}
+
+            {/* Loading Display */}
+            {loading && (
+              <div style={{
+                textAlign: 'center',
+                padding: '2rem',
+                color: '#666'
+              }}>
+                Loading patients...
+              </div>
+            )}
 
             {/* Stats Cards */}
             <div className="um-stats-grid">
@@ -188,7 +236,7 @@ const Patients = () => {
                   </tr>
                 </thead>
                 <tbody>
-                  {patientsData.map(patient => (
+                  {!loading && filteredPatients.map(patient => (
                     <tr key={patient.id}>
                       <td className="um-name-cell">{patient.name}</td>
                       <td>{patient.dementiaType}</td>
@@ -209,6 +257,13 @@ const Patients = () => {
                       </td>
                     </tr>
                   ))}
+                  {!loading && filteredPatients.length === 0 && (
+                    <tr>
+                      <td colSpan="6" style={{ textAlign: 'center', padding: '2rem', color: '#666' }}>
+                        No patients found
+                      </td>
+                    </tr>
+                  )}
                 </tbody>
               </table>
             </div>
@@ -283,6 +338,14 @@ const Patients = () => {
                           <span className="um-detail-label">Address</span>
                           <span className="um-detail-value">{selectedPatient.address}</span>
                         </div>
+                        <div className="um-detail-row">
+                          <span className="um-detail-label">Email</span>
+                          <span className="um-detail-value">{selectedPatient.email}</span>
+                        </div>
+                        <div className="um-detail-row">
+                          <span className="um-detail-label">Date of Birth</span>
+                          <span className="um-detail-value">{selectedPatient.birthdate}</span>
+                        </div>
                       </div>
 
                       {/* Medical Information */}
@@ -298,6 +361,10 @@ const Patients = () => {
                         <div className="um-detail-row">
                           <span className="um-detail-label">Dementia Stage</span>
                           <span className="um-detail-value">{selectedPatient.dementiaStage}</span>
+                        </div>
+                        <div className="um-detail-row">
+                          <span className="um-detail-label">Date of Diagnosis</span>
+                          <span className="um-detail-value">{selectedPatient.dateOfDiagnosis}</span>
                         </div>
                       </div>
 
@@ -320,27 +387,9 @@ const Patients = () => {
                             <span className="um-detail-label">Address</span>
                             <span className="um-detail-value">{selectedPatient.guardian.address}</span>
                           </div>
-                        </div>
-                      )}
-
-                      {/* Caregiver Information */}
-                      {selectedPatient.caregiver && (
-                        <div className="um-detail-section">
-                          <div className="um-section-header">
-                            <div className="um-section-icon">👩‍⚕️</div>
-                            <h3 className="um-section-title">Assigned Caregiver</h3>
-                          </div>
                           <div className="um-detail-row">
-                            <span className="um-detail-label">Name</span>
-                            <span className="um-detail-value">{selectedPatient.caregiver.name}</span>
-                          </div>
-                          <div className="um-detail-row">
-                            <span className="um-detail-label">Phone</span>
-                            <span className="um-detail-value">{selectedPatient.caregiver.phone}</span>
-                          </div>
-                          <div className="um-detail-row">
-                            <span className="um-detail-label">Address</span>
-                            <span className="um-detail-value">{selectedPatient.caregiver.address}</span>
+                            <span className="um-detail-label">Relationship</span>
+                            <span className="um-detail-value">{selectedPatient.relationship}</span>
                           </div>
                         </div>
                       )}
