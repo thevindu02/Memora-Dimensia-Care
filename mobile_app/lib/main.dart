@@ -10,7 +10,7 @@ import 'package:flutter/services.dart';
 import 'utils/navigator_observer.dart';
 import 'constants/color_constants.dart';
 import 'package:firebase_core/firebase_core.dart';
-import 'firebase_options.dart'; 
+import 'firebase_options.dart';
 import 'services/deep_link_service.dart';
 
 // Global navigator key for navigation from anywhere (e.g., FCM notifications)
@@ -19,13 +19,7 @@ final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
-  // Initialize Firebase (will use google-services.json on Android)
-  await Firebase.initializeApp();
-
-  // Initialize FCM Notifications
-  await FCMNotificationService().initialize();
-
-  // Initialize Firebase (optional - will fail gracefully if not configured)
+  // Initialize Firebase (will use google-services.json on Android, or provided options for web)
   try {
     await Firebase.initializeApp(
       options: const FirebaseOptions(
@@ -41,6 +35,15 @@ void main() async {
   } catch (e) {
     print('Firebase initialization failed: $e');
     print('App will continue without Firebase features');
+  }
+
+  // Initialize FCM Notifications (non-blocking for web)
+  try {
+    await FCMNotificationService().initialize();
+    print('FCM Notifications initialized successfully');
+  } catch (e) {
+    print('FCM initialization failed: $e');
+    print('App will continue without FCM notifications');
   }
 
   // Set system UI overlay style (keeps navigation visible)

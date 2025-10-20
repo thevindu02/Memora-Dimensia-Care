@@ -34,9 +34,9 @@ public class ForumAnswerController {
                 return ResponseEntity.badRequest().body(error);
             }
             
-            if (request.getVolunteerId() == null) {
+            if (request.getUserId() == null) {
                 Map<String, String> error = new HashMap<>();
-                error.put("error", "Volunteer ID is required");
+                error.put("error", "User ID is required");
                 return ResponseEntity.badRequest().body(error);
             }
             
