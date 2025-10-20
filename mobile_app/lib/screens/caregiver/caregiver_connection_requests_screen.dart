@@ -56,8 +56,8 @@ class _CaregiverConnectionRequestsScreenState
     final name = req['guardianName'] ?? '';
     final connectionId = req['connectionId'];
     // resolve ids for chat deletion fallback
-    final guardianId = req['guardianId'] ?? req['guardian_id'] ?? req['guardianUserId'];
-    final caregiverId = req['caregiverId'] ?? req['caregiver_id'] ?? await AuthService.getCurrentCaregiverId();
+    final guardianUserId = req['guardianUserId'];
+    final caregiverUserId = await AuthService.getCurrentUserId();
 
     try {
       if (accepted) {
@@ -74,11 +74,11 @@ class _CaregiverConnectionRequestsScreenState
         // delete local chat history for both possible conversation ids
         try {
           final db = ChatDb();
-          if (guardianId != null) {
-            await db.deleteConversation('caregiver_with_$guardianId');
+          if (guardianUserId != null) {
+            await db.deleteConversation('caregiver_with_$guardianUserId');
           }
-          if (caregiverId != null) {
-            await db.deleteConversation('guardian_with_$caregiverId');
+          if (caregiverUserId != null) {
+            await db.deleteConversation('guardian_with_$caregiverUserId');
           }
         } catch (_) {}
         ScaffoldMessenger.of(context).showSnackBar(
@@ -328,18 +328,39 @@ class _CaregiverConnectionRequestsScreenState
                           // Chat button
                           ElevatedButton(
                             onPressed: () async {
-                              final guardianName = req['guardianName'] ?? req['guardian_name'] ?? 'Guardian';
-                              final guardianId = req['guardianId'] ?? req['guardian_id'] ?? req['guardianUserId'];
-                              final currentUserId = await AuthService.getCurrentCaregiverId();
-                              if (currentUserId == null) return;
+                              final guardianName = req['guardianName'] ?? 'Guardian';
+                              final guardianUserId = req['guardianUserId'];
+                              
+                              if (guardianUserId == null) {
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  SnackBar(
+                                    content: Text('Unable to start chat. Guardian information not available.'),
+                                    backgroundColor: Colors.orange,
+                                  ),
+                                );
+                                return;
+                              }
+                              
+                              final currentUserId = await AuthService.getCurrentUserId();
+                              if (currentUserId == null) {
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  SnackBar(
+                                    content: Text('Unable to open chat. Please login again.'),
+                                    backgroundColor: Colors.red,
+                                  ),
+                                );
+                                return;
+                              }
+                              
                               Navigator.pushNamed(
                                 context,
                                 AppRoutes.chatConversation,
                                 arguments: {
-                                  'id': guardianId,
+                                  'id': guardianUserId.toString(),
                                   'name': guardianName,
+                                  'role': 'Guardian',
                                   'currentUser': 'caregiver',
-                                  'currentUserId': currentUserId,
+                                  'currentUserId': currentUserId.toString(),
                                 },
                               );
                             },

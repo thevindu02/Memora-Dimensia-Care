@@ -2,15 +2,15 @@ package Memora.DimensiaCareApplication.dto.request;
 
 public class CreateForumAnswerDTO {
     private String questionId;
-    private Long volunteerId;
+    private Long userId; // Changed from volunteerId to userId
     private String content;
 
     // Constructors
     public CreateForumAnswerDTO() {}
 
-    public CreateForumAnswerDTO(String questionId, Long volunteerId, String content) {
+    public CreateForumAnswerDTO(String questionId, Long userId, String content) {
         this.questionId = questionId;
-        this.volunteerId = volunteerId;
+        this.userId = userId;
         this.content = content;
     }
 
@@ -23,12 +23,21 @@ public class CreateForumAnswerDTO {
         this.questionId = questionId;
     }
 
+    public Long getUserId() {
+        return userId;
+    }
+
+    public void setUserId(Long userId) {
+        this.userId = userId;
+    }
+
+    // Keep for backward compatibility
     public Long getVolunteerId() {
-        return volunteerId;
+        return userId;
     }
 
     public void setVolunteerId(Long volunteerId) {
-        this.volunteerId = volunteerId;
+        this.userId = volunteerId;
     }
 
     public String getContent() {

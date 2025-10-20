@@ -150,11 +150,24 @@ public class GuardianController {
                     .orElse(null);
             if (latest != null) {
                 map.put("latestRequestStatus", latest.getStatus().name());
-                // Include connection ID and request time for pending requests (needed for cancel functionality)
+                // Include connection ID and request time for pending requests (needed for
+                // cancel functionality)
                 if (latest.getStatus() == GuardianPatientCaregiverConnection.ConnectionStatus.PENDING) {
                     map.put("connectionId", latest.getConnectionId());
-                    map.put("requestDateTime", latest.getConnectedDateTime() != null ? 
-                        latest.getConnectedDateTime().toString() : null);
+                    map.put("requestDateTime",
+                            latest.getConnectedDateTime() != null ? latest.getConnectedDateTime().toString() : null);
+                    // Include caregiver info for chat functionality
+                    if (latest.getCaregiverId() != null) {
+                        map.put("caregiverId", latest.getCaregiverId());
+                        // Get caregiver details
+                        caregiverRepository.findById(latest.getCaregiverId().intValue()).ifPresent(caregiver -> {
+                            User caregiverUser = caregiver.getUser();
+                            if (caregiverUser != null) {
+                                map.put("caregiverUserId", caregiverUser.getId());
+                                map.put("caregiverName", caregiverUser.getFName() + " " + caregiverUser.getLName());
+                            }
+                        });
+                    }
                 }
             } else {
                 map.put("latestRequestStatus", "NONE");
@@ -195,22 +208,22 @@ public class GuardianController {
             if (conn == null) {
                 return ResponseEntity.badRequest().body("Connection request not found");
             }
-            
+
             if (conn.getStatus() != GuardianPatientCaregiverConnection.ConnectionStatus.PENDING) {
                 return ResponseEntity.badRequest().body("Can only cancel pending requests");
             }
-            
+
             // Check if request is within 24 hours
             if (conn.getConnectedDateTime() != null) {
                 java.time.LocalDateTime now = java.time.LocalDateTime.now();
                 java.time.LocalDateTime requestTime = conn.getConnectedDateTime();
                 long hoursElapsed = java.time.Duration.between(requestTime, now).toHours();
-                
+
                 if (hoursElapsed >= 24) {
                     return ResponseEntity.badRequest().body("Cannot cancel request after 24 hours");
                 }
             }
-            
+
             // Set status to CANCELLED and record cancellation time
             conn.setStatus(GuardianPatientCaregiverConnection.ConnectionStatus.CANCELLED);
             conn.setCancelledDateTime(java.time.LocalDateTime.now());
@@ -244,16 +257,14 @@ public class GuardianController {
 
             // Check for duplicate pending requests
             boolean exists = guardianService.hasPendingConnectionRequest(
-                guardianId, patientId, caregiverId
-            );
+                    guardianId, patientId, caregiverId);
             if (exists) {
                 return ResponseEntity.badRequest().body("A pending request already exists with this caregiver");
             }
-            
+
             // Check for existing active connections
             boolean activeExists = connectionRepository.existsByGuardianIdAndPatientIdAndCaregiverIdAndStatus(
-                guardianId, patientId, caregiverId, GuardianPatientCaregiverConnection.ConnectionStatus.ACTIVE
-            );
+                    guardianId, patientId, caregiverId, GuardianPatientCaregiverConnection.ConnectionStatus.ACTIVE);
             if (activeExists) {
                 return ResponseEntity.badRequest().body("This caregiver is already connected to this patient");
             }
@@ -284,38 +295,42 @@ public class GuardianController {
             }
 
             Integer currentScore = caregiver.getSeverityScore();
-            if (currentScore == null) currentScore = 0;
+            if (currentScore == null)
+                currentScore = 0;
 
             // Check if caregiver can handle this patient
             if (currentScore + stageScore > 4) {
-                return ResponseEntity.badRequest().body("This caregiver has reached their maximum patient capacity and cannot take on additional patients with this severity level");
+                return ResponseEntity.badRequest().body(
+                        "This caregiver has reached their maximum patient capacity and cannot take on additional patients with this severity level");
             }
 
             // Create direct active connection and update severity score
             guardianService.createDirectConnection(guardianId, patientId, caregiverId, stageScore);
-            
+
             // Get caregiver name for response
             String caregiverName = caregiver.getUser().getFName() + " " + caregiver.getUser().getLName();
-            
+
             return ResponseEntity.ok("Patient successfully connected to " + caregiverName);
-            
+
         } catch (Exception e) {
             return ResponseEntity.badRequest().body("Error processing request: " + e.getMessage());
         }
     }
 
     @GetMapping("/{guardianId}/expired-caregivers")
-    public ResponseEntity<List<CaregiverSummaryResponse>> getExpiredCaregivers(@PathVariable("guardianId") Long guardianId) {
+    public ResponseEntity<List<CaregiverSummaryResponse>> getExpiredCaregivers(
+            @PathVariable("guardianId") Long guardianId) {
         List<CaregiverSummaryResponse> caregivers = guardianService.getExpiredCaregiversForGuardian(guardianId);
         return ResponseEntity.ok(caregivers);
     }
 
     @GetMapping("/{guardianId}/all-caregivers")
-    public ResponseEntity<List<CaregiverSummaryResponse>> getAllCaregiversForGuardian(@PathVariable("guardianId") Long guardianId) {
+    public ResponseEntity<List<CaregiverSummaryResponse>> getAllCaregiversForGuardian(
+            @PathVariable("guardianId") Long guardianId) {
         List<CaregiverSummaryResponse> caregivers = guardianService.getAllCaregiversForGuardian(guardianId);
         return ResponseEntity.ok(caregivers);
     }
-        
+
     @PostMapping("/send-guardian-connection-email")
     public ResponseEntity<?> sendGuardianConnectionEmail(@RequestBody Map<String, Object> request) {
         try {

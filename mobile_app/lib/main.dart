@@ -37,15 +37,6 @@ void main() async {
     print('App will continue without Firebase features');
   }
 
-  // Initialize FCM Notifications (don't block app startup if it fails)
-  try {
-    await FCMNotificationService().initialize();
-    print('FCM initialized successfully');
-  } catch (e) {
-    print('FCM initialization failed: $e');
-    print('App will continue without push notifications');
-  }
-
   // Set system UI overlay style (keeps navigation visible)
   SystemChrome.setEnabledSystemUIMode(SystemUiMode.edgeToEdge);
 

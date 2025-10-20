@@ -2,10 +2,8 @@ import 'package:flutter/material.dart';
 import '../../routes/app_routes.dart';
 import '../../services/caregiver_service.dart';
 import '../../services/guardian_service.dart';
-import '../../services/chat_db.dart';
 import '../../constants/color_constants.dart';
 import '../../utils/name_utils.dart';
-import '../../services/auth_service.dart';
 
 class GuardianAddUnknownCaregiverScreen extends StatefulWidget {
   @override
@@ -369,7 +367,8 @@ class _GuardianAddUnknownCaregiverScreenState
     }
 
     // Resolve caregiver id robustly
-    final int? caregiverId = caregiver['id'] ??
+    final int? caregiverId =
+        caregiver['id'] ??
         caregiver['caregiverId'] ??
         caregiver['caregiver_id'];
 
@@ -380,7 +379,9 @@ class _GuardianAddUnknownCaregiverScreenState
       try {
         final fetched = await CaregiverService.getCaregiverReviews(caregiverId);
         // normalize to List<Map<String, dynamic>>
-        reviews = fetched.map<Map<String, dynamic>>((r) => Map<String, dynamic>.from(r)).toList();
+        reviews = fetched
+            .map<Map<String, dynamic>>((r) => Map<String, dynamic>.from(r))
+            .toList();
       } catch (e) {
         reviewsFetchError = true;
         reviews = [];
@@ -526,9 +527,21 @@ class _GuardianAddUnknownCaregiverScreenState
                   else
                     Column(
                       children: reviews.map((r) {
-                        final rating = r['rating'] ?? r['rating_value'] ?? r['score'] ?? 0;
-                        final reviewText = (r['review_text'] ?? r['reviewText'] ?? r['text'] ?? r['comment'] ?? '').toString().trim();
-                        final createdAt = r['created_at'] ?? r['createdAt'] ?? r['date'] ?? '';
+                        final rating =
+                            r['rating'] ?? r['rating_value'] ?? r['score'] ?? 0;
+                        final reviewText =
+                            (r['review_text'] ??
+                                    r['reviewText'] ??
+                                    r['text'] ??
+                                    r['comment'] ??
+                                    '')
+                                .toString()
+                                .trim();
+                        final createdAt =
+                            r['created_at'] ??
+                            r['createdAt'] ??
+                            r['date'] ??
+                            '';
                         return Container(
                           width: double.infinity,
                           margin: EdgeInsets.only(top: 8, bottom: 8),
@@ -536,7 +549,9 @@ class _GuardianAddUnknownCaregiverScreenState
                           decoration: BoxDecoration(
                             color: Colors.white,
                             borderRadius: BorderRadius.circular(8),
-                            border: Border.all(color: Colors.grey.withOpacity(0.12)),
+                            border: Border.all(
+                              color: Colors.grey.withOpacity(0.12),
+                            ),
                           ),
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
@@ -557,14 +572,22 @@ class _GuardianAddUnknownCaregiverScreenState
                                   SizedBox(width: 8),
                                   Text(
                                     createdAt.toString(),
-                                    style: TextStyle(fontSize: 12, color: Colors.grey[600]),
+                                    style: TextStyle(
+                                      fontSize: 12,
+                                      color: Colors.grey[600],
+                                    ),
                                   ),
                                 ],
                               ),
                               SizedBox(height: 8),
                               Text(
-                                reviewText.isNotEmpty ? reviewText : 'No review text',
-                                style: TextStyle(fontSize: 14, color: Colors.grey[800]),
+                                reviewText.isNotEmpty
+                                    ? reviewText
+                                    : 'No review text',
+                                style: TextStyle(
+                                  fontSize: 14,
+                                  color: Colors.grey[800],
+                                ),
                               ),
                             ],
                           ),
@@ -738,23 +761,8 @@ class _GuardianAddUnknownCaregiverScreenState
             ),
             Column(
               children: [
-                // Messages button
                 ElevatedButton(
-                  onPressed: () async {
-                    final partnerId = caregiver['id'] ?? caregiver['caregiverId'] ?? caregiver['user_id'] ?? caregiver['userId'];
-                    final currentUserId = await AuthService.getCurrentUserId();
-                    if (currentUserId == null) return;
-                    Navigator.pushNamed(
-                      context,
-                      AppRoutes.chatConversation,
-                      arguments: {
-                        'id': partnerId,
-                        'name': NameUtils.formatPatientName(caregiver),
-                        'currentUser': 'guardian',
-                        'currentUserId': currentUserId,
-                      },
-                    );
-                  },
+                  onPressed: () => _viewProfile(caregiver),
                   style: ElevatedButton.styleFrom(
                     backgroundColor: AppColors.primaryLight,
                     foregroundColor: AppColors.info,
@@ -763,46 +771,34 @@ class _GuardianAddUnknownCaregiverScreenState
                       borderRadius: BorderRadius.circular(8),
                     ),
                   ),
-                  child: Text('Chat', style: TextStyle(fontSize: 12, fontWeight: FontWeight.w600)),
+                  child: Text(
+                    'View Profile',
+                    style: TextStyle(fontSize: 12, fontWeight: FontWeight.w600),
+                  ),
                 ),
-                 ElevatedButton(
-                   onPressed: () => _viewProfile(caregiver),
-                   style: ElevatedButton.styleFrom(
-                     backgroundColor: AppColors.primaryLight,
-                     foregroundColor: AppColors.info,
-                     padding: EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-                     shape: RoundedRectangleBorder(
-                       borderRadius: BorderRadius.circular(8),
-                     ),
-                   ),
-                   child: Text(
-                     'View Profile',
-                     style: TextStyle(fontSize: 12, fontWeight: FontWeight.w600),
-                   ),
-                 ),
-                 SizedBox(height: 8),
-                 ElevatedButton(
-                   onPressed: () => _showConnectionRequestDialog(caregiver),
-                   style: ElevatedButton.styleFrom(
-                     backgroundColor: AppColors.primaryLight,
-                     foregroundColor: AppColors.info,
-                     padding: EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-                     shape: RoundedRectangleBorder(
-                       borderRadius: BorderRadius.circular(8),
-                     ),
-                   ),
-                   child: Text(
-                     'Send Request',
-                     style: TextStyle(fontSize: 12, fontWeight: FontWeight.w600),
-                   ),
-                 ),
-               ],
-             ),
-           ],
-         ),
-       ),
-     );
-   }
+                SizedBox(height: 8),
+                ElevatedButton(
+                  onPressed: () => _showConnectionRequestDialog(caregiver),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: AppColors.primaryLight,
+                    foregroundColor: AppColors.info,
+                    padding: EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                  ),
+                  child: Text(
+                    'Send Request',
+                    style: TextStyle(fontSize: 12, fontWeight: FontWeight.w600),
+                  ),
+                ),
+              ],
+            ),
+          ],
+        ),
+      ),
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -868,7 +864,9 @@ class _GuardianAddUnknownCaregiverScreenState
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
                                 Text(
-                                  NameUtils.capitalizeName(selectedPatient!['name'] ?? 'Unknown'),
+                                  NameUtils.capitalizeName(
+                                    selectedPatient!['name'] ?? 'Unknown',
+                                  ),
                                   style: TextStyle(
                                     fontSize: 16,
                                     fontWeight: FontWeight.bold,
@@ -888,7 +886,9 @@ class _GuardianAddUnknownCaregiverScreenState
                               ],
                             )
                           : Text(
-                              NameUtils.capitalizeName(selectedPatient?['name'] ?? ''),
+                              NameUtils.capitalizeName(
+                                selectedPatient?['name'] ?? '',
+                              ),
                               style: TextStyle(
                                 fontSize: 18,
                                 fontWeight: FontWeight.w600,

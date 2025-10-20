@@ -28,13 +28,20 @@ public class ForumAnswerService {
      * Create a new answer to a question
      */
     public ForumAnswerDTO createAnswer(CreateForumAnswerDTO request) throws ExecutionException, InterruptedException {
-        // Validate volunteer exists
-        Optional<User> volunteerOpt = userRepository.findById(request.getVolunteerId());
-        if (!volunteerOpt.isPresent()) {
-            throw new IllegalArgumentException("Volunteer not found");
+        // Get userId directly from request (should come from authenticated session)
+        Long userId = request.getUserId();
+        
+        if (userId == null) {
+            throw new IllegalArgumentException("User ID is required");
+        }
+        
+        // Validate user exists
+        Optional<User> userOpt = userRepository.findById(userId);
+        if (!userOpt.isPresent()) {
+            throw new IllegalArgumentException("User not found");
         }
 
-        User volunteer = volunteerOpt.get();
+        User volunteer = userOpt.get();
         
         Firestore db = FirestoreClient.getFirestore();
         
@@ -42,11 +49,11 @@ public class ForumAnswerService {
         DocumentReference docRef = db.collection(ANSWERS_COLLECTION).document();
         String answerId = docRef.getId();
         
-        // Prepare data
+        // Prepare data - store userId from authenticated session
         Map<String, Object> data = new HashMap<>();
         data.put("answerId", answerId);
         data.put("questionId", request.getQuestionId());
-        data.put("volunteerId", request.getVolunteerId());
+        data.put("userId", userId); // Store userId from session
         data.put("content", request.getContent());
         data.put("likes", 0L);
         data.put("createdAt", Timestamp.now());
@@ -63,7 +70,7 @@ public class ForumAnswerService {
         ForumAnswerDTO answerDTO = new ForumAnswerDTO();
         answerDTO.setAnswerId(answerId);
         answerDTO.setQuestionId(request.getQuestionId());
-        answerDTO.setVolunteerId(request.getVolunteerId());
+        answerDTO.setVolunteerId(userId); // Return userId in volunteerId field for compatibility
         answerDTO.setVolunteerName(volunteer.getFName() + " " + volunteer.getLName());
         answerDTO.setVolunteerRole(getRoleDisplayName(volunteer.getRole()));
         answerDTO.setContent(request.getContent());
@@ -260,21 +267,26 @@ public class ForumAnswerService {
         dto.setAnswerId(document.getId());
         dto.setQuestionId(document.getString("questionId"));
         
-        // Handle volunteerId
-        Object volunteerIdObj = document.get("volunteerId");
-        Long volunteerId = null;
-        if (volunteerIdObj instanceof Long) {
-            volunteerId = (Long) volunteerIdObj;
-        } else if (volunteerIdObj instanceof Integer) {
-            volunteerId = ((Integer) volunteerIdObj).longValue();
-        } else if (volunteerIdObj instanceof String) {
-            volunteerId = Long.parseLong((String) volunteerIdObj);
+        // Handle userId (new field) or volunteerId (legacy field for backward compatibility)
+        Object userIdObj = document.get("userId");
+        if (userIdObj == null) {
+            // Fallback to volunteerId for backward compatibility with old data
+            userIdObj = document.get("volunteerId");
         }
-        dto.setVolunteerId(volunteerId);
         
-        // Fetch volunteer details from MySQL
-        if (volunteerId != null) {
-            Optional<User> volunteerOpt = userRepository.findById(volunteerId);
+        Long userId = null;
+        if (userIdObj instanceof Long) {
+            userId = (Long) userIdObj;
+        } else if (userIdObj instanceof Integer) {
+            userId = ((Integer) userIdObj).longValue();
+        } else if (userIdObj instanceof String) {
+            userId = Long.parseLong((String) userIdObj);
+        }
+        dto.setVolunteerId(userId); // Still using volunteerId field in DTO for compatibility
+        
+        // Fetch volunteer details from MySQL using userId
+        if (userId != null) {
+            Optional<User> volunteerOpt = userRepository.findById(userId);
             if (volunteerOpt.isPresent()) {
                 User volunteer = volunteerOpt.get();
                 dto.setVolunteerName(volunteer.getFName() + " " + volunteer.getLName());
@@ -304,7 +316,7 @@ public class ForumAnswerService {
         
         switch (role) {
             case VOLUNTEER:
-                return "Volunteer Caregiver";
+                return "Volunteer";
             case ADMIN:
                 return "Medical Professional";
             case CAREGIVER:

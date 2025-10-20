@@ -15,14 +15,14 @@ import java.util.Map;
 @RequestMapping("/api/articles")
 @CrossOrigin(origins = "*")
 public class ArticleController {
+
     @Autowired
     private ArticleService articleService;
 
     /**
-     * Add a new article. For volunteer articles, authorId is required and will be
-     * used to fetch
-     * volunteer name and profilePic from PostgreSQL. Fields supported: title,
-     * summary, content, images, status, draft, profilePic.
+     * Add a new article. For volunteer articles, authorId is required and will
+     * be used to fetch volunteer name and profilePic from PostgreSQL. Fields
+     * supported: title, summary, content, images, status, draft, profilePic.
      *
      * @param article ArticleDTO (see ArticleDTO.java for all fields)
      * @return update time string
@@ -81,6 +81,43 @@ public class ArticleController {
             System.err.println("Error in getPublishedArticles controller: " + e.getMessage());
             e.printStackTrace();
             // Return empty list instead of throwing exception
+            return new java.util.ArrayList<>();
+        }
+    }
+
+    @GetMapping("/all")
+    public java.util.List<ArticleDetailDTO> getAllArticles() {
+        try {
+            System.out.println("Received request for ALL articles (all statuses)");
+
+            // First try Firebase, if empty try PostgreSQL
+            java.util.List<ArticleDetailDTO> allArticles = articleService.getAllArticles();
+
+            if (allArticles.isEmpty()) {
+                System.out.println("No articles found in Firebase, trying PostgreSQL...");
+                allArticles = articleService.getAllArticlesFromPostgreSQL();
+            }
+
+            System.out.println("Returning " + allArticles.size() + " articles from all volunteers (all statuses)");
+            return allArticles;
+        } catch (Exception e) {
+            System.err.println("Error in getAllArticles controller: " + e.getMessage());
+            e.printStackTrace();
+            // Return empty list instead of throwing exception
+            return new java.util.ArrayList<>();
+        }
+    }
+
+    @GetMapping("/all/postgres")
+    public java.util.List<ArticleDetailDTO> getAllArticlesFromPostgreSQL() {
+        try {
+            System.out.println("Received request for ALL articles from PostgreSQL");
+            java.util.List<ArticleDetailDTO> allArticles = articleService.getAllArticlesFromPostgreSQL();
+            System.out.println("Returning " + allArticles.size() + " articles from PostgreSQL");
+            return allArticles;
+        } catch (Exception e) {
+            System.err.println("Error in getAllArticlesFromPostgreSQL controller: " + e.getMessage());
+            e.printStackTrace();
             return new java.util.ArrayList<>();
         }
     }

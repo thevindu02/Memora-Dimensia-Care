@@ -22,6 +22,8 @@ class _SplashScreenState extends State<SplashScreen> {
     // Simulate app initialization (loading user data, preferences, etc.)
     await Future.delayed(Duration(seconds: 2));
 
+    print('⏰ Splash screen: 2 seconds elapsed, navigating to login...');
+
     print('Splash: Navigation to login...');
 
     // Check if widget is still mounted before navigating
