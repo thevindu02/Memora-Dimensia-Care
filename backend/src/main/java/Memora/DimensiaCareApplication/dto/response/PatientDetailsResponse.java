@@ -1,14 +1,17 @@
 package Memora.DimensiaCareApplication.dto.response;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
-import Memora.DimensiaCareApplication.model.Patient;
-import Memora.DimensiaCareApplication.model.User;
-import Memora.DimensiaCareApplication.model.Guardian;
 import java.time.LocalDate;
 import java.time.Period;
 
+import Memora.DimensiaCareApplication.model.Guardian;
+import Memora.DimensiaCareApplication.model.Patient;
+import Memora.DimensiaCareApplication.model.User;
+
 public class PatientDetailsResponse {
+
     private Long patientId;
+    private Long userId;
+    private String userStatus;
     private String FName;
     private String LName;
     private String patientName; // computed full name
@@ -30,14 +33,14 @@ public class PatientDetailsResponse {
     private String guardianEmail;
     private String guardianPhone;
     private String guardianCity;
-    
+
     // Caregiver details
     private Long caregiverId;
     private String caregiverName;
     private String caregiverEmail;
     private String caregiverPhone;
     private String caregiverCity;
-    
+
     // Relationship
     private String relationship;
 
@@ -48,11 +51,13 @@ public class PatientDetailsResponse {
         PatientDetailsResponse resp = new PatientDetailsResponse();
         resp.patientId = patient.getPatientID();
         User user = patient.getUser();
+        resp.userId = user.getId();
+        resp.userStatus = user.getStatus() != null ? user.getStatus().name() : "ACTIVE";
         resp.FName = user.getFName();
         resp.LName = user.getLName();
         // compute full name
-        resp.patientName = (user.getFName() != null ? user.getFName() : "") + 
-                          (user.getLName() != null ? " " + user.getLName() : "");
+        resp.patientName = (user.getFName() != null ? user.getFName() : "")
+                + (user.getLName() != null ? " " + user.getLName() : "");
         resp.email = user.getEmail();
         resp.phoneNumber = user.getPhoneNumber();
         resp.gender = user.getGender();
@@ -85,8 +90,8 @@ public class PatientDetailsResponse {
             }
             User gUser = guardian.getUser();
             if (gUser != null) {
-                resp.guardianName = (gUser.getFName() != null ? gUser.getFName() : "") +
-                                   (gUser.getLName() != null ? " " + gUser.getLName() : "");
+                resp.guardianName = (gUser.getFName() != null ? gUser.getFName() : "")
+                        + (gUser.getLName() != null ? " " + gUser.getLName() : "");
                 resp.guardianEmail = gUser.getEmail();
                 resp.guardianPhone = gUser.getPhoneNumber();
             }
@@ -95,13 +100,6 @@ public class PatientDetailsResponse {
         return resp;
     }
 
-    public String getPatientName() { return patientName; }
-    public void setPatientName(String patientName) { this.patientName = patientName; }
-    public Integer getPatientAge() { return patientAge; }
-    public void setPatientAge(Integer patientAge) { this.patientAge = patientAge; }
-    public String getRelationship() { return relationship; }
-    public void setRelationship(String relationship) { this.relationship = relationship; }
-
     // Getters and Setters
     public Long getPatientId() {
         return patientId;
@@ -109,6 +107,22 @@ public class PatientDetailsResponse {
 
     public void setPatientId(Long patientId) {
         this.patientId = patientId;
+    }
+
+    public Long getUserId() {
+        return userId;
+    }
+
+    public void setUserId(Long userId) {
+        this.userId = userId;
+    }
+
+    public String getUserStatus() {
+        return userStatus;
+    }
+
+    public void setUserStatus(String userStatus) {
+        this.userStatus = userStatus;
     }
 
     public String getFName() {
@@ -200,7 +214,7 @@ public class PatientDetailsResponse {
     }
 
     public String getLabel() {
-        
+
         return label;
     }
 
@@ -214,14 +228,6 @@ public class PatientDetailsResponse {
 
     public void setProfilePic(String profilePic) {
         this.profilePic = profilePic;
-    }
-
-    public String getAcceptedDate() {
-        return acceptedDate;
-    }
-
-    public void setAcceptedDate(String acceptedDate) {
-        this.acceptedDate = acceptedDate;
     }
 
     public Long getGuardianId() {
@@ -255,23 +261,84 @@ public class PatientDetailsResponse {
     public void setGuardianPhone(String guardianPhone) {
         this.guardianPhone = guardianPhone;
     }
-    
+
     public String getGuardianCity() {
         return guardianCity;
     }
-    
+
     public void setGuardianCity(String guardianCity) {
         this.guardianCity = guardianCity;
     }
 
-    public Long getCaregiverId() { return caregiverId; }
-    public void setCaregiverId(Long caregiverId) { this.caregiverId = caregiverId; }
-    public String getCaregiverName() { return caregiverName; }
-    public void setCaregiverName(String caregiverName) { this.caregiverName = caregiverName; }
-    public String getCaregiverEmail() { return caregiverEmail; }
-    public void setCaregiverEmail(String caregiverEmail) { this.caregiverEmail = caregiverEmail; }
-    public String getCaregiverPhone() { return caregiverPhone; }
-    public void setCaregiverPhone(String caregiverPhone) { this.caregiverPhone = caregiverPhone; }
-    public String getCaregiverCity() { return caregiverCity; }
-    public void setCaregiverCity(String caregiverCity) { this.caregiverCity = caregiverCity; }
+    public String getRelationship() {
+        return relationship;
+    }
+
+    public void setRelationship(String relationship) {
+        this.relationship = relationship;
+    }
+
+    public String getPatientName() {
+        return patientName;
+    }
+
+    public void setPatientName(String patientName) {
+        this.patientName = patientName;
+    }
+
+    public Integer getPatientAge() {
+        return patientAge;
+    }
+
+    public void setPatientAge(Integer patientAge) {
+        this.patientAge = patientAge;
+    }
+
+    public String getAcceptedDate() {
+        return acceptedDate;
+    }
+
+    public void setAcceptedDate(String acceptedDate) {
+        this.acceptedDate = acceptedDate;
+    }
+
+    public Long getCaregiverId() {
+        return caregiverId;
+    }
+
+    public void setCaregiverId(Long caregiverId) {
+        this.caregiverId = caregiverId;
+    }
+
+    public String getCaregiverName() {
+        return caregiverName;
+    }
+
+    public void setCaregiverName(String caregiverName) {
+        this.caregiverName = caregiverName;
+    }
+
+    public String getCaregiverEmail() {
+        return caregiverEmail;
+    }
+
+    public void setCaregiverEmail(String caregiverEmail) {
+        this.caregiverEmail = caregiverEmail;
+    }
+
+    public String getCaregiverPhone() {
+        return caregiverPhone;
+    }
+
+    public void setCaregiverPhone(String caregiverPhone) {
+        this.caregiverPhone = caregiverPhone;
+    }
+
+    public String getCaregiverCity() {
+        return caregiverCity;
+    }
+
+    public void setCaregiverCity(String caregiverCity) {
+        this.caregiverCity = caregiverCity;
+    }
 }

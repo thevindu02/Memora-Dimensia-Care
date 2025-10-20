@@ -263,5 +263,57 @@ public class ArticleController {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(error);
         }
     }
+
+    /**
+     * Approve an article
+     * PUT /api/articles/{articleId}/approve
+     */
+    @PutMapping("/{articleId}/approve")
+    public ResponseEntity<?> approveArticle(@PathVariable String articleId) {
+        try {
+            System.out.println("Received request to approve article with ID: " + articleId);
+            String updateTime = articleService.approveArticle(articleId);
+            
+            Map<String, Object> response = new HashMap<>();
+            response.put("message", "Article approved successfully");
+            response.put("updateTime", updateTime);
+            response.put("status", "approved");
+            
+            return ResponseEntity.ok(response);
+        } catch (Exception e) {
+            System.err.println("Error in approveArticle controller: " + e.getMessage());
+            e.printStackTrace();
+            
+            Map<String, String> error = new HashMap<>();
+            error.put("error", "Failed to approve article: " + e.getMessage());
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(error);
+        }
+    }
+
+    /**
+     * Reject an article
+     * PUT /api/articles/{articleId}/reject
+     */
+    @PutMapping("/{articleId}/reject")
+    public ResponseEntity<?> rejectArticle(@PathVariable String articleId) {
+        try {
+            System.out.println("Received request to reject article with ID: " + articleId);
+            String updateTime = articleService.rejectArticle(articleId);
+            
+            Map<String, Object> response = new HashMap<>();
+            response.put("message", "Article rejected successfully");
+            response.put("updateTime", updateTime);
+            response.put("status", "disapproved");
+            
+            return ResponseEntity.ok(response);
+        } catch (Exception e) {
+            System.err.println("Error in rejectArticle controller: " + e.getMessage());
+            e.printStackTrace();
+            
+            Map<String, String> error = new HashMap<>();
+            error.put("error", "Failed to reject article: " + e.getMessage());
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(error);
+        }
+    }
 }
 

@@ -18,3 +18,11 @@ public interface VolunteerRepository extends JpaRepository<Volunteer, Long> {
     @Query("SELECT COUNT(v) FROM Volunteer v JOIN User u ON v.userId = u.id WHERE u.status = 'ACTIVE'")
     Long countActiveVolunteers();
 }
+
+             
+             
+             
+             
+             
+             
+             

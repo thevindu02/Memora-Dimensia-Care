@@ -89,7 +89,7 @@ public class CombinedVolunteerDTO {
                     this.displayStatus = "accepted";
                     break;
                 case INACTIVE:
-                    this.displayStatus = "pending";
+                    this.displayStatus = "rejected";
                     break;
                 case SUSPENDED:
                     this.displayStatus = "rejected";

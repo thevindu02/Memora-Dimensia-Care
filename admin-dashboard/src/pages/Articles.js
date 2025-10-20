@@ -80,16 +80,38 @@ const Articles = () => {
     setSelectedArticle(null);
   };
 
-  const handlePublishArticle = (articleId) => {
-    // UI only - no backend functionality
-    console.log('Publish article:', articleId);
-    handleCloseModal();
+  const handlePublishArticle = async (articleId) => {
+    try {
+      console.log('Approving article:', articleId);
+      await articleApiService.approveArticle(articleId);
+      
+      // Refresh the articles list
+      const updatedArticles = await articleApiService.getAllArticles();
+      setArticles(updatedArticles);
+      
+      handleCloseModal();
+      alert('Article approved successfully!');
+    } catch (error) {
+      console.error('Error approving article:', error);
+      alert('Failed to approve article. Please try again.');
+    }
   };
 
-  const handleRejectArticle = (articleId) => {
-    // UI only - no backend functionality
-    console.log('Reject article:', articleId);
-    handleCloseModal();
+  const handleRejectArticle = async (articleId) => {
+    try {
+      console.log('Rejecting article:', articleId);
+      await articleApiService.rejectArticle(articleId);
+      
+      // Refresh the articles list
+      const updatedArticles = await articleApiService.getAllArticles();
+      setArticles(updatedArticles);
+      
+      handleCloseModal();
+      alert('Article rejected successfully!');
+    } catch (error) {
+      console.error('Error rejecting article:', error);
+      alert('Failed to reject article. Please try again.');
+    }
   };
 
   const handleEditArticle = (articleId) => {
