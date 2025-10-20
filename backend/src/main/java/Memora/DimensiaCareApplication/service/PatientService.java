@@ -1,5 +1,7 @@
 package Memora.DimensiaCareApplication.service;
 
+<<<<<<< HEAD
+=======
 import Memora.DimensiaCareApplication.model.Patient;
 import Memora.DimensiaCareApplication.model.User;
 import Memora.DimensiaCareApplication.model.Guardian;
@@ -18,6 +20,7 @@ import Memora.DimensiaCareApplication.repository.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+>>>>>>> abd3212abbb42cceddd8f4bac2e0b146c27d3c37
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.ArrayList;
