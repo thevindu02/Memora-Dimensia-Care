@@ -30,7 +30,9 @@ public interface GuardianPatientCaregiverConnectionRepository
         LocalDateTime after
     );
 
-
+    List<GuardianPatientCaregiverConnection> findByStatus(
+        Memora.DimensiaCareApplication.model.GuardianPatientCaregiverConnection.ConnectionStatus status
+    );
     List<GuardianPatientCaregiverConnection> findByPatientIdAndStatus(Long patientId,
             Memora.DimensiaCareApplication.model.GuardianPatientCaregiverConnection.ConnectionStatus status);
 }

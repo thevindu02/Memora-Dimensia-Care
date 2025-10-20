@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import '../services/forum_question_service.dart';
 import '../services/forum_answer_service.dart';
+import '../services/auth_service.dart';
+import '../constants/color_constants.dart';
 
 class VolunteerQATabBody extends StatefulWidget {
   const VolunteerQATabBody({Key? key}) : super(key: key);
@@ -12,10 +14,9 @@ class VolunteerQATabBody extends StatefulWidget {
 class _VolunteerQATabBodyState extends State<VolunteerQATabBody> {
   String _selectedFilter = 'All';
   final List<String> _filters = ['All', 'Unanswered', 'Recent', 'Most Replies'];
-
-  // Questions list - will be fetched from API
-  List<Map<String, dynamic>> questions = [];
   bool _isLoading = true;
+  String? _errorMessage;
+  List<Map<String, dynamic>> questions = [];
 
   @override
   void initState() {
@@ -23,51 +24,64 @@ class _VolunteerQATabBodyState extends State<VolunteerQATabBody> {
     _loadQuestions();
   }
 
-  /// Load questions from database based on selected filter
+  /// Load questions from the API based on selected filter
   Future<void> _loadQuestions() async {
     setState(() {
       _isLoading = true;
+      _errorMessage = null;
     });
 
     try {
-      List<Map<String, dynamic>> loadedQuestions;
+      List<Map<String, dynamic>> fetchedQuestions;
 
       switch (_selectedFilter) {
         case 'Unanswered':
-          loadedQuestions = await ForumQuestionService.getUnansweredQuestions();
+          fetchedQuestions =
+              await ForumQuestionService.getUnansweredQuestions();
           break;
         case 'Recent':
-          loadedQuestions = await ForumQuestionService.getRecentQuestions();
+          fetchedQuestions = await ForumQuestionService.getRecentQuestions();
           break;
         case 'Most Replies':
-          loadedQuestions =
+          fetchedQuestions =
               await ForumQuestionService.getMostRepliedQuestions();
           break;
         default:
-          loadedQuestions = await ForumQuestionService.getAllQuestions();
+          fetchedQuestions = await ForumQuestionService.getAllQuestions();
       }
 
       setState(() {
-        questions = loadedQuestions.map((question) {
-          return {
-            ...question,
-            'timeAgo': _formatTimeAgo(question['createdAt']),
-            'repliesList': [], // Will be loaded when detail screen opens
-          };
-        }).toList();
+        questions = fetchedQuestions.map((q) => _convertQuestion(q)).toList();
         _isLoading = false;
       });
     } catch (e) {
-      print('Error loading questions: $e');
       setState(() {
+        _errorMessage = 'Failed to load questions: $e';
         _isLoading = false;
       });
     }
   }
 
+  /// Convert API question to UI format
+  Map<String, dynamic> _convertQuestion(Map<String, dynamic> apiQuestion) {
+    return {
+      'questionId': apiQuestion['questionId'],
+      'id': apiQuestion['questionId'],
+      'guardianId': apiQuestion['guardianId'],
+      'title': apiQuestion['title'],
+      'content': apiQuestion['content'],
+      'tags': List<String>.from(apiQuestion['tags'] ?? []),
+      'views': apiQuestion['views'] ?? 0,
+      'replies': apiQuestion['replies'] ?? 0,
+      'isAnswered': apiQuestion['isAnswered'] ?? false,
+      'timeAgo': _formatTimeAgo(apiQuestion['createdAt']),
+      'createdAt': apiQuestion['createdAt'],
+    };
+  }
+
   /// Format timestamp to "time ago" format
   String _formatTimeAgo(dynamic timestamp) {
-    if (timestamp == null) return 'Unknown time';
+    if (timestamp == null) return 'Just now';
 
     try {
       DateTime dateTime;
@@ -76,29 +90,29 @@ class _VolunteerQATabBodyState extends State<VolunteerQATabBody> {
       } else if (timestamp is String) {
         dateTime = DateTime.parse(timestamp);
       } else {
-        return 'Unknown time';
+        return 'Just now';
       }
 
       final now = DateTime.now();
       final difference = now.difference(dateTime);
 
-      if (difference.inDays > 365) {
-        final years = (difference.inDays / 365).floor();
-        return '$years ${years == 1 ? 'year' : 'years'} ago';
-      } else if (difference.inDays > 30) {
+      if (difference.inMinutes < 1) {
+        return 'Just now';
+      } else if (difference.inHours < 1) {
+        return '${difference.inMinutes} ${difference.inMinutes == 1 ? 'minute' : 'minutes'} ago';
+      } else if (difference.inHours < 24) {
+        return '${difference.inHours} ${difference.inHours == 1 ? 'hour' : 'hours'} ago';
+      } else if (difference.inDays < 7) {
+        return '${difference.inDays} ${difference.inDays == 1 ? 'day' : 'days'} ago';
+      } else if (difference.inDays < 30) {
+        final weeks = (difference.inDays / 7).floor();
+        return '$weeks ${weeks == 1 ? 'week' : 'weeks'} ago';
+      } else {
         final months = (difference.inDays / 30).floor();
         return '$months ${months == 1 ? 'month' : 'months'} ago';
-      } else if (difference.inDays > 0) {
-        return '${difference.inDays} ${difference.inDays == 1 ? 'day' : 'days'} ago';
-      } else if (difference.inHours > 0) {
-        return '${difference.inHours} ${difference.inHours == 1 ? 'hour' : 'hours'} ago';
-      } else if (difference.inMinutes > 0) {
-        return '${difference.inMinutes} ${difference.inMinutes == 1 ? 'minute' : 'minutes'} ago';
-      } else {
-        return 'Just now';
       }
     } catch (e) {
-      return 'Unknown time';
+      return 'Just now';
     }
   }
 
@@ -108,7 +122,7 @@ class _VolunteerQATabBodyState extends State<VolunteerQATabBody> {
       label: Text(
         filter,
         style: TextStyle(
-          color: Color(0xFF2B3F99),
+          color: isSelected ? AppColors.info : AppColors.info,
           fontSize: 12,
           fontWeight: FontWeight.w500,
         ),
@@ -118,15 +132,15 @@ class _VolunteerQATabBodyState extends State<VolunteerQATabBody> {
         setState(() {
           _selectedFilter = filter;
         });
-        _loadQuestions(); // Reload questions with new filter
+        _loadQuestions();
       },
-      backgroundColor: Colors.white,
-      selectedColor: Color(0xFFA0C4FD),
-      checkmarkColor: Color(0xFF2B3F99),
+      backgroundColor: AppColors.surface,
+      selectedColor: AppColors.primaryLight,
+      checkmarkColor: AppColors.info,
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(20),
         side: BorderSide(
-          color: isSelected ? Color(0xFFA0C4FD) : Colors.grey[300]!,
+          color: isSelected ? AppColors.primaryLight : AppColors.outline,
         ),
       ),
     );
@@ -137,39 +151,38 @@ class _VolunteerQATabBodyState extends State<VolunteerQATabBody> {
       color: Colors.transparent,
       child: InkWell(
         onTap: () async {
-          final updatedReplies = await Navigator.push(
+          final result = await Navigator.push(
             context,
             MaterialPageRoute(
-              builder: (context) => VolunteerQuestionDetailScreen(
-                question: question,
-                initialReplies: List<Map<String, dynamic>>.from(
-                  question['repliesList'] ?? [],
-                ),
-              ),
+              builder: (context) =>
+                  VolunteerQuestionDetailScreen(question: question),
             ),
           );
 
-          // Update local question with fresh data from detail screen
-          if (updatedReplies != null) {
+          if (result != null && result is Map<String, dynamic>) {
             setState(() {
-              question['repliesList'] = updatedReplies;
-              question['replies'] = updatedReplies.length;
+              final questionId = result['questionId'] ?? result['id'];
+              final index = questions.indexWhere(
+                (q) => (q['questionId'] ?? q['id']) == questionId,
+              );
+              if (index != -1) {
+                questions[index]['views'] = result['views'];
+                questions[index]['replies'] = result['replies'];
+                questions[index]['isAnswered'] = result['isAnswered'];
+              }
             });
           }
-
-          // Reload questions to refresh view counts and other data
-          _loadQuestions();
         },
         borderRadius: BorderRadius.circular(12),
         child: Container(
           margin: EdgeInsets.only(bottom: 16),
           padding: EdgeInsets.all(16),
           decoration: BoxDecoration(
-            color: Colors.white,
+            color: AppColors.surface,
             borderRadius: BorderRadius.circular(12),
             boxShadow: [
               BoxShadow(
-                color: Colors.grey.withOpacity(0.1),
+                color: AppColors.shadow,
                 spreadRadius: 1,
                 blurRadius: 4,
                 offset: Offset(0, 2),
@@ -179,7 +192,6 @@ class _VolunteerQATabBodyState extends State<VolunteerQATabBody> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              // Question header
               Row(
                 children: [
                   Container(
@@ -204,24 +216,23 @@ class _VolunteerQATabBodyState extends State<VolunteerQATabBody> {
                   Spacer(),
                   Text(
                     question['timeAgo'],
-                    style: TextStyle(fontSize: 12, color: Colors.grey[600]),
+                    style: TextStyle(
+                      fontSize: 12,
+                      color: AppColors.onSurfaceVariant,
+                    ),
                   ),
                 ],
               ),
               SizedBox(height: 12),
-
-              // Question title
               Text(
                 question['title'],
                 style: TextStyle(
                   fontSize: 16,
                   fontWeight: FontWeight.w600,
-                  color: Colors.black87,
+                  color: AppColors.onSurface,
                 ),
               ),
               SizedBox(height: 8),
-
-              // Question content preview
               Text(
                 question['content'],
                 style: TextStyle(
@@ -233,46 +244,59 @@ class _VolunteerQATabBodyState extends State<VolunteerQATabBody> {
                 overflow: TextOverflow.ellipsis,
               ),
               SizedBox(height: 12),
-
-              // Tags
-              Wrap(
-                spacing: 6,
-                runSpacing: 6,
-                children: question['tags'].map<Widget>((tag) {
-                  return Container(
-                    padding: EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                    decoration: BoxDecoration(
-                      color: Color(0xFFA0C4FD).withOpacity(0.2),
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                    child: Text(
-                      tag,
-                      style: TextStyle(
-                        fontSize: 11,
-                        color: Color(0xFF2B3F99),
-                        fontWeight: FontWeight.w500,
+              if (question['tags'] != null &&
+                  (question['tags'] as List).isNotEmpty) ...[
+                Wrap(
+                  spacing: 6,
+                  runSpacing: 6,
+                  children: (question['tags'] as List<String>).map((tag) {
+                    return Container(
+                      padding: EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                      decoration: BoxDecoration(
+                        color: AppColors.primaryLight.withOpacity(0.3),
+                        borderRadius: BorderRadius.circular(12),
                       ),
-                    ),
-                  );
-                }).toList(),
-              ),
-              SizedBox(height: 12),
-
-              // Question stats
+                      child: Text(
+                        tag,
+                        style: TextStyle(
+                          fontSize: 11,
+                          color: AppColors.info,
+                          fontWeight: FontWeight.w500,
+                        ),
+                      ),
+                    );
+                  }).toList(),
+                ),
+                SizedBox(height: 12),
+              ],
               Row(
                 children: [
-                  Icon(Icons.visibility, size: 16, color: Colors.grey[600]),
+                  Icon(
+                    Icons.visibility,
+                    size: 16,
+                    color: AppColors.onSurfaceVariant,
+                  ),
                   SizedBox(width: 4),
                   Text(
                     '${question['views']} ${question['views'] == 1 ? 'view' : 'views'}',
-                    style: TextStyle(fontSize: 12, color: Colors.grey[600]),
+                    style: TextStyle(
+                      fontSize: 12,
+                      color: AppColors.onSurfaceVariant,
+                    ),
                   ),
                   SizedBox(width: 16),
-                  Icon(Icons.comment, size: 16, color: Colors.grey[600]),
+                  Icon(
+                    Icons.comment,
+                    size: 16,
+                    color: AppColors.onSurfaceVariant,
+                  ),
                   SizedBox(width: 4),
                   Text(
                     '${question['replies']} ${question['replies'] == 1 ? 'reply' : 'replies'}',
-                    style: TextStyle(fontSize: 12, color: Colors.grey[600]),
+                    style: TextStyle(
+                      fontSize: 12,
+                      color: AppColors.onSurfaceVariant,
+                    ),
                   ),
                 ],
               ),
@@ -287,44 +311,49 @@ class _VolunteerQATabBodyState extends State<VolunteerQATabBody> {
   Widget build(BuildContext context) {
     return Column(
       children: [
-        // Filter section
+        // Filter chips section - NO "Filter Questions" label
         Container(
-          padding: EdgeInsets.all(16),
-          color: Colors.white,
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                'Filter Questions',
-                style: TextStyle(
-                  fontSize: 16,
-                  fontWeight: FontWeight.w600,
-                  color: Colors.black87,
-                ),
-              ),
-              SizedBox(height: 12),
-              SingleChildScrollView(
-                scrollDirection: Axis.horizontal,
-                child: Row(
-                  children: _filters
-                      .map(
-                        (filter) => Padding(
-                          padding: EdgeInsets.only(right: 8),
-                          child: _buildFilterChip(filter),
-                        ),
-                      )
-                      .toList(),
-                ),
-              ),
-            ],
+          padding: EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+          color: AppColors.surface,
+          child: SingleChildScrollView(
+            scrollDirection: Axis.horizontal,
+            child: Row(
+              children: _filters.map((filter) {
+                return Padding(
+                  padding: EdgeInsets.only(right: 8),
+                  child: _buildFilterChip(filter),
+                );
+              }).toList(),
+            ),
           ),
         ),
-
         // Questions list
         Expanded(
           child: _isLoading
+              ? Center(child: CircularProgressIndicator(color: AppColors.info))
+              : _errorMessage != null
               ? Center(
-                  child: CircularProgressIndicator(color: Color(0xFF2B3F99)),
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Icon(
+                        Icons.error_outline,
+                        size: 64,
+                        color: Colors.red[300],
+                      ),
+                      SizedBox(height: 16),
+                      Text(
+                        _errorMessage!,
+                        textAlign: TextAlign.center,
+                        style: TextStyle(color: Colors.red[700], fontSize: 14),
+                      ),
+                      SizedBox(height: 16),
+                      ElevatedButton(
+                        onPressed: _loadQuestions,
+                        child: Text('Retry'),
+                      ),
+                    ],
+                  ),
                 )
               : questions.isEmpty
               ? Center(
@@ -332,41 +361,50 @@ class _VolunteerQATabBodyState extends State<VolunteerQATabBody> {
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
                       Icon(
-                        Icons.question_answer_outlined,
+                        Icons.forum_outlined,
                         size: 64,
                         color: Colors.grey[400],
                       ),
                       SizedBox(height: 16),
                       Text(
                         'No questions yet',
-                        style: TextStyle(fontSize: 16, color: Colors.grey[600]),
+                        style: TextStyle(
+                          fontSize: 18,
+                          fontWeight: FontWeight.w600,
+                          color: Colors.grey[600],
+                        ),
+                      ),
+                      SizedBox(height: 8),
+                      Text(
+                        'Questions from guardians and caregivers will appear here',
+                        style: TextStyle(fontSize: 14, color: Colors.grey[600]),
                       ),
                     ],
                   ),
                 )
-              : ListView.builder(
-                  padding: EdgeInsets.all(16),
-                  itemCount: questions.length,
-                  itemBuilder: (context, index) {
-                    return _buildQuestionCard(questions[index]);
-                  },
+              : RefreshIndicator(
+                  onRefresh: _loadQuestions,
+                  child: ListView.builder(
+                    padding: EdgeInsets.all(16),
+                    itemCount: questions.length,
+                    itemBuilder: (context, index) {
+                      return _buildQuestionCard(questions[index]);
+                    },
+                  ),
                 ),
         ),
-        // Floating action button is not included here; should be added in parent if needed.
       ],
     );
   }
 }
 
-// VolunteerQuestionDetailScreen for showing question details and replies
+// ===== QUESTION DETAIL SCREEN =====
+
 class VolunteerQuestionDetailScreen extends StatefulWidget {
   final Map<String, dynamic> question;
-  final List<Map<String, dynamic>> initialReplies;
-  const VolunteerQuestionDetailScreen({
-    Key? key,
-    required this.question,
-    required this.initialReplies,
-  }) : super(key: key);
+
+  const VolunteerQuestionDetailScreen({Key? key, required this.question})
+    : super(key: key);
 
   @override
   State<VolunteerQuestionDetailScreen> createState() =>
@@ -388,25 +426,25 @@ class _VolunteerQuestionDetailScreenState
     _loadReplies();
   }
 
+  @override
+  void dispose() {
+    _replyController.dispose();
+    super.dispose();
+  }
+
   /// Increment view count when question is opened
   Future<void> _incrementViewCount() async {
     try {
       final questionId = widget.question['questionId'] ?? widget.question['id'];
       if (questionId != null) {
-        print('Incrementing view count for question: $questionId');
-
         final updatedQuestion = await ForumQuestionService.getQuestionById(
           questionId.toString(),
         );
 
-        if (updatedQuestion != null) {
+        if (updatedQuestion != null && mounted) {
           setState(() {
-            _currentQuestion['views'] =
-                updatedQuestion['views'] ?? _currentQuestion['views'];
+            _currentQuestion['views'] = updatedQuestion['views'];
           });
-          print(
-            'View count incremented successfully. New count: ${updatedQuestion['views']}',
-          );
         }
       }
     } catch (e) {
@@ -414,37 +452,38 @@ class _VolunteerQuestionDetailScreenState
     }
   }
 
-  /// Load replies from database
+  /// Load replies for this question from backend
   Future<void> _loadReplies() async {
+    setState(() {
+      _loadingReplies = true;
+    });
+
     try {
       final questionId = widget.question['questionId'] ?? widget.question['id'];
-      if (questionId != null) {
-        print('Loading replies for question: $questionId');
 
-        // Note: userId can be guardian, volunteer, or caregiver
-        // TODO: Replace with actual user session ID
-        final loadedReplies = await ForumAnswerService.getAnswersByQuestionId(
-          questionId.toString(),
-          userId: 13, // Using same ID as in like/unlike operations
-        );
+      final fetchedReplies = await ForumAnswerService.getAnswersByQuestionId(
+        questionId.toString(),
+        userId: 13, // TODO: Replace with actual volunteer ID from session
+      );
 
-        setState(() {
-          replies = loadedReplies.map((reply) {
-            return {
-              'id': reply['answerId'],
-              'content': reply['content'],
-              'author': reply['volunteerName'] ?? 'Unknown Volunteer',
-              'authorType': reply['volunteerRole'] ?? 'Volunteer',
-              'timeAgo': _formatTimeAgo(reply['createdAt']),
-              'likes': reply['likes'] ?? 0,
-              'isLiked': reply['isLikedByCurrentUser'] ?? false,
-            };
-          }).toList();
-          _loadingReplies = false;
-        });
+      setState(() {
+        replies = fetchedReplies.map((reply) {
+          return {
+            'id': reply['answerId'],
+            'content': reply['content'],
+            'author': reply['volunteerName'] ?? 'Anonymous',
+            'authorType': reply['volunteerRole'] ?? 'Volunteer',
+            'timeAgo': _formatTimeAgo(reply['createdAt']),
+            'likes': reply['likes'] ?? 0,
+            'isLiked': reply['isLiked'] ?? false,
+          };
+        }).toList();
 
-        print('Loaded ${replies.length} replies successfully');
-      }
+        _currentQuestion['replies'] = replies.length;
+        _currentQuestion['isAnswered'] = replies.isNotEmpty;
+
+        _loadingReplies = false;
+      });
     } catch (e) {
       print('Error loading replies: $e');
       setState(() {
@@ -453,9 +492,8 @@ class _VolunteerQuestionDetailScreenState
     }
   }
 
-  /// Format timestamp to "time ago" format
   String _formatTimeAgo(dynamic timestamp) {
-    if (timestamp == null) return 'Unknown time';
+    if (timestamp == null) return 'Just now';
 
     try {
       DateTime dateTime;
@@ -464,29 +502,26 @@ class _VolunteerQuestionDetailScreenState
       } else if (timestamp is String) {
         dateTime = DateTime.parse(timestamp);
       } else {
-        return 'Unknown time';
+        return 'Just now';
       }
 
       final now = DateTime.now();
       final difference = now.difference(dateTime);
 
-      if (difference.inDays > 365) {
-        final years = (difference.inDays / 365).floor();
-        return '$years ${years == 1 ? 'year' : 'years'} ago';
-      } else if (difference.inDays > 30) {
-        final months = (difference.inDays / 30).floor();
-        return '$months ${months == 1 ? 'month' : 'months'} ago';
-      } else if (difference.inDays > 0) {
-        return '${difference.inDays} ${difference.inDays == 1 ? 'day' : 'days'} ago';
-      } else if (difference.inHours > 0) {
-        return '${difference.inHours} ${difference.inHours == 1 ? 'hour' : 'hours'} ago';
-      } else if (difference.inMinutes > 0) {
-        return '${difference.inMinutes} ${difference.inMinutes == 1 ? 'minute' : 'minutes'} ago';
-      } else {
+      if (difference.inMinutes < 1) {
         return 'Just now';
+      } else if (difference.inHours < 1) {
+        return '${difference.inMinutes} ${difference.inMinutes == 1 ? 'minute' : 'minutes'} ago';
+      } else if (difference.inHours < 24) {
+        return '${difference.inHours} ${difference.inHours == 1 ? 'hour' : 'hours'} ago';
+      } else if (difference.inDays < 7) {
+        return '${difference.inDays} ${difference.inDays == 1 ? 'day' : 'days'} ago';
+      } else {
+        final weeks = (difference.inDays / 7).floor();
+        return '$weeks ${weeks == 1 ? 'week' : 'weeks'} ago';
       }
     } catch (e) {
-      return 'Unknown time';
+      return 'Just now';
     }
   }
 
@@ -497,31 +532,22 @@ class _VolunteerQuestionDetailScreenState
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(12),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.grey.withOpacity(0.1),
-            spreadRadius: 1,
-            blurRadius: 4,
-            offset: Offset(0, 2),
-          ),
-        ],
+        border: Border.all(color: Colors.grey[200]!),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
+          // Reply header
           Row(
             children: [
               CircleAvatar(
                 radius: 16,
-                backgroundColor: Color(0xFFA0C4FD),
+                backgroundColor: AppColors.primaryLight,
                 child: Text(
-                  reply['author'] != null && reply['author'].isNotEmpty
-                      ? reply['author'][0]
-                      : '?',
+                  reply['author'][0].toUpperCase(),
                   style: TextStyle(
-                    color: Color(0xFF2B3F99),
+                    color: AppColors.info,
                     fontWeight: FontWeight.bold,
-                    fontSize: 14,
                   ),
                 ),
               ),
@@ -531,147 +557,121 @@ class _VolunteerQuestionDetailScreenState
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      reply['author'] ?? 'Anonymous',
+                      reply['author'],
                       style: TextStyle(
                         fontSize: 14,
                         fontWeight: FontWeight.w600,
-                        color: Colors.black87,
+                        color: AppColors.onSurface,
                       ),
                     ),
                     Text(
-                      reply['authorType'] ?? '',
-                      style: TextStyle(fontSize: 12, color: Colors.grey[600]),
+                      reply['authorType'],
+                      style: TextStyle(
+                        fontSize: 12,
+                        color: AppColors.onSurfaceVariant,
+                      ),
                     ),
                   ],
                 ),
               ),
               Text(
-                reply['timeAgo'] ?? '',
-                style: TextStyle(fontSize: 12, color: Colors.grey[600]),
-              ),
-            ],
-          ),
-          SizedBox(height: 12),
-          Text(
-            reply['content'] ?? '',
-            style: TextStyle(
-              fontSize: 14,
-              color: Colors.grey[700],
-              height: 1.4,
-            ),
-          ),
-          SizedBox(height: 12),
-          Row(
-            children: [
-              InkWell(
-                onTap: () async {
-                  try {
-                    final answerId = reply['id'];
-                    final isLiked = reply['isLiked'] ?? false;
-                    final currentLikes = reply['likes'] ?? 0;
-
-                    bool success;
-                    if (isLiked) {
-                      // Unlike - decrement like count
-                      success = await ForumAnswerService.unlikeAnswer(
-                        answerId.toString(),
-                        13, // TODO: Replace with actual volunteer ID from session
-                      );
-
-                      if (success) {
-                        setState(() {
-                          reply['isLiked'] = false;
-                          reply['likes'] = currentLikes > 0
-                              ? currentLikes - 1
-                              : 0;
-                        });
-
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          SnackBar(
-                            content: Text('Like removed'),
-                            backgroundColor: Colors.grey[700],
-                            duration: Duration(seconds: 1),
-                          ),
-                        );
-                      }
-                    } else {
-                      // Like - increment like count
-                      success = await ForumAnswerService.likeAnswer(
-                        answerId.toString(),
-                        13, // TODO: Replace with actual volunteer ID from session
-                      );
-
-                      if (success) {
-                        setState(() {
-                          reply['isLiked'] = true;
-                          reply['likes'] = currentLikes + 1;
-                        });
-
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          SnackBar(
-                            content: Text('Liked successfully!'),
-                            backgroundColor: Colors.green,
-                            duration: Duration(seconds: 1),
-                          ),
-                        );
-                      }
-                    }
-
-                    if (!success) {
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        SnackBar(
-                          content: Text('Failed to update like'),
-                          backgroundColor: Colors.red,
-                          duration: Duration(seconds: 2),
-                        ),
-                      );
-                    }
-                  } catch (e) {
-                    print('Error toggling like: $e');
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(
-                        content: Text('Failed to update like'),
-                        backgroundColor: Colors.red,
-                      ),
-                    );
-                  }
-                },
-                borderRadius: BorderRadius.circular(20),
-                child: Container(
-                  padding: EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-                  decoration: BoxDecoration(
-                    color: (reply['isLiked'] ?? false)
-                        ? Color(0xFF2B3F99).withOpacity(0.1)
-                        : Colors.grey[100],
-                    borderRadius: BorderRadius.circular(20),
-                  ),
-                  child: Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Icon(
-                        (reply['isLiked'] ?? false)
-                            ? Icons.thumb_up
-                            : Icons.thumb_up_outlined,
-                        size: 16,
-                        color: (reply['isLiked'] ?? false)
-                            ? Color(0xFF2B3F99)
-                            : Colors.grey[600],
-                      ),
-                      SizedBox(width: 4),
-                      Text(
-                        '${reply['likes'] ?? 0}',
-                        style: TextStyle(
-                          fontSize: 12,
-                          color: (reply['isLiked'] ?? false)
-                              ? Color(0xFF2B3F99)
-                              : Colors.grey[600],
-                        ),
-                      ),
-                    ],
-                  ),
+                reply['timeAgo'],
+                style: TextStyle(
+                  fontSize: 12,
+                  color: AppColors.onSurfaceVariant,
                 ),
               ),
             ],
+          ),
+          SizedBox(height: 12),
+          // Reply content
+          Text(
+            reply['content'],
+            style: TextStyle(
+              fontSize: 14,
+              color: AppColors.onSurface,
+              height: 1.5,
+            ),
+          ),
+          SizedBox(height: 12),
+          // Like button
+          InkWell(
+            onTap: () async {
+              try {
+                final answerId = reply['id'];
+                final isLiked = reply['isLiked'] ?? false;
+                final currentLikes = reply['likes'] ?? 0;
+                bool success = false;
+
+                if (isLiked) {
+                  success = await ForumAnswerService.unlikeAnswer(
+                    answerId.toString(),
+                    13, // TODO: Replace with actual volunteer ID from session
+                  );
+
+                  if (success) {
+                    setState(() {
+                      reply['isLiked'] = false;
+                      reply['likes'] = currentLikes - 1;
+                    });
+                  }
+                } else {
+                  success = await ForumAnswerService.likeAnswer(
+                    answerId.toString(),
+                    13, // TODO: Replace with actual volunteer ID from session
+                  );
+
+                  if (success) {
+                    setState(() {
+                      reply['isLiked'] = true;
+                      reply['likes'] = currentLikes + 1;
+                    });
+                  }
+                }
+              } catch (e) {
+                print('Error toggling like: $e');
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(
+                    content: Text('Failed to update like'),
+                    backgroundColor: Colors.red,
+                  ),
+                );
+              }
+            },
+            borderRadius: BorderRadius.circular(20),
+            child: Container(
+              padding: EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+              decoration: BoxDecoration(
+                color: (reply['isLiked'] ?? false)
+                    ? AppColors.info.withOpacity(0.1)
+                    : Colors.grey[100],
+                borderRadius: BorderRadius.circular(20),
+              ),
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Icon(
+                    (reply['isLiked'] ?? false)
+                        ? Icons.thumb_up
+                        : Icons.thumb_up_outlined,
+                    size: 16,
+                    color: (reply['isLiked'] ?? false)
+                        ? AppColors.info
+                        : Colors.grey[600],
+                  ),
+                  SizedBox(width: 4),
+                  Text(
+                    '${reply['likes'] ?? 0}',
+                    style: TextStyle(
+                      fontSize: 12,
+                      color: (reply['isLiked'] ?? false)
+                          ? AppColors.info
+                          : Colors.grey[600],
+                    ),
+                  ),
+                ],
+              ),
+            ),
           ),
         ],
       ),
@@ -683,38 +683,39 @@ class _VolunteerQuestionDetailScreenState
     return Scaffold(
       backgroundColor: Colors.grey[50],
       appBar: AppBar(
-        backgroundColor: Colors.white,
+        backgroundColor: AppColors.surface,
         elevation: 0,
         leading: IconButton(
-          icon: Icon(Icons.arrow_back, color: Colors.black87),
-          onPressed: () => Navigator.pop(context, replies),
+          icon: Icon(Icons.arrow_back, color: AppColors.onSurface),
+          onPressed: () => Navigator.pop(context, _currentQuestion),
         ),
         title: Text(
           'Question Details',
           style: TextStyle(
             fontSize: 20,
             fontWeight: FontWeight.bold,
-            color: Colors.black87,
+            color: AppColors.onSurface,
           ),
         ),
       ),
       body: Column(
         children: [
+          // Question details section
           Expanded(
             child: SingleChildScrollView(
               padding: EdgeInsets.all(16),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  // Question details
+                  // Question card
                   Container(
                     padding: EdgeInsets.all(16),
                     decoration: BoxDecoration(
-                      color: Colors.white,
+                      color: AppColors.surface,
                       borderRadius: BorderRadius.circular(12),
                       boxShadow: [
                         BoxShadow(
-                          color: Colors.grey.withOpacity(0.1),
+                          color: AppColors.shadow,
                           spreadRadius: 1,
                           blurRadius: 4,
                           offset: Offset(0, 2),
@@ -752,10 +753,10 @@ class _VolunteerQuestionDetailScreenState
                             ),
                             Spacer(),
                             Text(
-                              _currentQuestion['timeAgo'],
+                              _currentQuestion['timeAgo'] ?? '',
                               style: TextStyle(
                                 fontSize: 12,
-                                color: Colors.grey[600],
+                                color: AppColors.onSurfaceVariant,
                               ),
                             ),
                           ],
@@ -764,59 +765,65 @@ class _VolunteerQuestionDetailScreenState
                         Text(
                           _currentQuestion['title'],
                           style: TextStyle(
-                            fontSize: 20,
-                            fontWeight: FontWeight.bold,
-                            color: Colors.black87,
+                            fontSize: 18,
+                            fontWeight: FontWeight.w600,
+                            color: AppColors.onSurface,
                           ),
                         ),
                         SizedBox(height: 12),
                         Text(
                           _currentQuestion['content'],
                           style: TextStyle(
-                            fontSize: 16,
-                            color: Colors.grey[700],
-                            height: 1.4,
+                            fontSize: 14,
+                            color: AppColors.onSurface,
+                            height: 1.5,
                           ),
                         ),
                         SizedBox(height: 16),
-                        Wrap(
-                          spacing: 8,
-                          runSpacing: 8,
-                          children: _currentQuestion['tags'].map<Widget>((tag) {
-                            return Container(
-                              padding: EdgeInsets.symmetric(
-                                horizontal: 12,
-                                vertical: 6,
-                              ),
-                              decoration: BoxDecoration(
-                                color: Color(0xFFA0C4FD).withOpacity(0.2),
-                                borderRadius: BorderRadius.circular(16),
-                              ),
-                              child: Text(
-                                tag,
-                                style: TextStyle(
-                                  fontSize: 12,
-                                  color: Color(0xFF2B3F99),
-                                  fontWeight: FontWeight.w500,
-                                ),
-                              ),
-                            );
-                          }).toList(),
-                        ),
-                        SizedBox(height: 12),
+                        if (_currentQuestion['tags'] != null &&
+                            (_currentQuestion['tags'] as List).isNotEmpty)
+                          Wrap(
+                            spacing: 6,
+                            runSpacing: 6,
+                            children: (_currentQuestion['tags'] as List<String>)
+                                .map((tag) {
+                                  return Container(
+                                    padding: EdgeInsets.symmetric(
+                                      horizontal: 8,
+                                      vertical: 4,
+                                    ),
+                                    decoration: BoxDecoration(
+                                      color: AppColors.primaryLight.withOpacity(
+                                        0.3,
+                                      ),
+                                      borderRadius: BorderRadius.circular(12),
+                                    ),
+                                    child: Text(
+                                      tag,
+                                      style: TextStyle(
+                                        fontSize: 11,
+                                        color: AppColors.info,
+                                        fontWeight: FontWeight.w500,
+                                      ),
+                                    ),
+                                  );
+                                })
+                                .toList(),
+                          ),
+                        SizedBox(height: 16),
                         Row(
                           children: [
                             Icon(
                               Icons.visibility,
                               size: 16,
-                              color: Colors.grey[600],
+                              color: AppColors.onSurfaceVariant,
                             ),
                             SizedBox(width: 4),
                             Text(
                               '${_currentQuestion['views']} ${_currentQuestion['views'] == 1 ? 'view' : 'views'}',
                               style: TextStyle(
                                 fontSize: 12,
-                                color: Colors.grey[600],
+                                color: AppColors.onSurfaceVariant,
                               ),
                             ),
                           ],
@@ -825,57 +832,72 @@ class _VolunteerQuestionDetailScreenState
                     ),
                   ),
                   SizedBox(height: 24),
-
                   // Replies section
                   Text(
                     'Replies (${replies.length})',
                     style: TextStyle(
                       fontSize: 18,
                       fontWeight: FontWeight.w600,
-                      color: Colors.black87,
+                      color: AppColors.onSurface,
                     ),
                   ),
                   SizedBox(height: 16),
-
-                  // Replies list with loading state
                   if (_loadingReplies)
                     Center(
                       child: Padding(
-                        padding: EdgeInsets.all(20),
-                        child: CircularProgressIndicator(
-                          color: Color(0xFF2B3F99),
-                        ),
+                        padding: EdgeInsets.all(32),
+                        child: CircularProgressIndicator(color: AppColors.info),
                       ),
                     )
                   else if (replies.isEmpty)
                     Center(
                       child: Padding(
-                        padding: EdgeInsets.all(20),
-                        child: Text(
-                          'No replies yet. Be the first to reply!',
-                          style: TextStyle(
-                            fontSize: 14,
-                            color: Colors.grey[600],
-                          ),
+                        padding: EdgeInsets.all(24),
+                        child: Column(
+                          children: [
+                            Icon(
+                              Icons.comment_outlined,
+                              size: 48,
+                              color: Colors.grey[400],
+                            ),
+                            SizedBox(height: 12),
+                            Text(
+                              'No replies yet',
+                              style: TextStyle(
+                                fontSize: 14,
+                                color: Colors.grey[600],
+                              ),
+                            ),
+                            SizedBox(height: 4),
+                            Text(
+                              'Be the first to reply!',
+                              style: TextStyle(
+                                fontSize: 12,
+                                color: Colors.grey[500],
+                              ),
+                            ),
+                          ],
                         ),
                       ),
                     )
                   else
-                    for (var reply in replies) _buildReplyCard(reply),
+                    Column(
+                      children: replies
+                          .map((reply) => _buildReplyCard(reply))
+                          .toList(),
+                    ),
                 ],
               ),
             ),
           ),
-
-          // Reply input
+          // Reply input section
           Container(
             padding: EdgeInsets.all(16),
             decoration: BoxDecoration(
-              color: Colors.white,
+              color: AppColors.surface,
               boxShadow: [
                 BoxShadow(
-                  color: Colors.grey.withOpacity(0.1),
-                  spreadRadius: 1,
+                  color: Colors.black.withOpacity(0.05),
                   blurRadius: 4,
                   offset: Offset(0, -2),
                 ),
@@ -886,30 +908,29 @@ class _VolunteerQuestionDetailScreenState
                 Expanded(
                   child: TextField(
                     controller: _replyController,
-                    maxLines: null,
                     decoration: InputDecoration(
-                      hintText: 'Write your reply...',
+                      hintText: 'Write a reply...',
+                      hintStyle: TextStyle(color: Colors.grey[400]),
+                      filled: true,
+                      fillColor: Colors.grey[100],
                       border: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(24),
-                        borderSide: BorderSide(color: Colors.grey[300]!),
-                      ),
-                      focusedBorder: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(24),
-                        borderSide: BorderSide(color: Color(0xFFA0C4FD)),
+                        borderSide: BorderSide.none,
                       ),
                       contentPadding: EdgeInsets.symmetric(
                         horizontal: 16,
                         vertical: 12,
                       ),
                     ),
+                    maxLines: null,
                   ),
                 ),
                 SizedBox(width: 12),
                 CircleAvatar(
                   radius: 24,
-                  backgroundColor: Color(0xFFA0C4FD),
+                  backgroundColor: AppColors.primaryLight,
                   child: IconButton(
-                    icon: Icon(Icons.send, color: Color(0xFF2B3F99)),
+                    icon: Icon(Icons.send, color: AppColors.info),
                     onPressed: () async {
                       if (_replyController.text.trim().isNotEmpty) {
                         try {
@@ -917,7 +938,6 @@ class _VolunteerQuestionDetailScreenState
                               widget.question['questionId'] ??
                               widget.question['id'];
 
-                          // Show loading indicator
                           ScaffoldMessenger.of(context).showSnackBar(
                             SnackBar(
                               content: Row(
@@ -934,49 +954,50 @@ class _VolunteerQuestionDetailScreenState
                                   Text('Posting reply...'),
                                 ],
                               ),
-                              backgroundColor: Colors.green,
                               duration: Duration(seconds: 2),
+                              backgroundColor: Colors.green,
                             ),
                           );
 
-                          // Post reply to backend
+                          // Get current user's ID from auth service
+                          final int? currentUserId = AuthService.currentUserId;
+
+                          if (currentUserId == null) {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              SnackBar(
+                                content: Text('Error: User not logged in'),
+                                backgroundColor: Colors.red,
+                              ),
+                            );
+                            return;
+                          }
+
                           final newReply = await ForumAnswerService.createAnswer(
                             questionId: questionId.toString(),
-                            volunteerId:
-                                13, // TODO: Replace with actual volunteer ID from session
+                            userId:
+                                currentUserId, // Use actual logged-in user's ID
                             content: _replyController.text.trim(),
                           );
 
-                          // Add to local list if reply was created successfully
-                          if (newReply != null) {
+                          if (newReply != null && mounted) {
                             setState(() {
                               replies.insert(0, {
                                 'id': newReply['answerId'],
                                 'content': newReply['content'],
-                                'author':
-                                    newReply['volunteerName'] ?? 'Current User',
+                                'author': newReply['volunteerName'] ?? 'You',
                                 'authorType':
                                     newReply['volunteerRole'] ?? 'Volunteer',
                                 'timeAgo': 'Just now',
-                                'likes': newReply['likes'] ?? 0,
+                                'likes': 0,
                                 'isLiked': false,
                               });
 
-                              // Update question reply count and mark as answered
-                              final previousReplyCount =
-                                  _currentQuestion['replies'] ?? 0;
-                              _currentQuestion['replies'] =
-                                  previousReplyCount + 1;
-
-                              // Mark as answered when first reply is added
-                              if (previousReplyCount == 0) {
-                                _currentQuestion['isAnswered'] = true;
-                              }
+                              _currentQuestion['replies'] = replies.length;
+                              _currentQuestion['isAnswered'] = true;
                             });
 
                             _replyController.clear();
 
-                            // Show success message
                             ScaffoldMessenger.of(context).showSnackBar(
                               SnackBar(
                                 content: Row(

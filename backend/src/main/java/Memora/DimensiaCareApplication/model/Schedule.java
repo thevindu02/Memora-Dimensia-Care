@@ -23,7 +23,7 @@ public class Schedule {
     private Guardian guardian;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "caregiver_id", nullable = false)
+    @JoinColumn(name = "caregiver_id", nullable = true)
     private Caregiver caregiver;
 
     @Column(name = "date", nullable = false)

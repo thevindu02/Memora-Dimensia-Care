@@ -19,6 +19,7 @@ class _VolunteerSingleArticleScreenState
     extends State<VolunteerSingleArticleScreen> {
   TextEditingController _commentController = TextEditingController();
   bool _isLiked = false;
+  bool _isUnliked = false;
   int _likeCount = 0;
   List<Map<String, dynamic>> _comments = [];
   Map<String, List<Map<String, dynamic>>> _replies =
@@ -56,6 +57,7 @@ class _VolunteerSingleArticleScreenState
     _loadCurrentUser();
     _loadArticleData();
     _subscribeToComments();
+    _loadLikeStatus();
   }
 
   Future<void> _loadArticleData() async {
@@ -147,11 +149,175 @@ class _VolunteerSingleArticleScreenState
         );
   }
 
-  void _toggleLike() {
+  Future<void> _loadLikeStatus() async {
+    if (currentUserId == null) {
+      // Wait for user to be loaded
+      await Future.delayed(Duration(milliseconds: 500));
+      if (currentUserId == null) {
+        print('User not loaded, skipping like status check');
+        return;
+      }
+    }
+
+    try {
+      final likeStatus = await ArticleService.getArticleLikeStatus(
+        articleId: widget.articleId,
+        userId: currentUserId,
+      );
+
+      if (likeStatus != null) {
+        setState(() {
+          _likeCount = likeStatus['likeCount'] ?? 0;
+          _isLiked = likeStatus['hasLiked'] ?? false;
+        });
+        print('Like status loaded: $_likeCount likes, isLiked: $_isLiked');
+      }
+    } catch (e) {
+      print('Error loading like status: $e');
+    }
+  }
+
+  Future<void> _handleLike() async {
+    if (currentUserId == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Please sign in to like articles'),
+          backgroundColor: Colors.red,
+        ),
+      );
+      return;
+    }
+
+    // Don't allow liking if already liked
+    if (_isLiked) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('You have already liked this article'),
+          backgroundColor: Colors.orange,
+          duration: Duration(seconds: 2),
+        ),
+      );
+      return;
+    }
+
+    // Optimistic UI update
+    final previousLikeCount = _likeCount;
+
     setState(() {
-      _isLiked = !_isLiked;
-      _likeCount += _isLiked ? 1 : -1;
+      _isLiked = true;
+      _isUnliked = false; // Clear unlike state when liking
+      _likeCount += 1;
     });
+
+    try {
+      final result = await ArticleService.likeArticle(
+        articleId: widget.articleId,
+        userId: currentUserId!,
+      );
+
+      if (result['success']) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Article liked successfully'),
+            backgroundColor: Colors.green,
+            duration: Duration(seconds: 1),
+          ),
+        );
+      } else {
+        // Revert optimistic update if failed
+        setState(() {
+          _isLiked = false;
+          _likeCount = previousLikeCount;
+        });
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(result['message'] ?? 'Failed to like article'),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
+    } catch (e) {
+      // Revert optimistic update on error
+      setState(() {
+        _isLiked = false;
+        _likeCount = previousLikeCount;
+      });
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Error liking article'),
+          backgroundColor: Colors.red,
+        ),
+      );
+    }
+  }
+
+  Future<void> _handleUnlike() async {
+    if (currentUserId == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Please sign in to unlike articles'),
+          backgroundColor: Colors.red,
+        ),
+      );
+      return;
+    }
+
+    // Optimistic UI update - Unlike works independently
+    final previousLikedState = _isLiked;
+    final previousUnlikedState = _isUnliked;
+    final previousLikeCount = _likeCount;
+
+    setState(() {
+      _isLiked = false;
+      _isUnliked = true; // Set unlike state to show blue shade
+      // Only decrease count if it was previously liked
+      if (previousLikedState) {
+        _likeCount -= 1;
+      }
+    });
+
+    try {
+      final result = await ArticleService.unlikeArticle(
+        articleId: widget.articleId,
+        userId: currentUserId!,
+      );
+
+      if (result['success']) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Article unliked successfully'),
+            backgroundColor: Colors.green,
+            duration: Duration(seconds: 1),
+          ),
+        );
+      } else {
+        // Revert optimistic update if failed
+        setState(() {
+          _isLiked = previousLikedState;
+          _isUnliked = previousUnlikedState;
+          _likeCount = previousLikeCount;
+        });
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(result['message'] ?? 'Failed to unlike article'),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
+    } catch (e) {
+      // Revert optimistic update on error
+      setState(() {
+        _isLiked = previousLikedState;
+        _isUnliked = previousUnlikedState;
+        _likeCount = previousLikeCount;
+      });
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Error unliking article'),
+          backgroundColor: Colors.red,
+        ),
+      );
+    }
   }
 
   Future<void> _addComment() async {
@@ -730,8 +896,9 @@ class _VolunteerSingleArticleScreenState
           SizedBox(height: 16),
           Row(
             children: [
+              // Like button
               GestureDetector(
-                onTap: _toggleLike,
+                onTap: () => _handleLike(),
                 child: Row(
                   children: [
                     Icon(
@@ -741,11 +908,38 @@ class _VolunteerSingleArticleScreenState
                     ),
                     SizedBox(width: 4),
                     Text(
-                      '$_likeCount likes',
+                      '$_likeCount',
                       style: TextStyle(
                         fontSize: 14,
                         color: _isLiked ? Color(0xFF2B3F99) : Colors.grey[600],
                         fontWeight: _isLiked
+                            ? FontWeight.w600
+                            : FontWeight.normal,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              SizedBox(width: 16),
+              // Unlike button
+              GestureDetector(
+                onTap: () => _handleUnlike(),
+                child: Row(
+                  children: [
+                    Icon(
+                      _isUnliked ? Icons.thumb_down : Icons.thumb_down_outlined,
+                      size: 20,
+                      color: _isUnliked ? Color(0xFF2B3F99) : Colors.grey[600],
+                    ),
+                    SizedBox(width: 4),
+                    Text(
+                      'Unlike',
+                      style: TextStyle(
+                        fontSize: 14,
+                        color: _isUnliked
+                            ? Color(0xFF2B3F99)
+                            : Colors.grey[600],
+                        fontWeight: _isUnliked
                             ? FontWeight.w600
                             : FontWeight.normal,
                       ),

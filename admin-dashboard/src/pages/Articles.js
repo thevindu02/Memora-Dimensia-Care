@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import '../styles/Articles.css';
 import '../styles/UserManagement.css';
 import {
@@ -6,149 +6,71 @@ import {
   Sidebar,
   Footer
 } from '../components';
-
-// Sample articles data with Sri Lankan context
-const articlesData = [
-  {
-    id: 1,
-    title: 'Understanding Dementia: A Guide for Sri Lankan Families',
-    author: 'Dr. Priya Jayawardena',
-    category: 'Medical',
-    status: 'Published',
-    publishDate: '2024-12-15',
-    readTime: '8 min read',
-    views: 66,
-    likes: 34,
-    content: 'Comprehensive guide about dementia care in Sri Lankan context...',
-    tags: ['dementia', 'family care', 'sri lanka', 'medical'],
-    featured: true,
-    language: 'English',
-    authorPicture: 'https://via.placeholder.com/150/4A90E2/FFFFFF?text=PJ'
-  },
-  {
-    id: 2,
-    title: 'Traditional Ayurvedic Approaches to Memory Care',
-    author: 'Prof. Sunil Rathnayake',
-    category: 'Traditional Medicine',
-    status: 'Pending',
-    publishDate: '2024-12-20',
-    readTime: '12 min read',
-    views: 0,
-    likes: 0,
-    content: 'Exploring traditional Ayurvedic methods for memory enhancement...',
-    tags: ['ayurveda', 'memory', 'traditional', 'herbal'],
-    featured: false,
-    language: 'Sinhala',
-    authorPicture: 'https://via.placeholder.com/150/50C878/FFFFFF?text=SR'
-  },
-  {
-    id: 3,
-    title: 'Nutrition for Brain Health: Sri Lankan Superfoods',
-    author: 'Nutritionist Kamala Silva',
-    category: 'Nutrition',
-    status: 'Published',
-    publishDate: '2024-12-10',
-    readTime: '6 min read',
-    views: 98,
-    likes: 35,
-    content: 'Local superfoods that support brain health and memory...',
-    tags: ['nutrition', 'brain health', 'superfoods', 'diet'],
-    featured: true,
-    language: 'English',
-    authorPicture: 'https://via.placeholder.com/150/FF6B6B/FFFFFF?text=KS'
-  },
-  {
-    id: 4,
-    title: 'Creating a Safe Home Environment for Dementia Patients',
-    author: 'Arch. Nimal Perera',
-    category: 'Home Care',
-    status: 'Published',
-    publishDate: '2024-12-05',
-    readTime: '10 min read',
-    views: 158,
-    likes: 80,
-    content: 'Practical tips for modifying homes for dementia care...',
-    tags: ['home safety', 'environment', 'modifications', 'care'],
-    featured: false,
-    language: 'English',
-    authorPicture: 'https://via.placeholder.com/150/9B59B6/FFFFFF?text=NP'
-  },
-  {
-    id: 5,
-    title: 'Community Support Systems in Rural Sri Lanka',
-    author: 'Social Worker Sanduni Fernando',
-    category: 'Community',
-    status: 'Draft',
-    publishDate: '2024-12-25',
-    readTime: '7 min read',
-    views: 0,
-    likes: 0,
-    content: 'Building community networks for dementia care support...',
-    tags: ['community', 'rural', 'support', 'networks'],
-    featured: false,
-    language: 'Sinhala',
-    authorPicture: 'https://via.placeholder.com/150/F39C12/FFFFFF?text=SF'
-  },
-  {
-    id: 6,
-    title: 'Technology Solutions for Memory Care',
-    author: 'Tech Specialist Ruwan Bandara',
-    category: 'Technology',
-    status: 'Published',
-    publishDate: '2024-11-28',
-    readTime: '9 min read',
-    views: 130,
-    likes: 76,
-    content: 'Modern technology tools for dementia care management...',
-    tags: ['technology', 'apps', 'devices', 'digital'],
-    featured: true,
-    language: 'English',
-    authorPicture: 'https://via.placeholder.com/150/E74C3C/FFFFFF?text=RB'
-  },
-  {
-    id: 7,
-    title: 'Managing Behavioral Changes in Dementia',
-    author: 'Dr. Anura Wickramasinghe',
-    category: 'Psychology',
-    status: 'Rejected',
-    publishDate: '2024-12-18',
-    readTime: '11 min read',
-    views: 0,
-    likes: 0,
-    content: 'Understanding and managing behavioral symptoms...',
-    tags: ['behavior', 'psychology', 'management', 'symptoms'],
-    featured: false,
-    language: 'English',
-    authorPicture: 'https://via.placeholder.com/150/3498DB/FFFFFF?text=AW'
-  },
-  {
-    id: 8,
-    title: 'Exercise and Physical Activity for Memory Health',
-    author: 'Physiotherapist Malini Dissanayake',
-    category: 'Exercise',
-    status: 'Published',
-    publishDate: '2024-11-20',
-    readTime: '8 min read',
-    views: 76,
-    likes: 15,
-    content: 'Physical activities that support cognitive function...',
-    tags: ['exercise', 'physical', 'memory', 'health'],
-    featured: false,
-    language: 'English'
-  }
-];
+import articleApiService from '../services/articleApiService';
 
 const Articles = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState('');
   const [categoryFilter, setCategoryFilter] = useState('');
   const [selectedArticle, setSelectedArticle] = useState(null);
+  const [articles, setArticles] = useState([]);
+  const [categories, setCategories] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState('');
 
-  // Calculate stats
-  const totalArticles = articlesData.length;
-  const publishedArticles = articlesData.filter(article => article.status === 'Published').length;
-  const pendingArticles = articlesData.filter(article => article.status === 'Pending').length;
-  const draftArticles = articlesData.filter(article => article.status === 'Draft').length;
+  // Fetch data on component mount
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        setLoading(true);
+        setError('');
+        
+        // Fetch articles and categories in parallel
+        const [articlesData, categoriesData] = await Promise.all([
+          articleApiService.getAllArticles(), // Changed to get ALL articles
+          articleApiService.getCategories()
+        ]);
+        
+        setArticles(articlesData);
+        setCategories(categoriesData);
+        console.log('Articles loaded:', articlesData.length);
+        console.log('Categories loaded:', categoriesData.length);
+      } catch (err) {
+        console.error('Error fetching data:', err);
+        setError('Failed to load articles. Please try again.');
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchData();
+  }, []);
+
+  // Transform status for display
+  const getDisplayStatus = (article) => {
+    // Handle draft status first
+    if (article.draft === true) {
+      return 'Draft';
+    }
+    
+    // Handle non-draft status based on approval
+    if (article.status === 'approved') {
+      return 'Published';
+    } else if (article.status === 'disapproved') {
+      return 'Rejected';
+    } else if (!article.status || article.status === 'pending') {
+      return 'Pending';
+    } else {
+      return 'Pending'; // Default for unknown statuses
+    }
+  };
+
+  // Calculate stats from real data
+  const totalArticles = articles.length;
+  const publishedArticles = articles.filter(article => getDisplayStatus(article) === 'Published').length;
+  const pendingArticles = articles.filter(article => getDisplayStatus(article) === 'Pending').length;
+  const draftArticles = articles.filter(article => getDisplayStatus(article) === 'Draft').length;
+  const rejectedArticles = articles.filter(article => getDisplayStatus(article) === 'Rejected').length;
 
   const handleArticleClick = (article) => {
     setSelectedArticle(article);
@@ -172,27 +94,40 @@ const Articles = () => {
 
   const handleEditArticle = (articleId) => {
     // UI only - no backend functionality
-    console.log('Edit article:', articleId);
+    console.log('View full article:', articleId);
+    // TODO: Navigate to full article view or open in new tab
     handleCloseModal();
   };
 
   // Filter articles based on search term, status, and category
-  const filteredArticles = articlesData.filter(article => {
-    const matchesSearch = article.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         article.author.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         article.category.toLowerCase().includes(searchTerm.toLowerCase());
-    const matchesStatus = statusFilter === '' || article.status === statusFilter;
-    const matchesCategory = categoryFilter === '' || article.category === categoryFilter;
+  const filteredArticles = articles.filter(article => {
+    const displayStatus = getDisplayStatus(article);
+    const categoryName = article.categoryName || '';
+    const authorName = article.authorName || 'Unknown Author';
+    const title = article.title || '';
+    
+    const matchesSearch = title.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                         authorName.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                         categoryName.toLowerCase().includes(searchTerm.toLowerCase());
+    const matchesStatus = statusFilter === '' || displayStatus === statusFilter;
+    const matchesCategory = categoryFilter === '' || categoryName === categoryFilter;
     return matchesSearch && matchesStatus && matchesCategory;
   });
 
   // Sort articles to show pending first, then published, then drafts, then rejected
   const sortedArticles = [...filteredArticles].sort((a, b) => {
     const statusOrder = { 'Pending': 0, 'Published': 1, 'Draft': 2, 'Rejected': 3 };
-    if (statusOrder[a.status] !== statusOrder[b.status]) {
-      return statusOrder[a.status] - statusOrder[b.status];
+    const statusA = getDisplayStatus(a);
+    const statusB = getDisplayStatus(b);
+    
+    if (statusOrder[statusA] !== statusOrder[statusB]) {
+      return statusOrder[statusA] - statusOrder[statusB];
     }
-    return new Date(b.publishDate) - new Date(a.publishDate);
+    
+    // Sort by creation date (most recent first)
+    const dateA = new Date(a.created_at || 0);
+    const dateB = new Date(b.created_at || 0);
+    return dateB - dateA;
   });
 
   return (
@@ -236,14 +171,11 @@ const Articles = () => {
                   className="filter-select"
                 >
                   <option value="">All Categories</option>
-                  <option value="Medical">Medical</option>
-                  <option value="Nutrition">Nutrition</option>
-                  <option value="Technology">Technology</option>
-                  <option value="Community">Community</option>
-                  <option value="Exercise">Exercise</option>
-                  <option value="Psychology">Psychology</option>
-                  <option value="Home Care">Home Care</option>
-                  <option value="Traditional Medicine">Traditional Medicine</option>
+                  {categories.map(category => (
+                    <option key={category.categoryId} value={category.categoryName}>
+                      {category.categoryName}
+                    </option>
+                  ))}
                 </select>
               </div>
             </div>
@@ -278,52 +210,92 @@ const Articles = () => {
                   <p>Drafts</p>
                 </div>
               </div>
+              <div className="stat-card">
+                <div className="stat-icon">❌</div>
+                <div className="stat-content">
+                  <h3>{rejectedArticles}</h3>
+                  <p>Rejected</p>
+                </div>
+              </div>
             </div>
 
             {/* Articles Table */}
             <div className="um-table-container">
-              <table className="um-table">
-                <thead>
-                  <tr>
-                    <th>Title</th>
-                    <th>Author</th>
-                    <th>Category</th>
-                    <th>Date</th>
-                    <th>Status</th>
-                    <th>Actions</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {sortedArticles.map(article => (
-                    <tr key={article.id}>
-                      <td className="um-name-cell">
-                        <div className="article-title">
-                          {article.featured && <span className="featured-badge">⭐</span>}
-                          {article.title}
-                        </div>
-                      </td>
-                      <td>{article.author}</td>
-                      <td>
-                        <span className="um-status-badge category">{article.category}</span>
-                      </td>
-                      <td>{new Date(article.publishDate).toLocaleDateString()}</td>
-                      <td>
-                        <span className={`um-status-badge ${article.status.toLowerCase()}`}>
-                          {article.status}
-                        </span>
-                      </td>
-                      <td>
-                        <button 
-                          className="um-btn um-btn-primary um-btn-sm"
-                          onClick={() => handleArticleClick(article)}
-                        >
-                          View Details
-                        </button>
-                      </td>
+              {loading ? (
+                <div className="loading-message">
+                  <p>Loading articles...</p>
+                </div>
+              ) : error ? (
+                <div className="error-message">
+                  <p>{error}</p>
+                  <button 
+                    className="um-btn um-btn-primary"
+                    onClick={() => window.location.reload()}
+                  >
+                    Retry
+                  </button>
+                </div>
+              ) : (
+                <table className="um-table">
+                  <thead>
+                    <tr>
+                      <th>Title</th>
+                      <th>Author</th>
+                      <th>Category</th>
+                      <th>Date</th>
+                      <th>Status</th>
+                      <th>Actions</th>
                     </tr>
-                  ))}
-                </tbody>
-              </table>
+                  </thead>
+                  <tbody>
+                    {sortedArticles.length === 0 ? (
+                      <tr>
+                        <td colSpan="6" style={{textAlign: 'center', padding: '2rem'}}>
+                          No articles found matching your filters.
+                        </td>
+                      </tr>
+                    ) : (
+                      sortedArticles.map(article => {
+                        const displayStatus = getDisplayStatus(article);
+                        return (
+                          <tr key={article.articleId}>
+                            <td className="um-name-cell">
+                              <div className="article-title">
+                                {article.title}
+                              </div>
+                            </td>
+                            <td>{article.authorName || 'Unknown Author'}</td>
+                            <td>
+                              <span className="um-status-badge category">
+                                {article.categoryName || 'Uncategorized'}
+                              </span>
+                            </td>
+                            <td>
+                              {article.created_at 
+                                ? articleApiService.formatDate(article.created_at)
+                                : 'Unknown'
+                              }
+                            </td>
+                            <td>
+                              <span className={`um-status-badge ${displayStatus.toLowerCase()}`}>
+                                {displayStatus}
+                              </span>
+                            </td>
+                            <td>
+                              <button 
+                                className="um-btn um-btn-primary um-btn-sm"
+                                onClick={() => handleArticleClick(article)}
+                              >
+                                View Details
+                              </button>
+                            </td>
+                          </tr>
+                        );
+                      })
+                    )}
+                  </tbody>
+                </table>
+              )}
             </div>
 
             {/* Article Details Modal */}
@@ -335,7 +307,7 @@ const Articles = () => {
                       <div className="um-modal-icon">📄</div>
                       <div>
                         <h2>Article Details</h2>
-                        <div className="um-modal-subtitle">ID: #{selectedArticle.id}</div>
+                        <div className="um-modal-subtitle">ID: {selectedArticle.articleId}</div>
                       </div>
                     </div>
                     <button className="um-modal-close" onClick={handleCloseModal}>×</button>
@@ -346,8 +318,8 @@ const Articles = () => {
                       {/* Profile Picture Section */}
                       <div className="um-detail-section" style={{gridColumn: '1 / -1', textAlign: 'center', marginBottom: '2rem'}}>
                         <img 
-                          src={selectedArticle.authorPicture} 
-                          alt={selectedArticle.author}
+                          src={selectedArticle.authorProfilePic || selectedArticle.articleImg || articleApiService.getPlaceholderImage()} 
+                          alt={selectedArticle.authorName || 'Author'}
                           style={{
                             width: '120px',
                             height: '120px',
@@ -361,7 +333,7 @@ const Articles = () => {
                           }}
                         />
                         <h3 style={{margin: '0', color: 'var(--um-gray-800)'}}>{selectedArticle.title}</h3>
-                        <p style={{margin: '0.5rem 0 0 0', color: 'var(--um-gray-600)'}}>by {selectedArticle.author}</p>
+                        <p style={{margin: '0.5rem 0 0 0', color: 'var(--um-gray-600)'}}>by {selectedArticle.authorName || 'Unknown Author'}</p>
                       </div>
 
                       {/* Article Information */}
@@ -376,85 +348,100 @@ const Articles = () => {
                         </div>
                         <div className="um-detail-row">
                           <span className="um-detail-label">Author</span>
-                          <span className="um-detail-value">{selectedArticle.author}</span>
+                          <span className="um-detail-value">{selectedArticle.authorName || 'Unknown Author'}</span>
+                        </div>
+                        <div className="um-detail-row">
+                          <span className="um-detail-label">Author Email</span>
+                          <span className="um-detail-value">{selectedArticle.authorEmail || 'N/A'}</span>
                         </div>
                         <div className="um-detail-row">
                           <span className="um-detail-label">Category</span>
-                          <span className="um-detail-value">{selectedArticle.category}</span>
+                          <span className="um-detail-value">{selectedArticle.categoryName || 'Uncategorized'}</span>
                         </div>
                         <div className="um-detail-row">
                           <span className="um-detail-label">Status</span>
-                          <span className={`um-status-badge ${selectedArticle.status.toLowerCase()}`}>
-                            {selectedArticle.status}
+                          <span className={`um-status-badge ${getDisplayStatus(selectedArticle).toLowerCase()}`}>
+                            {getDisplayStatus(selectedArticle)}
                           </span>
                         </div>
                         <div className="um-detail-row">
-                          <span className="um-detail-label">Publish Date</span>
-                          <span className="um-detail-value">{new Date(selectedArticle.publishDate).toLocaleDateString()}</span>
+                          <span className="um-detail-label">Created Date</span>
+                          <span className="um-detail-value">
+                            {selectedArticle.created_at 
+                              ? articleApiService.formatDate(selectedArticle.created_at)
+                              : 'Unknown'
+                            }
+                          </span>
                         </div>
                         <div className="um-detail-row">
-                          <span className="um-detail-label">Read Time</span>
-                          <span className="um-detail-value">{selectedArticle.readTime}</span>
-                        </div>
-                        <div className="um-detail-row">
-                          <span className="um-detail-label">Language</span>
-                          <span className="um-detail-value">{selectedArticle.language}</span>
+                          <span className="um-detail-label">Volunteer ID</span>
+                          <span className="um-detail-value">{selectedArticle.volunteerId || 'N/A'}</span>
                         </div>
                       </div>
 
-                      {/* Statistics & Content */}
+                      {/* Content & Summary */}
                       <div className="um-detail-section">
                         <div className="um-section-header">
                           <div className="um-section-icon">📊</div>
-                          <h3 className="um-section-title">Statistics & Content</h3>
+                          <h3 className="um-section-title">Content & Details</h3>
                         </div>
                         <div className="um-detail-row">
-                          <span className="um-detail-label">Views</span>
-                          <span className="um-detail-value">{selectedArticle.views.toLocaleString()}</span>
+                          <span className="um-detail-label">Summary</span>
+                          <span className="um-detail-value">
+                            {selectedArticle.summary || articleApiService.generateExcerpt(selectedArticle.content)}
+                          </span>
                         </div>
                         <div className="um-detail-row">
-                          <span className="um-detail-label">Likes</span>
-                          <span className="um-detail-value">{selectedArticle.likes}</span>
+                          <span className="um-detail-label">Article Image</span>
+                          <span className="um-detail-value">
+                            {selectedArticle.articleImg ? (
+                              <img 
+                                src={selectedArticle.articleImg} 
+                                alt="Article" 
+                                style={{maxWidth: '200px', maxHeight: '100px', objectFit: 'cover', borderRadius: '4px'}}
+                              />
+                            ) : (
+                              'No image'
+                            )}
+                          </span>
                         </div>
                         <div className="um-detail-row">
-                          <span className="um-detail-label">Featured</span>
-                          <span className="um-detail-value">{selectedArticle.featured ? '⭐ Yes' : 'No'}</span>
-                        </div>
-                        <div className="um-detail-row">
-                          <span className="um-detail-label">Tags</span>
-                          <span className="um-detail-value">{selectedArticle.tags.join(', ')}</span>
+                          <span className="um-detail-label">Draft Status</span>
+                          <span className="um-detail-value">{selectedArticle.draft ? 'Yes' : 'No'}</span>
                         </div>
                         <div className="um-detail-row">
                           <span className="um-detail-label">Content Preview</span>
-                          <span className="um-detail-value">{selectedArticle.content}</span>
+                          <div className="um-detail-value" style={{maxHeight: '200px', overflow: 'auto', border: '1px solid #ddd', padding: '1rem', borderRadius: '4px', backgroundColor: '#f9f9f9'}}>
+                            {selectedArticle.content || 'No content available'}
+                          </div>
                         </div>
                       </div>
                     </div>
                   </div>
                   
                   <div className="um-modal-footer">
-                    {selectedArticle.status === 'Pending' && (
+                    {getDisplayStatus(selectedArticle) === 'Pending' && (
                       <>
                         <button 
                           className="um-btn um-btn-success"
-                          onClick={() => handlePublishArticle(selectedArticle.id)}
+                          onClick={() => handlePublishArticle(selectedArticle.articleId)}
                         >
-                          Publish Article
+                          Approve Article
                         </button>
                         <button 
                           className="um-btn um-btn-danger"
-                          onClick={() => handleRejectArticle(selectedArticle.id)}
+                          onClick={() => handleRejectArticle(selectedArticle.articleId)}
                         >
                           Reject Article
                         </button>
                       </>
                     )}
-                    {(selectedArticle.status === 'Published' || selectedArticle.status === 'Draft') && (
+                    {(getDisplayStatus(selectedArticle) === 'Published' || getDisplayStatus(selectedArticle) === 'Draft') && (
                       <button 
                         className="um-btn um-btn-primary"
-                        onClick={() => handleEditArticle(selectedArticle.id)}
+                        onClick={() => handleEditArticle(selectedArticle.articleId)}
                       >
-                        Edit Article
+                        View Full Article
                       </button>
                     )}
                     <button className="um-btn um-btn-secondary" onClick={handleCloseModal}>

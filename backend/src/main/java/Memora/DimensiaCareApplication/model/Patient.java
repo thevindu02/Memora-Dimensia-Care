@@ -34,6 +34,8 @@ public class Patient {
     
     @Column(name = "relationship")
     private String relationship;
+    
+    private String label;
 
     // Getters and setters
 
@@ -91,6 +93,14 @@ public class Patient {
     
     public void setRelationship(String relationship) {
         this.relationship = relationship;
+    }
+
+    public String getLabel() {
+        return label;
+    }
+
+    public void setLabel(String label) {
+        this.label = label;
     }
 
     // Enums

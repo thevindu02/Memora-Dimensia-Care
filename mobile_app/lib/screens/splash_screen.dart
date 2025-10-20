@@ -17,11 +17,21 @@ class _SplashScreenState extends State<SplashScreen> {
   }
 
   _initializeApp() async {
+    print('🚀 Splash screen: Starting initialization...');
+
     // Simulate app initialization (loading user data, preferences, etc.)
     await Future.delayed(Duration(seconds: 2));
 
+    print('⏰ Splash screen: 2 seconds elapsed, navigating to login...');
+
     // Always navigate to login screen after splash (default)
-    Navigator.pushReplacementNamed(context, AppRoutes.login);
+    if (mounted) {
+      print('✅ Splash screen: Navigating to ${AppRoutes.login}');
+      Navigator.pushReplacementNamed(context, AppRoutes.login);
+      print('🎯 Splash screen: Navigation called!');
+    } else {
+      print('❌ Splash screen: Widget not mounted, cannot navigate!');
+    }
   }
 
   @override
@@ -57,7 +67,6 @@ class _SplashScreenState extends State<SplashScreen> {
             //     return Icon(Icons.error, size: 120);
             //   },
             // ),
-
             SizedBox(height: 30),
             CircularProgressIndicator(),
             SizedBox(height: 20),

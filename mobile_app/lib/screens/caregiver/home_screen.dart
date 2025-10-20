@@ -166,30 +166,67 @@ class HomeScreen extends StatelessWidget {
         child: Padding(
           padding: const EdgeInsets.all(16.0),
           child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
+              // Patients count at the top
+              Row(
+                children: [
+                  Icon(
+                    Icons.people_outline,
+                    size: 20,
+                    color: AppColors.primaryDark,
+                  ),
+                  SizedBox(width: 8),
+                  Text(
+                    'Managing 3 Patients',
+                    style: TextStyle(
+                      fontSize: 14,
+                      fontWeight: FontWeight.w600,
+                      color: AppColors.primaryDark,
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 16),
+
+              // Tasks breakdown
+              Text(
+                'Today\'s Tasks',
+                style: TextStyle(
+                  fontSize: 13,
+                  fontWeight: FontWeight.w500,
+                  color: Colors.grey[700],
+                ),
+              ),
+              const SizedBox(height: 12),
+
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  _buildStatItem('3', 'Patients', AppColors.primaryDark),
-                  _buildStatItem('12', 'Tasks', AppColors.primaryDark),
-                  _buildStatItem('2', 'Urgent', AppColors.primaryDark),
-                  _buildStatItem('1', 'Missed', AppColors.primaryDark),
+                  _buildTaskStat('9', 'Completed', Colors.green),
+                  _buildTaskStat('2', 'Pending', Colors.orange),
+                  _buildTaskStat('1', 'Skipped', Colors.red),
                 ],
               ),
-              const SizedBox(height: 12),
+
+              const SizedBox(height: 16),
+
+              // Progress bar with clearer label
               LinearProgressIndicator(
                 value: 0.75,
-                backgroundColor: AppColors.primaryLight.withOpacity(
-                  0.10,
-                ), // Lighter accent
+                backgroundColor: AppColors.primaryLight.withOpacity(0.10),
                 valueColor: AlwaysStoppedAnimation<Color>(Colors.green),
                 minHeight: 10,
                 borderRadius: BorderRadius.circular(5),
               ),
               const SizedBox(height: 8),
               Text(
-                '75% of daily tasks completed',
-                style: TextStyle(fontSize: 12, color: Color(0xFF2B3F99)),
+                '9 of 12 tasks completed (75%)',
+                style: TextStyle(
+                  fontSize: 12,
+                  color: Colors.grey[700],
+                  fontWeight: FontWeight.w500,
+                ),
               ),
             ],
           ),
@@ -198,18 +235,26 @@ class HomeScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildStatItem(String value, String label, Color color) {
+  Widget _buildTaskStat(String value, String label, Color color) {
     return Column(
       children: [
         Text(
           value,
           style: TextStyle(
-            fontSize: 20,
+            fontSize: 24,
             fontWeight: FontWeight.bold,
             color: color,
           ),
         ),
-        Text(label, style: const TextStyle(fontSize: 12)),
+        const SizedBox(height: 4),
+        Text(
+          label,
+          style: TextStyle(
+            fontSize: 12,
+            color: Colors.grey[700],
+            fontWeight: FontWeight.w500,
+          ),
+        ),
       ],
     );
   }
@@ -354,7 +399,7 @@ class HomeScreen extends StatelessWidget {
                             'New Requests from Guardians',
                             style: TextStyle(
                               fontWeight: FontWeight.bold,
-                              fontSize: 14,
+                              fontSize: 16,
                               color: AppColors.primaryDark,
                             ),
                             maxLines: 1,
@@ -364,7 +409,7 @@ class HomeScreen extends StatelessWidget {
                           Text(
                             'Request to connect with a patient',
                             style: TextStyle(
-                              fontSize: 12,
+                              fontSize: 14,
                               color: Colors.black87,
                             ),
                             maxLines: 2,

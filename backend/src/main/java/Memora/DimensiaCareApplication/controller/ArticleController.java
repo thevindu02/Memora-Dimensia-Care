@@ -4,20 +4,25 @@ import Memora.DimensiaCareApplication.dto.ArticleDTO;
 import Memora.DimensiaCareApplication.dto.ArticleDetailDTO;
 import Memora.DimensiaCareApplication.service.ArticleService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.HashMap;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/api/articles")
 @CrossOrigin(origins = "*")
 public class ArticleController {
+
     @Autowired
     private ArticleService articleService;
 
     /**
-     * Add a new article. For volunteer articles, authorId is required and will be
-     * used to fetch
-     * volunteer name and profilePic from PostgreSQL. Fields supported: title,
-     * summary, content, images, status, draft, profilePic.
+     * Add a new article. For volunteer articles, authorId is required and will
+     * be used to fetch volunteer name and profilePic from PostgreSQL. Fields
+     * supported: title, summary, content, images, status, draft, profilePic.
      *
      * @param article ArticleDTO (see ArticleDTO.java for all fields)
      * @return update time string
@@ -80,6 +85,43 @@ public class ArticleController {
         }
     }
 
+    @GetMapping("/all")
+    public java.util.List<ArticleDetailDTO> getAllArticles() {
+        try {
+            System.out.println("Received request for ALL articles (all statuses)");
+
+            // First try Firebase, if empty try PostgreSQL
+            java.util.List<ArticleDetailDTO> allArticles = articleService.getAllArticles();
+
+            if (allArticles.isEmpty()) {
+                System.out.println("No articles found in Firebase, trying PostgreSQL...");
+                allArticles = articleService.getAllArticlesFromPostgreSQL();
+            }
+
+            System.out.println("Returning " + allArticles.size() + " articles from all volunteers (all statuses)");
+            return allArticles;
+        } catch (Exception e) {
+            System.err.println("Error in getAllArticles controller: " + e.getMessage());
+            e.printStackTrace();
+            // Return empty list instead of throwing exception
+            return new java.util.ArrayList<>();
+        }
+    }
+
+    @GetMapping("/all/postgres")
+    public java.util.List<ArticleDetailDTO> getAllArticlesFromPostgreSQL() {
+        try {
+            System.out.println("Received request for ALL articles from PostgreSQL");
+            java.util.List<ArticleDetailDTO> allArticles = articleService.getAllArticlesFromPostgreSQL();
+            System.out.println("Returning " + allArticles.size() + " articles from PostgreSQL");
+            return allArticles;
+        } catch (Exception e) {
+            System.err.println("Error in getAllArticlesFromPostgreSQL controller: " + e.getMessage());
+            e.printStackTrace();
+            return new java.util.ArrayList<>();
+        }
+    }
+
     @GetMapping("/published/all")
     public java.util.List<ArticleDetailDTO> getAllPublishedArticles() {
         try {
@@ -121,4 +163,105 @@ public class ArticleController {
             return "Error syncing images: " + e.getMessage();
         }
     }
+
+    /**
+     * Like an article
+     * POST /api/articles/{articleId}/like
+     */
+    @PostMapping("/{articleId}/like")
+    public ResponseEntity<?> likeArticle(
+            @PathVariable String articleId,
+            @RequestParam Long userId) {
+        try {
+            if (userId == null) {
+                Map<String, String> error = new HashMap<>();
+                error.put("error", "User ID is required");
+                return ResponseEntity.badRequest().body(error);
+            }
+            
+            boolean success = articleService.likeArticle(articleId, userId);
+            
+            if (success) {
+                Map<String, String> response = new HashMap<>();
+                response.put("message", "Article liked successfully");
+                return ResponseEntity.ok(response);
+            } else {
+                Map<String, String> response = new HashMap<>();
+                response.put("message", "Already liked");
+                return ResponseEntity.ok(response);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+            Map<String, String> error = new HashMap<>();
+            error.put("error", "Failed to like article: " + e.getMessage());
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(error);
+        }
+    }
+
+    /**
+     * Unlike an article
+     * DELETE /api/articles/{articleId}/like
+     */
+    @DeleteMapping("/{articleId}/like")
+    public ResponseEntity<?> unlikeArticle(
+            @PathVariable String articleId,
+            @RequestParam Long userId) {
+        try {
+            if (userId == null) {
+                Map<String, String> error = new HashMap<>();
+                error.put("error", "User ID is required");
+                return ResponseEntity.badRequest().body(error);
+            }
+            
+            boolean success = articleService.unlikeArticle(articleId, userId);
+            
+            if (success) {
+                Map<String, String> response = new HashMap<>();
+                response.put("message", "Article unliked successfully");
+                return ResponseEntity.ok(response);
+            } else {
+                Map<String, String> response = new HashMap<>();
+                response.put("message", "Not liked yet");
+                return ResponseEntity.ok(response);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+            Map<String, String> error = new HashMap<>();
+            error.put("error", "Failed to unlike article: " + e.getMessage());
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(error);
+        }
+    }
+
+    /**
+     * Check if user has liked an article and get like count
+     * GET /api/articles/{articleId}/like-status
+     */
+    @GetMapping("/{articleId}/like-status")
+    public ResponseEntity<?> getArticleLikeStatus(
+            @PathVariable String articleId,
+            @RequestParam(required = false) Long userId) {
+        try {
+            Map<String, Object> response = new HashMap<>();
+            
+            // Get like count
+            long likeCount = articleService.getArticleLikeCount(articleId);
+            response.put("likeCount", likeCount);
+            
+            // Check if user has liked (if userId is provided)
+            if (userId != null) {
+                boolean hasLiked = articleService.hasLikedArticle(articleId, userId);
+                response.put("hasLiked", hasLiked);
+            } else {
+                response.put("hasLiked", false);
+            }
+            
+            return ResponseEntity.ok(response);
+        } catch (Exception e) {
+            e.printStackTrace();
+            Map<String, String> error = new HashMap<>();
+            error.put("error", "Failed to get like status: " + e.getMessage());
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(error);
+        }
+    }
 }
+

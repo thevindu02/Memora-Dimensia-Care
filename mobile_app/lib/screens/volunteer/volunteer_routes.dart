@@ -12,7 +12,6 @@ import 'volunteer_create_content_screen.dart';
 import 'volunteer_forum_screen.dart';
 import 'volunteer_schedule_session_screen.dart';
 import 'article_draft_screen.dart';
-import 'view_article_screen.dart';
 
 class VolunteerRoutes {
   static Route<dynamic> generateRoute(RouteSettings settings) {
@@ -36,8 +35,9 @@ class VolunteerRoutes {
           settings: settings,
         );
       case AppRoutes.volunteerProfile:
+        final volunteerId = settings.arguments as int? ?? 1;
         return MaterialPageRoute(
-          builder: (_) => VolunteerProfileScreen(),
+          builder: (_) => VolunteerProfileScreen(volunteerId: volunteerId),
           settings: settings,
         );
       case AppRoutes.volunteerUploadImage:
@@ -56,28 +56,33 @@ class VolunteerRoutes {
           settings: settings,
         );
       case AppRoutes.volunteerCompletedRegistration:
+        final volunteerId = settings.arguments as int? ?? 1;
         return MaterialPageRoute(
-          builder: (_) => VolunteerRegistrationCompletedScreen(),
+          builder: (_) => VolunteerRegistrationCompletedScreen(volunteerId: volunteerId),
           settings: settings,
         );
       case AppRoutes.volunteerDashboard:
+        final volunteerId = settings.arguments as int? ?? 1;
         return MaterialPageRoute(
-          builder: (_) => VolunteerDashboardScreen(),
+          builder: (_) => VolunteerDashboardScreen(volunteerId: volunteerId),
           settings: settings,
         );
       case AppRoutes.volunteerCreateContent:
+        final volunteerId = settings.arguments as int? ?? 1;
         return MaterialPageRoute(
-          builder: (_) => VolunteerCreateContentScreen(),
+          builder: (_) => VolunteerCreateContentScreen(volunteerId: volunteerId),
           settings: settings,
         );
       case AppRoutes.volunteerForum:
+        final volunteerId = settings.arguments as int? ?? 1;
         return MaterialPageRoute(
-          builder: (_) => VolunteerForumScreen(),
+          builder: (_) => VolunteerForumScreen(volunteerId: volunteerId),
           settings: settings,
         );
       case AppRoutes.volunteerScheduleSession:
+        final volunteerId = settings.arguments as int? ?? 1;
         return MaterialPageRoute(
-          builder: (_) => VolunteerScheduleSessionScreen(),
+          builder: (_) => VolunteerScheduleSessionScreen(volunteerId: volunteerId),
           settings: settings,
         );
       case AppRoutes.volunteerDraft:
@@ -85,13 +90,11 @@ class VolunteerRoutes {
           builder: (_) => ArticleDraftScreen(),
           settings: settings,
         );
-
       case AppRoutes.volunteerArticlesTab:
         return MaterialPageRoute(
-          builder: (_) => VolunteerArticlesTab(),
+          builder: (_) => VolunteerArticlesTabBody(),
           settings: settings,
         );
-
       default:
         return MaterialPageRoute(
           builder: (_) =>

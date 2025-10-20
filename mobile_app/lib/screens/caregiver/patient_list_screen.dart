@@ -99,6 +99,19 @@ class _PatientsScreenState extends State<PatientListScreen> {
     });
   }
 
+  /// Capitalizes the first letter of each word in a name
+  String _capitalizeName(String name) {
+    if (name.isEmpty) return name;
+    return name
+        .split(' ')
+        .map(
+          (word) => word.isEmpty
+              ? ''
+              : word[0].toUpperCase() + word.substring(1).toLowerCase(),
+        )
+        .join(' ');
+  }
+
   @override
   void dispose() {
     _searchController.dispose();
@@ -284,7 +297,7 @@ class _PatientsScreenState extends State<PatientListScreen> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  patient.name,
+                  _capitalizeName(patient.name),
                   style: const TextStyle(
                     fontSize: 16,
                     fontWeight: FontWeight.w600,

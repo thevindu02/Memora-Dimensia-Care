@@ -11,6 +11,11 @@ import '../screens/signup_screen.dart';
 import '../screens/forgot_password_screen.dart';
 import '../screens/reset_password_screen.dart';
 import '../screens/guardian/guardian_notifications_screen.dart';
+import '../screens/chat/chat_list_screen.dart';
+import '../screens/chat/chat_conversation_screen.dart';
+import '../screens/guardian/guardian_chat_history_screen.dart';
+import '../screens/guardian/guardian_caregiver_list_screen.dart';
+import '../screens/guardian/guardian_caregiver_details_screen.dart';
 
 class RouteGenerator {
   static Route<dynamic> generateRoute(RouteSettings settings) {
@@ -59,6 +64,8 @@ class RouteGenerator {
         settings: settings,
       );
     }
+
+    // Forgot password
     if (routeName == AppRoutes.forgotPassword) {
       return MaterialPageRoute(
         builder: (_) => ForgotPasswordScreen(),
@@ -93,12 +100,44 @@ class RouteGenerator {
       );
     }
 
+    // Guardian notifications (before generic guardian handler)
+    if (routeName == AppRoutes.guardianNotifications) {
+      return MaterialPageRoute(
+        builder: (_) => GuardianNotificationsScreen(),
+        settings: settings,
+      );
+    }
+
+    // Guardian chat history (before generic guardian handler)
+    if (routeName == AppRoutes.guardianChatHistory) {
+      return MaterialPageRoute(
+        builder: (_) => const GuardianChatHistoryScreen(),
+        settings: settings,
+      );
+    }
+
+    // Guardian caregiver list (before generic guardian handler)
+    if (routeName == AppRoutes.guardianCaregiverList) {
+      return MaterialPageRoute(
+        builder: (_) => const GuardianCaregiverListScreen(),
+        settings: settings,
+      );
+    }
+
+    // Guardian caregiver details (before generic guardian handler)
+    if (routeName == AppRoutes.guardianCaregiverDetails) {
+      return MaterialPageRoute(
+        builder: (_) => const GuardianCaregiverDetailsScreen(),
+        settings: settings,
+      );
+    }
+
     // Patient routes
     if (routeName.startsWith('/patient/')) {
       return PatientRoutes.generateRoute(settings);
     }
 
-    // Guardian routes
+    // Guardian routes (generic handler - MUST come after explicit guardian routes)
     if (routeName.startsWith('/guardian/')) {
       return GuardianRoutes.generateRoute(settings);
     }
@@ -118,9 +157,18 @@ class RouteGenerator {
       return VolunteerRoutes.generateRoute(settings);
     }
 
-    // Guardian notifications
-    if (routeName == AppRoutes.guardianNotifications) {
-      return MaterialPageRoute(builder: (_) => GuardianNotificationsScreen());
+    // Chat routes
+    if (routeName == AppRoutes.chatList) {
+      return MaterialPageRoute(
+        builder: (_) => ChatListScreen(),
+        settings: settings,
+      );
+    }
+    if (routeName == AppRoutes.chatConversation) {
+      return MaterialPageRoute(
+        builder: (_) => ChatConversationScreen(),
+        settings: settings,
+      );
     }
 
     // Default route for unknown paths

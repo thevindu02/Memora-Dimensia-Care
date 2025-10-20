@@ -3,7 +3,8 @@ import 'dart:async';
 import 'volunteer_bottom_navigation_screen.dart';
 
 class VolunteerForumScreen extends StatefulWidget {
-  const VolunteerForumScreen({Key? key}) : super(key: key);
+  final int volunteerId;
+  const VolunteerForumScreen({Key? key, required this.volunteerId}) : super(key: key);
 
   @override
   State<VolunteerForumScreen> createState() => _VolunteerForumScreenState();
@@ -433,7 +434,10 @@ class _VolunteerForumScreenState extends State<VolunteerForumScreen> {
           ),
         ),
       ),
-      bottomNavigationBar: VolunteerBottomNavigation(currentPage: 'forum'),
+      bottomNavigationBar: VolunteerBottomNavigation(
+        currentPage: 'forum',
+        volunteerId: widget.volunteerId, // <-- Pass volunteerId here
+      ),
     );
   }
 
@@ -557,6 +561,7 @@ class _VolunteerForumScreenState extends State<VolunteerForumScreen> {
           ),
         ),
       ),
-    );
+
+      );
   }
 }

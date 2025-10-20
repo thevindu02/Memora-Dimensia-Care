@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
 import '../../services/caregiver_service.dart';
 import '../../services/auth_service.dart';
+import '../../routes/app_routes.dart';
+import '../../services/chat_db.dart';
+import '../../constants/color_constants.dart';
 
 class ConnectionRequest {
   final String guardianName;
@@ -52,6 +55,10 @@ class _CaregiverConnectionRequestsScreenState
     final req = requests[index];
     final name = req['guardianName'] ?? '';
     final connectionId = req['connectionId'];
+    // resolve ids for chat deletion fallback
+    final guardianId = req['guardianId'] ?? req['guardian_id'] ?? req['guardianUserId'];
+    final caregiverId = req['caregiverId'] ?? req['caregiver_id'] ?? await AuthService.getCurrentCaregiverId();
+
     try {
       if (accepted) {
         await CaregiverService.acceptConnectionRequest(connectionId);
@@ -59,11 +66,21 @@ class _CaregiverConnectionRequestsScreenState
           SnackBar(
             content: Text('Accepted request from $name'),
             duration: const Duration(seconds: 2),
-            backgroundColor: Colors.green, // Make background green for accepted
+            backgroundColor: Colors.green,
           ),
         );
       } else {
         await CaregiverService.rejectConnectionRequest(connectionId);
+        // delete local chat history for both possible conversation ids
+        try {
+          final db = ChatDb();
+          if (guardianId != null) {
+            await db.deleteConversation('caregiver_with_$guardianId');
+          }
+          if (caregiverId != null) {
+            await db.deleteConversation('guardian_with_$caregiverId');
+          }
+        } catch (_) {}
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text('Rejected request from $name'),
@@ -82,6 +99,19 @@ class _CaregiverConnectionRequestsScreenState
         ),
       );
     }
+  }
+
+  /// Capitalizes the first letter of each word in a name
+  String _capitalizeName(String? name) {
+    if (name == null || name.isEmpty) return '-';
+    return name
+        .split(' ')
+        .map(
+          (word) => word.isEmpty
+              ? ''
+              : word[0].toUpperCase() + word.substring(1).toLowerCase(),
+        )
+        .join(' ');
   }
 
   String _timeLeft(DateTime requestTime) {
@@ -165,7 +195,7 @@ class _CaregiverConnectionRequestsScreenState
                       ),
                       const SizedBox(height: 8),
                       Text(
-                        '${req['guardianName'] ?? 'A guardian'} is inviting you to connect and provide care for their ${req['relationship']?.toString().isNotEmpty == true ? req['relationship']!.toLowerCase() : 'family member'}. Please review the details below and respond to the request.',
+                        '${_capitalizeName(req['guardianName'])} is inviting you to connect and provide care for their ${req['relationship']?.toString().isNotEmpty == true ? req['relationship']!.toLowerCase() : 'family member'}. Please review the details below and respond to the request.',
                         style: const TextStyle(
                           fontSize: 15,
                           color: Colors.black87,
@@ -193,7 +223,7 @@ class _CaregiverConnectionRequestsScreenState
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
                                 Text(
-                                  req['guardianName'] ?? '-',
+                                  _capitalizeName(req['guardianName']),
                                   style: const TextStyle(
                                     fontSize: 15,
                                     fontWeight: FontWeight.w500,
@@ -260,7 +290,7 @@ class _CaregiverConnectionRequestsScreenState
                       ),
                       const SizedBox(height: 6),
                       Text(
-                        'Name: ${req['patientName'] ?? '-'}',
+                        'Name: ${_capitalizeName(req['patientName'])}',
                         style: const TextStyle(
                           fontSize: 14,
                           color: Colors.black87,
@@ -295,6 +325,33 @@ class _CaregiverConnectionRequestsScreenState
                       Row(
                         mainAxisAlignment: MainAxisAlignment.end,
                         children: [
+                          // Chat button
+                          ElevatedButton(
+                            onPressed: () async {
+                              final guardianName = req['guardianName'] ?? req['guardian_name'] ?? 'Guardian';
+                              final guardianId = req['guardianId'] ?? req['guardian_id'] ?? req['guardianUserId'];
+                              final currentUserId = await AuthService.getCurrentCaregiverId();
+                              if (currentUserId == null) return;
+                              Navigator.pushNamed(
+                                context,
+                                AppRoutes.chatConversation,
+                                arguments: {
+                                  'id': guardianId,
+                                  'name': guardianName,
+                                  'currentUser': 'caregiver',
+                                  'currentUserId': currentUserId,
+                                },
+                              );
+                            },
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: AppColors.primaryLight,
+                              foregroundColor: AppColors.info,
+                              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
+                              padding: EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+                            ),
+                            child: Text('Chat'),
+                          ),
+                          const SizedBox(width: 16),
                           ElevatedButton.icon(
                             onPressed: expired
                                 ? null

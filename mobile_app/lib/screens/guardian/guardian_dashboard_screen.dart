@@ -24,39 +24,17 @@ class _GuardianDashboardScreenState extends State<GuardianDashboardScreen> {
   Map<String, List<Map<String, dynamic>>> alerts = {
     'John Doe': [
       {
-        'type': 'Wandering Alert',
-        'message':
-            'John Doe exited the safe zone at 10:15 AM near Main Street.',
-        'time': '10:15 AM',
-      },
-      {
         'type': 'Task Skipped',
         'message': 'Medication was skipped for 3 consecutive days.',
         'time': '8:00 AM',
       },
     ],
-    'Jane Smith': [
-      {
-        'type': 'Biometric Anomaly',
-        'message': 'Abnormal heart rate detected: 130 bpm at 9:50 AM.',
-        'time': '9:50 AM',
-      },
-      {
-        'type': 'Wandering Alert',
-        'message': 'Jane Smith left the designated area at 7:30 AM.',
-        'time': '7:30 AM',
-      },
-    ],
+    'Jane Smith': [],
     'Michael Lee': [
       {
         'type': 'Task Skipped',
         'message': 'Exercise routine missed for 2 days in a row.',
         'time': '6:45 AM',
-      },
-      {
-        'type': 'Biometric Anomaly',
-        'message': 'Low blood oxygen detected: 88% at 8:20 AM.',
-        'time': '8:20 AM',
       },
     ],
   };
@@ -183,6 +161,19 @@ class _GuardianDashboardScreenState extends State<GuardianDashboardScreen> {
 
   Widget _buildPatientCard(Map<String, dynamic> patient) {
     print(patient); // Add this line for debugging
+
+    // Helper function to capitalize first letter of each word
+    String capitalizeName(String? name) {
+      if (name == null || name.isEmpty) return '';
+      return name
+          .split(' ')
+          .map((word) {
+            if (word.isEmpty) return word;
+            return word[0].toUpperCase() + word.substring(1).toLowerCase();
+          })
+          .join(' ');
+    }
+
     return Material(
       color: Colors.transparent,
       child: InkWell(
@@ -266,6 +257,57 @@ class _GuardianDashboardScreenState extends State<GuardianDashboardScreen> {
                   ],
                 ),
               ),
+              // Caregiver information on the right side
+              if (patient['caregiverName'] != null) ...[
+                SizedBox(width: 12),
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.end,
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Icon(
+                          Icons.person_outline,
+                          size: 14,
+                          color: Colors.grey[600],
+                        ),
+                        SizedBox(width: 4),
+                        Text(
+                          'Caregiver: ${capitalizeName(patient['caregiverName'])}',
+                          style: TextStyle(
+                            fontSize: 11,
+                            color: Colors.grey[700],
+                            fontWeight: FontWeight.w500,
+                          ),
+                        ),
+                      ],
+                    ),
+                    if (patient['caregiverPhone'] != null) ...[
+                      SizedBox(height: 4),
+                      Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Icon(
+                            Icons.phone_outlined,
+                            size: 14,
+                            color: Colors.grey[600],
+                          ),
+                          SizedBox(width: 4),
+                          Text(
+                            patient['caregiverPhone'],
+                            style: TextStyle(
+                              fontSize: 11,
+                              color: Colors.grey[700],
+                            ),
+                          ),
+                        ],
+                      ),
+                    ],
+                  ],
+                ),
+              ],
+              SizedBox(width: 8),
               Icon(Icons.arrow_forward_ios, color: Colors.grey[400], size: 16),
             ],
           ),
@@ -444,7 +486,115 @@ class _GuardianDashboardScreenState extends State<GuardianDashboardScreen> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // Patients section
+            // Quick Access section (moved to top)
+            Row(
+              children: [
+                Text(
+                  'Quick Access',
+                  style: TextStyle(
+                    fontSize: 22,
+                    fontWeight: FontWeight.w800,
+                    color: AppColors.onSurface,
+                    letterSpacing: -0.5,
+                  ),
+                ),
+                SizedBox(width: 8),
+                Container(
+                  width: 6,
+                  height: 6,
+                  decoration: BoxDecoration(
+                    color: AppColors.info,
+                    shape: BoxShape.circle,
+                  ),
+                ),
+              ],
+            ),
+            SizedBox(height: 20),
+            Wrap(
+              spacing: 16,
+              runSpacing: 16,
+              children: [
+                _buildQuickAccessButton(
+                  icon: Icons.person_add_outlined,
+                  label: 'Add Patient',
+                  onTap: () {
+                    Navigator.pushNamed(context, AppRoutes.guardianAddPatient);
+                  },
+                ),
+                _buildQuickAccessButton(
+                  icon: Icons.group_add_outlined,
+                  label: 'Add Caregiver',
+                  onTap: () {
+                    Navigator.pushNamed(
+                      context,
+                      AppRoutes.guardianAddCaregiver,
+                    );
+                  },
+                ),
+                _buildQuickAccessButton(
+                  icon: Icons.group_outlined,
+                  label: 'Caregivers',
+                  onTap: () {
+                    Navigator.pushNamed(
+                      context,
+                      AppRoutes.guardianCaregiverList,
+                    );
+                  },
+                ),
+                _buildQuickAccessButton(
+                  icon: Icons.assessment_outlined,
+                  label: 'Reports',
+                  onTap: () {
+                    Navigator.pushNamed(
+                      context,
+                      AppRoutes.guardianPatientsReports,
+                    );
+                  },
+                ),
+                _buildQuickAccessButton(
+                  icon: Icons.reviews_outlined,
+                  label: 'Add Reviews',
+                  onTap: () {
+                    Navigator.pushNamed(context, AppRoutes.guardianAddReviews);
+                  },
+                ),
+                _buildQuickAccessButton(
+                  icon: Icons.settings_outlined,
+                  label: 'Settings',
+                  onTap: () {
+                    Navigator.pushNamed(context, AppRoutes.guardianSettings);
+                  },
+                ),
+              ],
+            ),
+            SizedBox(height: 40),
+
+            // Your Patients section (moved after Quick Access)
+            Row(
+              children: [
+                Text(
+                  'Your Patients',
+                  style: TextStyle(
+                    fontSize: 22,
+                    fontWeight: FontWeight.w800,
+                    color: AppColors.onSurface,
+                    letterSpacing: -0.5,
+                  ),
+                ),
+                SizedBox(width: 8),
+                Container(
+                  width: 6,
+                  height: 6,
+                  decoration: BoxDecoration(
+                    color: AppColors.info,
+                    shape: BoxShape.circle,
+                  ),
+                ),
+              ],
+            ),
+            SizedBox(height: 20),
+
+            // Patients list
             if (_isLoadingPatients)
               Center(
                 child: Container(
@@ -500,79 +650,6 @@ class _GuardianDashboardScreenState extends State<GuardianDashboardScreen> {
             else
               ..._patients.map((p) => _buildPatientCard(p)).toList(),
 
-            SizedBox(height: 32),
-
-            // Quick Access section
-            Row(
-              children: [
-                Text(
-                  'Quick Access',
-                  style: TextStyle(
-                    fontSize: 22,
-                    fontWeight: FontWeight.w800,
-                    color: AppColors.onSurface,
-                    letterSpacing: -0.5,
-                  ),
-                ),
-                SizedBox(width: 8),
-                Container(
-                  width: 6,
-                  height: 6,
-                  decoration: BoxDecoration(
-                    color: AppColors.info,
-                    shape: BoxShape.circle,
-                  ),
-                ),
-              ],
-            ),
-            SizedBox(height: 20),
-            Wrap(
-              spacing: 16,
-              runSpacing: 16,
-              children: [
-                _buildQuickAccessButton(
-                  icon: Icons.person_add_outlined,
-                  label: 'Add Patient',
-                  onTap: () {
-                    Navigator.pushNamed(context, AppRoutes.guardianAddPatient);
-                  },
-                ),
-                _buildQuickAccessButton(
-                  icon: Icons.group_add_outlined,
-                  label: 'Add Caregiver',
-                  onTap: () {
-                    Navigator.pushNamed(
-                      context,
-                      AppRoutes.guardianAddCaregiver,
-                    );
-                  },
-                ),
-                _buildQuickAccessButton(
-                  icon: Icons.assessment_outlined,
-                  label: 'Reports',
-                  onTap: () {
-                    Navigator.pushNamed(
-                      context,
-                      AppRoutes.guardianPatientsReports,
-                    );
-                  },
-                ),
-                _buildQuickAccessButton(
-                  icon: Icons.reviews_outlined,
-                  label: 'Add Reviews',
-                  onTap: () {
-                    Navigator.pushNamed(context, AppRoutes.guardianAddReviews);
-                  },
-                ),
-                _buildQuickAccessButton(
-                  icon: Icons.settings_outlined,
-                  label: 'Settings',
-                  onTap: () {
-                    Navigator.pushNamed(context, AppRoutes.guardianSettings);
-                  },
-                ),
-              ],
-            ),
             SizedBox(height: 40),
 
             // Alerts section

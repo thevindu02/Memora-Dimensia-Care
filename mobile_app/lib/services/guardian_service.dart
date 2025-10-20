@@ -122,6 +122,25 @@ class GuardianService {
     return response.statusCode == 200;
   }
 
+
+  static Future<List<Map<String, dynamic>>> getAllCaregiversForGuardian(int guardianId) async {
+    try {
+      final response = await http.get(
+        Uri.parse('$baseUrl/$guardianId/all-caregivers'),
+        headers: {'Content-Type': 'application/json'},
+      );
+      if (response.statusCode == 200) {
+        final List<dynamic> data = jsonDecode(response.body);
+        return data.map<Map<String, dynamic>>((c) => Map<String, dynamic>.from(c)).toList();
+      } else {
+        throw Exception('Failed to load caregivers: ${response.statusCode}');
+      }
+    } catch (e) {
+      throw Exception('Failed to load caregivers: $e');
+    }
+  }
+
+
   /// Sends a guardian connection email to the patient. Returns true if successful, false otherwise.
   static Future<Map<String, dynamic>> sendGuardianConnectionEmail({
     required String patientEmail,

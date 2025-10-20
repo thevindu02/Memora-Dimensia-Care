@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import '../styles/Caregiver.css';
 import '../styles/UserManagement.css';
 import {
@@ -6,154 +6,87 @@ import {
   Sidebar,
   Footer
 } from '../components';
-
-// Sample caregiver data with Sri Lankan details
-const caregiversData = [
-  { 
-    id: 1, 
-    name: 'Kumari Perera',
-    email: 'kumari.perera@gmail.com',
-    phone: '+94 77 123 4567', 
-    address: '45 Galle Road, Colombo 03', 
-    birthday: '1988-03-15',
-    age: 35,
-    gender: 'Female',
-    experience: '8 years',
-    qualification: 'Certificate in Elderly Care, First Aid Certified',
-    profilePicture: 'https://via.placeholder.com/150/4A90E2/FFFFFF?text=KP',
-    patients: [
-      { name: 'W.A. Silva', condition: 'Alzheimer\'s Stage 2' },
-      { name: 'K.D. Fernando', condition: 'Vascular Dementia' }
-    ],
-    status: 'Active' 
-  },
-  { 
-    id: 2, 
-    name: 'Saman Rajapaksa',
-    email: 'saman.rajapaksa@yahoo.com',
-    phone: '+94 71 234 5678', 
-    address: '78 Kandy Road, Maharagama', 
-    birthday: '1981-07-22',
-    age: 42,
-    gender: 'Male',
-    experience: '12 years',
-    qualification: 'Diploma in Care Giving, CPR Certified',
-    profilePicture: 'https://via.placeholder.com/150/50C878/FFFFFF?text=SR',
-    patients: [
-      { name: 'H.M. Jayawardena', condition: 'Early Alzheimer\'s' }
-    ],
-    status: 'Active' 
-  },
-  { 
-    id: 3, 
-    name: 'Nimalka Wijesinghe',
-    email: 'nimalka.w@hotmail.com',
-    phone: '+94 76 345 6789', 
-    address: '156 High Level Road, Nugegoda', 
-    birthday: '1985-11-08',
-    age: 38,
-    gender: 'Female',
-    experience: '10 years',
-    qualification: 'Certificate in Dementia Care, Basic Medical Training',
-    profilePicture: 'https://via.placeholder.com/150/FF6B6B/FFFFFF?text=NW',
-    patients: [
-      { name: 'P.B. Mendis', condition: 'Lewy Body Dementia' },
-      { name: 'S.A. Gunawardena', condition: 'Frontotemporal Dementia' }
-    ],
-    status: 'Active' 
-  },
-  { 
-    id: 4, 
-    name: 'Ruwan Dissanayake',
-    email: 'ruwan.d@gmail.com',
-    phone: '+94 70 456 7890', 
-    address: '89 Malabe Road, Kaduwela', 
-    birthday: '1978-12-03',
-    age: 45,
-    gender: 'Male',
-    experience: '15 years',
-    qualification: 'Advanced Care Certificate, Mental Health Support Training',
-    profilePicture: 'https://via.placeholder.com/150/9B59B6/FFFFFF?text=RD',
-    patients: [],
-    status: 'Disabled' 
-  },
-  { 
-    id: 5, 
-    name: 'Chaminda Bandara',
-    email: 'chaminda.bandara@outlook.com',
-    phone: '+94 75 567 8901', 
-    address: '234 Gampaha Road, Kiribathgoda', 
-    birthday: '1990-05-18',
-    age: 33,
-    gender: 'Male',
-    experience: '6 years',
-    qualification: 'Certificate in Elder Care, Basic Health Monitoring',
-    profilePicture: 'https://via.placeholder.com/150/F39C12/FFFFFF?text=CB',
-    patients: [
-      { name: 'M.H. Rathnayake', condition: 'Moderate Alzheimer\'s' },
-      { name: 'A.P. Amarasinghe', condition: 'Vascular Dementia' }
-    ],
-    status: 'Active' 
-  },
-  { 
-    id: 6, 
-    name: 'Sanduni Wickramasinghe',
-    email: 'sanduni.w@live.com',
-    phone: '+94 78 678 9012', 
-    address: '67 Moratuwa Road, Piliyandala', 
-    birthday: '1994-09-25',
-    age: 29,
-    gender: 'Female',
-    experience: '4 years',
-    qualification: 'Personal Care Assistant Training, First Aid Certified',
-    profilePicture: 'https://via.placeholder.com/150/E74C3C/FFFFFF?text=SW',
-    patients: [
-      { name: 'T.B. Samaraweera', condition: 'Early Stage Dementia' }
-    ],
-    status: 'Active' 
-  },
-  { 
-    id: 7, 
-    name: 'Pradeep Jayasuriya',
-    email: 'pradeep.j@gmail.com',
-    phone: '+94 72 789 0123', 
-    address: '123 Kelaniya Road, Peliyagoda', 
-    birthday: '1982-04-12',
-    age: 41,
-    gender: 'Male',
-    experience: '13 years',
-    qualification: 'Home Care Training, Medication Management Certified',
-    profilePicture: 'https://via.placeholder.com/150/3498DB/FFFFFF?text=PJ',
-    patients: [],
-    status: 'Disabled' 
-  },
-  { 
-    id: 8, 
-    name: 'Madushani Senanayake',
-    email: 'madushani.sen@yahoo.com',
-    phone: '+94 74 890 1234', 
-    address: '345 Ratnapura Road, Homagama', 
-    birthday: '1987-08-30',
-    age: 36,
-    gender: 'Female',
-    experience: '9 years',
-    qualification: 'Certified Nursing Assistant, Dementia Care Specialist',
-    profilePicture: 'https://via.placeholder.com/150/1ABC9C/FFFFFF?text=MS',
-    patients: [
-      { name: 'D.S. Liyanage', condition: 'Mixed Dementia' },
-      { name: 'C.K. Weerasinghe', condition: 'Alzheimer\'s Stage 1' }
-    ],
-    status: 'Active' 
-  }
-];
+import caregiverApiService from '../services/caregiverApiService';
 
 const Caregiver = () => {
   const [selectedCaregiver, setSelectedCaregiver] = useState(null);
   const [showModal, setShowModal] = useState(false);
+  const [caregivers, setCaregivers] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+  const [searchTerm, setSearchTerm] = useState('');
+  const [statusFilter, setStatusFilter] = useState('');
+  const [experienceFilter, setExperienceFilter] = useState('');
 
-  const totalCaregivers = caregiversData.length;
-  const activeCaregivers = caregiversData.filter(caregiver => caregiver.status === 'Active').length;
-  const disabledCaregivers = caregiversData.filter(caregiver => caregiver.status === 'Disabled').length;
+  // Fetch caregivers from API
+  useEffect(() => {
+    fetchCaregivers();
+  }, []);
+
+  const fetchCaregivers = async () => {
+    try {
+      setLoading(true);
+      const data = await caregiverApiService.getAllCaregivers();
+      setCaregivers(data || []);
+      setError(null);
+    } catch (error) {
+      console.error('Error fetching caregivers:', error);
+      setError('Failed to load caregivers');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Helper function to calculate age
+  const calculateAge = (birthdate) => {
+    if (!birthdate) return 'N/A';
+    const birth = new Date(birthdate);
+    const today = new Date();
+    let age = today.getFullYear() - birth.getFullYear();
+    const monthDiff = today.getMonth() - birth.getMonth();
+    if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birth.getDate())) {
+      age--;
+    }
+    return age;
+  };
+
+  // Transform API data to match frontend expectations
+  const transformedCaregivers = caregivers.map(caregiver => ({
+    id: caregiver.caregiverId,
+    name: `${caregiver.fName || ''} ${caregiver.lName || ''}`.trim(),
+    email: caregiver.email || 'N/A',
+    phone: caregiver.phoneNumber || 'N/A',
+    address: caregiver.address || 'N/A',
+    birthday: caregiver.birthdate || 'N/A',
+    age: calculateAge(caregiver.birthdate),
+    gender: caregiver.gender || 'N/A',
+    experience: caregiver.experience || 'N/A',
+    qualification: caregiver.qualifications || 'N/A',
+    profilePicture: caregiver.profilePic || 'https://via.placeholder.com/150/4A90E2/FFFFFF?text=CG',
+    patients: [], // We'll assume empty for now, can be populated from connections
+    status: 'Active', // Assume all caregivers are active
+    skills: caregiver.skills || []
+  }));
+
+  // Filter caregivers
+  const filteredCaregivers = transformedCaregivers.filter(caregiver => {
+    const matchesSearch = caregiver.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                         caregiver.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                         caregiver.phone.toLowerCase().includes(searchTerm.toLowerCase());
+    
+    const matchesStatus = statusFilter === '' || caregiver.status.toLowerCase() === statusFilter.toLowerCase();
+    
+    const matchesExperience = experienceFilter === '' || 
+      (experienceFilter === '0-5' && /^[0-5]/.test(caregiver.experience)) ||
+      (experienceFilter === '5-10' && /^[5-9]|^10/.test(caregiver.experience)) ||
+      (experienceFilter === '10+' && /^1[0-9]|^[2-9][0-9]/.test(caregiver.experience));
+    
+    return matchesSearch && matchesStatus && matchesExperience;
+  });
+
+  const totalCaregivers = transformedCaregivers.length;
+  const activeCaregivers = transformedCaregivers.filter(caregiver => caregiver.status === 'Active').length;
+  const disabledCaregivers = transformedCaregivers.filter(caregiver => caregiver.status === 'Disabled').length;
 
   const handleRowClick = (caregiver) => {
     setSelectedCaregiver(caregiver);
@@ -188,33 +121,61 @@ const Caregiver = () => {
                     type="text" 
                     placeholder="Search caregivers..." 
                     className="um-search-input"
+                    value={searchTerm}
+                    onChange={(e) => setSearchTerm(e.target.value)}
                   />
                   <span className="um-search-icon">🔍</span>
                 </div>
                 
                 <div className="um-filters">
-                  <select className="um-filter-select">
+                  <select 
+                    className="um-filter-select"
+                    value={statusFilter}
+                    onChange={(e) => setStatusFilter(e.target.value)}
+                  >
                     <option value="">All Status</option>
                     <option value="active">Active</option>
                     <option value="disabled">Disabled</option>
                   </select>
                   
-                  <select className="um-filter-select">
+                  <select 
+                    className="um-filter-select"
+                    value={experienceFilter}
+                    onChange={(e) => setExperienceFilter(e.target.value)}
+                  >
                     <option value="">Experience Level</option>
                     <option value="0-5">0-5 years</option>
                     <option value="5-10">5-10 years</option>
                     <option value="10+">10+ years</option>
                   </select>
-                  
-                  <select className="um-filter-select">
-                    <option value="">Patient Load</option>
-                    <option value="available">Available</option>
-                    <option value="partial">Partially Full</option>
-                    <option value="full">Full Capacity</option>
-                  </select>
                 </div>
               </div>
             </div>
+
+            {/* Error Display */}
+            {error && (
+              <div style={{
+                backgroundColor: '#ffebee',
+                border: '1px solid #f44336',
+                color: '#c62828',
+                padding: '1rem',
+                borderRadius: '4px',
+                marginBottom: '1rem'
+              }}>
+                {error}
+              </div>
+            )}
+
+            {/* Loading Display */}
+            {loading && (
+              <div style={{
+                textAlign: 'center',
+                padding: '2rem',
+                color: '#666'
+              }}>
+                Loading caregivers...
+              </div>
+            )}
 
             {/* Stats Cards Section */}
             <div className="um-stats-grid">
@@ -257,7 +218,7 @@ const Caregiver = () => {
                   </tr>
                 </thead>
                 <tbody>
-                  {caregiversData.map(caregiver => (
+                  {!loading && filteredCaregivers.map(caregiver => (
                     <tr key={caregiver.id}>
                       <td className="um-name-cell">{caregiver.name}</td>
                       <td>{caregiver.experience}</td>
@@ -278,6 +239,13 @@ const Caregiver = () => {
                       </td>
                     </tr>
                   ))}
+                  {!loading && filteredCaregivers.length === 0 && (
+                    <tr>
+                      <td colSpan="6" style={{ textAlign: 'center', padding: '2rem', color: '#666' }}>
+                        No caregivers found
+                      </td>
+                    </tr>
+                  )}
                 </tbody>
               </table>
             </div>
@@ -372,6 +340,12 @@ const Caregiver = () => {
                           <span className="um-detail-label">Qualifications</span>
                           <span className="um-detail-value">{selectedCaregiver.qualification}</span>
                         </div>
+                        {selectedCaregiver.skills && selectedCaregiver.skills.length > 0 && (
+                          <div className="um-detail-row">
+                            <span className="um-detail-label">Skills</span>
+                            <span className="um-detail-value">{selectedCaregiver.skills.join(', ')}</span>
+                          </div>
+                        )}
                         <div className="um-detail-row">
                           <span className="um-detail-label">Active Patients</span>
                           <span className="um-detail-value">{selectedCaregiver.patients.length}/2</span>
