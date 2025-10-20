@@ -221,6 +221,87 @@ class PatientService {
       return PatientResult(success: false, message: 'Network error: $e');
     }
   }
+
+  // Get patient ID from user ID
+  static Future<int?> getPatientIdByUserId(int userId) async {
+    try {
+      final response = await http.get(
+        Uri.parse('$baseUrl/user/$userId'),
+        headers: {"Content-Type": "application/json"},
+      );
+      if (response.statusCode == 200) {
+        final data = jsonDecode(response.body);
+        return data['patientId'] ?? data['patientID'];
+      }
+      return null;
+    } catch (e) {
+      print('Error getting patient ID by user ID: $e');
+      return null;
+    }
+  }
+
+  // Format date for API (YYYY-MM-DD)
+  static String formatDateForApi(DateTime date) {
+    return '${date.year}-${date.month.toString().padLeft(2, '0')}-${date.day.toString().padLeft(2, '0')}';
+  }
+
+  // Get schedule for a specific date
+  static Future<List<ScheduleTask>> getScheduleForDate(int patientId, String dateStr) async {
+    try {
+      final response = await http.get(
+        Uri.parse('${ApiConstants.baseUrl}/api/schedules/$patientId/date/$dateStr'),
+        headers: {"Content-Type": "application/json"},
+      );
+      if (response.statusCode == 200) {
+        final data = jsonDecode(response.body);
+        if (data is List) {
+          return data.map((task) => ScheduleTask.fromJson(task)).toList();
+        }
+      }
+      return [];
+    } catch (e) {
+      print('Error getting schedule for date: $e');
+      return [];
+    }
+  }
+
+  // Update task status (delegate to TaskService)
+  static Future<dynamic> updateTaskStatus(int taskId, String status) async {
+    // This method is a wrapper - actual implementation should use TaskService
+    try {
+      final response = await http.put(
+        Uri.parse('${ApiConstants.baseUrl}/api/tasks/$taskId/status'),
+        headers: {"Content-Type": "application/json"},
+        body: jsonEncode({"status": status}),
+      );
+      if (response.statusCode == 200) {
+        return jsonDecode(response.body);
+      }
+      return null;
+    } catch (e) {
+      print('Error updating task status: $e');
+      return null;
+    }
+  }
+
+  // Create task (delegate to TaskService)
+  static Future<dynamic> createTask(int patientId, Map<String, dynamic> taskData) async {
+    // This method is a wrapper - actual implementation should use TaskService
+    try {
+      final response = await http.post(
+        Uri.parse('${ApiConstants.baseUrl}/api/tasks'),
+        headers: {"Content-Type": "application/json"},
+        body: jsonEncode({...taskData, 'patientId': patientId}),
+      );
+      if (response.statusCode == 200 || response.statusCode == 201) {
+        return jsonDecode(response.body);
+      }
+      return null;
+    } catch (e) {
+      print('Error creating task: $e');
+      return null;
+    }
+  }
 }
 
 // Result class for patient operations

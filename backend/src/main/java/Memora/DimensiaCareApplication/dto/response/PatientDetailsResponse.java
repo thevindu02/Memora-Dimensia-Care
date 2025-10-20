@@ -16,22 +16,33 @@ public class PatientDetailsResponse {
     private String phoneNumber;
     private String gender;
     private String birthdate;
-    private Integer patientAge; // computed age from birthdate
     private String street;
     private String city;
     private String state;
     private String dementiaType;
     private String dementiaStage;
     private String label;
-    private String relationship;
     private String profilePic;
-    private String acceptedDate;
 
     // guardian info (new)
     private Long guardianId;
     private String guardianName;
     private String guardianEmail;
     private String guardianPhone;
+    private String guardianCity;
+    
+    // Caregiver details
+    private Long caregiverId;
+    private String caregiverName;
+    private String caregiverEmail;
+    private String caregiverPhone;
+    private String caregiverCity;
+    
+    // Relationship
+    private String relationship;
+
+    private Integer patientAge;
+    private String acceptedDate;
 
     public static PatientDetailsResponse fromPatient(Patient patient) {
         PatientDetailsResponse resp = new PatientDetailsResponse();
@@ -244,4 +255,23 @@ public class PatientDetailsResponse {
     public void setGuardianPhone(String guardianPhone) {
         this.guardianPhone = guardianPhone;
     }
+    
+    public String getGuardianCity() {
+        return guardianCity;
+    }
+    
+    public void setGuardianCity(String guardianCity) {
+        this.guardianCity = guardianCity;
+    }
+
+    public Long getCaregiverId() { return caregiverId; }
+    public void setCaregiverId(Long caregiverId) { this.caregiverId = caregiverId; }
+    public String getCaregiverName() { return caregiverName; }
+    public void setCaregiverName(String caregiverName) { this.caregiverName = caregiverName; }
+    public String getCaregiverEmail() { return caregiverEmail; }
+    public void setCaregiverEmail(String caregiverEmail) { this.caregiverEmail = caregiverEmail; }
+    public String getCaregiverPhone() { return caregiverPhone; }
+    public void setCaregiverPhone(String caregiverPhone) { this.caregiverPhone = caregiverPhone; }
+    public String getCaregiverCity() { return caregiverCity; }
+    public void setCaregiverCity(String caregiverCity) { this.caregiverCity = caregiverCity; }
 }

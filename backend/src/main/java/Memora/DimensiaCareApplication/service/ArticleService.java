@@ -32,6 +32,7 @@ import Memora.DimensiaCareApplication.repository.VolunteerRepository;
 public class ArticleService {
 
     private static final String COLLECTION_NAME = "articles";
+    private static final String ARTICLE_LIKES_COLLECTION = "article_likes";
 
     @Autowired
     private ArticleRepository articleRepository;
@@ -983,3 +984,4 @@ public class ArticleService {
         }
     }
 }
+

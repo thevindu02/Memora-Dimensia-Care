@@ -60,7 +60,12 @@ class _PatientTaskSelectionScreenState extends State<PatientTaskSelectionScreen>
         throw Exception('Patient ID not found');
       }
       
-      final profile = await PatientService.getPatientProfile(fetchedPatientId);
+      final profileResult = await PatientService.getPatientProfile(fetchedPatientId);
+      if (!profileResult.success || profileResult.data == null) {
+        throw Exception('Failed to load profile: ${profileResult.message}');
+      }
+      
+      final profile = PatientProfile.fromJson(profileResult.data);
 
       setState(() {
         patientId = fetchedPatientId;

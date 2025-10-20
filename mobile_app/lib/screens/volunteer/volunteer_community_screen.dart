@@ -1,10 +1,9 @@
 import 'package:flutter/material.dart';
-import 'volunteer_article_displaying_screen.dart';
-import 'volunteer_q&a_forum_screen.dart';
+
 import 'volunteer_bottom_navigation_screen.dart';
 import '../../routes/app_routes.dart';
 import 'volunteer_articles_screen.dart';
-import 'volunteer_qa_screen.dart';
+import '../../widgets/volunteer_qa_tab_body.dart';
 import '../../constants/color_constants.dart';
 
 class VolunteerCommunityScreen extends StatefulWidget {
