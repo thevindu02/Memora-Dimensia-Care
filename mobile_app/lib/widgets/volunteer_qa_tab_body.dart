@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../services/forum_question_service.dart';
 import '../services/forum_answer_service.dart';
+import '../services/auth_service.dart';
 import '../constants/color_constants.dart';
 
 class VolunteerQATabBody extends StatefulWidget {
@@ -958,10 +959,23 @@ class _VolunteerQuestionDetailScreenState
                             ),
                           );
 
+                          // Get current user's ID from auth service
+                          final int? currentUserId = AuthService.currentUserId;
+
+                          if (currentUserId == null) {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              SnackBar(
+                                content: Text('Error: User not logged in'),
+                                backgroundColor: Colors.red,
+                              ),
+                            );
+                            return;
+                          }
+
                           final newReply = await ForumAnswerService.createAnswer(
                             questionId: questionId.toString(),
-                            volunteerId:
-                                13, // TODO: Replace with actual volunteer ID
+                            userId:
+                                currentUserId, // Use actual logged-in user's ID
                             content: _replyController.text.trim(),
                           );
 

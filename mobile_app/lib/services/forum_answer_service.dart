@@ -70,7 +70,7 @@ class ForumAnswerService {
   /// Create a new answer (volunteers only)
   static Future<Map<String, dynamic>?> createAnswer({
     required String questionId,
-    required int volunteerId,
+    required int userId, // Changed from volunteerId to userId
     required String content,
   }) async {
     try {
@@ -80,7 +80,7 @@ class ForumAnswerService {
         headers: {'Content-Type': 'application/json'},
         body: jsonEncode({
           'questionId': questionId,
-          'volunteerId': volunteerId,
+          'userId': userId, // Send userId instead of volunteerId
           'content': content,
         }),
       );
