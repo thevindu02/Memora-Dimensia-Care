@@ -14,8 +14,8 @@ const Sidebar = ({ currentPage = 'dashboard' }) => {
       navigate('/caregiver');
     } else if (page === 'volunteer') {
       navigate('/volunteer');
-    } else if (page === 'blogpost') {
-      navigate('/blogpost');
+    // } else if (page === 'blogpost') {
+    //   navigate('/blogpost');
     } else if (page === 'revenue') {
       navigate('/revenue');
     } else if (page === 'usage-report') {
@@ -89,13 +89,13 @@ const Sidebar = ({ currentPage = 'dashboard' }) => {
           <div className="sidebar-section">
             <h3>Content Management</h3>
             <ul>
-              <li 
+              {/* <li 
                 className={currentPage === 'blogpost' ? 'active' : ''}
                 onClick={() => handleNavigation('blogpost')}
               >
                 <span className="sidebar-icon">📝</span>
                 Blog Posts
-              </li>
+              </li> */}
               <li 
                 className={currentPage === 'articles' ? 'active' : ''}
                 onClick={() => handleNavigation('articles')}

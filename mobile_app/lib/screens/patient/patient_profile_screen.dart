@@ -52,18 +52,19 @@ class _PatientProfileScreenState extends State<PatientProfileScreen> {
   }
 
   Future<void> _loadPatientProfile(int patientId) async {
-    final result = await PatientService.getPatientProfile(patientId);
-    if (result.success && result.data != null) {
+    try {
+      final profile = await PatientService.getPatientProfile(patientId);
       setState(() {
-        _patientData = result.data;
+        _patientData = profile.toJson();
         _isLoading = false;
       });
       _updateControllers();
-    } else {
+    } catch (e) {
       setState(() {
         _isLoading = false;
       });
       // Optionally show error
+      print('Error loading patient profile: $e');
     }
   }
 
