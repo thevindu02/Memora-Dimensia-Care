@@ -261,7 +261,7 @@ class _GuardianDashboardScreenState extends State<GuardianDashboardScreen> {
               if (patient['caregiverName'] != null) ...[
                 SizedBox(width: 12),
                 Column(
-                  crossAxisAlignment: CrossAxisAlignment.end,
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   mainAxisSize: MainAxisSize.min,
                   children: [
                     Row(

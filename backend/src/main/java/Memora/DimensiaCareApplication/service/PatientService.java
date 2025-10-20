@@ -132,6 +132,18 @@ public class PatientService {
                     resp.setGuardianPhone(g.getUser().getPhoneNumber());
                 }
             }
+            // populate caregiver info if available
+            Long cid = acceptedConn.getCaregiverId();
+            if (cid != null) {
+                resp.setCaregiverId(cid);
+                Caregiver c = caregiverRepository.findById(cid.intValue()).orElse(null);
+                if (c != null && c.getUser() != null) {
+                    resp.setCaregiverName(c.getUser().getFName() + " " + c.getUser().getLName());
+                    resp.setCaregiverEmail(c.getUser().getEmail());
+                    resp.setCaregiverPhone(c.getUser().getPhoneNumber());
+                    resp.setCaregiverCity(c.getUser().getCity());
+                }
+            }
         } else {
             // if no active connection, try to set guardian info if patient has a guardian reference
             if (patient.getGuardian() != null && patient.getGuardian().getUser() != null) {
