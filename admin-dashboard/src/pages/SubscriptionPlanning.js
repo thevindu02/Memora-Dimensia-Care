@@ -7,11 +7,11 @@ import {
   Footer
 } from '../components';
 
-// Sample subscription plans data
+// Sample subscription plans data - keeping only Basic plan
 const subscriptionPlansData = [
   {
     id: 1,
-    title: 'Basic Care',
+    title: 'Basic',
     description: 'Essential dementia care features including basic monitoring and simple reminders.',
     durations: {
       '3months':499,
@@ -22,29 +22,13 @@ const subscriptionPlansData = [
     isActive: true,
     createdAt: '2024-01-15',
     updatedAt: '2024-02-20'
-  },
-  {
-    id: 2,
-    title: 'Premium Care',
-    description: 'Comprehensive dementia care with advanced monitoring, AI assistance, and caregiver support.',
-    durations: {
-      '3months': 990,
-      '6months': 1899,
-      'annual': 2499
-    },
-    features: ['Advanced Health Monitoring', 'Smart Watch Integration', 'Video Consultations', 'Unlimited caregiver options', 'Unlimited articles and blog posts', '24/7 Support'],
-    isActive: true,
-    createdAt: '2024-01-15',
-    updatedAt: '2024-03-10'
-  },
+  }
 ];
 
 const SubscriptionPlanning = () => {
   const [subscriptionPlans, setSubscriptionPlans] = useState(subscriptionPlansData);
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [editingPlan, setEditingPlan] = useState(null);
-  const [searchTerm, setSearchTerm] = useState('');
-  const [statusFilter, setStatusFilter] = useState('');
   
   // Form state
   const [formData, setFormData] = useState({
@@ -61,10 +45,7 @@ const SubscriptionPlanning = () => {
   
   const [newFeature, setNewFeature] = useState('');
 
-  // Statistics
-  const totalPlans = subscriptionPlans.length;
-  const activePlans = subscriptionPlans.filter(plan => plan.isActive).length;
-  const inactivePlans = subscriptionPlans.filter(plan => !plan.isActive).length;
+
 
   const handleCreatePlan = () => {
     setEditingPlan(null);
@@ -191,15 +172,7 @@ const SubscriptionPlanning = () => {
     ));
   };
 
-  // Filter plans based on search term and status
-  const filteredPlans = subscriptionPlans.filter(plan => {
-    const matchesSearch = plan.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         plan.description.toLowerCase().includes(searchTerm.toLowerCase());
-    const matchesStatus = statusFilter === '' || 
-                         (statusFilter === 'active' && plan.isActive) ||
-                         (statusFilter === 'inactive' && !plan.isActive);
-    return matchesSearch && matchesStatus;
-  });
+
 
   const formatPrice = (price) => {
     return new Intl.NumberFormat('en-LK', {
@@ -228,72 +201,9 @@ const SubscriptionPlanning = () => {
               </button>
             </div>
 
-            {/* Search and Filters Section */}
-            <div className="um-search-filters">
-              <div className="um-search-row">
-                <div className="um-search-box">
-                  <input 
-                    type="text" 
-                    placeholder="Search subscription plans..." 
-                    className="um-search-input"
-                    value={searchTerm}
-                    onChange={(e) => setSearchTerm(e.target.value)}
-                  />
-                  <span className="um-search-icon">🔍</span>
-                </div>
-                
-                <div className="um-filters">
-                  <select 
-                    className="um-filter-select"
-                    value={statusFilter}
-                    onChange={(e) => setStatusFilter(e.target.value)}
-                  >
-                    <option value="">All Status</option>
-                    <option value="active">Active</option>
-                    <option value="inactive">Inactive</option>
-                  </select>
-                </div>
-              </div>
-            </div>
-
-            {/* Stats Cards */}
-            <div className="um-stats-grid">
-              <div className="um-stat-card">
-                <div className="um-stat-icon">📋</div>
-                <div className="um-stat-content">
-                  <h3>{totalPlans}</h3>
-                  <p>Total Plans</p>
-                </div>
-              </div>
-              
-              <div className="um-stat-card">
-                <div className="um-stat-icon">✅</div>
-                <div className="um-stat-content">
-                  <h3>{activePlans}</h3>
-                  <p>Active Plans</p>
-                </div>
-              </div>
-              
-              <div className="um-stat-card">
-                <div className="um-stat-icon">❌</div>
-                <div className="um-stat-content">
-                  <h3>{inactivePlans}</h3>
-                  <p>Inactive Plans</p>
-                </div>
-              </div>
-              
-              <div className="um-stat-card">
-                <div className="um-stat-icon">💰</div>
-                <div className="um-stat-content">
-                  <h3>{formatPrice(subscriptionPlans.reduce((sum, plan) => sum + plan.durations.annual, 0) / subscriptionPlans.length)}</h3>
-                  <p>Avg Annual Price</p>
-                </div>
-              </div>
-            </div>
-
-            {/* Subscription Plans Grid */}
+            {/* Current Subscription Plan */}
             <div className="subscription-plans-grid">
-              {filteredPlans.map((plan) => (
+              {subscriptionPlans.map((plan) => (
                 <div key={plan.id} className={`subscription-plan-card ${!plan.isActive ? 'inactive' : ''}`}>
                   <div className="plan-header">
                     <h3 className="plan-title">{plan.title}</h3>

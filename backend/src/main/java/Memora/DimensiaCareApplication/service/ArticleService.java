@@ -1108,4 +1108,76 @@ public class ArticleService {
 
         return 0L;
     }
+
+    /**
+     * Approve an article (set status to "approved")
+     */
+    public String approveArticle(String articleId) throws ExecutionException, InterruptedException {
+        try {
+            System.out.println("Approving article with ID: " + articleId);
+
+            // Update in Firestore
+            Firestore db = FirestoreClient.getFirestore();
+            DocumentReference articleRef = db.collection(COLLECTION_NAME).document(articleId);
+
+            Map<String, Object> updates = new HashMap<>();
+            updates.put("status", "approved");
+            updates.put("updated_at", System.currentTimeMillis());
+
+            ApiFuture<WriteResult> future = articleRef.update(updates);
+            String updateTime = future.get().getUpdateTime().toString();
+
+            // Update in PostgreSQL if exists
+            Article article = articleRepository.findByFirebaseDocId(articleId);
+            if (article != null) {
+                article.setStatus("approved");
+                articleRepository.save(article);
+                System.out.println("Article status updated in PostgreSQL");
+            }
+
+            System.out.println("Article approved successfully at: " + updateTime);
+            return updateTime;
+
+        } catch (Exception e) {
+            System.err.println("Error approving article: " + e.getMessage());
+            e.printStackTrace();
+            throw new RuntimeException("Failed to approve article: " + e.getMessage());
+        }
+    }
+
+    /**
+     * Reject an article (set status to "disapproved")
+     */
+    public String rejectArticle(String articleId) throws ExecutionException, InterruptedException {
+        try {
+            System.out.println("Rejecting article with ID: " + articleId);
+
+            // Update in Firestore
+            Firestore db = FirestoreClient.getFirestore();
+            DocumentReference articleRef = db.collection(COLLECTION_NAME).document(articleId);
+
+            Map<String, Object> updates = new HashMap<>();
+            updates.put("status", "disapproved");
+            updates.put("updated_at", System.currentTimeMillis());
+
+            ApiFuture<WriteResult> future = articleRef.update(updates);
+            String updateTime = future.get().getUpdateTime().toString();
+
+            // Update in PostgreSQL if exists
+            Article article = articleRepository.findByFirebaseDocId(articleId);
+            if (article != null) {
+                article.setStatus("disapproved");
+                articleRepository.save(article);
+                System.out.println("Article status updated in PostgreSQL");
+            }
+
+            System.out.println("Article rejected successfully at: " + updateTime);
+            return updateTime;
+
+        } catch (Exception e) {
+            System.err.println("Error rejecting article: " + e.getMessage());
+            e.printStackTrace();
+            throw new RuntimeException("Failed to reject article: " + e.getMessage());
+        }
+    }
 }

@@ -32,6 +32,9 @@ public class DashboardController {
     @Autowired
     private ArticleRepository articleRepository;
 
+    @Autowired
+    private Memora.DimensiaCareApplication.service.PaymentService paymentService;
+
     @GetMapping("/stats")
     public ResponseEntity<Map<String, Object>> getDashboardStats() {
         try {
@@ -67,6 +70,53 @@ public class DashboardController {
             defaultStats.put("articles", 0);
 
             return ResponseEntity.ok(defaultStats);
+        }
+    }
+
+    @GetMapping("/charts")
+    public ResponseEntity<Map<String, Object>> getDashboardChartData() {
+        try {
+            Map<String, Object> chartData = new HashMap<>();
+            
+            // Get monthly revenue from payment service
+            Map<String, java.math.BigDecimal> monthlyRevenueMap = paymentService.getMonthlyRevenue();
+            chartData.put("monthlyRevenue", monthlyRevenueMap);
+            
+            // Get user statistics for app usage
+            Map<String, Object> userStats = new HashMap<>();
+            Long patientsCount = patientRepository.countActivePatients();
+            Long caregiversCount = caregiverRepository.countActiveCaregivers();
+            Long volunteersCount = volunteerRepository.countActiveVolunteers();
+            
+            userStats.put("patients", patientsCount != null ? patientsCount : 0L);
+            userStats.put("caregivers", caregiversCount != null ? caregiversCount : 0L);
+            userStats.put("volunteers", volunteersCount != null ? volunteersCount : 0L);
+            
+            // Calculate total active users
+            Long totalActive = (patientsCount != null ? patientsCount : 0L) + 
+                             (caregiversCount != null ? caregiversCount : 0L) + 
+                             (volunteersCount != null ? volunteersCount : 0L);
+            userStats.put("totalActive", totalActive);
+            
+            chartData.put("appUsage", userStats);
+            
+            return ResponseEntity.ok(chartData);
+        } catch (Exception e) {
+            System.err.println("Error fetching dashboard chart data: " + e.getMessage());
+            e.printStackTrace();
+            
+            // Return default values
+            Map<String, Object> defaultData = new HashMap<>();
+            defaultData.put("monthlyRevenue", new HashMap<>());
+            
+            Map<String, Object> defaultUsers = new HashMap<>();
+            defaultUsers.put("patients", 0L);
+            defaultUsers.put("caregivers", 0L);
+            defaultUsers.put("volunteers", 0L);
+            defaultUsers.put("totalActive", 0L);
+            defaultData.put("appUsage", defaultUsers);
+            
+            return ResponseEntity.ok(defaultData);
         }
     }
 }
