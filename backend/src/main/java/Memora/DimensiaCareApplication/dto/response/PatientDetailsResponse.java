@@ -1,6 +1,5 @@
 package Memora.DimensiaCareApplication.dto.response;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
 import Memora.DimensiaCareApplication.model.Patient;
 import Memora.DimensiaCareApplication.model.User;
 import Memora.DimensiaCareApplication.model.Guardian;
@@ -9,6 +8,8 @@ import java.time.Period;
 
 public class PatientDetailsResponse {
     private Long patientId;
+    private Long userId;
+    private String userStatus;
     private String FName;
     private String LName;
     private String patientName; // computed full name
@@ -48,6 +49,8 @@ public class PatientDetailsResponse {
         PatientDetailsResponse resp = new PatientDetailsResponse();
         resp.patientId = patient.getPatientID();
         User user = patient.getUser();
+        resp.userId = user.getId();
+        resp.userStatus = user.getStatus() != null ? user.getStatus().name() : "ACTIVE";
         resp.FName = user.getFName();
         resp.LName = user.getLName();
         // compute full name
@@ -105,6 +108,22 @@ public class PatientDetailsResponse {
     // Getters and Setters
     public Long getPatientId() {
         return patientId;
+    }
+
+    public Long getUserId() {
+        return userId;
+    }
+
+    public void setUserId(Long userId) {
+        this.userId = userId;
+    }
+
+    public String getUserStatus() {
+        return userStatus;
+    }
+
+    public void setUserStatus(String userStatus) {
+        this.userStatus = userStatus;
     }
 
     public void setPatientId(Long patientId) {

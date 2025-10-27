@@ -3,15 +3,19 @@ import '../../constants/color_constants.dart';
 import '../../routes/app_routes.dart';
 
 class PaymentSuccessScreen extends StatelessWidget {
-  final String planType;
-  final String duration;
+  final String? planType; // DEPRECATED - kept for backward compatibility
+  final String? duration; // DEPRECATED - kept for backward compatibility
   final double price;
+  final int? durationMonths; // NEW - actual duration (3, 6, or 12)
+  final String? patientName; // NEW - patient name for display
 
   const PaymentSuccessScreen({
     Key? key,
-    required this.planType,
-    required this.duration,
+    this.planType, // Optional now
+    this.duration, // Optional now
     required this.price,
+    this.durationMonths, // NEW parameter
+    this.patientName, // NEW parameter
   }) : super(key: key);
 
   @override
@@ -58,7 +62,9 @@ class PaymentSuccessScreen extends StatelessWidget {
 
               // Success Message
               Text(
-                'Your $planType plan is now active and ready to use.',
+                patientName != null
+                    ? 'Subscription for $patientName is now active!\n✨ Includes 3-month free trial'
+                    : 'Your ${planType ?? "subscription"} plan is now active and ready to use.',
                 style: TextStyle(
                   fontSize: 16,
                   color: AppColors.onSurfaceVariant,
@@ -90,18 +96,29 @@ class PaymentSuccessScreen extends StatelessWidget {
                     ),
                     const SizedBox(height: 16),
 
-                    // Plan Type
-                    _buildDetailRow('Plan Type', planType),
+                    // Patient Name (NEW)
+                    if (patientName != null) ...[
+                      _buildDetailRow('Patient', patientName!),
+                      const SizedBox(height: 12),
+                    ],
+
+                    // Duration (NEW or OLD format)
+                    if (durationMonths != null)
+                      _buildDetailRow('Paid Period', '$durationMonths months')
+                    else
+                      _buildDetailRow('Duration', duration ?? 'N/A'),
                     const SizedBox(height: 12),
 
-                    // Duration
-                    _buildDetailRow('Duration', duration),
-                    const SizedBox(height: 12),
+                    // Plan Type (OLD format only)
+                    if (planType != null && durationMonths == null) ...[
+                      _buildDetailRow('Plan Type', planType!),
+                      const SizedBox(height: 12),
+                    ],
 
                     // Amount Paid
                     _buildDetailRow(
                       'Amount Paid',
-                      '\$${price.toStringAsFixed(2)}',
+                      'LKR ${price.toStringAsFixed(2)}',
                     ),
                     const SizedBox(height: 12),
 
@@ -239,7 +256,7 @@ class PaymentSuccessScreen extends StatelessWidget {
   }
 
   List<Widget> _getPlanFeatures() {
-    final isPremium = planType.toLowerCase() == 'premium';
+    final isPremium = planType?.toLowerCase() == 'premium';
 
     if (isPremium) {
       // Premium Plan Features
@@ -285,9 +302,11 @@ class PaymentSuccessScreen extends StatelessWidget {
 
   String _getNextBillingDate() {
     final now = DateTime.now();
-    final nextBilling = duration.contains('Monthly')
-        ? DateTime(now.year, now.month + 1, now.day)
-        : DateTime(now.year + 1, now.month, now.day);
+    // Use durationMonths if available, otherwise fall back to duration string
+    int monthsToAdd = durationMonths ?? 
+        (duration?.contains('Monthly') == true ? 1 : 12);
+    
+    final nextBilling = DateTime(now.year, now.month + monthsToAdd, now.day);
     return '${nextBilling.day}/${nextBilling.month}/${nextBilling.year}';
   }
 

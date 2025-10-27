@@ -54,4 +54,12 @@ public class VolunteerService {
         volunteerRepository.save(volunteer);
         return true;
     }
+
+    public Long getVolunteerIdByUserId(Long userId) {
+        Volunteer volunteer = volunteerRepository.findByUserId(userId).orElse(null);
+        if (volunteer != null) {
+            return volunteer.getVolunteerId();
+        }
+        return null;
+    }
 }

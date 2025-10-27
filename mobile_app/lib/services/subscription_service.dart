@@ -90,6 +90,90 @@ class SubscriptionService {
       return null;
     }
   }
+
+  /// Check patient subscription status
+  /// Returns: {patientId, status, isActive, trialStartDate, trialEndDate, paidStartDate, paidEndDate}
+  static Future<Map<String, dynamic>> checkPatientSubscription(
+    int patientId,
+  ) async {
+    try {
+      final response = await http.get(
+        Uri.parse('$baseUrl/patient/$patientId/status'),
+        headers: {'Content-Type': 'application/json'},
+      );
+
+      if (response.statusCode == 200) {
+        return jsonDecode(response.body);
+      }
+      throw Exception('Failed to check subscription status');
+    } catch (e) {
+      print('Error checking subscription: $e');
+      return {
+        'patientId': patientId,
+        'status': 'ERROR',
+        'isActive': false,
+        'error': e.toString(),
+      };
+    }
+  }
+
+  /// Get expired patients for a guardian
+  /// Returns: List of patient IDs that have expired subscriptions
+  static Future<List<int>> getExpiredPatients(int guardianId) async {
+    try {
+      final response = await http.get(
+        Uri.parse('$baseUrl/guardian/$guardianId/expired-patients'),
+        headers: {'Content-Type': 'application/json'},
+      );
+
+      if (response.statusCode == 200) {
+        final data = jsonDecode(response.body);
+        return List<int>.from(data['expiredPatientIds']);
+      }
+      return [];
+    } catch (e) {
+      print('Error getting expired patients: $e');
+      return [];
+    }
+  }
+
+  /// Get subscription details by patient ID
+  static Future<Map<String, dynamic>?> getSubscriptionByPatient(
+    int patientId,
+  ) async {
+    try {
+      final response = await http.get(
+        Uri.parse('$baseUrl/patient/$patientId'),
+        headers: {'Content-Type': 'application/json'},
+      );
+
+      if (response.statusCode == 200) {
+        final data = jsonDecode(response.body);
+        if (data is Map<String, dynamic>) {
+          return data;
+        }
+      }
+      return null;
+    } catch (e) {
+      print('Error getting subscription details: $e');
+      return null;
+    }
+  }
+
+  /// Cancel subscription
+  static Future<bool> cancelSubscription(int subscriptionId) async {
+    try {
+      final response = await http.post(
+        Uri.parse('$baseUrl/$subscriptionId/cancel'),
+        headers: {'Content-Type': 'application/json'},
+      );
+
+      return response.statusCode == 200;
+    } catch (e) {
+      print('Error cancelling subscription: $e');
+      return false;
+    }
+  }
 }
 
 class SubscriptionResult {

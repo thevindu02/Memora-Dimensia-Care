@@ -7,6 +7,7 @@ import {
   Footer
 } from '../components';
 import caregiverApiService from '../services/caregiverApiService';
+import userApiService from '../services/userApiService';
 
 const Caregiver = () => {
   const [selectedCaregiver, setSelectedCaregiver] = useState(null);
@@ -53,7 +54,8 @@ const Caregiver = () => {
   // Transform API data to match frontend expectations
   const transformedCaregivers = caregivers.map(caregiver => ({
     id: caregiver.caregiverId,
-    name: `${caregiver.fName || ''} ${caregiver.lName || ''}`.trim(),
+    userId: caregiver.userId,
+    name: caregiver.name || `${caregiver.fName || ''} ${caregiver.lName || ''}`.trim(),
     email: caregiver.email || 'N/A',
     phone: caregiver.phoneNumber || 'N/A',
     address: caregiver.address || 'N/A',
@@ -64,7 +66,7 @@ const Caregiver = () => {
     qualification: caregiver.qualifications || 'N/A',
     profilePicture: caregiver.profilePic || 'https://via.placeholder.com/150/4A90E2/FFFFFF?text=CG',
     patients: [], // We'll assume empty for now, can be populated from connections
-    status: 'Active', // Assume all caregivers are active
+    status: caregiver.status === 'ACTIVE' ? 'Active' : 'Disabled',
     skills: caregiver.skills || []
   }));
 
@@ -98,10 +100,23 @@ const Caregiver = () => {
     setSelectedCaregiver(null);
   };
 
-  const handleDisableCaregiver = () => {
-    // UI only - no backend functionality
-    alert(`Caregiver ${selectedCaregiver.name} has been disabled (UI only)`);
-    handleCloseModal();
+  const handleDisableCaregiver = async () => {
+    try {
+      if (!selectedCaregiver || !selectedCaregiver.userId) {
+        alert('Error: Caregiver information not available');
+        return;
+      }
+
+      await userApiService.updateUserStatus(selectedCaregiver.userId, 'INACTIVE');
+      alert(`Caregiver ${selectedCaregiver.name} status updated to Inactive successfully`);
+      
+      // Refresh the caregiver list to show updated status
+      fetchCaregivers();
+      handleCloseModal();
+    } catch (error) {
+      console.error('Error updating caregiver status:', error);
+      alert('Error updating caregiver status: ' + error.message);
+    }
   };
 
   return (

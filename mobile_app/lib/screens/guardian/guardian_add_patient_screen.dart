@@ -3,6 +3,8 @@ import 'package:flutter/services.dart';
 import '../../routes/app_routes.dart';
 import '../../services/auth_service.dart';
 import '../../services/guardian_service.dart';
+import '../../services/user_service.dart';
+import '../../services/patient_service.dart';
 import '../../constants/color_constants.dart';
 
 class GuardianAddPatientScreen extends StatefulWidget {
@@ -52,12 +54,20 @@ class _GuardianAddPatientScreenState extends State<GuardianAddPatientScreen> {
     'Other',
   ];
 
+  // Dementia stages for dropdown (removed "Very Severe" as requested)
   final List<String> _dementiaStages = [
     'Mild',
     'Moderate',
     'Severe',
-    'Very Severe',
   ];
+
+  // Map display names to backend enum values (CAPS)
+  final Map<String, String> dementiaStageMap = {
+    'Mild': 'MILD',
+    'Moderate': 'MODERATE',
+    'Severe': 'SEVERE',
+    // 'Very Severe': 'VERY_SEVERE', // Removed from dropdown but kept in backend for backward compatibility
+  };
 
   final Map<String, String> dementiaTypeMap = {
     "Alzheimer's Disease": 'ALZHEIMERS_DISEASE',
@@ -281,6 +291,11 @@ class _GuardianAddPatientScreenState extends State<GuardianAddPatientScreen> {
     );
   }
 
+  // Helper to format date for backend (yyyy-MM-dd)
+  String _formatDateForBackend(DateTime date) {
+    return "${date.year}-${date.month.toString().padLeft(2, '0')}-${date.day.toString().padLeft(2, '0')}";
+  }
+
   Future<void> _selectDate(BuildContext context, bool isDOB) async {
     final DateTime? picked = await showDatePicker(
       context: context,
@@ -292,9 +307,11 @@ class _GuardianAddPatientScreenState extends State<GuardianAddPatientScreen> {
       setState(() {
         if (isDOB) {
           _selectedDOB = picked;
+          // Display format for user (d/M/yyyy)
           _dobController.text = "${picked.day}/${picked.month}/${picked.year}";
         } else {
           _selectedDiagnosisDate = picked;
+          // Display format for user (d/M/yyyy)
           _diagnosisDateController.text =
               "${picked.day}/${picked.month}/${picked.year}";
         }
@@ -356,42 +373,102 @@ class _GuardianAddPatientScreenState extends State<GuardianAddPatientScreen> {
           return;
         }
 
-        // Collect all form data to pass to subscription screen
-        // Patient will be created AFTER successful payment
+        // NEW FLOW: Create patient immediately
+        // Backend will automatically create a PENDING subscription
         final String? backendDementiaType = _selectedDementiaType != null
             ? dementiaTypeMap[_selectedDementiaType]
             : null;
 
-        final Map<String, dynamic> patientData = {
-          'firstName': _firstNameController.text.trim(),
-          'lastName': _lastNameController.text.trim(),
-          'dateOfBirth': _dobController.text.trim(),
-          'gender': _selectedGender ?? '',
-          'contactNumber': _contactController.text.trim(),
-          'email': _emailController.text.trim(),
-          'street': _streetController.text.trim(),
-          'city': _cityController.text.trim(),
-          'state': _stateController.text.trim(),
-          'dementiaType': backendDementiaType ?? '',
-          'dementiaStage': _selectedDementiaStage ?? '',
-          'dateOfDiagnosis': _diagnosisDateController.text.trim(),
-          'relationship': _selectedRelationship == 'Other'
+        print('Creating patient immediately with backend...');
+        
+        // Format dates for backend (yyyy-MM-dd)
+        final String formattedDOB = _selectedDOB != null 
+            ? _formatDateForBackend(_selectedDOB!)
+            : '';
+        final String formattedDiagnosisDate = _selectedDiagnosisDate != null
+            ? _formatDateForBackend(_selectedDiagnosisDate!)
+            : '';
+        
+        print('Formatted DOB for backend: $formattedDOB');
+        print('Formatted Diagnosis Date for backend: $formattedDiagnosisDate');
+        
+        // Import necessary services at top of file if not already imported
+        final userResult = await UserService.addUser(
+          FName: _firstNameController.text.trim(),
+          LName: _lastNameController.text.trim(),
+          email: _emailController.text.trim(),
+          password: null, // Patients don't need passwords
+          phoneNumber: _contactController.text.trim(),
+          role: "PATIENT",
+          status: "ACTIVE",
+          birthdate: formattedDOB, // Backend format: yyyy-MM-dd
+          profilePic: "",
+          street: _streetController.text.trim(),
+          city: _cityController.text.trim(),
+          state: _stateController.text.trim(),
+          gender: _selectedGender ?? '',
+        );
+
+        if (!userResult.success || userResult.userId == null) {
+          setState(() {
+            _isLoading = false;
+          });
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text('Failed to create user: ${userResult.message}'),
+              backgroundColor: Colors.red,
+            ),
+          );
+          return;
+        }
+
+        // Convert dementia stage to backend enum format
+        final String? backendDementiaStage = _selectedDementiaStage != null
+            ? dementiaStageMap[_selectedDementiaStage]
+            : null;
+
+        print('Frontend dementia stage: $_selectedDementiaStage');
+        print('Backend dementia stage: $backendDementiaStage');
+
+        // Create patient record
+        final patientResult = await PatientService.addPatient(
+          userId: userResult.userId!,
+          dementiaStage: backendDementiaStage ?? '', // Backend enum format: MILD, MODERATE, SEVERE
+          dateOfDiagnosis: formattedDiagnosisDate, // Backend format: yyyy-MM-dd
+          dementiaType: backendDementiaType ?? '',
+          guardianId: guardianId,
+          relationship: _selectedRelationship == 'Other'
               ? _customRelationshipController.text.trim()
               : (_selectedRelationship ?? ''),
-        };
+        );
 
         setState(() {
           _isLoading = false;
         });
 
-        print('Navigating to subscription plans with patient data');
+        if (!patientResult.success || patientResult.patientId == null) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text('Failed to create patient: ${patientResult.message}'),
+              backgroundColor: Colors.red,
+            ),
+          );
+          return;
+        }
 
-        // Navigate to subscription plans with data (patient created after payment)
+        print('Patient created successfully with ID: ${patientResult.patientId}');
+        print('Backend auto-created PENDING subscription');
+
+        // Navigate to NEW duration selection screen
         Navigator.pushNamedAndRemoveUntil(
           context,
-          AppRoutes.guardianSubscriptionPlans,
+          AppRoutes.guardianSubscriptionDuration, // NEW ROUTE
           (route) => false,
-          arguments: {'guardianId': guardianId, 'patientData': patientData},
+          arguments: {
+            'guardianId': guardianId,
+            'patientId': patientResult.patientId,
+            'patientName': '${_firstNameController.text} ${_lastNameController.text}',
+          },
         );
       } else {
         print('Form validation failed');

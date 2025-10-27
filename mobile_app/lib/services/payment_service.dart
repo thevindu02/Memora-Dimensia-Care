@@ -56,12 +56,27 @@ class PaymentService {
     required int paymentId,
     required String status, // 'SUCCESS', 'FAILED', 'PENDING'
     String? transactionId,
+    int? patientId, // NEW: For linking payment to patient subscription
+    int? durationMonths, // NEW: For adding paid subscription period (3, 6, or 12)
   }) async {
     try {
+      final body = <String, dynamic>{
+        'status': status,
+        'transactionId': transactionId,
+      };
+      
+      // Add new fields if provided
+      if (patientId != null) {
+        body['patientId'] = patientId;
+      }
+      if (durationMonths != null) {
+        body['durationMonths'] = durationMonths;
+      }
+
       final response = await http.put(
         Uri.parse('$baseUrl/$paymentId/status'),
         headers: {'Content-Type': 'application/json'},
-        body: jsonEncode({'status': status, 'transactionId': transactionId}),
+        body: jsonEncode(body),
       );
 
       return response.statusCode == 200;

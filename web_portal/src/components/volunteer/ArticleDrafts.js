@@ -27,6 +27,7 @@ import VolunteerNav from "./VolunteerNav";
 import Footer from "../home/Footer";
 import AuthService from "../../services/authService";
 import articleService from "../../services/articleService";
+import VolunteerService from "../../services/volunteerService";
 
 const colors = {
   softLavender: "#C3B1E1",
@@ -46,6 +47,7 @@ export default function ArticleDrafts({
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [currentUser, setCurrentUser] = useState(null);
+  const [userVolunteerId, setUserVolunteerId] = useState(null);
   const [deleting, setDeleting] = useState(null); // Track which draft is being deleted
 
   // Format timestamp to readable date
@@ -92,19 +94,31 @@ export default function ArticleDrafts({
       }
 
       setCurrentUser(user);
-      console.log("Fetching drafts for volunteer ID:", user.id);
+      
+      // Get the volunteer ID for this user
+      console.log("🔍 Fetching volunteer ID for user ID:", user.id);
+      const volunteerResponse = await VolunteerService.getVolunteerIdByUserId(user.id);
+      
+      if (!volunteerResponse.success || !volunteerResponse.volunteerId) {
+        setError("You are not registered as a volunteer.");
+        return;
+      }
+      
+      const volunteerId = volunteerResponse.volunteerId;
+      setUserVolunteerId(volunteerId);
+      console.log("✅ Fetching drafts for volunteer ID:", volunteerId);
 
-      const response = await articleService.getDraftArticles(user.id);
+      const response = await articleService.getDraftArticles(volunteerId);
       
       if (response.success) {
-        console.log("Draft articles fetched:", response.data);
+        console.log("📄 Draft articles fetched:", response.data?.length || 0, "drafts");
         setDrafts(response.data || []);
       } else {
         setError(response.message || "Failed to fetch draft articles");
       }
 
     } catch (error) {
-      console.error("Error fetching drafts:", error);
+      console.error("❌ Error fetching drafts:", error);
       setError("Failed to load draft articles. Please try again.");
     } finally {
       setLoading(false);

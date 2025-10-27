@@ -3,17 +3,21 @@ import '../../constants/color_constants.dart';
 import '../../routes/app_routes.dart';
 
 class PaymentFailedScreen extends StatelessWidget {
-  final String planType;
-  final String duration;
+  final String? planType; // DEPRECATED - kept for backward compatibility
+  final String? duration; // DEPRECATED - kept for backward compatibility
   final double price;
   final String? errorMessage;
+  final int? durationMonths; // NEW - actual duration (3, 6, or 12)
+  final String? patientName; // NEW - patient name for display
 
   const PaymentFailedScreen({
     Key? key,
-    required this.planType,
-    required this.duration,
+    this.planType, // Optional now
+    this.duration, // Optional now
     required this.price,
     this.errorMessage,
+    this.durationMonths, // NEW parameter
+    this.patientName, // NEW parameter
   }) : super(key: key);
 
   @override
@@ -60,7 +64,11 @@ class PaymentFailedScreen extends StatelessWidget {
               
               // Failed Message
               Text(
-                'We couldn\'t process your payment for the $planType plan. Please try again.',
+                patientName != null
+                    ? 'We couldn\'t process your payment for ${patientName}\'s subscription. Please try again.'
+                    : planType != null
+                        ? 'We couldn\'t process your payment for the $planType plan. Please try again.'
+                        : 'We couldn\'t process your payment. Please try again.',
                 style: TextStyle(
                   fontSize: 16,
                   color: AppColors.onSurfaceVariant,
@@ -137,16 +145,27 @@ class PaymentFailedScreen extends StatelessWidget {
                     ),
                     const SizedBox(height: 16),
                     
-                    // Plan Type
-                    _buildDetailRow('Plan Type', planType),
+                    // Patient Name (NEW)
+                    if (patientName != null) ...[
+                      _buildDetailRow('Patient', patientName!),
+                      const SizedBox(height: 12),
+                    ],
+
+                    // Duration (NEW or OLD format)
+                    if (durationMonths != null)
+                      _buildDetailRow('Subscription', '$durationMonths months')
+                    else if (duration != null)
+                      _buildDetailRow('Duration', duration!),
                     const SizedBox(height: 12),
-                    
-                    // Duration
-                    _buildDetailRow('Duration', duration),
-                    const SizedBox(height: 12),
+
+                    // Plan Type (OLD format only)
+                    if (planType != null && durationMonths == null) ...[
+                      _buildDetailRow('Plan Type', planType!),
+                      const SizedBox(height: 12),
+                    ],
                     
                     // Amount
-                    _buildDetailRow('Amount', '\$${price.toStringAsFixed(2)}'),
+                    _buildDetailRow('Amount', 'LKR ${price.toStringAsFixed(2)}'),
                     const SizedBox(height: 12),
                     
                     // Attempt Date

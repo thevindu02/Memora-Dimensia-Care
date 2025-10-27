@@ -7,7 +7,7 @@ import java.time.LocalDateTime;
 @Entity
 @Table(name = "guardian_subscriptions")
 public class GuardianSubscription {
-    
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "subscription_id")
@@ -19,18 +19,22 @@ public class GuardianSubscription {
     @Column(name = "patient_id", nullable = false)
     private Long patientId;
 
-    @Enumerated(EnumType.STRING)
-    @Column(name = "plan_type", nullable = false)
-    private PlanType planType;
+    // Trial period tracking
+    @Column(name = "trial_start_date")
+    private LocalDate trialStartDate;
 
-    @Column(name = "duration_months", nullable = false)
+    @Column(name = "trial_end_date")
+    private LocalDate trialEndDate;
+
+    // Paid subscription tracking
+    @Column(name = "paid_start_date")
+    private LocalDate paidStartDate;
+
+    @Column(name = "paid_end_date")
+    private LocalDate paidEndDate;
+
+    @Column(name = "duration_months")
     private Integer durationMonths;
-
-    @Column(name = "start_date", nullable = false)
-    private LocalDate startDate;
-
-    @Column(name = "end_date", nullable = false)
-    private LocalDate endDate;
 
     @Enumerated(EnumType.STRING)
     @Column(name = "status", nullable = false)
@@ -45,12 +49,12 @@ public class GuardianSubscription {
     @Column(name = "updated_at")
     private LocalDateTime updatedAt;
 
-    public enum PlanType {
-        BASIC, PREMIUM
-    }
-
     public enum SubscriptionStatus {
-        ACTIVE, EXPIRED, CANCELLED, PENDING
+        TRIAL, // During 3-month free trial
+        ACTIVE, // Paid subscription active
+        EXPIRED, // Trial or paid period expired
+        CANCELLED, // Cancelled by guardian
+        PENDING // Waiting for caregiver assignment to start trial
     }
 
     // Constructors
@@ -84,12 +88,36 @@ public class GuardianSubscription {
         this.patientId = patientId;
     }
 
-    public PlanType getPlanType() {
-        return planType;
+    public LocalDate getTrialStartDate() {
+        return trialStartDate;
     }
 
-    public void setPlanType(PlanType planType) {
-        this.planType = planType;
+    public void setTrialStartDate(LocalDate trialStartDate) {
+        this.trialStartDate = trialStartDate;
+    }
+
+    public LocalDate getTrialEndDate() {
+        return trialEndDate;
+    }
+
+    public void setTrialEndDate(LocalDate trialEndDate) {
+        this.trialEndDate = trialEndDate;
+    }
+
+    public LocalDate getPaidStartDate() {
+        return paidStartDate;
+    }
+
+    public void setPaidStartDate(LocalDate paidStartDate) {
+        this.paidStartDate = paidStartDate;
+    }
+
+    public LocalDate getPaidEndDate() {
+        return paidEndDate;
+    }
+
+    public void setPaidEndDate(LocalDate paidEndDate) {
+        this.paidEndDate = paidEndDate;
     }
 
     public Integer getDurationMonths() {
@@ -98,22 +126,6 @@ public class GuardianSubscription {
 
     public void setDurationMonths(Integer durationMonths) {
         this.durationMonths = durationMonths;
-    }
-
-    public LocalDate getStartDate() {
-        return startDate;
-    }
-
-    public void setStartDate(LocalDate startDate) {
-        this.startDate = startDate;
-    }
-
-    public LocalDate getEndDate() {
-        return endDate;
-    }
-
-    public void setEndDate(LocalDate endDate) {
-        this.endDate = endDate;
     }
 
     public SubscriptionStatus getStatus() {

@@ -13,21 +13,28 @@ import '../../services/patient_service.dart';
 import 'dart:math';
 
 class PaymentScreen extends StatefulWidget {
-  final String planType;
-  final String duration;
+  final int durationMonths; // 3, 6, or 12 months
   final double price;
-  final int?
-  patientId; // Optional: Will be null for new patients (created after payment)
-  final int? guardianId; // Required for creating patient after payment
+  final int patientId; // REQUIRED - patient must exist before payment
+  final int? guardianId; // Optional for backward compatibility
+  final String? patientName; // For display
+
+  // Deprecated parameters - kept for backward compatibility
+  @Deprecated('Use durationMonths instead')
+  final String? planType;
+  @Deprecated('Use durationMonths instead')
+  final String? duration;
   final Map<String, dynamic>?
-  patientData; // Patient form data to create after payment success
+  patientData; // Deprecated - patient should be created before payment
 
   PaymentScreen({
-    required this.planType,
-    required this.duration,
+    required this.durationMonths,
     required this.price,
-    this.patientId,
+    required this.patientId,
     this.guardianId,
+    this.patientName,
+    this.planType,
+    this.duration,
     this.patientData,
   });
 
@@ -36,12 +43,7 @@ class PaymentScreen extends StatefulWidget {
 }
 
 class _PaymentScreenState extends State<PaymentScreen> {
-  String selectedPaymentMethod = 'card';
   final _formKey = GlobalKey<FormState>();
-  final _cardNumberController = TextEditingController();
-  final _expiryController = TextEditingController();
-  final _cvvController = TextEditingController();
-  final _nameController = TextEditingController();
   bool _isProcessing = false;
   int? _subscriptionId;
   int? _paymentId;
@@ -88,11 +90,21 @@ class _PaymentScreenState extends State<PaymentScreen> {
                       ),
                     ),
                     SizedBox(height: 8),
+                    if (widget.patientName != null) ...[
+                      Text(
+                        'Patient: ${widget.patientName}',
+                        style: TextStyle(
+                          fontSize: 13,
+                          color: AppColors.onSurface.withOpacity(0.7),
+                        ),
+                      ),
+                      SizedBox(height: 4),
+                    ],
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
                         Text(
-                          '${widget.planType.toUpperCase()} Plan - ${widget.duration} months',
+                          'Subscription - ${widget.durationMonths} months',
                           style: TextStyle(
                             fontSize: 14,
                             color: AppColors.onSurface,
@@ -107,6 +119,15 @@ class _PaymentScreenState extends State<PaymentScreen> {
                           ),
                         ),
                       ],
+                    ),
+                    SizedBox(height: 4),
+                    Text(
+                      '✨ Includes 3-month free trial',
+                      style: TextStyle(
+                        fontSize: 12,
+                        color: Colors.purple[700],
+                        fontStyle: FontStyle.italic,
+                      ),
                     ),
                   ],
                 ),
@@ -134,7 +155,7 @@ class _PaymentScreenState extends State<PaymentScreen> {
                     ),
                     SizedBox(height: 4),
                     Text(
-                      '✅ Success: 4242 4242 4242 4242 | 12/25 | 123',
+                      '✅ Success: Visa : 4916 2175 0161 1292 | 12/25 | 123',
                       style: TextStyle(
                         fontSize: 11,
                         color: AppColors.primary,
@@ -162,192 +183,43 @@ class _PaymentScreenState extends State<PaymentScreen> {
               ),
               SizedBox(height: 16),
 
-              // Payment Methods
-              Text(
-                'Payment Method',
-                style: TextStyle(
-                  fontSize: 18,
-                  fontWeight: FontWeight.w600,
-                  color: AppColors.textPrimary,
+              // Payment Provider Info
+              Container(
+                padding: EdgeInsets.all(16),
+                decoration: BoxDecoration(
+                  color: Colors.blue[50],
+                  borderRadius: BorderRadius.circular(12),
+                  border: Border.all(color: Colors.blue[200]!),
                 ),
-              ),
-              SizedBox(height: 16),
-
-              _buildPaymentMethodCard(
-                'card',
-                'Credit/Debit Card',
-                Icons.credit_card,
-              ),
-
-              SizedBox(height: 32),
-
-              // Card Details
-              Text(
-                'Card Details',
-                style: TextStyle(
-                  fontSize: 18,
-                  fontWeight: FontWeight.w600,
-                  color: AppColors.textPrimary,
-                ),
-              ),
-              SizedBox(height: 16),
-
-              TextFormField(
-                controller: _nameController,
-                decoration: InputDecoration(
-                  labelText: 'Cardholder Name',
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(8),
-                  ),
-                  focusedBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(8),
-                    borderSide: BorderSide(color: AppColors.primary),
-                  ),
-                ),
-                validator: (value) {
-                  if (value?.isEmpty ?? true) {
-                    return 'Please enter cardholder name';
-                  }
-                  if (value!.length < 2) {
-                    return 'Name must be at least 2 characters';
-                  }
-                  if (!RegExp(r'^[a-zA-Z\s]+$').hasMatch(value)) {
-                    return 'Name can only contain letters and spaces';
-                  }
-                  return null;
-                },
-              ),
-              SizedBox(height: 16),
-
-              TextFormField(
-                controller: _cardNumberController,
-                decoration: InputDecoration(
-                  labelText: 'Card Number',
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(8),
-                  ),
-                  focusedBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(8),
-                    borderSide: BorderSide(color: AppColors.primary),
-                  ),
-                ),
-                keyboardType: TextInputType.number,
-                maxLength: 19, // 16 digits + 3 spaces for formatting
-                validator: (value) {
-                  if (value?.isEmpty ?? true) {
-                    return 'Please enter card number';
-                  }
-                  String cleanValue = value!.replaceAll(' ', '');
-                  if (cleanValue.length != 16) {
-                    return 'Card number must be 16 digits';
-                  }
-                  if (!RegExp(r'^[0-9]+$').hasMatch(cleanValue)) {
-                    return 'Card number can only contain digits';
-                  }
-                  return null;
-                },
-                onChanged: (value) {
-                  // Format card number with spaces
-                  String formatted = _formatCardNumber(value);
-                  if (formatted != value) {
-                    _cardNumberController.value = TextEditingValue(
-                      text: formatted,
-                      selection: TextSelection.collapsed(
-                        offset: formatted.length,
-                      ),
-                    );
-                  }
-                },
-              ),
-              SizedBox(height: 16),
-
-              Row(
-                children: [
-                  Expanded(
-                    child: TextFormField(
-                      controller: _expiryController,
-                      decoration: InputDecoration(
-                        labelText: 'MM/YY',
-                        border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(8),
-                        ),
-                        focusedBorder: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(8),
-                          borderSide: BorderSide(color: AppColors.primary),
-                        ),
-                      ),
-                      keyboardType: TextInputType.number,
-                      maxLength: 5, // MM/YY format
-                      validator: (value) {
-                        if (value?.isEmpty ?? true) {
-                          return 'Required';
-                        }
-                        if (!RegExp(r'^\d{2}/\d{2}$').hasMatch(value!)) {
-                          return 'Format: MM/YY';
-                        }
-                        List<String> parts = value.split('/');
-                        int month = int.parse(parts[0]);
-                        int year = 2000 + int.parse(parts[1]);
-
-                        if (month < 1 || month > 12) {
-                          return 'Invalid month';
-                        }
-
-                        DateTime now = DateTime.now();
-                        DateTime cardDate = DateTime(year, month);
-
-                        if (cardDate.isBefore(DateTime(now.year, now.month))) {
-                          return 'Card expired';
-                        }
-
-                        return null;
-                      },
-                      onChanged: (value) {
-                        // Format MM/YY
-                        String formatted = _formatExpiryDate(value);
-                        if (formatted != value) {
-                          _expiryController.value = TextEditingValue(
-                            text: formatted,
-                            selection: TextSelection.collapsed(
-                              offset: formatted.length,
+                child: Row(
+                  children: [
+                    Icon(Icons.security, color: Colors.blue[700], size: 28),
+                    SizedBox(width: 12),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            'Secure Payment via PayHere',
+                            style: TextStyle(
+                              fontSize: 15,
+                              fontWeight: FontWeight.w600,
+                              color: Colors.blue[900],
                             ),
-                          );
-                        }
-                      },
-                    ),
-                  ),
-                  SizedBox(width: 16),
-                  Expanded(
-                    child: TextFormField(
-                      controller: _cvvController,
-                      decoration: InputDecoration(
-                        labelText: 'CVV',
-                        border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(8),
-                        ),
-                        focusedBorder: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(8),
-                          borderSide: BorderSide(color: AppColors.primary),
-                        ),
+                          ),
+                          SizedBox(height: 4),
+                          Text(
+                            'Click "Proceed to Payment" to securely enter your card details in the PayHere payment window',
+                            style: TextStyle(
+                              fontSize: 13,
+                              color: Colors.blue[800],
+                            ),
+                          ),
+                        ],
                       ),
-                      keyboardType: TextInputType.number,
-                      obscureText: true,
-                      maxLength: 4,
-                      validator: (value) {
-                        if (value?.isEmpty ?? true) {
-                          return 'Required';
-                        }
-                        if (value!.length < 3 || value.length > 4) {
-                          return '3-4 digits';
-                        }
-                        if (!RegExp(r'^[0-9]+$').hasMatch(value)) {
-                          return 'Numbers only';
-                        }
-                        return null;
-                      },
                     ),
-                  ),
-                ],
+                  ],
+                ),
               ),
               SizedBox(height: 32),
 
@@ -356,14 +228,7 @@ class _PaymentScreenState extends State<PaymentScreen> {
                 width: double.infinity,
                 height: 56,
                 child: ElevatedButton(
-                  onPressed: _isProcessing
-                      ? null
-                      : () {
-                          if (!_formKey.currentState!.validate()) {
-                            return;
-                          }
-                          _processPayment();
-                        },
+                  onPressed: _isProcessing ? null : _processPayment,
                   style: ElevatedButton.styleFrom(
                     backgroundColor: AppColors.primary,
                     foregroundColor: AppColors.onPrimary,
@@ -398,7 +263,7 @@ class _PaymentScreenState extends State<PaymentScreen> {
                           ],
                         )
                       : Text(
-                          'Complete Payment - LKR ${widget.price.toStringAsFixed(2)}',
+                          'Proceed to Payment - LKR ${widget.price.toStringAsFixed(2)}',
                           style: TextStyle(
                             fontSize: 16,
                             fontWeight: FontWeight.w600,
@@ -408,61 +273,6 @@ class _PaymentScreenState extends State<PaymentScreen> {
               ),
             ],
           ),
-        ),
-      ),
-    );
-  }
-
-  Widget _buildPaymentMethodCard(String method, String title, IconData icon) {
-    bool isSelected = selectedPaymentMethod == method;
-
-    return GestureDetector(
-      onTap: () {
-        setState(() {
-          selectedPaymentMethod = method;
-        });
-      },
-      child: Container(
-        padding: EdgeInsets.all(16),
-        decoration: BoxDecoration(
-          color: isSelected
-              ? AppColors.primaryLight.withOpacity(0.1)
-              : AppColors.surface,
-          borderRadius: BorderRadius.circular(12),
-          border: Border.all(
-            color: isSelected ? AppColors.primary : AppColors.outline,
-            width: isSelected ? 2 : 1,
-          ),
-        ),
-        child: Row(
-          children: [
-            Container(
-              width: 20,
-              height: 20,
-              decoration: BoxDecoration(
-                shape: BoxShape.circle,
-                border: Border.all(
-                  color: isSelected ? AppColors.primary : AppColors.outline,
-                  width: 2,
-                ),
-                color: isSelected ? AppColors.primary : AppColors.surface,
-              ),
-              child: isSelected
-                  ? Icon(Icons.check, size: 12, color: AppColors.onPrimary)
-                  : null,
-            ),
-            SizedBox(width: 12),
-            Icon(icon, color: AppColors.textPrimary, size: 24),
-            SizedBox(width: 12),
-            Text(
-              title,
-              style: TextStyle(
-                fontSize: 16,
-                fontWeight: FontWeight.w500,
-                color: AppColors.textPrimary,
-              ),
-            ),
-          ],
         ),
       ),
     );
@@ -506,11 +316,9 @@ class _PaymentScreenState extends State<PaymentScreen> {
         subscriptionId:
             null, // NULL - will be created after patient exists and payment succeeds
         amount: widget.price,
-        paymentMethod: selectedPaymentMethod.toUpperCase(),
-        cardHolderName: _nameController.text.trim(),
-        cardLastFour: _cardNumberController.text
-            .replaceAll(' ', '')
-            .substring(12),
+        paymentMethod: 'CARD', // PayHere handles card payments
+        cardHolderName: '', // PayHere collects this
+        cardLastFour: '', // PayHere collects this
         payhereOrderId: orderId,
       );
 
@@ -570,11 +378,13 @@ class _PaymentScreenState extends State<PaymentScreen> {
 
     // Simulate successful payment
     try {
-      // Update payment status to success (backend will activate subscription)
+      // Update payment status to success (backend will add paid subscription period)
       await PaymentService.updatePaymentStatus(
         paymentId: _paymentId!,
         status: 'SUCCESS',
         transactionId: 'WEB_TEST_${orderId}',
+        patientId: widget.patientId, // NEW: Link payment to patient subscription
+        durationMonths: widget.durationMonths, // NEW: Add paid period (3/6/12 months)
       );
 
       Navigator.of(context).pop(); // Close dialog
@@ -620,12 +430,13 @@ class _PaymentScreenState extends State<PaymentScreen> {
       "notify_url": PayHereConfig.notifyUrl,
       "order_id": orderId,
       "items":
-          "${widget.planType.toUpperCase()} Plan - ${widget.duration} months",
+          "Memora Subscription - ${widget.durationMonths} months${widget.patientName != null ? ' for ${widget.patientName}' : ''}",
       "amount": widget.price.toStringAsFixed(2),
       "currency": PayHereConfig.currency,
-      "first_name": _nameController.text.split(' ').first,
-      "last_name": _nameController.text.split(' ').length > 1
-          ? _nameController.text.split(' ').last
+      "first_name": widget.patientName?.split(' ').first ?? "Customer",
+      "last_name": widget.patientName?.split(' ').length != null && 
+                   widget.patientName!.split(' ').length > 1
+          ? widget.patientName!.split(' ').last
           : "",
       "email": email,
       "phone": phone,
@@ -657,111 +468,32 @@ class _PaymentScreenState extends State<PaymentScreen> {
   }
 
   void _handlePaymentSuccess(String transactionId) async {
-    // Update payment status
+    // Update payment status (backend will add paid subscription period)
     if (_paymentId != null) {
       await PaymentService.updatePaymentStatus(
         paymentId: _paymentId!,
         status: 'SUCCESS',
         transactionId: transactionId,
+        patientId: widget.patientId, // NEW: Link payment to patient subscription
+        durationMonths: widget.durationMonths, // NEW: Add paid period (3/6/12 months)
       );
     }
 
-    // NEW: Create patient AND subscription AFTER successful payment
-    int? createdPatientId = widget.patientId; // Use existing if available
+    // DEPRECATED: Old flow - patient creation after payment
+    // NEW FLOW: Patient must exist before payment (patientId is required)
+    // Subscription is auto-created when patient is added (in PENDING status)
+    // Payment adds the paid period to existing subscription
+    int? createdPatientId = widget.patientId; // Patient must already exist
     int? createdSubscriptionId;
 
     if (widget.patientData != null && widget.guardianId != null) {
-      print('=== Creating Patient & Subscription After Payment Success ===');
-      try {
-        // 1. Create user account for the patient
-        final userResult = await UserService.addUser(
-          FName: widget.patientData!['firstName'],
-          LName: widget.patientData!['lastName'],
-          email: widget.patientData!['email'],
-          password: null, // Patients don't need passwords
-          phoneNumber: widget.patientData!['phoneNumber'],
-          role: "PATIENT",
-          status: "ACTIVE",
-          birthdate: widget.patientData!['birthdate'],
-          profilePic: "",
-          street: widget.patientData!['street'],
-          city: widget.patientData!['city'],
-          state: widget.patientData!['state'],
-          gender: widget.patientData!['gender'],
-        );
-
-        if (!userResult.success || userResult.userId == null) {
-          print('Failed to create user: ${userResult.message}');
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text(
-                'Payment successful but patient creation failed. Contact support.',
-              ),
-              backgroundColor: Colors.orange,
-              duration: Duration(seconds: 5),
-            ),
-          );
-        } else {
-          // 2. Create patient record
-          final patientResult = await PatientService.addPatient(
-            userId: userResult.userId!,
-            dementiaStage: widget.patientData!['dementiaStage'],
-            dateOfDiagnosis: widget.patientData!['dateOfDiagnosis'],
-            dementiaType: widget.patientData!['dementiaType'],
-            guardianId: widget.guardianId!,
-            relationship: widget.patientData!['relationship'],
-          );
-
-          if (patientResult.success && patientResult.patientId != null) {
-            createdPatientId = patientResult.patientId;
-            print('Patient created successfully with ID: $createdPatientId');
-
-            // 3. NOW create subscription with the patient ID
-            final subscriptionResult =
-                await SubscriptionService.createSubscription(
-                  guardianId: widget.guardianId!,
-                  patientId: createdPatientId!,
-                  planType: widget.planType.toUpperCase(),
-                  durationMonths: int.parse(widget.duration),
-                );
-
-            if (subscriptionResult.success &&
-                subscriptionResult.subscriptionId != null) {
-              createdSubscriptionId = subscriptionResult.subscriptionId;
-              print(
-                'Subscription created successfully with ID: $createdSubscriptionId',
-              );
-            } else {
-              print(
-                'Failed to create subscription: ${subscriptionResult.message}',
-              );
-              ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(
-                  content: Text(
-                    'Patient created but subscription failed. Contact support.',
-                  ),
-                  backgroundColor: Colors.orange,
-                  duration: Duration(seconds: 5),
-                ),
-              );
-            }
-          } else {
-            print('Failed to create patient: ${patientResult.message}');
-            ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(
-                content: Text(
-                  'Payment successful but patient creation failed. Contact support.',
-                ),
-                backgroundColor: Colors.orange,
-                duration: Duration(seconds: 5),
-              ),
-            );
-          }
-        }
-      } catch (e) {
-        print('Exception creating patient/subscription after payment: $e');
-      }
+      print('=== DEPRECATED: Old patient creation flow (skip if patientId provided) ===');
+      print('⚠️ WARNING: Patient should be created BEFORE payment in new flow');
+      print('Patient ID provided: ${widget.patientId}');
       print('==========================================================');
+      
+      // TODO: Remove this entire block once all screens are updated to new flow
+      // For now, keeping for backward compatibility but marking as deprecated
     }
 
     setState(() {
@@ -769,12 +501,15 @@ class _PaymentScreenState extends State<PaymentScreen> {
     });
 
     final paymentData = {
-      'planType': widget.planType,
-      'duration': widget.duration,
+      'durationMonths': widget.durationMonths, // NEW format
       'price': widget.price,
       'transactionId': transactionId,
-      'patientId': createdPatientId, // Pass created patient ID
+      'patientId': createdPatientId ?? widget.patientId, // Use created or existing patient ID
+      'patientName': widget.patientName,
       'subscriptionId': createdSubscriptionId, // Pass created subscription ID
+      // Deprecated fields for backward compatibility
+      'planType': widget.planType,
+      'duration': widget.duration,
     };
 
     Navigator.pushNamed(
@@ -798,10 +533,13 @@ class _PaymentScreenState extends State<PaymentScreen> {
     });
 
     final paymentData = {
-      'planType': widget.planType,
-      'duration': widget.duration,
+      'durationMonths': widget.durationMonths, // NEW format
       'price': widget.price,
       'errorMessage': error,
+      'patientName': widget.patientName,
+      // Deprecated fields for backward compatibility
+      'planType': widget.planType,
+      'duration': widget.duration,
     };
 
     Navigator.pushNamed(
@@ -830,52 +568,5 @@ class _PaymentScreenState extends State<PaymentScreen> {
         backgroundColor: Colors.orange,
       ),
     );
-  }
-
-  String _formatCardNumber(String value) {
-    // Remove all non-digits
-    String digitsOnly = value.replaceAll(RegExp(r'\D'), '');
-
-    // Limit to 16 digits
-    if (digitsOnly.length > 16) {
-      digitsOnly = digitsOnly.substring(0, 16);
-    }
-
-    // Add spaces every 4 digits
-    String formatted = '';
-    for (int i = 0; i < digitsOnly.length; i++) {
-      if (i > 0 && i % 4 == 0) {
-        formatted += ' ';
-      }
-      formatted += digitsOnly[i];
-    }
-
-    return formatted;
-  }
-
-  String _formatExpiryDate(String value) {
-    // Remove all non-digits
-    String digitsOnly = value.replaceAll(RegExp(r'\D'), '');
-
-    // Limit to 4 digits
-    if (digitsOnly.length > 4) {
-      digitsOnly = digitsOnly.substring(0, 4);
-    }
-
-    // Add slash after 2 digits
-    if (digitsOnly.length >= 2) {
-      return '${digitsOnly.substring(0, 2)}/${digitsOnly.substring(2)}';
-    }
-
-    return digitsOnly;
-  }
-
-  @override
-  void dispose() {
-    _cardNumberController.dispose();
-    _expiryController.dispose();
-    _cvvController.dispose();
-    _nameController.dispose();
-    super.dispose();
   }
 }

@@ -172,6 +172,36 @@ public class UserController {
             .body("{\"message\":\"Password changed successfully\"}");
     }
 
+    @PutMapping("/{id}/status")
+    public ResponseEntity<String> updateUserStatus(
+            @PathVariable Long id, 
+            @RequestBody UserStatusUpdateRequest request) {
+        
+        Optional<User> existingUserOptional = userRepository.findById(id);
+        
+        if (!existingUserOptional.isPresent()) {
+            return ResponseEntity.notFound().build();
+        }
+
+        User existingUser = existingUserOptional.get();
+
+        // Validate status
+        try {
+            User.UserStatus newStatus = User.UserStatus.valueOf(request.getStatus().toUpperCase());
+            existingUser.setStatus(newStatus);
+            userRepository.save(existingUser);
+            
+            System.out.println("User status updated successfully for user ID: " + id + " to status: " + newStatus);
+
+            return ResponseEntity.ok()
+                .header("Content-Type", "application/json")
+                .body("{\"message\":\"User status updated successfully\",\"status\":\"" + newStatus + "\"}");
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                .body("{\"message\":\"Invalid status value. Valid values are: ACTIVE, INACTIVE, SUSPENDED\"}");
+        }
+    }
+
     // Inner class for change password request
     public static class ChangePasswordRequest {
         private String currentPassword;
@@ -191,6 +221,19 @@ public class UserController {
 
         public void setNewPassword(String newPassword) {
             this.newPassword = newPassword;
+        }
+    }
+
+    // Inner class for user status update request
+    public static class UserStatusUpdateRequest {
+        private String status;
+
+        public String getStatus() {
+            return status;
+        }
+
+        public void setStatus(String status) {
+            this.status = status;
         }
     }
 }

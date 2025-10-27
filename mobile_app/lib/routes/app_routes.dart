@@ -66,7 +66,8 @@ class AppRoutes {
 
   static const String guardianNotifications = '/guardian-notifications';
   static const String guardianAddReviews = '/guardian/add-reviews';
-  static const String guardianSubscriptionPlans = '/guardian/subplans';
+  static const String guardianSubscriptionPlans = '/guardian/subplans'; // DEPRECATED - old BASIC/PREMIUM screen
+  static const String guardianSubscriptionDuration = '/guardian/subscription-duration'; // NEW - per-patient duration selection
   static const String guardianPayment = 'guardian/payment';
   static const String guardianPaymentSuccess = '/guardian/payment/success';
   static const String guardianPaymentFailed = '/guardian/payment/failed';

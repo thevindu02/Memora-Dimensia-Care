@@ -32,6 +32,7 @@ import Footer from "../home/Footer";
 import SideBar from "./SideBar";
 import articleService from '../../services/articleService';
 import authService from '../../services/authService';
+import VolunteerService from '../../services/volunteerService';
 import CONFIG from '../../config/api.js';
 
 // Memora color palette constants
@@ -65,6 +66,7 @@ export default function EditDraft() {
   const [success, setSuccess] = useState(null);
   const [validationErrors, setValidationErrors] = useState({});
   const [currentUser, setCurrentUser] = useState(null);
+  const [userVolunteerId, setUserVolunteerId] = useState(null);
   const [originalDraft, setOriginalDraft] = useState(null);
   const [snackbarOpen, setSnackbarOpen] = useState(false);
   const [snackbarMessage, setSnackbarMessage] = useState('');
@@ -92,14 +94,29 @@ export default function EditDraft() {
         return;
       }
 
-      console.log("Loading draft with ID:", id);
+      // Get the volunteer ID for this user
+      console.log("🔍 Fetching volunteer ID for user ID:", user.id);
+      const volunteerResponse = await VolunteerService.getVolunteerIdByUserId(user.id);
+      
+      if (!volunteerResponse.success || !volunteerResponse.volunteerId) {
+        setError("You are not registered as a volunteer.");
+        return;
+      }
+      
+      const volunteerId = volunteerResponse.volunteerId;
+      setUserVolunteerId(volunteerId);
+      console.log("✅ User's volunteer ID:", volunteerId);
+
+      console.log("📄 Loading draft with ID:", id);
       const response = await articleService.getArticleById(id);
 
       if (response.success && response.data) {
         const draft = response.data;
 
-        // Verify this draft belongs to the current user
-        if (draft.volunteerId !== user.id) {
+        // Verify this draft belongs to the current volunteer
+        console.log("🔒 Checking ownership - Draft volunteerId:", draft.volunteerId, "vs User's volunteerId:", volunteerId);
+        
+        if (draft.volunteerId !== volunteerId) {
           setError("You don't have permission to edit this draft.");
           return;
         }
@@ -345,7 +362,7 @@ export default function EditDraft() {
         summary: summary.trim() || articleService.generateSummary(content),
         content: articleService.cleanContent(content),
         categoryId: parseInt(category),
-        volunteerId: parseInt(currentUser.id),
+        volunteerId: userVolunteerId || parseInt(currentUser.id), // Use userVolunteerId (actual volunteer ID)
         draft: true,
         articleImg: finalImageUrl
       };
@@ -432,7 +449,7 @@ export default function EditDraft() {
         summary: summary.trim() || articleService.generateSummary(content),
         content: articleService.cleanContent(content),
         categoryId: parseInt(category),
-        volunteerId: parseInt(currentUser.id),
+        volunteerId: userVolunteerId || parseInt(currentUser.id), // Use userVolunteerId (actual volunteer ID)
         draft: false, // Change to published
         articleImg: finalImageUrl
       };

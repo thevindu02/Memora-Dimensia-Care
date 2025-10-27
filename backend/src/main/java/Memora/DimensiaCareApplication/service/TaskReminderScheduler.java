@@ -83,6 +83,18 @@ public class TaskReminderScheduler {
     }
 
     /**
+     * Clear sentReminders cache at midnight every day
+     * This ensures reminders can be sent again the next day
+     */
+    @Scheduled(cron = "0 0 0 * * *") // Run at midnight (00:00:00) every day
+    public void clearDailyReminders() {
+        logger.info("🧹 Clearing daily reminder cache at midnight");
+        int previousSize = sentReminders.size();
+        sentReminders.clear();
+        logger.info("✅ Cleared {} reminder entries from cache", previousSize);
+    }
+
+    /**
      * Check and send reminders for daily activities and game tasks
      */
     private void checkDailyActivities(LocalDateTime windowStart, LocalDateTime windowEnd) {
@@ -530,6 +542,28 @@ public class TaskReminderScheduler {
             }
         } catch (Exception e) {
             logger.error("Error sending test reminder: {}", e.getMessage(), e);
+        }
+    }
+
+    /**
+     * Clear all sent reminder cache (for testing purposes)
+     */
+    public void clearReminderCache() {
+        int size = sentReminders.size();
+        sentReminders.clear();
+        logger.info("🗑️  Cleared {} reminder(s) from cache", size);
+    }
+
+    /**
+     * Clear specific reminder from cache (for testing purposes)
+     */
+    public void clearSpecificReminder(Long activityId) {
+        String reminderKey = "activity_" + activityId + "_" + LocalDate.now();
+        boolean removed = sentReminders.remove(reminderKey);
+        if (removed) {
+            logger.info("🗑️  Cleared reminder cache for activity ID: {}", activityId);
+        } else {
+            logger.info("⚠️  No cached reminder found for activity ID: {}", activityId);
         }
     }
 }

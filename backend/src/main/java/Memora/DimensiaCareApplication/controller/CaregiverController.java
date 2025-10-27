@@ -5,6 +5,7 @@ import Memora.DimensiaCareApplication.dto.response.ExpiredCaregiverResponse;
 import Memora.DimensiaCareApplication.model.CaregiverReview;
 import Memora.DimensiaCareApplication.service.CaregiverReviewService;
 import Memora.DimensiaCareApplication.service.CaregiverService;
+import Memora.DimensiaCareApplication.service.SubscriptionService;
 import Memora.DimensiaCareApplication.model.GuardianPatientCaregiverConnection;
 import Memora.DimensiaCareApplication.repository.GuardianPatientCaregiverConnectionRepository;
 import Memora.DimensiaCareApplication.repository.GuardianRepository;
@@ -60,6 +61,9 @@ public class CaregiverController {
 
     @Autowired
     private CaregiverReviewService caregiverReviewService;
+
+    @Autowired
+    private SubscriptionService subscriptionService;
 
     @GetMapping("/all")
     public ResponseEntity<List<CaregiverDetailsResponse>> getAllCaregivers() {
@@ -354,6 +358,15 @@ public class CaregiverController {
                     + currentScore + " to " + newScore);
             caregiver.setSeverityScore(newScore);
             caregiverRepository.save(caregiver);
+
+            // Start 3-month free trial when caregiver accepts
+            try {
+                subscriptionService.startTrial(patientId);
+                System.out.println("Started 3-month trial for patient " + patientId);
+            } catch (Exception e) {
+                System.err.println("Failed to start trial for patient " + patientId + ": " + e.getMessage());
+                // Don't fail the acceptance if trial start fails - log and continue
+            }
         }
         return ResponseEntity.ok().build();
     }

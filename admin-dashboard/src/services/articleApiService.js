@@ -240,6 +240,58 @@ const articleApiService = {
     } catch {
       return false;
     }
+  },
+
+  // Approve an article
+  async approveArticle(articleId) {
+    try {
+      console.log('Approving article with ID:', articleId);
+      
+      const response = await fetch(`${API_BASE_URL}/api/articles/${articleId}/approve`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      });
+
+      if (!response.ok) {
+        throw new Error(`Failed to approve article: ${response.status}`);
+      }
+
+      const result = await response.json();
+      console.log('Article approved successfully:', result);
+      
+      return result;
+    } catch (error) {
+      console.error('Error approving article:', error);
+      throw error;
+    }
+  },
+
+  // Reject an article
+  async rejectArticle(articleId) {
+    try {
+      console.log('Rejecting article with ID:', articleId);
+      
+      const response = await fetch(`${API_BASE_URL}/api/articles/${articleId}/reject`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      });
+
+      if (!response.ok) {
+        throw new Error(`Failed to reject article: ${response.status}`);
+      }
+
+      const result = await response.json();
+      console.log('Article rejected successfully:', result);
+      
+      return result;
+    } catch (error) {
+      console.error('Error rejecting article:', error);
+      throw error;
+    }
   }
 };
 

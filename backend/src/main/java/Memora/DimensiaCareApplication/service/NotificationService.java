@@ -128,4 +128,58 @@ public class NotificationService {
         logger.info("✅ Marked {} notifications as read for caregiver ID: {}",
                 unreadNotifications.size(), caregiverId);
     }
+
+
+    // ========== PATIENT NOTIFICATION METHODS ==========
+
+    /**
+     * Get all notifications for a patient
+     */
+    public List<Notification> getPatientNotifications(Long patientId) {
+        return notificationRepository.findByPatientIdOrderByCreatedAtDesc(patientId);
+    }
+
+    /**
+     * Get unread notifications for a patient
+     */
+    public List<Notification> getPatientUnreadNotifications(Long patientId) {
+        return notificationRepository.findByPatientIdAndIsReadOrderByCreatedAtDesc(patientId, false);
+    }
+
+    /**
+     * Get read notifications for a patient
+     */
+    public List<Notification> getPatientReadNotifications(Long patientId) {
+        return notificationRepository.findByPatientIdAndIsReadOrderByCreatedAtDesc(patientId, true);
+    }
+
+    /**
+     * Count unread notifications for a patient
+     */
+    public Long countPatientUnreadNotifications(Long patientId) {
+        return notificationRepository.countByPatientIdAndIsRead(patientId, false);
+    }
+
+    /**
+     * Mark all notifications as read for a patient
+     */
+    public void markAllPatientNotificationsAsRead(Long patientId) {
+        List<Notification> unreadNotifications = getPatientUnreadNotifications(patientId);
+        for (Notification notification : unreadNotifications) {
+            notification.setIsRead(true);
+        }
+        notificationRepository.saveAll(unreadNotifications);
+        logger.info("✅ Marked {} notifications as read for patient ID: {}",
+                unreadNotifications.size(), patientId);
+    }
+
+    /**
+     * Delete all notifications for a patient
+     */
+    public void deleteAllPatientNotifications(Long patientId) {
+        List<Notification> notifications = notificationRepository.findByPatientIdOrderByCreatedAtDesc(patientId);
+        notificationRepository.deleteAll(notifications);
+        logger.info("✅ Deleted {} notifications for patient ID: {}", notifications.size(), patientId);
+    }
+
 }

@@ -771,9 +771,9 @@ class _PatientDashboardScreenState extends State<PatientDashboardScreen> {
         ),
         actions: [
           IconButton(
-            icon: const Icon(Icons.notifications, color: Colors.black),
+            icon: const Icon(Icons.settings, color: Colors.black),
             onPressed: () {
-              Navigator.of(context).pushNamed(AppRoutes.patientNotifications);
+              Navigator.of(context).pushNamed(AppRoutes.settings);
             },
           ),
         ],

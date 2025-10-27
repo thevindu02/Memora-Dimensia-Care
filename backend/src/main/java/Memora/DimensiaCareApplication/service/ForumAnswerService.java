@@ -7,7 +7,6 @@ import Memora.DimensiaCareApplication.repository.UserRepository;
 import com.google.api.core.ApiFuture;
 import com.google.cloud.Timestamp;
 import com.google.cloud.firestore.*;
-import com.google.firebase.cloud.FirestoreClient;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -24,17 +23,20 @@ public class ForumAnswerService {
     @Autowired
     private UserRepository userRepository;
 
+    @Autowired
+    private Firestore firestore; // Inject Firestore bean
+
     /**
      * Create a new answer to a question
      */
     public ForumAnswerDTO createAnswer(CreateForumAnswerDTO request) throws ExecutionException, InterruptedException {
         // Get userId directly from request (should come from authenticated session)
         Long userId = request.getUserId();
-        
+
         if (userId == null) {
             throw new IllegalArgumentException("User ID is required");
         }
-        
+
         // Validate user exists
         Optional<User> userOpt = userRepository.findById(userId);
         if (!userOpt.isPresent()) {
@@ -42,13 +44,13 @@ public class ForumAnswerService {
         }
 
         User volunteer = userOpt.get();
-        
-        Firestore db = FirestoreClient.getFirestore();
-        
+
+        Firestore db = this.firestore;
+
         // Create a new document reference with auto-generated ID
         DocumentReference docRef = db.collection(ANSWERS_COLLECTION).document();
         String answerId = docRef.getId();
-        
+
         // Prepare data - store userId from authenticated session
         Map<String, Object> data = new HashMap<>();
         data.put("answerId", answerId);
@@ -58,14 +60,14 @@ public class ForumAnswerService {
         data.put("likes", 0L);
         data.put("createdAt", Timestamp.now());
         data.put("updatedAt", Timestamp.now());
-        
+
         // Save to Firestore
         ApiFuture<WriteResult> result = docRef.set(data);
         result.get(); // Wait for completion
-        
+
         // Increment replies count in the question and mark as answered
         incrementQuestionReplies(request.getQuestionId());
-        
+
         // Return the created answer with volunteer details
         ForumAnswerDTO answerDTO = new ForumAnswerDTO();
         answerDTO.setAnswerId(answerId);
@@ -78,22 +80,23 @@ public class ForumAnswerService {
         answerDTO.setIsLikedByCurrentUser(false);
         answerDTO.setCreatedAt(Timestamp.now());
         answerDTO.setUpdatedAt(Timestamp.now());
-        
+
         return answerDTO;
     }
 
     /**
      * Get all answers for a specific question
      */
-    public List<ForumAnswerDTO> getAnswersByQuestionId(String questionId, Long currentUserId) throws ExecutionException, InterruptedException {
-        Firestore db = FirestoreClient.getFirestore();
-        
+    public List<ForumAnswerDTO> getAnswersByQuestionId(String questionId, Long currentUserId)
+            throws ExecutionException, InterruptedException {
+        Firestore db = this.firestore;
+
         Query query = db.collection(ANSWERS_COLLECTION)
                 .whereEqualTo("questionId", questionId);
-        
+
         ApiFuture<QuerySnapshot> future = query.get();
         QuerySnapshot documents = future.get();
-        
+
         List<ForumAnswerDTO> answers = new ArrayList<>();
         for (DocumentSnapshot document : documents) {
             if (document.exists()) {
@@ -101,14 +104,16 @@ public class ForumAnswerService {
                 answers.add(answer);
             }
         }
-        
+
         // Sort by createdAt descending (newest first)
         answers.sort((a, b) -> {
-            if (b.getCreatedAt() == null) return -1;
-            if (a.getCreatedAt() == null) return 1;
+            if (b.getCreatedAt() == null)
+                return -1;
+            if (a.getCreatedAt() == null)
+                return 1;
             return b.getCreatedAt().compareTo(a.getCreatedAt());
         });
-        
+
         return answers;
     }
 
@@ -116,21 +121,21 @@ public class ForumAnswerService {
      * Like an answer
      */
     public boolean likeAnswer(String answerId, Long userId) throws ExecutionException, InterruptedException {
-        Firestore db = FirestoreClient.getFirestore();
-        
+        Firestore db = this.firestore;
+
         // Check if already liked
         Query query = db.collection(LIKES_COLLECTION)
                 .whereEqualTo("answerId", answerId)
                 .whereEqualTo("userId", userId);
-        
+
         ApiFuture<QuerySnapshot> future = query.get();
         QuerySnapshot documents = future.get();
-        
+
         if (!documents.isEmpty()) {
             // Already liked
             return false;
         }
-        
+
         // Create like document
         DocumentReference likeRef = db.collection(LIKES_COLLECTION).document();
         Map<String, Object> likeData = new HashMap<>();
@@ -138,10 +143,10 @@ public class ForumAnswerService {
         likeData.put("answerId", answerId);
         likeData.put("userId", userId);
         likeData.put("createdAt", Timestamp.now());
-        
+
         ApiFuture<WriteResult> likeResult = likeRef.set(likeData);
         likeResult.get();
-        
+
         // Increment likes count in answer
         DocumentReference answerRef = db.collection(ANSWERS_COLLECTION).document(answerId);
         db.runTransaction(txn -> {
@@ -154,7 +159,7 @@ public class ForumAnswerService {
             txn.update(answerRef, "updatedAt", Timestamp.now());
             return null;
         }).get();
-        
+
         return true;
     }
 
@@ -162,26 +167,26 @@ public class ForumAnswerService {
      * Unlike an answer
      */
     public boolean unlikeAnswer(String answerId, Long userId) throws ExecutionException, InterruptedException {
-        Firestore db = FirestoreClient.getFirestore();
-        
+        Firestore db = this.firestore;
+
         // Find the like document
         Query query = db.collection(LIKES_COLLECTION)
                 .whereEqualTo("answerId", answerId)
                 .whereEqualTo("userId", userId);
-        
+
         ApiFuture<QuerySnapshot> future = query.get();
         QuerySnapshot documents = future.get();
-        
+
         if (documents.isEmpty()) {
             // Not liked
             return false;
         }
-        
+
         // Delete the like document
         DocumentSnapshot likeDoc = documents.getDocuments().get(0);
         ApiFuture<WriteResult> deleteResult = likeDoc.getReference().delete();
         deleteResult.get();
-        
+
         // Decrement likes count in answer
         DocumentReference answerRef = db.collection(ANSWERS_COLLECTION).document(answerId);
         db.runTransaction(txn -> {
@@ -196,7 +201,7 @@ public class ForumAnswerService {
             txn.update(answerRef, "updatedAt", Timestamp.now());
             return null;
         }).get();
-        
+
         return true;
     }
 
@@ -207,15 +212,15 @@ public class ForumAnswerService {
         if (userId == null) {
             return false;
         }
-        
-        Firestore db = FirestoreClient.getFirestore();
+
+        Firestore db = this.firestore;
         Query query = db.collection(LIKES_COLLECTION)
                 .whereEqualTo("answerId", answerId)
                 .whereEqualTo("userId", userId);
-        
+
         ApiFuture<QuerySnapshot> future = query.get();
         QuerySnapshot documents = future.get();
-        
+
         return !documents.isEmpty();
     }
 
@@ -224,9 +229,9 @@ public class ForumAnswerService {
      */
     private void incrementQuestionReplies(String questionId) {
         try {
-            Firestore db = FirestoreClient.getFirestore();
+            Firestore db = this.firestore;
             DocumentReference questionRef = db.collection(QUESTIONS_COLLECTION).document(questionId);
-            
+
             db.runTransaction(txn -> {
                 try {
                     DocumentSnapshot snapshot = txn.get(questionRef).get();
@@ -234,12 +239,12 @@ public class ForumAnswerService {
                     if (currentReplies == null) {
                         currentReplies = 0L;
                     }
-                    
+
                     System.out.println("Current replies for question " + questionId + ": " + currentReplies);
-                    
+
                     txn.update(questionRef, "replies", currentReplies + 1);
                     txn.update(questionRef, "updatedAt", Timestamp.now());
-                    
+
                     // Mark question as answered when first reply is added
                     if (currentReplies == 0) {
                         txn.update(questionRef, "isAnswered", true);
@@ -251,7 +256,7 @@ public class ForumAnswerService {
                 }
                 return null;
             }).get();
-            
+
             System.out.println("Successfully incremented replies for question: " + questionId);
         } catch (Exception e) {
             System.err.println("Error in incrementQuestionReplies: " + e.getMessage());
@@ -262,18 +267,20 @@ public class ForumAnswerService {
     /**
      * Helper method to convert Firestore document to DTO
      */
-    private ForumAnswerDTO documentToDTO(DocumentSnapshot document, Long currentUserId) throws ExecutionException, InterruptedException {
+    private ForumAnswerDTO documentToDTO(DocumentSnapshot document, Long currentUserId)
+            throws ExecutionException, InterruptedException {
         ForumAnswerDTO dto = new ForumAnswerDTO();
         dto.setAnswerId(document.getId());
         dto.setQuestionId(document.getString("questionId"));
-        
-        // Handle userId (new field) or volunteerId (legacy field for backward compatibility)
+
+        // Handle userId (new field) or volunteerId (legacy field for backward
+        // compatibility)
         Object userIdObj = document.get("userId");
         if (userIdObj == null) {
             // Fallback to volunteerId for backward compatibility with old data
             userIdObj = document.get("volunteerId");
         }
-        
+
         Long userId = null;
         if (userIdObj instanceof Long) {
             userId = (Long) userIdObj;
@@ -283,7 +290,7 @@ public class ForumAnswerService {
             userId = Long.parseLong((String) userIdObj);
         }
         dto.setVolunteerId(userId); // Still using volunteerId field in DTO for compatibility
-        
+
         // Fetch volunteer details from MySQL using userId
         if (userId != null) {
             Optional<User> volunteerOpt = userRepository.findById(userId);
@@ -296,15 +303,15 @@ public class ForumAnswerService {
                 dto.setVolunteerRole("Volunteer");
             }
         }
-        
+
         dto.setContent(document.getString("content"));
         dto.setLikes(document.getLong("likes"));
         dto.setCreatedAt(document.getTimestamp("createdAt"));
         dto.setUpdatedAt(document.getTimestamp("updatedAt"));
-        
+
         // Check if current user has liked this answer
         dto.setIsLikedByCurrentUser(hasLiked(document.getId(), currentUserId));
-        
+
         return dto;
     }
 
@@ -312,8 +319,9 @@ public class ForumAnswerService {
      * Get display name for user role
      */
     private String getRoleDisplayName(User.UserRole role) {
-        if (role == null) return "Volunteer";
-        
+        if (role == null)
+            return "Volunteer";
+
         switch (role) {
             case VOLUNTEER:
                 return "Volunteer";

@@ -14,6 +14,7 @@ import 'package:mobile_app/screens/guardian/guardian_settings_help_support_scree
 import 'package:mobile_app/screens/guardian/guardian_settings_privacy_screen.dart';
 import 'package:mobile_app/screens/guardian/guardian_settings_screen.dart';
 import 'package:mobile_app/screens/guardian/subscription_plan_screen.dart';
+import 'package:mobile_app/screens/guardian/subscription_duration_screen.dart';
 import '../../routes/app_routes.dart';
 import 'guardian_dashboard_screen.dart';
 import 'guardian_profile_screen.dart';
@@ -119,8 +120,20 @@ class GuardianRoutes {
           settings: settings,
         );
       case AppRoutes.guardianSubscriptionPlans:
+        // DEPRECATED - old BASIC/PREMIUM plan screen (kept for backward compatibility)
         return MaterialPageRoute(
           builder: (_) => SubscriptionPlanScreen(),
+          settings: settings,
+        );
+      case AppRoutes.guardianSubscriptionDuration:
+        // NEW - per-patient duration selection (3/6/12 months)
+        final args = settings.arguments as Map<String, dynamic>?;
+        return MaterialPageRoute(
+          builder: (_) => SubscriptionDurationScreen(
+            guardianId: args?['guardianId'] ?? 0,
+            patientId: args?['patientId'] ?? 0,
+            patientName: args?['patientName'] ?? 'Patient',
+          ),
           settings: settings,
         );
       // case AppRoutes.guardianPayment:
@@ -132,9 +145,13 @@ class GuardianRoutes {
         final arguments = settings.arguments as Map<String, dynamic>?;
         return MaterialPageRoute(
           builder: (_) => PaymentSuccessScreen(
-            planType: arguments?['planType'] ?? 'Premium',
-            duration: arguments?['duration'] ?? 'Monthly',
-            price: arguments?['price'] ?? 19.99,
+            // NEW format
+            durationMonths: arguments?['durationMonths'],
+            patientName: arguments?['patientName'],
+            price: arguments?['price'] ?? 0.0,
+            // OLD format (backward compatibility)
+            planType: arguments?['planType'],
+            duration: arguments?['duration'],
           ),
           settings: settings,
         );
@@ -142,10 +159,14 @@ class GuardianRoutes {
         final arguments = settings.arguments as Map<String, dynamic>?;
         return MaterialPageRoute(
           builder: (_) => PaymentFailedScreen(
-            planType: arguments?['planType'] ?? 'Premium',
-            duration: arguments?['duration'] ?? 'Monthly',
-            price: arguments?['price'] ?? 19.99,
+            // NEW format
+            durationMonths: arguments?['durationMonths'],
+            patientName: arguments?['patientName'],
+            price: arguments?['price'] ?? 0.0,
             errorMessage: arguments?['errorMessage'] ?? 'Payment failed',
+            // OLD format (backward compatibility)
+            planType: arguments?['planType'],
+            duration: arguments?['duration'],
           ),
           settings: settings,
         );

@@ -29,6 +29,7 @@ import VolunteerNav from "./VolunteerNav";
 import Footer from "../home/Footer";
 import AuthService from "../../services/authService";
 import articleService from "../../services/articleService";
+import VolunteerService from "../../services/volunteerService";
 
 // Brand colors
 const colors = {
@@ -48,6 +49,7 @@ export default function ViewDraft() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [currentUser, setCurrentUser] = useState(null);
+  const [userVolunteerId, setUserVolunteerId] = useState(null);
 
   // Fetch draft article by ID
   useEffect(() => {
@@ -63,13 +65,28 @@ export default function ViewDraft() {
         }
 
         setCurrentUser(user);
-        console.log("Fetching draft with ID:", id);
-
+        
+        // Get the volunteer ID for this user
+        console.log("🔍 Fetching volunteer ID for user ID:", user.id);
+        const volunteerResponse = await VolunteerService.getVolunteerIdByUserId(user.id);
+        
+        if (!volunteerResponse.success || !volunteerResponse.volunteerId) {
+          setError("You are not registered as a volunteer.");
+          return;
+        }
+        
+        const volunteerId = volunteerResponse.volunteerId;
+        setUserVolunteerId(volunteerId);
+        console.log("✅ User's volunteer ID:", volunteerId);
+        
+        console.log("📄 Fetching draft with ID:", id);
         const response = await articleService.getArticleById(id);
 
         if (response.success && response.data) {
-          // Verify this draft belongs to the current user
-          if (response.data.volunteerId !== user.id) {
+          // Verify this draft belongs to the current volunteer
+          console.log("🔒 Checking ownership - Article volunteerId:", response.data.volunteerId, "vs User's volunteerId:", volunteerId);
+          
+          if (response.data.volunteerId !== volunteerId) {
             setError("You don't have permission to view this draft.");
             return;
           }
@@ -80,12 +97,13 @@ export default function ViewDraft() {
             return;
           }
 
+          console.log("✅ Draft loaded successfully:", response.data.title);
           setDraft(response.data);
         } else {
           setError(response.message || "Failed to fetch draft article");
         }
       } catch (error) {
-        console.error("Error fetching draft:", error);
+        console.error("❌ Error fetching draft:", error);
         setError("Failed to load draft article. Please try again.");
       } finally {
         setLoading(false);

@@ -18,6 +18,15 @@ class NotificationApiService {
     return prefs.getInt('userId'); // Adjust key as needed
   }
 
+  // Get patient ID from local storage
+  Future<int?> _getPatientId() async {
+    final prefs = await SharedPreferences.getInstance();
+    final patientId = prefs.getInt('patientId');
+    print('🔑 Retrieved patientId from prefs: $patientId');
+    return patientId; // Use stored patientId
+  }
+
+
   // Fetch all notifications for caregiver
   Future<List<NotificationModel>> getCaregiverNotifications() async {
     try {
@@ -210,6 +219,171 @@ class NotificationApiService {
       }
     } catch (e) {
       print('Error marking all as read: $e');
+      rethrow;
+    }
+  }
+
+  // ========== PATIENT NOTIFICATION METHODS ==========
+
+  // Fetch all notifications for patient
+  Future<List<NotificationModel>> getPatientNotifications() async {
+    try {
+      final patientId = await _getPatientId();
+      print('📱 getPatientNotifications - patientId: $patientId');
+
+      if (patientId == null) {
+        print('❌ Patient ID is null - cannot fetch notifications');
+        throw Exception('Patient ID not found');
+      }
+
+      final token = await _getAuthToken();
+      final url = '$baseUrl/patient/$patientId';
+      print('🌐 Fetching patient notifications from: $url');
+
+      final response = await http.get(
+        Uri.parse(url),
+        headers: {
+          'Content-Type': 'application/json',
+          if (token != null) 'Authorization': 'Bearer $token',
+        },
+      );
+
+      print('📡 Response status: ${response.statusCode}');
+      print('📡 Response body: ${response.body}');
+
+      if (response.statusCode == 200) {
+        List<dynamic> jsonList = json.decode(response.body);
+        print('✅ Successfully loaded ${jsonList.length} patient notifications');
+        return jsonList
+            .map((json) => NotificationModel.fromJson(json))
+            .toList();
+      } else {
+        print('❌ Failed to load notifications: ${response.statusCode}');
+        throw Exception('Failed to load notifications: ${response.statusCode}');
+      }
+    } catch (e) {
+      print('Error fetching patient notifications: $e');
+      rethrow;
+    }
+  }
+
+  // Fetch unread notifications for patient
+  Future<List<NotificationModel>> getPatientUnreadNotifications() async {
+    try {
+      final patientId = await _getPatientId();
+      if (patientId == null) {
+        throw Exception('Patient ID not found');
+      }
+
+      final token = await _getAuthToken();
+      final response = await http.get(
+        Uri.parse('$baseUrl/patient/$patientId/unread'),
+        headers: {
+          'Content-Type': 'application/json',
+          if (token != null) 'Authorization': 'Bearer $token',
+        },
+      );
+
+      if (response.statusCode == 200) {
+        List<dynamic> jsonList = json.decode(response.body);
+        return jsonList
+            .map((json) => NotificationModel.fromJson(json))
+            .toList();
+      } else {
+        throw Exception(
+          'Failed to load unread notifications: ${response.statusCode}',
+        );
+      }
+    } catch (e) {
+      print('Error fetching patient unread notifications: $e');
+      rethrow;
+    }
+  }
+
+  // Fetch read notifications for patient
+  Future<List<NotificationModel>> getPatientReadNotifications() async {
+    try {
+      final patientId = await _getPatientId();
+      if (patientId == null) {
+        throw Exception('Patient ID not found');
+      }
+
+      final token = await _getAuthToken();
+      final response = await http.get(
+        Uri.parse('$baseUrl/patient/$patientId/read'),
+        headers: {
+          'Content-Type': 'application/json',
+          if (token != null) 'Authorization': 'Bearer $token',
+        },
+      );
+
+      if (response.statusCode == 200) {
+        List<dynamic> jsonList = json.decode(response.body);
+        return jsonList
+            .map((json) => NotificationModel.fromJson(json))
+            .toList();
+      } else {
+        throw Exception(
+          'Failed to load read notifications: ${response.statusCode}',
+        );
+      }
+    } catch (e) {
+      print('Error fetching patient read notifications: $e');
+      rethrow;
+    }
+  }
+
+  // Get unread count for patient
+  Future<int> getPatientUnreadCount() async {
+    try {
+      final patientId = await _getPatientId();
+      if (patientId == null) {
+        throw Exception('Patient ID not found');
+      }
+
+      final token = await _getAuthToken();
+      final response = await http.get(
+        Uri.parse('$baseUrl/patient/$patientId/count'),
+        headers: {
+          'Content-Type': 'application/json',
+          if (token != null) 'Authorization': 'Bearer $token',
+        },
+      );
+
+      if (response.statusCode == 200) {
+        final data = json.decode(response.body);
+        return data['count'] ?? 0;
+      } else {
+        throw Exception('Failed to get unread count: ${response.statusCode}');
+      }
+    } catch (e) {
+      print('Error getting patient unread count: $e');
+      return 0;
+    }
+  }
+
+  // Mark all as read for patient
+  Future<void> markAllPatientNotificationsAsRead() async {
+    try {
+      final patientId = await _getPatientId();
+      if (patientId == null) {
+        throw Exception('Patient ID not found');
+      }
+
+      final token = await _getAuthToken();
+      final response = await http.put(
+        Uri.parse('$baseUrl/patient/$patientId/read-all'),
+        headers: {
+          'Content-Type': 'application/json',
+          if (token != null) 'Authorization': 'Bearer $token',
+        },
+      );
+
+      if (response.statusCode != 200) {
+        throw Exception('Failed to mark all as read: ${response.statusCode}');
+      }
+    } catch (e) {
+      print('Error marking all patient notifications as read: $e');
       rethrow;
     }
   }

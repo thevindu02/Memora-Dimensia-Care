@@ -20,6 +20,7 @@ import Memora.DimensiaCareApplication.dto.request.PatientRequest;
 import Memora.DimensiaCareApplication.dto.response.PatientDetailsResponse;
 import Memora.DimensiaCareApplication.model.Patient;
 import Memora.DimensiaCareApplication.service.PatientService;
+import Memora.DimensiaCareApplication.service.SubscriptionService;
 
 @RestController
 @CrossOrigin(origins = "*")
@@ -29,6 +30,9 @@ public class PatientController {
     @Autowired
     private PatientService patientService;
 
+    @Autowired
+    private SubscriptionService subscriptionService;
+
     @PostMapping
     public ResponseEntity<Patient> addPatient(@RequestBody PatientRequest request) {
         Patient patient = new Patient();
@@ -37,6 +41,16 @@ public class PatientController {
         patient.setDementiaType(request.getDementiaType());
         patient.setRelationship(request.getRelationship());
         Patient savedPatient = patientService.addPatient(patient, request.getUserId(), request.getGuardianId());
+
+        // Create pending subscription for new patient
+        try {
+            subscriptionService.createPendingSubscription(request.getGuardianId(), savedPatient.getPatientID());
+            System.out.println("Created pending subscription for patient " + savedPatient.getPatientID());
+        } catch (Exception e) {
+            System.err.println("Failed to create subscription for patient: " + e.getMessage());
+            // Don't fail patient creation if subscription creation fails
+        }
+
         return ResponseEntity.ok(savedPatient);
     }
 

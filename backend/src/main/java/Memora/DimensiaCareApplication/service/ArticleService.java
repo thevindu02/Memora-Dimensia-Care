@@ -15,7 +15,6 @@ import com.google.cloud.firestore.Firestore;
 import com.google.cloud.firestore.Query;
 import com.google.cloud.firestore.QuerySnapshot;
 import com.google.cloud.firestore.WriteResult;
-import com.google.firebase.cloud.FirestoreClient;
 
 import Memora.DimensiaCareApplication.dto.ArticleDTO;
 import Memora.DimensiaCareApplication.dto.ArticleDetailDTO;
@@ -46,10 +45,38 @@ public class ArticleService {
     @Autowired
     private ArticleCategoryRepository articleCategoryRepository;
 
+    @Autowired
+    private Firestore firestore; // Inject Firestore bean instead of calling FirestoreClient.getFirestore()
+
     public String addArticle(ArticleDTO article) throws ExecutionException, InterruptedException {
         // Set default status if not provided
         if (article.getStatus() == null || article.getStatus().isEmpty()) {
-            article.setStatus("disapproved");
+            article.setStatus("pending");
+        }
+
+        // Convert userId to volunteerId if needed
+        // The frontend may send userId in the volunteerId field, so we need to convert
+        // it
+        if (article.getVolunteerId() != null) {
+            Long receivedId = article.getVolunteerId();
+
+            // Try to find volunteer by the received ID as userId
+            Optional<Volunteer> volunteerByUserId = volunteerRepository.findByUserId(receivedId);
+
+            if (volunteerByUserId.isPresent()) {
+                // The received ID was actually a userId, convert to volunteerId
+                Long actualVolunteerId = volunteerByUserId.get().getVolunteerId();
+                System.out.println("Converted userId " + receivedId + " to volunteerId " + actualVolunteerId);
+                article.setVolunteerId(actualVolunteerId);
+            } else {
+                // Check if it's a valid volunteerId
+                Optional<Volunteer> volunteerById = volunteerRepository.findById(receivedId);
+                if (!volunteerById.isPresent()) {
+                    throw new RuntimeException("Volunteer not found with ID: " + receivedId);
+                }
+                // It's already a valid volunteerId, keep it as is
+                System.out.println("Using volunteerId: " + receivedId);
+            }
         }
 
         System.out.println("=== Starting article creation process ===");
@@ -62,7 +89,7 @@ public class ArticleService {
         try {
             // 1. Save content to Firestore
             System.out.println("Step 1: Saving to Firestore...");
-            Firestore db = FirestoreClient.getFirestore();
+            Firestore db = this.firestore;
             DocumentReference docRef = db.collection("articles").document();
             String firebaseDocId = docRef.getId();
 
@@ -130,7 +157,7 @@ public class ArticleService {
 
     public Article saveArticle(Article article, String content) throws Exception {
         // 1. Save content to Firestore
-        Firestore db = FirestoreClient.getFirestore();
+        Firestore db = this.firestore;
         Map<String, Object> data = new HashMap<>();
         data.put("title", article.getTitle());
         data.put("volunteerId", article.getVolunteerId());
@@ -147,7 +174,7 @@ public class ArticleService {
     }
 
     public ArticleDTO getArticle(String id) throws ExecutionException, InterruptedException {
-        Firestore db = FirestoreClient.getFirestore();
+        Firestore db = this.firestore;
         DocumentReference docRef = db.collection(COLLECTION_NAME).document(id);
         ApiFuture<DocumentSnapshot> future = docRef.get();
         DocumentSnapshot document = future.get();
@@ -159,7 +186,7 @@ public class ArticleService {
     }
 
     public String getArticleContent(String firebaseDocId) throws Exception {
-        Firestore db = FirestoreClient.getFirestore();
+        Firestore db = this.firestore;
         var doc = db.collection("articles").document(firebaseDocId).get().get();
         return doc.getString("content");
     }
@@ -169,7 +196,7 @@ public class ArticleService {
             System.out.println("=== Getting article detail for firebase doc ID: " + firebaseDocId + " ===");
 
             // 1. Get article content from Firebase
-            Firestore db = FirestoreClient.getFirestore();
+            Firestore db = this.firestore;
             DocumentReference docRef = db.collection(COLLECTION_NAME).document(firebaseDocId);
             ApiFuture<DocumentSnapshot> future = docRef.get();
             DocumentSnapshot document = future.get();
@@ -284,9 +311,37 @@ public class ArticleService {
     public java.util.List<ArticleDetailDTO> getDraftArticles(Long volunteerId)
             throws ExecutionException, InterruptedException {
         try {
-            System.out.println("=== Getting draft articles for volunteer ID: " + volunteerId + " ===");
+            System.out.println("=== Getting draft articles - received ID: " + volunteerId + " ===");
+            
+            // Convert userId to volunteerId if needed
+            // The frontend may send userId in the volunteerId field, so we need to convert it
+            if (volunteerId != null) {
+                Long receivedId = volunteerId;
+                
+                // Try to find volunteer by the received ID as userId
+                Optional<Volunteer> volunteerByUserId = volunteerRepository.findByUserId(receivedId);
+                
+                if (volunteerByUserId.isPresent()) {
+                    // The received ID was actually a userId, convert to volunteerId
+                    Long actualVolunteerId = volunteerByUserId.get().getVolunteerId();
+                    System.out.println("✅ Converted userId " + receivedId + " to volunteerId " + actualVolunteerId);
+                    volunteerId = actualVolunteerId;
+                } else {
+                    // Check if it's a valid volunteerId
+                    Optional<Volunteer> volunteerById = volunteerRepository.findById(receivedId);
+                    if (volunteerById.isPresent()) {
+                        // It's already a valid volunteerId, keep it as is
+                        System.out.println("✅ Using volunteerId: " + receivedId);
+                    } else {
+                        System.err.println("❌ Volunteer not found with ID: " + receivedId);
+                        return new java.util.ArrayList<>(); // Return empty list instead of throwing exception
+                    }
+                }
+            }
+            
+            System.out.println("=== Querying drafts for actual volunteerId: " + volunteerId + " ===");
 
-            Firestore db = FirestoreClient.getFirestore();
+            Firestore db = this.firestore;
 
             // First, try with simple query to get all articles
             // Then filter in Java to avoid Firestore index issues
@@ -360,15 +415,17 @@ public class ArticleService {
                                     article.setAuthorName("Unknown Author");
                                 }
                             } catch (Exception userError) {
-                                System.err.println("Error fetching author for volunteer ID " + article.getVolunteerId());
+                                System.err
+                                        .println("Error fetching author for volunteer ID " + article.getVolunteerId());
                                 article.setAuthorName("Unknown Author");
                             }
                         }
-                        
+
                         // Get category information
                         if (article.getCategoryId() != null) {
                             try {
-                                ArticleCategory category = articleCategoryRepository.findById(article.getCategoryId()).orElse(null);
+                                ArticleCategory category = articleCategoryRepository.findById(article.getCategoryId())
+                                        .orElse(null);
                                 if (category != null) {
                                     article.setCategoryName(category.getCategoryName());
                                 } else {
@@ -379,9 +436,10 @@ public class ArticleService {
                                 article.setCategoryName("Uncategorized");
                             }
                         }
-                        
+
                         System.out.println(
-                                "Found draft: " + article.getTitle() + " (ID: " + article.getArticleId() + ") - Category: " + article.getCategoryName());
+                                "Found draft: " + article.getTitle() + " (ID: " + article.getArticleId()
+                                        + ") - Category: " + article.getCategoryName());
                         drafts.add(article);
 
                     } catch (Exception docError) {
@@ -417,9 +475,37 @@ public class ArticleService {
     public java.util.List<ArticleDetailDTO> getPublishedArticles(Long volunteerId)
             throws ExecutionException, InterruptedException {
         try {
-            System.out.println("=== Getting published articles for volunteer ID: " + volunteerId + " ===");
+            System.out.println("=== Getting published articles - received ID: " + volunteerId + " ===");
+            
+            // Convert userId to volunteerId if needed
+            // The frontend may send userId in the volunteerId field, so we need to convert it
+            if (volunteerId != null) {
+                Long receivedId = volunteerId;
+                
+                // Try to find volunteer by the received ID as userId
+                Optional<Volunteer> volunteerByUserId = volunteerRepository.findByUserId(receivedId);
+                
+                if (volunteerByUserId.isPresent()) {
+                    // The received ID was actually a userId, convert to volunteerId
+                    Long actualVolunteerId = volunteerByUserId.get().getVolunteerId();
+                    System.out.println("✅ Converted userId " + receivedId + " to volunteerId " + actualVolunteerId);
+                    volunteerId = actualVolunteerId;
+                } else {
+                    // Check if it's a valid volunteerId
+                    Optional<Volunteer> volunteerById = volunteerRepository.findById(receivedId);
+                    if (volunteerById.isPresent()) {
+                        // It's already a valid volunteerId, keep it as is
+                        System.out.println("✅ Using volunteerId: " + receivedId);
+                    } else {
+                        System.err.println("❌ Volunteer not found with ID: " + receivedId);
+                        return new java.util.ArrayList<>(); // Return empty list instead of throwing exception
+                    }
+                }
+            }
+            
+            System.out.println("=== Querying published articles for actual volunteerId: " + volunteerId + " ===");
 
-            Firestore db = FirestoreClient.getFirestore();
+            Firestore db = this.firestore;
 
             // Query for non-draft, approved articles by the volunteer
             Query query = db.collection(COLLECTION_NAME)
@@ -435,7 +521,7 @@ public class ArticleService {
                 if (document.exists()) {
                     try {
                         ArticleDetailDTO article = new ArticleDetailDTO();
-                        
+
                         // Manually map fields from document
                         article.setArticleId(document.getId());
                         article.setTitle(document.getString("title"));
@@ -481,8 +567,9 @@ public class ArticleService {
                             article.setArticleImg(
                                     "https://images.unsplash.com/photo-1434030216411-0b793f4b4173?w=64&h=64&fit=crop");
                         }
-                        
-                        System.out.println("Found published article: " + article.getTitle() + " (ID: " + article.getArticleId() + ")");
+
+                        System.out.println("Found published article: " + article.getTitle() + " (ID: "
+                                + article.getArticleId() + ")");
                         publishedArticles.add(article);
 
                     } catch (Exception docError) {
@@ -520,7 +607,7 @@ public class ArticleService {
         try {
             System.out.println("=== Getting ALL articles from ALL volunteers (all statuses) ===");
 
-            Firestore db = FirestoreClient.getFirestore();
+            Firestore db = this.firestore;
 
             // Query for ALL articles regardless of draft or status
             Query query = db.collection(COLLECTION_NAME);
@@ -667,7 +754,7 @@ public class ArticleService {
         try {
             System.out.println("=== Getting ALL published articles from ALL volunteers ===");
 
-            Firestore db = FirestoreClient.getFirestore();
+            Firestore db = this.firestore;
 
             // Query for non-draft, approved articles from ALL volunteers
             Query query = db.collection(COLLECTION_NAME)
@@ -676,12 +763,12 @@ public class ArticleService {
 
             ApiFuture<QuerySnapshot> future = query.get();
             QuerySnapshot documents = future.get();
-            
+
             System.out.println("📊 Total documents found with draft=false and status=approved: " + documents.size());
 
             java.util.List<ArticleDetailDTO> publishedArticles = new java.util.ArrayList<>();
             java.util.Set<Long> uniqueVolunteerIds = new java.util.HashSet<>();
-            
+
             for (DocumentSnapshot document : documents) {
                 if (document.exists()) {
                     try {
@@ -781,7 +868,7 @@ public class ArticleService {
                                 article.setCategoryName("Uncategorized");
                             }
                         }
-                        
+
                         // Get like count for this article
                         try {
                             Query likeQuery = db.collection(ARTICLE_LIKES_COLLECTION)
@@ -793,7 +880,7 @@ public class ArticleService {
                             System.err.println("Error fetching like count for article " + article.getArticleId());
                             article.setLikeCount(0);
                         }
-                        
+
                         // Get comment count for this article
                         try {
                             Query commentQuery = db.collection("articles_comments")
@@ -806,8 +893,10 @@ public class ArticleService {
                             System.err.println("Error fetching comment count for article " + article.getArticleId());
                             article.setCommentCount(0);
                         }
-                        
-                        System.out.println("Found published article: " + article.getTitle() + " (ID: " + article.getArticleId() + ") by " + article.getAuthorName() + " - " + article.getLikeCount() + " likes, " + article.getCommentCount() + " comments");
+
+                        System.out.println("Found published article: " + article.getTitle() + " (ID: "
+                                + article.getArticleId() + ") by " + article.getAuthorName() + " - "
+                                + article.getLikeCount() + " likes, " + article.getCommentCount() + " comments");
                         publishedArticles.add(article);
 
                     } catch (Exception docError) {
@@ -825,7 +914,7 @@ public class ArticleService {
                 Long timeB = b.getCreated_at() != null ? b.getCreated_at() : 0L;
                 return timeB.compareTo(timeA);
             });
-            
+
             System.out.println("📊 SUMMARY:");
             System.out.println("Total published articles found from all volunteers: " + publishedArticles.size());
             System.out.println("Unique volunteers with published articles: " + uniqueVolunteerIds.size());
@@ -851,7 +940,7 @@ public class ArticleService {
                     + ", Draft: " + articleDTO.getDraft()
                     + ", Status: " + articleDTO.getStatus());
 
-            Firestore db = FirestoreClient.getFirestore();
+            Firestore db = this.firestore;
             DocumentReference docRef = db.collection(COLLECTION_NAME).document(articleId);
 
             // Check if document exists
@@ -921,7 +1010,7 @@ public class ArticleService {
 
             System.out.println("Found " + articlesWithImages.size() + " articles with images in PostgreSQL");
 
-            Firestore db = FirestoreClient.getFirestore();
+            Firestore db = this.firestore;
             int syncedCount = 0;
 
             for (Article article : articlesWithImages) {
@@ -1081,7 +1170,7 @@ public class ArticleService {
      * Like an article
      */
     public boolean likeArticle(String articleId, Long userId) throws ExecutionException, InterruptedException {
-        Firestore db = FirestoreClient.getFirestore();
+        Firestore db = this.firestore;
 
         // Check if already liked
         Query query = db.collection(ARTICLE_LIKES_COLLECTION)
@@ -1127,26 +1216,26 @@ public class ArticleService {
      * Unlike an article
      */
     public boolean unlikeArticle(String articleId, Long userId) throws ExecutionException, InterruptedException {
-        Firestore db = FirestoreClient.getFirestore();
-        
+        Firestore db = this.firestore;
+
         // Find the like document
         Query query = db.collection(ARTICLE_LIKES_COLLECTION)
                 .whereEqualTo("articleId", articleId)
                 .whereEqualTo("userId", userId);
-        
+
         ApiFuture<QuerySnapshot> future = query.get();
         QuerySnapshot documents = future.get();
-        
+
         if (documents.isEmpty()) {
             // Not liked
             return false;
         }
-        
+
         // Delete the like document
         DocumentSnapshot likeDoc = documents.getDocuments().get(0);
         ApiFuture<WriteResult> deleteResult = likeDoc.getReference().delete();
         deleteResult.get();
-        
+
         // Decrement likes count in article
         DocumentReference articleRef = db.collection(COLLECTION_NAME).document(articleId);
         db.runTransaction(txn -> {
@@ -1161,7 +1250,7 @@ public class ArticleService {
             txn.update(articleRef, "updated_at", System.currentTimeMillis());
             return null;
         }).get();
-        
+
         return true;
     }
 
@@ -1172,15 +1261,15 @@ public class ArticleService {
         if (userId == null) {
             return false;
         }
-        
-        Firestore db = FirestoreClient.getFirestore();
+
+        Firestore db = this.firestore;
         Query query = db.collection(ARTICLE_LIKES_COLLECTION)
                 .whereEqualTo("articleId", articleId)
                 .whereEqualTo("userId", userId);
-        
+
         ApiFuture<QuerySnapshot> future = query.get();
         QuerySnapshot documents = future.get();
-        
+
         return !documents.isEmpty();
     }
 
@@ -1188,17 +1277,90 @@ public class ArticleService {
      * Get like count for an article
      */
     public long getArticleLikeCount(String articleId) throws ExecutionException, InterruptedException {
-        Firestore db = FirestoreClient.getFirestore();
+        Firestore db = this.firestore;
         DocumentReference articleRef = db.collection(COLLECTION_NAME).document(articleId);
-        
+
         ApiFuture<DocumentSnapshot> future = articleRef.get();
         DocumentSnapshot document = future.get();
-        
+
         if (document.exists()) {
             Long likes = document.getLong("likes");
             return likes != null ? likes : 0L;
         }
-        
+
         return 0L;
     }
+
+    /**
+     * Approve an article (set status to "approved")
+     */
+    public String approveArticle(String articleId) throws ExecutionException, InterruptedException {
+        try {
+            System.out.println("Approving article with ID: " + articleId);
+
+            // Update in Firestore
+            Firestore db = this.firestore;
+            DocumentReference articleRef = db.collection(COLLECTION_NAME).document(articleId);
+
+            Map<String, Object> updates = new HashMap<>();
+            updates.put("status", "approved");
+            updates.put("updated_at", System.currentTimeMillis());
+
+            ApiFuture<WriteResult> future = articleRef.update(updates);
+            String updateTime = future.get().getUpdateTime().toString();
+
+            // Update in PostgreSQL if exists
+            Article article = articleRepository.findByFirebaseDocId(articleId);
+            if (article != null) {
+                article.setStatus("approved");
+                articleRepository.save(article);
+                System.out.println("Article status updated in PostgreSQL");
+            }
+
+            System.out.println("Article approved successfully at: " + updateTime);
+            return updateTime;
+
+        } catch (Exception e) {
+            System.err.println("Error approving article: " + e.getMessage());
+            e.printStackTrace();
+            throw new RuntimeException("Failed to approve article: " + e.getMessage());
+        }
+    }
+
+    /**
+     * Reject an article (set status to "disapproved")
+     */
+    public String rejectArticle(String articleId) throws ExecutionException, InterruptedException {
+        try {
+            System.out.println("Rejecting article with ID: " + articleId);
+
+            // Update in Firestore
+            Firestore db = this.firestore;
+            DocumentReference articleRef = db.collection(COLLECTION_NAME).document(articleId);
+
+            Map<String, Object> updates = new HashMap<>();
+            updates.put("status", "disapproved");
+            updates.put("updated_at", System.currentTimeMillis());
+
+            ApiFuture<WriteResult> future = articleRef.update(updates);
+            String updateTime = future.get().getUpdateTime().toString();
+
+            // Update in PostgreSQL if exists
+            Article article = articleRepository.findByFirebaseDocId(articleId);
+            if (article != null) {
+                article.setStatus("disapproved");
+                articleRepository.save(article);
+                System.out.println("Article status updated in PostgreSQL");
+            }
+
+            System.out.println("Article rejected successfully at: " + updateTime);
+            return updateTime;
+
+        } catch (Exception e) {
+            System.err.println("Error rejecting article: " + e.getMessage());
+            e.printStackTrace();
+            throw new RuntimeException("Failed to reject article: " + e.getMessage());
+        }
+    }
+
 }

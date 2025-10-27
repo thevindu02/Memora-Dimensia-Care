@@ -21,4 +21,20 @@ public interface NotificationRepository extends JpaRepository<Notification, Long
     // Find notifications by type for a caregiver
     List<Notification> findByCaregiverIdAndNotificationTypeOrderByCreatedAtDesc(
             Long caregiverId, String notificationType);
+
+    
+    // ========== PATIENT NOTIFICATION QUERIES ==========
+
+    // Find all notifications for a specific patient
+    List<Notification> findByPatientIdOrderByCreatedAtDesc(Long patientId);
+
+    // Find read/unread notifications for a patient
+    List<Notification> findByPatientIdAndIsReadOrderByCreatedAtDesc(Long patientId, Boolean isRead);
+
+    // Count unread notifications for a patient
+    Long countByPatientIdAndIsRead(Long patientId, Boolean isRead);
+
+    // Find notifications by type for a patient
+    List<Notification> findByPatientIdAndNotificationTypeOrderByCreatedAtDesc(
+            Long patientId, String notificationType);
 }

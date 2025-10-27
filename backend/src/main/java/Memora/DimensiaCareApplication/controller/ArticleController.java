@@ -178,9 +178,9 @@ public class ArticleController {
                 error.put("error", "User ID is required");
                 return ResponseEntity.badRequest().body(error);
             }
-            
+
             boolean success = articleService.likeArticle(articleId, userId);
-            
+
             if (success) {
                 Map<String, String> response = new HashMap<>();
                 response.put("message", "Article liked successfully");
@@ -212,9 +212,9 @@ public class ArticleController {
                 error.put("error", "User ID is required");
                 return ResponseEntity.badRequest().body(error);
             }
-            
+
             boolean success = articleService.unlikeArticle(articleId, userId);
-            
+
             if (success) {
                 Map<String, String> response = new HashMap<>();
                 response.put("message", "Article unliked successfully");
@@ -242,11 +242,11 @@ public class ArticleController {
             @RequestParam(required = false) Long userId) {
         try {
             Map<String, Object> response = new HashMap<>();
-            
+
             // Get like count
             long likeCount = articleService.getArticleLikeCount(articleId);
             response.put("likeCount", likeCount);
-            
+
             // Check if user has liked (if userId is provided)
             if (userId != null) {
                 boolean hasLiked = articleService.hasLikedArticle(articleId, userId);
@@ -254,7 +254,7 @@ public class ArticleController {
             } else {
                 response.put("hasLiked", false);
             }
-            
+
             return ResponseEntity.ok(response);
         } catch (Exception e) {
             e.printStackTrace();
@@ -274,24 +274,33 @@ public class ArticleController {
             @RequestParam Long volunteerId) {
         try {
             System.out.println("Received request to delete article: " + articleId + " by volunteer: " + volunteerId);
-            
+
             if (volunteerId == null) {
                 Map<String, String> error = new HashMap<>();
                 error.put("error", "Volunteer ID is required");
                 return ResponseEntity.badRequest().body(error);
             }
-            
-            boolean success = articleService.deleteArticle(articleId, volunteerId);
-            
-            if (success) {
-                Map<String, String> response = new HashMap<>();
-                response.put("message", "Article deleted successfully");
-                return ResponseEntity.ok(response);
-            } else {
-                Map<String, String> error = new HashMap<>();
-                error.put("error", "Failed to delete article. Either article not found or you don't have permission.");
-                return ResponseEntity.status(HttpStatus.FORBIDDEN).body(error);
-            }
+
+            // TODO: Implement deleteArticle method in ArticleService
+            // boolean success = articleService.deleteArticle(articleId, volunteerId);
+
+            Map<String, String> error = new HashMap<>();
+            error.put("error", "Delete article feature is not yet implemented");
+            return ResponseEntity.status(HttpStatus.NOT_IMPLEMENTED).body(error);
+
+            /*
+             * if (success) {
+             * Map<String, String> response = new HashMap<>();
+             * response.put("message", "Article deleted successfully");
+             * return ResponseEntity.ok(response);
+             * } else {
+             * Map<String, String> error = new HashMap<>();
+             * error.put("error",
+             * "Failed to delete article. Either article not found or you don't have permission."
+             * );
+             * return ResponseEntity.status(HttpStatus.FORBIDDEN).body(error);
+             * }
+             */
         } catch (Exception e) {
             e.printStackTrace();
             Map<String, String> error = new HashMap<>();
@@ -299,5 +308,56 @@ public class ArticleController {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(error);
         }
     }
-}
 
+    /**
+     * Approve an article
+     * PUT /api/articles/{articleId}/approve
+     */
+    @PutMapping("/{articleId}/approve")
+    public ResponseEntity<?> approveArticle(@PathVariable String articleId) {
+        try {
+            System.out.println("Received request to approve article with ID: " + articleId);
+            String updateTime = articleService.approveArticle(articleId);
+
+            Map<String, Object> response = new HashMap<>();
+            response.put("message", "Article approved successfully");
+            response.put("updateTime", updateTime);
+            response.put("status", "approved");
+
+            return ResponseEntity.ok(response);
+        } catch (Exception e) {
+            System.err.println("Error in approveArticle controller: " + e.getMessage());
+            e.printStackTrace();
+
+            Map<String, String> error = new HashMap<>();
+            error.put("error", "Failed to approve article: " + e.getMessage());
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(error);
+        }
+    }
+
+    /**
+     * Reject an article
+     * PUT /api/articles/{articleId}/reject
+     */
+    @PutMapping("/{articleId}/reject")
+    public ResponseEntity<?> rejectArticle(@PathVariable String articleId) {
+        try {
+            System.out.println("Received request to reject article with ID: " + articleId);
+            String updateTime = articleService.rejectArticle(articleId);
+
+            Map<String, Object> response = new HashMap<>();
+            response.put("message", "Article rejected successfully");
+            response.put("updateTime", updateTime);
+            response.put("status", "disapproved");
+
+            return ResponseEntity.ok(response);
+        } catch (Exception e) {
+            System.err.println("Error in rejectArticle controller: " + e.getMessage());
+            e.printStackTrace();
+
+            Map<String, String> error = new HashMap<>();
+            error.put("error", "Failed to reject article: " + e.getMessage());
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(error);
+        }
+    }
+}

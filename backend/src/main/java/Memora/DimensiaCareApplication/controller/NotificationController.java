@@ -133,4 +133,92 @@ public class NotificationController {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         }
     }
+
+
+    // ========== PATIENT NOTIFICATION ENDPOINTS ==========
+
+    /**
+     * Get all notifications for a patient
+     * GET /api/notifications/patient/{patientId}
+     */
+    @GetMapping("/patient/{patientId}")
+    public ResponseEntity<List<Notification>> getPatientNotifications(@PathVariable Long patientId) {
+        try {
+            List<Notification> notifications = notificationService.getPatientNotifications(patientId);
+            return ResponseEntity.ok(notifications);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        }
+    }
+
+    /**
+     * Get unread notifications for a patient
+     * GET /api/notifications/patient/{patientId}/unread
+     */
+    @GetMapping("/patient/{patientId}/unread")
+    public ResponseEntity<List<Notification>> getPatientUnreadNotifications(@PathVariable Long patientId) {
+        try {
+            List<Notification> notifications = notificationService.getPatientUnreadNotifications(patientId);
+            return ResponseEntity.ok(notifications);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        }
+    }
+
+    /**
+     * Get read notifications for a patient
+     * GET /api/notifications/patient/{patientId}/read
+     */
+    @GetMapping("/patient/{patientId}/read")
+    public ResponseEntity<List<Notification>> getPatientReadNotifications(@PathVariable Long patientId) {
+        try {
+            List<Notification> notifications = notificationService.getPatientReadNotifications(patientId);
+            return ResponseEntity.ok(notifications);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        }
+    }
+
+    /**
+     * Count unread notifications for a patient
+     * GET /api/notifications/patient/{patientId}/count
+     */
+    @GetMapping("/patient/{patientId}/count")
+    public ResponseEntity<Map<String, Long>> getPatientUnreadCount(@PathVariable Long patientId) {
+        try {
+            Long count = notificationService.countPatientUnreadNotifications(patientId);
+            return ResponseEntity.ok(Map.of("count", count));
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        }
+    }
+
+    /**
+     * Mark all notifications as read for a patient
+     * PUT /api/notifications/patient/{patientId}/read-all
+     */
+    @PutMapping("/patient/{patientId}/read-all")
+    public ResponseEntity<Map<String, String>> markAllPatientNotificationsAsRead(@PathVariable Long patientId) {
+        try {
+            notificationService.markAllPatientNotificationsAsRead(patientId);
+            return ResponseEntity.ok(Map.of("message", "All notifications marked as read"));
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        }
+    }
+
+    /**
+     * Delete all notifications for a patient
+     * DELETE /api/notifications/patient/{patientId}
+     */
+    @DeleteMapping("/patient/{patientId}")
+    public ResponseEntity<Map<String, String>> deleteAllPatientNotifications(@PathVariable Long patientId) {
+        try {
+            notificationService.deleteAllPatientNotifications(patientId);
+            return ResponseEntity.ok(Map.of("message", "All notifications deleted successfully"));
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        }
+    }
+
 }

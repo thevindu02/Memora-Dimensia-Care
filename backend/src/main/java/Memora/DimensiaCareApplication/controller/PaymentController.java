@@ -95,4 +95,27 @@ public class PaymentController {
             return ResponseEntity.badRequest().body("Webhook processing error: " + e.getMessage());
         }
     }
+
+
+    // Revenue Analytics Endpoints
+    
+    @GetMapping("/analytics/revenue")
+    public ResponseEntity<?> getRevenueAnalytics() {
+        try {
+            Map<String, Object> analytics = paymentService.getRevenueAnalytics();
+            return ResponseEntity.ok(analytics);
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body("Error fetching revenue analytics: " + e.getMessage());
+        }
+    }
+
+    @GetMapping("/analytics/transactions")
+    public ResponseEntity<List<Payment>> getAllTransactions() {
+        try {
+            List<Payment> transactions = paymentService.getAllSuccessfulPayments();
+            return ResponseEntity.ok(transactions);
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().build();
+        }
+    }
 }

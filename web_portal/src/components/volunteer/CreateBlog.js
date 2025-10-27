@@ -38,6 +38,7 @@ import Footer from "../home/Footer";
 import SideBar from "./SideBar";
 import articleService from '../../services/articleService';
 import authService from '../../services/authService';
+import VolunteerService from '../../services/volunteerService';
 import CONFIG from '../../config/api.js';
 
 // Memora color palette constants
@@ -94,6 +95,7 @@ export default function CreateBlog() {
   const [success, setSuccess] = useState(null);
   const [validationErrors, setValidationErrors] = useState({});
   const [currentUser, setCurrentUser] = useState(null);
+  const [userVolunteerId, setUserVolunteerId] = useState(null);
   const [snackbarOpen, setSnackbarOpen] = useState(false);
   const [snackbarMessage, setSnackbarMessage] = useState('');
   const [snackbarSeverity, setSnackbarSeverity] = useState('success');
@@ -143,9 +145,26 @@ export default function CreateBlog() {
   };
 
   // Load current user data
-  const loadCurrentUser = () => {
-    const user = authService.getCurrentUser();
-    setCurrentUser(user);
+  const loadCurrentUser = async () => {
+    try {
+      const user = authService.getCurrentUser();
+      setCurrentUser(user);
+      
+      if (user && user.id) {
+        // Get the volunteer ID for this user
+        console.log("🔍 Fetching volunteer ID for user ID:", user.id);
+        const volunteerResponse = await VolunteerService.getVolunteerIdByUserId(user.id);
+        
+        if (volunteerResponse.success && volunteerResponse.volunteerId) {
+          setUserVolunteerId(volunteerResponse.volunteerId);
+          console.log("✅ User's volunteer ID:", volunteerResponse.volunteerId);
+        } else {
+          console.error("❌ Failed to get volunteer ID:", volunteerResponse.message);
+        }
+      }
+    } catch (error) {
+      console.error("❌ Error loading user data:", error);
+    }
   };
 
   // Clear messages after timeout
@@ -392,7 +411,7 @@ export default function CreateBlog() {
         summary: summary.trim() || articleService.generateSummary(content),
         content: articleService.cleanContent(content),
         categoryId: parseInt(category),
-        volunteerId: parseInt(currentUser.id),
+        volunteerId: userVolunteerId || parseInt(currentUser.id), // Use userVolunteerId (actual volunteer ID)
         draft: false,
         articleImg: finalImageUrl
       };
@@ -477,7 +496,7 @@ export default function CreateBlog() {
         summary: summary.trim() || articleService.generateSummary(content),
         content: articleService.cleanContent(content),
         categoryId: parseInt(category),
-        volunteerId: parseInt(currentUser.id),
+        volunteerId: userVolunteerId || parseInt(currentUser.id), // Use userVolunteerId (actual volunteer ID)
         draft: true,
         articleImg: finalImageUrl
       };

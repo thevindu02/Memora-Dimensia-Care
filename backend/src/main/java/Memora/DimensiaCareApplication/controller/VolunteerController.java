@@ -30,4 +30,19 @@ public class VolunteerController {
         return ResponseEntity.badRequest().body("Update failed");
     }
 
+    @GetMapping("/by-user/{userId}")
+    public ResponseEntity<?> getVolunteerIdByUserId(@PathVariable Long userId) {
+        try {
+            Long volunteerId = volunteerService.getVolunteerIdByUserId(userId);
+            if (volunteerId != null) {
+                java.util.Map<String, Long> response = new java.util.HashMap<>();
+                response.put("volunteerId", volunteerId);
+                return ResponseEntity.ok(response);
+            }
+            return ResponseEntity.notFound().build();
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body("Error: " + e.getMessage());
+        }
+    }
+
 }

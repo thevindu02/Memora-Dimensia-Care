@@ -246,14 +246,22 @@ class PatientService {
         headers: {'Content-Type': 'application/json'},
       );
 
+      print('📡 Response status: ${response.statusCode}');
+      print('📡 Response body: ${response.body}');
+
       if (response.statusCode == 200) {
         final data = json.decode(response.body);
-        return data['patientId'] as int?;
+        final patientId = data['patientId'] as int?;
+        print('✅ Successfully retrieved patientId: $patientId');
+        return patientId;
       } else {
+        print(
+          '❌ Failed to get patientId. Status: ${response.statusCode}, Body: ${response.body}',
+        );
         return null;
       }
     } catch (e) {
-      print('Error getting patient ID: $e');
+      print('❌ Error getting patient ID: $e');
       return null;
     }
   }

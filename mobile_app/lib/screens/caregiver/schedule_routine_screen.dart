@@ -1672,10 +1672,11 @@ class _ScheduleRoutineScreenState extends State<ScheduleRoutineScreen> {
       itemCount: tasks.length,
       itemBuilder: (context, index) {
         final task = tasks[index];
-        final bool isCancelled = task.status == 'CANCELLED' || task.isSkipped;
+        final bool isCancelled = task.status == 'CANCELLED';
+        final bool isSkipped = task.status == 'SKIPPED' || (task.isSkipped && task.status != 'CANCELLED');
 
         return Opacity(
-          opacity: isCancelled ? 0.5 : 1.0, // Dim cancelled tasks
+          opacity: isCancelled ? 0.5 : 1.0, // Dim only cancelled tasks, not skipped
           child: Container(
             margin: EdgeInsets.only(bottom: 12),
             child: Material(
@@ -1684,7 +1685,7 @@ class _ScheduleRoutineScreenState extends State<ScheduleRoutineScreen> {
                 onTap: isCancelled
                     ? null
                     : () =>
-                          _selectTask(task), // Disable tap for cancelled tasks
+                          _selectTask(task), // Disable tap only for cancelled tasks
                 borderRadius: BorderRadius.circular(12),
                 child: Container(
                   padding: EdgeInsets.all(16),
@@ -1693,16 +1694,20 @@ class _ScheduleRoutineScreenState extends State<ScheduleRoutineScreen> {
                         ? Colors
                               .grey
                               .shade200 // Gray background for cancelled tasks
-                        : (task.isSelected ? Color(0xFFE8E0FF) : Colors.white),
+                        : isSkipped
+                            ? Colors.amber.shade50 // Light amber for skipped tasks
+                            : (task.isSelected ? Color(0xFFE8E0FF) : Colors.white),
                     borderRadius: BorderRadius.circular(12),
                     border: Border.all(
                       color: isCancelled
                           ? Colors
                                 .grey
                                 .shade400 // Gray border for cancelled tasks
-                          : (task.isSelected
-                                ? Color(0xFF6B4EE6)
-                                : Colors.grey.shade200),
+                          : isSkipped
+                              ? Colors.orange.shade300 // Orange border for skipped tasks
+                              : (task.isSelected
+                                    ? Color(0xFF6B4EE6)
+                                    : Colors.grey.shade200),
                       width: task.isSelected ? 2 : 1,
                     ),
                     boxShadow: [
@@ -1734,18 +1739,59 @@ class _ScheduleRoutineScreenState extends State<ScheduleRoutineScreen> {
                             child: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
-                                Text(
-                                  task.title,
-                                  style: TextStyle(
-                                    fontSize: 16,
-                                    fontWeight: FontWeight.w600,
-                                    color: isCancelled
-                                        ? Colors.grey[500]
-                                        : Colors.black87,
-                                    decoration: isCancelled
-                                        ? TextDecoration.lineThrough
-                                        : null,
-                                  ),
+                                Row(
+                                  children: [
+                                    Expanded(
+                                      child: Text(
+                                        task.title,
+                                        style: TextStyle(
+                                          fontSize: 16,
+                                          fontWeight: FontWeight.w600,
+                                          color: isCancelled
+                                              ? Colors.grey[500]
+                                              : Colors.black87,
+                                          decoration: isCancelled
+                                              ? TextDecoration.lineThrough
+                                              : null,
+                                        ),
+                                      ),
+                                    ),
+                                    // Pending Approval Badge for skipped tasks
+                                    if (isSkipped)
+                                      Container(
+                                        margin: EdgeInsets.only(left: 8),
+                                        padding: EdgeInsets.symmetric(
+                                          horizontal: 8,
+                                          vertical: 4,
+                                        ),
+                                        decoration: BoxDecoration(
+                                          color: Colors.orange.shade100,
+                                          borderRadius: BorderRadius.circular(12),
+                                          border: Border.all(
+                                            color: Colors.orange.shade300,
+                                          ),
+                                        ),
+                                        child: Row(
+                                          mainAxisSize: MainAxisSize.min,
+                                          children: [
+                                            Icon(
+                                              Icons.pending_actions,
+                                              size: 12,
+                                              color: Colors.orange.shade700,
+                                            ),
+                                            SizedBox(width: 4),
+                                            Text(
+                                              'Pending Approval',
+                                              style: TextStyle(
+                                                fontSize: 10,
+                                                fontWeight: FontWeight.w600,
+                                                color: Colors.orange.shade700,
+                                              ),
+                                            ),
+                                          ],
+                                        ),
+                                      ),
+                                  ],
                                 ),
                                 SizedBox(height: 4),
                                 Text(
@@ -1827,7 +1873,62 @@ class _ScheduleRoutineScreenState extends State<ScheduleRoutineScreen> {
                         ],
                       ),
 
-                      // Show skip reason for any cancelled task (general display)
+                      // Show skip reason for SKIPPED tasks (patient requested skip - pending caregiver approval)
+                      if (isSkipped &&
+                          task.skipReason != null &&
+                          task.skipReason!.isNotEmpty)
+                        Container(
+                          margin: EdgeInsets.only(top: 12),
+                          padding: EdgeInsets.all(12),
+                          decoration: BoxDecoration(
+                            color: Colors.orange.shade50,
+                            borderRadius: BorderRadius.circular(8),
+                            border: Border.all(color: Colors.orange.shade200),
+                          ),
+                          child: Row(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Container(
+                                padding: EdgeInsets.all(4),
+                                decoration: BoxDecoration(
+                                  color: Colors.orange.shade100,
+                                  borderRadius: BorderRadius.circular(4),
+                                ),
+                                child: Icon(
+                                  Icons.pending_actions,
+                                  size: 16,
+                                  color: Colors.orange.shade700,
+                                ),
+                              ),
+                              SizedBox(width: 12),
+                              Expanded(
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text(
+                                      'Patient Skip Request',
+                                      style: TextStyle(
+                                        fontSize: 14,
+                                        fontWeight: FontWeight.w600,
+                                        color: Colors.orange.shade800,
+                                      ),
+                                    ),
+                                    SizedBox(height: 4),
+                                    Text(
+                                      'Reason: ${task.skipReason}',
+                                      style: TextStyle(
+                                        fontSize: 13,
+                                        color: Colors.orange.shade700,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+
+                      // Show reason for CANCELLED tasks (caregiver confirmed cancellation)
                       if (isCancelled &&
                           task.skipReason != null &&
                           task.skipReason!.isNotEmpty)
@@ -1876,6 +1977,178 @@ class _ScheduleRoutineScreenState extends State<ScheduleRoutineScreen> {
                                       ),
                                     ),
                                   ],
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+
+                      // Show Accept/Reject buttons for SKIPPED tasks (patient requested skip)
+                      if (isSkipped)
+                        Container(
+                          margin: EdgeInsets.only(top: 12),
+                          child: Row(
+                            children: [
+                              Expanded(
+                                child: ElevatedButton.icon(
+                                  onPressed: () {
+                                    // Show confirmation dialog
+                                    showDialog(
+                                      context: context,
+                                      builder: (BuildContext context) {
+                                        return AlertDialog(
+                                          title: Text('Accept Skip Request'),
+                                          content: Text(
+                                              'Do you want to approve this skip request and cancel the task?'),
+                                          actions: [
+                                            TextButton(
+                                              onPressed: () {
+                                                Navigator.of(context).pop();
+                                              },
+                                              child: Text('No'),
+                                            ),
+                                            ElevatedButton(
+                                              onPressed: () async {
+                                                Navigator.of(context).pop();
+                                                try {
+                                                  await CareActivityService
+                                                      .updateStatusWithReason(
+                                                    task.careActivityId!,
+                                                    'CANCELLED',
+                                                    task.skipReason ??
+                                                        'Approved by caregiver',
+                                                  );
+
+                                                  setState(() {
+                                                    task.status = 'CANCELLED';
+                                                    task.isSkipped = false;
+                                                  });
+
+                                                  ScaffoldMessenger.of(context)
+                                                      .showSnackBar(
+                                                    SnackBar(
+                                                      content: Text(
+                                                          'Skip request accepted'),
+                                                      backgroundColor:
+                                                          Colors.green,
+                                                    ),
+                                                  );
+
+                                                  _fetchAllTasks();
+                                                } catch (e) {
+                                                  ScaffoldMessenger.of(context)
+                                                      .showSnackBar(
+                                                    SnackBar(
+                                                      content: Text(
+                                                          'Failed to accept skip: $e'),
+                                                      backgroundColor:
+                                                          Colors.red,
+                                                    ),
+                                                  );
+                                                }
+                                              },
+                                              style: ElevatedButton.styleFrom(
+                                                backgroundColor: Colors.green,
+                                              ),
+                                              child: Text('Yes, Accept'),
+                                            ),
+                                          ],
+                                        );
+                                      },
+                                    );
+                                  },
+                                  icon: Icon(Icons.check_circle,
+                                      color: Colors.white),
+                                  label: Text('Accept',
+                                      style: TextStyle(color: Colors.white)),
+                                  style: ElevatedButton.styleFrom(
+                                    backgroundColor: Colors.green,
+                                    padding: EdgeInsets.symmetric(vertical: 12),
+                                    shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(8),
+                                    ),
+                                  ),
+                                ),
+                              ),
+                              SizedBox(width: 12),
+                              Expanded(
+                                child: ElevatedButton.icon(
+                                  onPressed: () {
+                                    // Show confirmation dialog
+                                    showDialog(
+                                      context: context,
+                                      builder: (BuildContext context) {
+                                        return AlertDialog(
+                                          title: Text('Reject Skip Request'),
+                                          content: Text(
+                                              'Do you want to reject this skip request and restore the task to pending?'),
+                                          actions: [
+                                            TextButton(
+                                              onPressed: () {
+                                                Navigator.of(context).pop();
+                                              },
+                                              child: Text('No'),
+                                            ),
+                                            ElevatedButton(
+                                              onPressed: () async {
+                                                Navigator.of(context).pop();
+                                                try {
+                                                  await CareActivityService
+                                                      .updateStatusWithReason(
+                                                    task.careActivityId!,
+                                                    'PENDING',
+                                                    null,
+                                                  );
+
+                                                  setState(() {
+                                                    task.status = 'PENDING';
+                                                    task.isSkipped = false;
+                                                    task.skipReason = null;
+                                                  });
+
+                                                  ScaffoldMessenger.of(context)
+                                                      .showSnackBar(
+                                                    SnackBar(
+                                                      content: Text(
+                                                          'Skip request rejected, task restored'),
+                                                      backgroundColor:
+                                                          Colors.orange,
+                                                    ),
+                                                  );
+
+                                                  _fetchAllTasks();
+                                                } catch (e) {
+                                                  ScaffoldMessenger.of(context)
+                                                      .showSnackBar(
+                                                    SnackBar(
+                                                      content: Text(
+                                                          'Failed to reject skip: $e'),
+                                                      backgroundColor:
+                                                          Colors.red,
+                                                    ),
+                                                  );
+                                                }
+                                              },
+                                              style: ElevatedButton.styleFrom(
+                                                backgroundColor: Colors.orange,
+                                              ),
+                                              child: Text('Yes, Reject'),
+                                            ),
+                                          ],
+                                        );
+                                      },
+                                    );
+                                  },
+                                  icon: Icon(Icons.cancel, color: Colors.white),
+                                  label: Text('Reject',
+                                      style: TextStyle(color: Colors.white)),
+                                  style: ElevatedButton.styleFrom(
+                                    backgroundColor: Colors.orange.shade700,
+                                    padding: EdgeInsets.symmetric(vertical: 12),
+                                    shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(8),
+                                    ),
+                                  ),
                                 ),
                               ),
                             ],

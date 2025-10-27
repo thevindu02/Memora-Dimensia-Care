@@ -1,6 +1,13 @@
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import '../../routes/app_routes.dart';
 import '../../constants/color_constants.dart';
+import '../../services/caregiver_service.dart';
+import '../../services/schedule_service.dart';
+import '../../services/daily_activity_service.dart';
+import '../../services/task_service.dart' as TaskAPI;
+import '../../services/medication_service.dart';
+import '../../services/appointment_service.dart';
 
 class MainScreen extends StatefulWidget {
   const MainScreen({super.key});
@@ -63,8 +70,226 @@ class _MainScreenState extends State<MainScreen> {
   }
 }
 
-class HomeScreen extends StatelessWidget {
+class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
+
+  @override
+  State<HomeScreen> createState() => _HomeScreenState();
+}
+
+class _HomeScreenState extends State<HomeScreen> {
+  bool _isLoading = true;
+  int _patientCount = 0;
+  int _completedTasks = 0;
+  int _pendingTasks = 0;
+  int _skippedTasks = 0;
+  int _totalTasks = 0;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadDashboardData();
+  }
+
+  Future<void> _loadDashboardData() async {
+    setState(() {
+      _isLoading = true;
+    });
+
+    try {
+      // Get caregiver ID from shared preferences
+      final prefs = await SharedPreferences.getInstance();
+      
+      // Get the actual caregiver ID (not user ID)
+      int? caregiverId = prefs.getInt('current_caregiver_id');
+      
+      print('🔑 Dashboard - Caregiver ID from prefs: $caregiverId');
+
+      if (caregiverId == null) {
+        // Fallback: try to get from userId and convert to caregiverId
+        final userId = prefs.getInt('userId');
+        print('🔄 Dashboard - User ID found: $userId, fetching caregiver ID...');
+        
+        if (userId != null) {
+          caregiverId = await CaregiverService.getCaregiverIdByUserId(userId);
+          if (caregiverId != null) {
+            // Store it for future use
+            await prefs.setInt('current_caregiver_id', caregiverId);
+            print('✅ Dashboard - Caregiver ID fetched and stored: $caregiverId');
+          }
+        }
+      }
+      
+      print('🔑 Dashboard - Final Caregiver ID: $caregiverId');
+
+      if (caregiverId == null) {
+        print('❌ Dashboard - Caregiver ID not found in SharedPreferences');
+        setState(() {
+          _isLoading = false;
+        });
+        return;
+      }
+
+      // Fetch connected patients
+      print('📞 Dashboard - Fetching connected requests for caregiver $caregiverId');
+      final connectedRequests = await CaregiverService.getConnectedRequests(caregiverId);
+      final patientCount = connectedRequests.length;
+      print('👥 Dashboard - Found $patientCount connected patients');
+      print('📋 Dashboard - Connected requests: $connectedRequests');
+
+      // Get today's date in YYYY-MM-DD format
+      final today = DateTime.now();
+      final dateStr = '${today.year}-${today.month.toString().padLeft(2, '0')}-${today.day.toString().padLeft(2, '0')}';
+      print('📅 Dashboard - Today\'s date: $dateStr');
+
+      int totalCompleted = 0;
+      int totalPending = 0;
+      int totalSkipped = 0;
+      int totalTasks = 0;
+
+      // For each patient, fetch their today's tasks
+      for (var request in connectedRequests) {
+        final patientId = request['patientId'] as int?;
+        if (patientId == null) {
+          print('⚠️ Dashboard - Patient ID is null in request: $request');
+          continue;
+        }
+
+        print('🔍 Dashboard - Processing patient $patientId');
+
+        try {
+          // Get or create today's schedule for this patient
+          final scheduleResult = await ScheduleService.getOrCreateSchedule(patientId, dateStr);
+          print('📆 Dashboard - Schedule result for patient $patientId: success=${scheduleResult.success}, data=${scheduleResult.data}');
+          
+          if (scheduleResult.success && scheduleResult.data != null) {
+            final scheduleId = scheduleResult.data!['scheduleId'] as int;
+            print('📋 Dashboard - Schedule ID for patient $patientId: $scheduleId');
+
+            // Fetch all types of activities for this schedule
+            await _fetchTasksForSchedule(scheduleId, (completed, pending, skipped, total) {
+              print('✅ Dashboard - Patient $patientId tasks: completed=$completed, pending=$pending, skipped=$skipped, total=$total');
+              totalCompleted += completed;
+              totalPending += pending;
+              totalSkipped += skipped;
+              totalTasks += total;
+            });
+          } else {
+            print('❌ Dashboard - Failed to get schedule for patient $patientId: ${scheduleResult.message}');
+          }
+        } catch (e) {
+          print('❌ Dashboard - Error fetching tasks for patient $patientId: $e');
+        }
+      }
+
+      print('📊 Dashboard - Final totals: patients=$patientCount, completed=$totalCompleted, pending=$totalPending, skipped=$totalSkipped, total=$totalTasks');
+
+      setState(() {
+        _patientCount = patientCount;
+        _completedTasks = totalCompleted;
+        _pendingTasks = totalPending;
+        _skippedTasks = totalSkipped;
+        _totalTasks = totalTasks;
+        _isLoading = false;
+      });
+    } catch (e) {
+      print('❌ Dashboard - Error loading dashboard data: $e');
+      setState(() {
+        _isLoading = false;
+      });
+    }
+  }
+
+  Future<void> _fetchTasksForSchedule(
+    int scheduleId,
+    Function(int completed, int pending, int skipped, int total) callback,
+  ) async {
+    int completed = 0;
+    int pending = 0;
+    int skipped = 0;
+    int total = 0;
+
+    print('🔄 FetchTasks - Starting for schedule $scheduleId');
+
+    try {
+      // Fetch daily activities
+      print('📋 FetchTasks - Fetching daily activities...');
+      final dailyActivitiesResult = await DailyActivityService.getDailyActivities(scheduleId);
+      print('📋 FetchTasks - Daily activities result: success=${dailyActivitiesResult.success}, count=${dailyActivitiesResult.data?.length ?? 0}');
+      
+      if (dailyActivitiesResult.success && dailyActivitiesResult.data != null) {
+        for (var activity in dailyActivitiesResult.data!) {
+          total++;
+          if (activity.status == 'COMPLETED') {
+            completed++;
+          } else if (activity.status == 'SKIPPED' || activity.status == 'CANCELLED') {
+            skipped++;
+          } else {
+            pending++;
+          }
+        }
+        print('✅ FetchTasks - Daily activities: $total tasks (completed=$completed, pending=$pending, skipped=$skipped)');
+      }
+
+      // Fetch game tasks
+      print('🎮 FetchTasks - Fetching game tasks...');
+      final gameTasksResult = await TaskAPI.TaskService.getTasksByScheduleId(scheduleId);
+      print('🎮 FetchTasks - Game tasks result: success=${gameTasksResult.success}, count=${gameTasksResult.data?.length ?? 0}');
+      
+      if (gameTasksResult.success && gameTasksResult.data != null) {
+        for (var task in gameTasksResult.data!) {
+          total++;
+          if (task.status == 'COMPLETED') {
+            completed++;
+          } else if (task.status == 'SKIPPED' || task.status == 'CANCELLED') {
+            skipped++;
+          } else {
+            pending++;
+          }
+        }
+        print('✅ FetchTasks - After game tasks: $total total (completed=$completed, pending=$pending, skipped=$skipped)');
+      }
+
+      // Fetch medications
+      print('💊 FetchTasks - Fetching medications...');
+      final medications = await MedicationService.getMedicationSchedule(scheduleId);
+      print('💊 FetchTasks - Medications count: ${medications.length}');
+      
+      for (var med in medications) {
+        total++;
+        if (med.status == 'COMPLETED') {
+          completed++;
+        } else if (med.status == 'SKIPPED' || med.status == 'CANCELLED') {
+          skipped++;
+        } else {
+          pending++;
+        }
+      }
+      print('✅ FetchTasks - After medications: $total total (completed=$completed, pending=$pending, skipped=$skipped)');
+
+      // Fetch appointments
+      print('📅 FetchTasks - Fetching appointments...');
+      final appointments = await AppointmentService.getAppointments(scheduleId);
+      print('📅 FetchTasks - Appointments count: ${appointments.length}');
+      
+      for (var appointment in appointments) {
+        total++;
+        if (appointment.status == 'COMPLETED') {
+          completed++;
+        } else if (appointment.status == 'SKIPPED' || appointment.status == 'CANCELLED') {
+          skipped++;
+        } else {
+          pending++;
+        }
+      }
+      print('✅ FetchTasks - Final totals: $total total (completed=$completed, pending=$pending, skipped=$skipped)');
+
+      callback(completed, pending, skipped, total);
+    } catch (e) {
+      print('❌ FetchTasks - Error fetching tasks for schedule $scheduleId: $e');
+      callback(0, 0, 0, 0);
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -142,6 +367,38 @@ class HomeScreen extends StatelessWidget {
   }
 
   Widget _buildSummaryCard(BuildContext context) {
+    if (_isLoading) {
+      return Card(
+        elevation: 2,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+        child: Container(
+          height: 200,
+          decoration: BoxDecoration(
+            gradient: LinearGradient(
+              colors: [
+                AppColors.primaryLight.withOpacity(0.08),
+                AppColors.primaryLight.withOpacity(0.06),
+              ],
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
+            ),
+            border: Border.all(
+              color: AppColors.primaryLight.withOpacity(0.10),
+              width: 1,
+            ),
+            borderRadius: BorderRadius.circular(16),
+          ),
+          child: Center(
+            child: CircularProgressIndicator(
+              valueColor: AlwaysStoppedAnimation<Color>(AppColors.primaryDark),
+            ),
+          ),
+        ),
+      );
+    }
+
+    final completionRate = _totalTasks > 0 ? _completedTasks / _totalTasks : 0.0;
+
     return Card(
       elevation: 2,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
@@ -178,7 +435,7 @@ class HomeScreen extends StatelessWidget {
                   ),
                   SizedBox(width: 8),
                   Text(
-                    'Managing 3 Patients',
+                    'Managing $_patientCount ${_patientCount == 1 ? 'Patient' : 'Patients'}',
                     style: TextStyle(
                       fontSize: 14,
                       fontWeight: FontWeight.w600,
@@ -203,9 +460,9 @@ class HomeScreen extends StatelessWidget {
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  _buildTaskStat('9', 'Completed', Colors.green),
-                  _buildTaskStat('2', 'Pending', Colors.orange),
-                  _buildTaskStat('1', 'Skipped', Colors.red),
+                  _buildTaskStat(_completedTasks.toString(), 'Completed', Colors.green),
+                  _buildTaskStat(_pendingTasks.toString(), 'Pending', Colors.orange),
+                  _buildTaskStat(_skippedTasks.toString(), 'Skipped', Colors.red),
                 ],
               ),
 
@@ -213,7 +470,7 @@ class HomeScreen extends StatelessWidget {
 
               // Progress bar with clearer label
               LinearProgressIndicator(
-                value: 0.75,
+                value: completionRate,
                 backgroundColor: AppColors.primaryLight.withOpacity(0.10),
                 valueColor: AlwaysStoppedAnimation<Color>(Colors.green),
                 minHeight: 10,
@@ -221,7 +478,7 @@ class HomeScreen extends StatelessWidget {
               ),
               const SizedBox(height: 8),
               Text(
-                '9 of 12 tasks completed (75%)',
+                '$_completedTasks of $_totalTasks tasks completed (${(completionRate * 100).toStringAsFixed(0)}%)',
                 style: TextStyle(
                   fontSize: 12,
                   color: Colors.grey[700],

@@ -7,6 +7,7 @@ import {
   Footer
 } from '../components';
 import patientApiService from '../services/patientApiService';
+import userApiService from '../services/userApiService';
 
 const Patients = () => {
   const [selectedPatient, setSelectedPatient] = useState(null);
@@ -55,11 +56,12 @@ const Patients = () => {
   // Transform API data to match frontend expectations
   const transformedPatients = patients.map(patient => ({
     id: patient.patientId,
+    userId: patient.userId,
     name: patient.patientName || `${patient.fName || ''} ${patient.lName || ''}`.trim(),
     dementiaType: formatDementiaType(patient.dementiaType),
     dementiaStage: formatDementiaStage(patient.dementiaStage),
     phone: patient.phoneNumber || 'N/A',
-    status: 'Active', // Assume all patients are active
+    status: patient.userStatus === 'ACTIVE' ? 'Active' : 'Disabled',
     address: `${patient.street || ''} ${patient.city || ''} ${patient.state || ''}`.trim() || 'N/A',
     gender: patient.gender || 'N/A',
     age: patient.patientAge || 'N/A',
@@ -102,10 +104,23 @@ const Patients = () => {
     setSelectedPatient(null);
   };
 
-  const handleDisablePatient = () => {
-    // UI only - no backend function needed
-    alert('Patient status updated to Disabled');
-    handleCloseModal();
+  const handleDisablePatient = async () => {
+    try {
+      if (!selectedPatient || !selectedPatient.userId) {
+        alert('Error: Patient information not available');
+        return;
+      }
+
+      await userApiService.updateUserStatus(selectedPatient.userId, 'INACTIVE');
+      alert(`Patient ${selectedPatient.name} status updated to Inactive successfully`);
+      
+      // Refresh the patient list to show updated status
+      fetchPatients();
+      handleCloseModal();
+    } catch (error) {
+      console.error('Error updating patient status:', error);
+      alert('Error updating patient status: ' + error.message);
+    }
   };
 
   return (

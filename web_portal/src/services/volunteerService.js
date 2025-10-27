@@ -137,6 +137,42 @@ class VolunteerService {
       };
     }
   }
+
+  // Get volunteer ID by user ID
+  static async getVolunteerIdByUserId(userId) {
+    try {
+      const response = await fetch(`${API_BASE_URL}/volunteers/by-user/${userId}`, {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        return {
+          success: true,
+          volunteerId: data.volunteerId,
+          message: 'Volunteer ID retrieved successfully',
+        };
+      } else if (response.status === 404) {
+        return {
+          success: false,
+          message: 'Volunteer not found for this user',
+        };
+      } else {
+        return {
+          success: false,
+          message: 'Failed to retrieve volunteer ID',
+        };
+      }
+    } catch (error) {
+      return {
+        success: false,
+        message: `Error retrieving volunteer ID: ${error.message}`,
+      };
+    }
+  }
 }
 
 export default VolunteerService;

@@ -47,14 +47,112 @@
   align-items: center;
 }
 
-.month-select {
-  padding: 0.5rem 1rem;
-  border: 1px solid #A0C4FD;
-  border-radius: 6px;
+/* Category Chart Styles */
+.category-chart {
+  padding: 1.5rem;
   background: white;
-  font-size: 0.9rem;
+  border-radius: 8px;
+  border: 1px solid #A0C4FD;
+}
+
+.category-bar-item {
+  display: flex;
+  align-items: center;
+  margin-bottom: 1rem;
+  gap: 1rem;
+}
+
+.category-bar-label {
+  min-width: 150px;
+  font-weight: 500;
   color: #390797;
-  cursor: pointer;
+  font-size: 0.9rem;
+}
+
+.category-bar-container {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.category-bar {
+  height: 25px;
+  border-radius: 4px;
+  min-width: 20px;
+  transition: all 0.3s ease;
+}
+
+.category-count {
+  font-weight: 600;
+  color: #2B3F99;
+  min-width: 30px;
+  text-align: center;
+}
+
+/* Top Volunteers List Styles */
+.top-volunteers-list {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  padding: 1.5rem;
+  background: white;
+  border-radius: 8px;
+  border: 1px solid #A0C4FD;
+}
+
+.top-volunteer-item {
+  display: flex;
+  align-items: center;
+  padding: 1rem;
+  background: #F8F9FF;
+  border-radius: 8px;
+  border-left: 4px solid #2B3F99;
+}
+
+.top-volunteer-item .volunteer-rank {
+  font-size: 1.5rem;
+  font-weight: bold;
+  color: #2B3F99;
+  min-width: 50px;
+}
+
+.top-volunteer-item .volunteer-info {
+  flex: 1;
+  margin-left: 1rem;
+}
+
+.top-volunteer-item .volunteer-name {
+  font-weight: 600;
+  color: #390797;
+  font-size: 1.1rem;
+}
+
+.top-volunteer-item .volunteer-id {
+  color: #666;
+  font-size: 0.9rem;
+  margin-top: 0.25rem;
+}
+
+.top-volunteer-item .volunteer-stats {
+  text-align: right;
+}
+
+.top-volunteer-item .volunteer-articles {
+  font-weight: 600;
+  color: #2B3F99;
+  font-size: 1.1rem;
+}
+
+/* Simplified Month Chart */
+.month-engagement-item .month-label {
+  font-size: 0.85rem;
+  color: #666;
+  margin-top: 0.5rem;
+}
+
+.engagement-chart .engagement-bar.articles {
+  background: linear-gradient(45deg, #2B3F99, #A0C4FD);
 }
 
 /* Engagement Overview Cards */
@@ -660,4 +758,101 @@
     width: 100%;
     justify-content: space-between;
   }
+}
+
+/* Category Chart Styles */
+.category-chart {
+  padding: 1.5rem;
+  background: white;
+  border-radius: 8px;
+  border: 1px solid #A0C4FD;
+}
+
+.category-bar-item {
+  display: flex;
+  align-items: center;
+  margin-bottom: 1rem;
+  gap: 1rem;
+}
+
+.category-bar-label {
+  min-width: 150px;
+  font-weight: 500;
+  color: #390797;
+  font-size: 0.9rem;
+}
+
+.category-bar-container {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.category-bar {
+  height: 25px;
+  border-radius: 4px;
+  min-width: 20px;
+  transition: all 0.3s ease;
+}
+
+.category-count {
+  font-weight: 600;
+  color: #2B3F99;
+  min-width: 30px;
+  text-align: center;
+}
+
+/* Top Volunteers List Styles */
+.top-volunteers-list {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  padding: 1.5rem;
+  background: white;
+  border-radius: 8px;
+  border: 1px solid #A0C4FD;
+}
+
+.top-volunteer-item {
+  display: flex;
+  align-items: center;
+  padding: 1rem;
+  background: #F8F9FF;
+  border-radius: 8px;
+  border-left: 4px solid #2B3F99;
+}
+
+.top-volunteer-item .volunteer-rank {
+  font-size: 1.5rem;
+  font-weight: bold;
+  color: #2B3F99;
+  min-width: 50px;
+}
+
+.top-volunteer-item .volunteer-info {
+  flex: 1;
+  margin-left: 1rem;
+}
+
+.top-volunteer-item .volunteer-name {
+  font-weight: 600;
+  color: #390797;
+  font-size: 1.1rem;
+}
+
+.top-volunteer-item .volunteer-id {
+  color: #666;
+  font-size: 0.9rem;
+  margin-top: 0.25rem;
+}
+
+.top-volunteer-item .volunteer-stats {
+  text-align: right;
+}
+
+.top-volunteer-item .volunteer-articles {
+  font-weight: 600;
+  color: #2B3F99;
+  font-size: 1.1rem;
 }

@@ -2,6 +2,11 @@ import 'package:flutter/material.dart';
 import '../../constants/color_constants.dart';
 import 'payment_screen.dart';
 
+// ⚠️ DEPRECATED: This screen uses the old BASIC/PREMIUM plan model
+// NEW SCREEN: Use subscription_duration_screen.dart instead
+// This file is kept for backward compatibility with existing navigation flows
+// TODO: Migrate all navigation to subscription_duration_screen.dart and remove this file
+
 class SubscriptionPlanScreen extends StatefulWidget {
   @override
   _SubscriptionPlanScreenState createState() => _SubscriptionPlanScreenState();
@@ -520,18 +525,20 @@ class _SubscriptionPlanScreenState extends State<SubscriptionPlanScreen> {
       return;
     }
 
-    // Navigate to payment screen
+    // Navigate to payment screen with NEW parameters
     Navigator.push(
       context,
       MaterialPageRoute(
         builder: (context) => PaymentScreen(
+          durationMonths: int.parse(selectedDuration!), // NEW: int instead of string
+          patientId: patientId ?? 0, // REQUIRED: patient must exist (0 as fallback for old flow)
+          price: _getPrice(selectedPlan!, selectedDuration!),
+          patientName: patientData?['firstName'] ?? 'Patient', // NEW: for display
+          guardianId: guardianId,
+          // Deprecated - for backward compatibility:
           planType: selectedPlan!,
           duration: selectedDuration!,
-          price: _getPrice(selectedPlan!, selectedDuration!),
-          patientId: patientId, // Will be null if patient not created yet
-          guardianId: guardianId,
-          patientData:
-              patientData, // Pass patient form data for creation after payment
+          patientData: patientData, // Still needed for old creation flow
         ),
       ),
     );
